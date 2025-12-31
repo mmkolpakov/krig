@@ -16,11 +16,14 @@ import space.kscience.controls.core.addressing.DiscoveredAddressSource
 import space.kscience.controls.core.addressing.StaticAddressSource
 import space.kscience.controls.composite.old.features.*
 import space.kscience.controls.composite.old.messages.*
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.controls.core.controlsCoreSerializersModule
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.core.messages.DeviceMessage
 import space.kscience.controls.fsm.fsmSerializersModule
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.telemetry.telemetrySerializersModule
 import space.kscience.dataforge.meta.Meta
 
@@ -79,7 +82,6 @@ public val ControlsCompositeSerializersModule: SerializersModule = SerializersMo
     }
 
     polymorphic(GuardSpec::class) {
-        subclass(TimedPredicateGuardSpec::class)
         subclass(ValueChangeGuardSpec::class)
     }
 

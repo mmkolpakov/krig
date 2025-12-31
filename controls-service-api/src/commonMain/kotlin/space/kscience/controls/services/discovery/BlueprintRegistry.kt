@@ -1,4 +1,4 @@
-package space.kscience.controls.composite.old.discovery
+package space.kscience.controls.services.discovery
 
 import space.kscience.controls.core.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.DeviceBlueprint

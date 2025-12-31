@@ -1,4 +1,4 @@
-package space.kscience.controls.composite.old.validation
+package space.kscience.controls.validation
 
 import space.kscience.controls.core.features.Feature
 import space.kscience.dataforge.context.*

@@ -1,8 +1,9 @@
-package space.kscience.controls.composite.old.features
+package space.kscience.controls.fsm.guards
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.core.data.StateValue
+import space.kscience.controls.core.features.GuardSpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 

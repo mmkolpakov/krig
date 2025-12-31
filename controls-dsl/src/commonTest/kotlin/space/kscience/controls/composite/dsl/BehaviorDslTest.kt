@@ -8,8 +8,8 @@ import space.kscience.controls.composite.dsl.guards.post
 import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.fsm.OperationalFsmFeature
-import space.kscience.controls.composite.old.features.OperationalGuardsFeature
-import space.kscience.controls.composite.old.features.TimedPredicateGuardSpec
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
+import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.misc.DFExperimental
 import kotlin.test.Test

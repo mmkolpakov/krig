@@ -1,4 +1,4 @@
-package space.kscience.controls.composite.old
+package space.kscience.controls.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter

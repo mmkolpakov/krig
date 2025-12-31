@@ -1,6 +1,5 @@
-package space.kscience.controls.composite.old.validation
+package space.kscience.controls.validation
 
-import space.kscience.controls.composite.old.ValidationError
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.descriptors.PropertyKind
 

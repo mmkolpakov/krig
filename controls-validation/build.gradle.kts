@@ -18,5 +18,6 @@ kscience {
         api(projects.controlsServiceApi)
         api(projects.controlsFeatureConnectivity)
         api(projects.controlsFeatureFsm)
+        api(projects.controlsFeatureAutomation)
     }
 }

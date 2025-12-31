@@ -13,18 +13,21 @@ import space.kscience.controls.composite.dsl.properties.booleanProperty
 import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.core.addressing.Address
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.composite.old.ValidationError
+import space.kscience.controls.validation.ValidationError
 import space.kscience.controls.composite.old.contracts.*
-import space.kscience.controls.composite.old.discovery.BlueprintRegistry
+import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.connectivity.MirrorEntry
-import space.kscience.controls.composite.old.features.OperationalGuardsFeature
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.connectivity.RemoteMirrorFeature
-import space.kscience.controls.composite.old.features.TimedPredicateGuardSpec
+import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.composite.old.validation.*
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.validation.CompositeSpecValidator
+import space.kscience.controls.validation.DefaultValidatorsPlugin
+import space.kscience.controls.validation.FeatureValidatorRegistry
+import space.kscience.controls.validation.featureValidatorRegistry
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.PluginFactory
 import space.kscience.dataforge.context.PluginTag
@@ -75,8 +78,8 @@ class ValidationTest {
 
     /**
      * A fully configured [Context] for validation tests. It includes:
-     * - [DefaultValidatorsPlugin]: Provides the factories for built-in validators.
-     * - [FeatureValidatorRegistry]: The service that discovers and manages validators.
+     * - [space.kscience.controls.validation.DefaultValidatorsPlugin]: Provides the factories for built-in validators.
+     * - [space.kscience.controls.validation.FeatureValidatorRegistry]: The service that discovers and manages validators.
      * - [MockRegistry]: A mock blueprint registry to resolve child blueprints.
      */
     private val validationContext = Context("validation") {

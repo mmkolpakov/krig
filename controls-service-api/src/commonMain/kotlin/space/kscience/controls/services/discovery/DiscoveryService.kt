@@ -1,41 +1,14 @@
-package space.kscience.controls.composite.old.discovery
+package space.kscience.controls.services.discovery
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import space.kscience.controls.core.addressing.Address
+import space.kscience.controls.core.addressing.AddressUpdateEvent
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory
 import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
-
-/**
- * An event representing a change in the set of available addresses for a discovered service.
- */
-@Serializable
-public sealed interface AddressUpdateEvent {
-    public val serviceId: String
-    public val address: Address
-
-    /**
-     * Fired when a new address for a service is discovered.
-     */
-    @Serializable
-    public data class AddressUp(
-        override val serviceId: String,
-        override val address: Address,
-    ) : AddressUpdateEvent
-
-    /**
-     * Fired when a previously available address for a service is no longer reachable.
-     */
-    @Serializable
-    public data class AddressDown(
-        override val serviceId: String,
-        override val address: Address,
-    ) : AddressUpdateEvent
-}
-
 
 /**
  * A contract for a service that can discover network addresses of peer connection endpoints by a service ID.

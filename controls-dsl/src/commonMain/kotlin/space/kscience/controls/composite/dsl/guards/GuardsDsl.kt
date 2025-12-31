@@ -4,9 +4,12 @@ import kotlinx.serialization.serializer
 import ru.nsk.kstatemachine.event.Event
 import space.kscience.controls.composite.dsl.CompositeSpecBuilder
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.composite.old.features.*
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
+import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.core.features.GuardSpec
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MutableMeta
 import kotlin.contracts.InvocationKind
@@ -54,7 +57,7 @@ public class GuardContext(
  * @property builder The parent [GuardsBuilder] instance.
  * @property property The numeric property being monitored.
  * @property windowSize The number of historical values to consider.
- * @property predicateId The ID of the [HistoricalPredicate] logic to apply.
+ * @property predicateId The ID of the [space.kscience.controls.fsm.guards.HistoricalPredicate] logic to apply.
  * @property predicateMeta Configuration metadata for the historical predicate.
  */
 public class FulfillsGuardContext(
@@ -66,7 +69,7 @@ public class FulfillsGuardContext(
 ) {
     /**
      * Completes the stateful guard definition by specifying the [Event] to be posted when the historical predicate is fulfilled.
-     * This function creates a [ValueChangeGuardSpec] and registers it.
+     * This function creates a [space.kscience.controls.fsm.guards.ValueChangeGuardSpec] and registers it.
      *
      * @param E The type of the event to post, must be `@Serializable`.
      * @param onlyInStates An optional set of state names. If provided, the guard is only active when the
@@ -107,7 +110,7 @@ public class WindowedGuardContext(
     /**
      * Specifies the `HistoricalPredicate` logic to be applied to the window of historical values.
      *
-     * @param predicateId The unique string identifier of the [HistoricalPredicate] logic, which will be resolved by the runtime.
+     * @param predicateId The unique string identifier of the [space.kscience.controls.fsm.guards.HistoricalPredicate] logic, which will be resolved by the runtime.
      * @param predicateMeta Optional configuration metadata for the predicate logic.
      * @return A [FulfillsGuardContext] to continue the DSL chain.
      */
@@ -146,7 +149,7 @@ public class GuardsBuilder(
     internal val specBuilder: CompositeSpecBuilder<*>,
 ) {
     /**
-     * The internal, mutable list of [GuardSpec] instances being built.
+     * The internal, mutable list of [space.kscience.controls.core.features.GuardSpec] instances being built.
      * Marked as `@PublishedApi` to be accessible from `inline` functions.
      */
     @PublishedApi

@@ -2,14 +2,10 @@ package space.kscience.controls.composite.old.features
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.fsm.RestartPolicy
 import space.kscience.controls.connectivity.PeerConnection
-import space.kscience.controls.core.contracts.ReconfigurableDevice
-import space.kscience.controls.core.state.StatefulDevice
 import space.kscience.controls.core.features.Feature
 import space.kscience.controls.core.serialization.serializableToMeta
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 
 /**
  * A feature indicating that the device supports direct transfer of large binary data,

@@ -1,9 +1,9 @@
 package space.kscience.controls.composite.dsl
 
-import space.kscience.controls.composite.old.BlueprintValidationException
+import space.kscience.controls.validation.BlueprintValidationException
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.composite.old.validation.CompositeSpecValidator
+import space.kscience.controls.validation.CompositeSpecValidator
 import space.kscience.dataforge.context.Context
 import kotlin.reflect.typeOf
 

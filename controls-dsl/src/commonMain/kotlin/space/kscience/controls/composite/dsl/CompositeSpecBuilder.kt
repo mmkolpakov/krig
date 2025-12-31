@@ -6,13 +6,13 @@ import space.kscience.controls.composite.dsl.lifecycle.DriverLogicBuilder
 import space.kscience.controls.composite.old.contracts.runtime.HydratableDeviceState
 import space.kscience.controls.composite.old.contracts.*
 import space.kscience.controls.composite.old.contracts.runtime.DeviceFlows
-import space.kscience.controls.composite.old.discovery.BlueprintRegistry
+import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.core.features.Feature
 import space.kscience.controls.fsm.LifecycleFeature
 import space.kscience.controls.fsm.OperationalFsmFeature
-import space.kscience.controls.composite.old.features.OperationalGuardsFeature
-import space.kscience.controls.composite.old.features.TimedPredicateGuardSpec
-import space.kscience.controls.composite.old.features.ValueChangeGuardSpec
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
+import space.kscience.controls.validation.TimedPredicateGuardSpec
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.fsm.LifecycleContext
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec

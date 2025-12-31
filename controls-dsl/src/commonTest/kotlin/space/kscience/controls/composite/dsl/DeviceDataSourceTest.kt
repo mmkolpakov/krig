@@ -60,7 +60,7 @@ TestDeviceImpl(Global, "dataSourceDevice".asName(), ObservableMutableMeta(), sco
 
 
 /**
- * Tests for the [Device.asDataTree] adapter.
+ * Tests for the [space.kscience.controls.data.asDataTree] adapter.
  */
 //all passed
 @OptIn(ExperimentalCoroutinesApi::class)

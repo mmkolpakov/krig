@@ -26,6 +26,8 @@ import space.kscience.controls.automation.WritePropertyActionSpec
 import space.kscience.controls.composite.old.features.*
 import space.kscience.controls.composite.old.messages.*
 import space.kscience.controls.composite.old.serialization.controlsJson
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
+import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.PropertyBinding
@@ -37,6 +39,7 @@ import space.kscience.controls.core.faults.SerializableDeviceFailure
 import space.kscience.controls.core.faults.ValidationFault
 import space.kscience.controls.telemetry.DataSourceFeature
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.core.features.ReconfigurableFeature
 import space.kscience.controls.core.identifiers.toBlueprintId
 import space.kscience.controls.core.messages.DescriptionMessage
@@ -46,6 +49,7 @@ import space.kscience.controls.core.messages.PropertyChangedMessage
 import space.kscience.controls.fsm.LifecycleFeature
 import space.kscience.controls.fsm.LifecycleStateChangedMessage
 import space.kscience.controls.fsm.OperationalFsmFeature
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.string
@@ -187,13 +191,13 @@ class SerializationTest {
     }
 
     /**
-     * Verifies that all [GuardSpec] subtypes are correctly serialized.
+     * Verifies that all [space.kscience.controls.core.features.GuardSpec] subtypes are correctly serialized.
      */
     @Test
     fun testGuardSpecSerialization() {
         val guards = listOf(
             TimedPredicateGuardSpec("isReady".asName(), 5.seconds, "MyEvent", Meta.EMPTY, setOf("Running")),
-            ValueChangeGuardSpec("temperature".asName(), 10, "isStable", Meta{"delta" put 0.1}, "StableEvent")
+            ValueChangeGuardSpec("temperature".asName(), 10, "isStable", Meta { "delta" put 0.1 }, "StableEvent")
         )
 
         guards.forEach { original ->

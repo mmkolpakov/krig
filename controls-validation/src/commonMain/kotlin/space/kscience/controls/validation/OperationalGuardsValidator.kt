@@ -1,13 +1,11 @@
-package space.kscience.controls.composite.old.validation
+package space.kscience.controls.validation
 
-import space.kscience.controls.composite.old.ValidationError
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.composite.old.discovery.BlueprintRegistry
-import space.kscience.controls.composite.old.features.GuardSpec
-import space.kscience.controls.composite.old.features.OperationalGuardsFeature
-import space.kscience.controls.composite.old.features.TimedPredicateGuardSpec
-import space.kscience.controls.composite.old.features.ValueChangeGuardSpec
+import space.kscience.controls.services.discovery.BlueprintRegistry
+import space.kscience.controls.core.features.GuardSpec
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 
@@ -26,6 +24,7 @@ public class OperationalGuardsValidator : FeatureValidator<OperationalGuardsFeat
             val predicateName = when (guard) {
                 is TimedPredicateGuardSpec -> guard.predicateName
                 is ValueChangeGuardSpec -> guard.propertyName
+                else -> { TODO() }
             }
 
             val predicateSpec = blueprint.properties[predicateName]

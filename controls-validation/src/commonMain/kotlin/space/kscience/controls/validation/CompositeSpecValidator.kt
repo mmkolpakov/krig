@@ -1,13 +1,11 @@
-package space.kscience.controls.composite.old.validation
+package space.kscience.controls.validation
 
 import space.kscience.controls.core.composition.LocalChildComponentConfig
 import space.kscience.controls.core.composition.RemoteChildComponentConfig
-import space.kscience.controls.composite.old.ValidationError
 import space.kscience.controls.core.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.composite.old.discovery.BlueprintRegistry
-import space.kscience.controls.composite.old.discovery.blueprintRegistry
-import space.kscience.controls.composite.old.validateSelf
+import space.kscience.controls.services.discovery.BlueprintRegistry
+import space.kscience.controls.services.discovery.blueprintRegistry
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
 

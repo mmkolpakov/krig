@@ -1,8 +1,7 @@
-package space.kscience.controls.composite.old.validation
+package space.kscience.controls.validation
 
-import space.kscience.controls.composite.old.ValidationError
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.composite.old.discovery.BlueprintRegistry
+import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
