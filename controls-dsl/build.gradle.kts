@@ -34,6 +34,7 @@ kscience {
         api(projects.controlsFeatureAutomation)
         api(projects.controlsModel)
         api(projects.controlsFeatureFsm)
+        api(projects.controlsData)
         api(projects.controlsValidation)
     }
 

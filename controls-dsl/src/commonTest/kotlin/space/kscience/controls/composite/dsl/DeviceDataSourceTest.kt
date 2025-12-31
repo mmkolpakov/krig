@@ -10,11 +10,11 @@ import kotlinx.coroutines.withTimeout
 import space.kscience.controls.core.addressing.Address
 import space.kscience.controls.core.context.ExecutionContext
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.composite.old.asDataTree
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.messages.PropertyChangedMessage
 import space.kscience.controls.core.descriptors.PropertyDescriptor
 import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.data.asDataTree
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.data.Data
 import space.kscience.dataforge.data.await

@@ -201,8 +201,8 @@ class SerializationTest {
         )
 
         guards.forEach { original ->
-            val json = controlsJson.encodeToString(GuardSpec.serializer(), original)
-            val restored = controlsJson.decodeFromString(GuardSpec.serializer(), json)
+            val json = controlsJson.encodeToString(PolymorphicSerializer(GuardSpec::class), original)
+            val restored = controlsJson.decodeFromString(PolymorphicSerializer(GuardSpec::class), json)
             assertEquals(original, restored, "Failed to serialize/deserialize ${original::class.simpleName}")
         }
     }

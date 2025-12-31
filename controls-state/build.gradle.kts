@@ -9,7 +9,6 @@ kscience {
     useCoroutines()
 
     commonMain {
-        api(projects.controlsModel)
         implementation(libs.kotlinx.atomicfu)
     }
 }

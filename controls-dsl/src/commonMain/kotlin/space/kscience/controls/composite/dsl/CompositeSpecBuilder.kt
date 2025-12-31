@@ -552,6 +552,7 @@ public class CompositeSpecBuilder<D : Device>(
                     when (it) {
                         is TimedPredicateGuardSpec -> it.postEventSerialName
                         is ValueChangeGuardSpec -> it.postEventSerialName
+                        else -> "TODO()"
                     }
                 }?.toSet() ?: emptySet()
 
