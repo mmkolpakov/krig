@@ -10,8 +10,8 @@ import space.kscience.controls.composite.dsl.CompositeSpecBuilder
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.composite.old.contracts.runtime.CompositeDeviceContext
-import space.kscience.controls.composite.old.contracts.runtime.HydratableDeviceState
+import space.kscience.controls.core.runtime.CompositeDeviceContext
+import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.descriptors.PropertyKind
 import space.kscience.controls.core.data.Quality

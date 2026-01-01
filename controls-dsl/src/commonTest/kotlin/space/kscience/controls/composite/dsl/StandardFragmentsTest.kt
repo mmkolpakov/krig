@@ -1,7 +1,7 @@
 package space.kscience.controls.composite.dsl
 
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.composite.old.features.IntrospectionFeature
+import space.kscience.controls.fsm.IntrospectionFeature
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test

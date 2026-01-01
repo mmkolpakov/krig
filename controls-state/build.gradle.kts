@@ -10,5 +10,6 @@ kscience {
 
     commonMain {
         implementation(libs.kotlinx.atomicfu)
+        api(projects.controlsCore)
     }
 }

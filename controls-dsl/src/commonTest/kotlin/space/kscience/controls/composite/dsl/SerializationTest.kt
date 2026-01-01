@@ -23,9 +23,8 @@ import space.kscience.controls.automation.StopActionSpec
 import space.kscience.controls.automation.TaskExecutorFeature
 import space.kscience.controls.automation.TransactionPlan
 import space.kscience.controls.automation.WritePropertyActionSpec
-import space.kscience.controls.composite.old.features.*
-import space.kscience.controls.composite.old.messages.*
 import space.kscience.controls.composite.old.serialization.controlsJson
+import space.kscience.controls.connectivity.BinaryDataFeature
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.connectivity.ConstPropertyBinding
@@ -34,6 +33,8 @@ import space.kscience.controls.connectivity.PropertyBinding
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.controls.connectivity.ToStringTransformerDescriptor
 import space.kscience.controls.connectivity.TransformedPropertyBinding
+import space.kscience.controls.core.messages.BinaryDataRequest
+import space.kscience.controls.core.messages.BinaryReadyNotification
 import space.kscience.controls.core.addressing.Address
 import space.kscience.controls.core.faults.SerializableDeviceFailure
 import space.kscience.controls.core.faults.ValidationFault
@@ -43,9 +44,13 @@ import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.core.features.ReconfigurableFeature
 import space.kscience.controls.core.identifiers.toBlueprintId
 import space.kscience.controls.core.messages.DescriptionMessage
+import space.kscience.controls.core.messages.DeviceAttachedMessage
+import space.kscience.controls.core.messages.DeviceDetachedMessage
 import space.kscience.controls.core.messages.DeviceErrorMessage
 import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.core.messages.PredicateChangedMessage
 import space.kscience.controls.core.messages.PropertyChangedMessage
+import space.kscience.controls.fsm.IntrospectionFeature
 import space.kscience.controls.fsm.LifecycleFeature
 import space.kscience.controls.fsm.LifecycleStateChangedMessage
 import space.kscience.controls.fsm.OperationalFsmFeature
@@ -97,8 +102,19 @@ class SerializationTest {
             ),
             PredicateChangedMessage(Clock.System.now(), "isReady", true, Address("hub", "device")),
             BinaryReadyNotification(Clock.System.now(), "content-123", Meta.EMPTY, Address("hub", "device")),
-            BinaryDataRequest(Clock.System.now(), "content-123", Address("hub", "requester"), Address("hub", "provider"), "rq-2"),
-            DeviceAttachedMessage(Clock.System.now(), "child".asName(), "com.example.child".toBlueprintId(), Address("hub", "parent")),
+            BinaryDataRequest(
+                Clock.System.now(),
+                "content-123",
+                Address("hub", "requester"),
+                Address("hub", "provider"),
+                "rq-2"
+            ),
+            DeviceAttachedMessage(
+                Clock.System.now(),
+                "child".asName(),
+                "com.example.child".toBlueprintId(),
+                Address("hub", "parent")
+            ),
             DeviceDetachedMessage(Clock.System.now(), "child".asName(), Address("hub", "parent"))
         )
 

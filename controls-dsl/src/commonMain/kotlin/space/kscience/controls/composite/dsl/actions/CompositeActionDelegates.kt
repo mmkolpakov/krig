@@ -11,11 +11,11 @@ import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorFeature
-import space.kscience.controls.composite.old.meta.*
 import space.kscience.controls.automation.TransactionPlan
-import space.kscience.controls.composite.old.serialization.serializable
+import space.kscience.controls.core.serialization.serializable
 import space.kscience.controls.core.descriptors.ActionDescriptor
 import space.kscience.controls.core.meta.DeviceActionSpec
+import space.kscience.controls.core.meta.unit
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.MetaConverter.Companion.meta
@@ -107,7 +107,7 @@ public fun <D : Device, I, O> DeviceSpecification<D>.action(
 /**
  * A base delegate for creating a device action specification that references an external logic component.
  * This overload does not take an `execute` lambda. Instead, it relies on the runtime to resolve the
- * `logicId` to a [space.kscience.controls.composite.old.contracts.DeviceActionLogic] implementation.
+ * `logicId` to a [space.kscience.controls.core.contracts.DeviceActionLogic] implementation.
  *
  * @param logicId The unique [Name] of the external action logic to be resolved by the runtime.
  * @param logicVersionConstraint An optional version constraint for the external logic.

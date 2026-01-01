@@ -14,7 +14,6 @@ import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.core.addressing.Address
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.validation.ValidationError
-import space.kscience.controls.composite.old.contracts.*
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.connectivity.MirrorEntry
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature

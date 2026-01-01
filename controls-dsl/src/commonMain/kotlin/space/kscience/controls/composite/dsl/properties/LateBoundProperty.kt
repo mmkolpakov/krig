@@ -2,7 +2,7 @@ package space.kscience.controls.composite.dsl.properties
 
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.composite.old.state.LateBindableDeviceState
+import space.kscience.controls.core.state.LateBindableDeviceState
 import space.kscience.controls.core.data.okState
 import space.kscience.controls.core.state.value
 import space.kscience.dataforge.meta.MetaConverter

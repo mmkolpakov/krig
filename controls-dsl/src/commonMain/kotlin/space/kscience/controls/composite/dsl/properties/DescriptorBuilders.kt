@@ -5,7 +5,6 @@ package space.kscience.controls.composite.dsl.properties
 import kotlinx.serialization.serializer
 import ru.nsk.kstatemachine.event.Event
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
-import space.kscience.controls.composite.old.meta.*
 import space.kscience.controls.core.spec.CachePolicy
 import space.kscience.controls.core.spec.CacheScope
 import space.kscience.controls.core.faults.DeviceFault
@@ -18,6 +17,7 @@ import space.kscience.controls.core.meta.MemberTag
 import space.kscience.controls.core.meta.AliasTag
 import space.kscience.controls.core.meta.AdapterBinding
 import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.core.meta.ActionOutputSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.validation.ValidationRuleDescriptor
 import space.kscience.dataforge.meta.*

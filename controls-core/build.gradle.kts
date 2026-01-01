@@ -17,6 +17,7 @@ kscience {
     commonMain {
         api(libs.dataforge.context)
         api(libs.dataforge.meta)
+        api(libs.dataforge.io)
         api(libs.kotlinx.io.core)
         api(libs.kotlinx.datetime)
     }

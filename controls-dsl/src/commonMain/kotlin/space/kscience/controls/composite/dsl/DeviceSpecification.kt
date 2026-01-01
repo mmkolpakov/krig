@@ -3,7 +3,7 @@ package space.kscience.controls.composite.dsl
 import space.kscience.controls.composite.dsl.children.ChildConfigBuilder
 import space.kscience.controls.composite.dsl.children.MirrorBuilder
 import space.kscience.controls.composite.dsl.guards.GuardsBuilder
-import space.kscience.controls.composite.old.contracts.runtime.HydratableDeviceState
+import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint

@@ -18,5 +18,6 @@ kscience {
         api(projects.controlsCore)
         api(libs.dataforge.context)
         api(libs.dataforge.meta)
+        api(libs.dataforge.io)
     }
 }

@@ -11,7 +11,7 @@ import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorFeature
-import space.kscience.controls.composite.old.meta.UnitMetaConverter
+import space.kscience.controls.core.meta.UnitMetaConverter
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.get

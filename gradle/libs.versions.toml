@@ -1,6 +1,6 @@
 [versions]
 # Core Framework
-kscience-tools = "0.20.0-kotlin-2.3.0-Beta1"
+kscience-tools = "0.20.2-kotlin-2.3.0"
 atomicfu = "0.30.0-beta"
 dataforge = "0.10.1"
 kstatemachine = "0.35.0"
