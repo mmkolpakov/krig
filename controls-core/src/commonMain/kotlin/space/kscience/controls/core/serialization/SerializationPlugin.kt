@@ -3,6 +3,7 @@ package space.kscience.controls.core.serialization
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import space.kscience.controls.api.serialization.SerializationContributor
+import space.kscience.controls.api.serialization.controlsApiSerializersModule
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 
@@ -24,13 +25,13 @@ public class SerializationPlugin : AbstractPlugin() {
     }
 
     /**
-     * Constructs the final [SerializersModule] by merging the core module with modules
+     * Constructs the final [SerializersModule] by merging the api module with modules
      * from all discovered contributors.
      */
     public val jsonSerializersModule: SerializersModule by lazy {
         SerializersModule {
-            // 1. Include base types from controls-core
-            include(controlsCoreSerializersModule)
+            // 1. Include base types from controls-api
+            include(controlsApiSerializersModule)
 
             // 2. Include modules from all loaded feature plugins
             contributors.forEach { contributor ->

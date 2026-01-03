@@ -1,10 +1,7 @@
-package space.kscience.controls.core.features
+package space.kscience.controls.api.features
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.api.features.Feature
-import space.kscience.controls.api.features.FeatureKey
-import space.kscience.controls.core.contracts.ReconfigurableDevice
 import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
@@ -15,15 +12,16 @@ import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 @Serializable
 @SerialName(ReconfigurableFeature.ID)
 public data class ReconfigurableFeature(
-    val reconfigDescriptor: MetaDescriptor = MetaDescriptor.EMPTY,
+    val reconfigDescriptor: MetaDescriptor = MetaDescriptor.Companion.EMPTY,
 ) : Feature {
     override val key: FeatureKey<*> get() = ReconfigurableFeature
-    override val capability: String get() = ReconfigurableDevice.CAPABILITY
+    override val capability: String get() = CAPABILITY_ID
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 
     public companion object : FeatureKey<ReconfigurableFeature> {
         public const val ID: String = "feature.reconfigurable"
+        public const val CAPABILITY_ID: String = "space.kscience.controls.core.contracts.ReconfigurableDevice"
         override val id: String = ID
     }
 }

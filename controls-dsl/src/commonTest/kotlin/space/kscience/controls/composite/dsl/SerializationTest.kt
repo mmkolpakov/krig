@@ -41,7 +41,7 @@ import space.kscience.controls.api.faults.ValidationFault
 import space.kscience.controls.telemetry.DataSourceFeature
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.core.features.GuardSpec
-import space.kscience.controls.core.features.ReconfigurableFeature
+import space.kscience.controls.api.features.ReconfigurableFeature
 import space.kscience.controls.api.identifiers.toBlueprintId
 import space.kscience.controls.api.messages.DescriptionMessage
 import space.kscience.controls.api.messages.DeviceAttachedMessage

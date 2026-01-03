@@ -1,5 +1,6 @@
 package space.kscience.controls.core.contracts
 
+import space.kscience.controls.api.features.ReconfigurableFeature
 import space.kscience.dataforge.meta.Meta
 
 /**
@@ -14,7 +15,7 @@ public interface ReconfigurableDevice : Device {
         /**
          * The unique, fully-qualified name for the [ReconfigurableDevice] capability.
          */
-        public const val CAPABILITY: String = "space.kscience.controls.composite.old.contracts.ReconfigurableDevice"
+        public const val CAPABILITY: String = ReconfigurableFeature.CAPABILITY_ID
     }
 
     /**

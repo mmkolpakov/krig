@@ -1,6 +1,6 @@
 import kotlin.time.Instant;
 import space.kscience.controls.api.identifiers.CorrelationId;
-import space.kscience.controls.core.messages.DeviceMessage;
+import space.kscience.controls.api.messages.DeviceMessage;
 
 -- The primary table for storing all device messages.
 CREATE TABLE audit_log (

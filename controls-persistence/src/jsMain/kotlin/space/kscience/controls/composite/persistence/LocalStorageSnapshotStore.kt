@@ -4,10 +4,11 @@ import kotlinx.browser.localStorage
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.w3c.dom.set
+import space.kscience.controls.api.serialization.controlsApiSerializersModule
 import space.kscience.controls.common.serialization.Base64Bytes
-import space.kscience.controls.core.serialization.defaultCoreJson
+import space.kscience.controls.core.serialization.SerializationPlugin
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -31,7 +32,10 @@ private data class StoredSnapshot(
  *
  * @param keyPrefix A prefix to be used for all keys in localStorage to avoid collisions.
  */
-internal class LocalStorageSnapshotStore(private val keyPrefix: String = "controls.snapshot.") : SnapshotStore {
+internal class LocalStorageSnapshotStore(
+    private val json: Json,
+    private val keyPrefix: String = "controls.snapshot."
+) : SnapshotStore {
     private val mutex = Mutex()
 
     private fun nameToKey(name: Name): String = "$keyPrefix${name.toStringUnescaped()}"
@@ -41,8 +45,7 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
             try {
                 val key = nameToKey(name)
                 val storable = StoredSnapshot(snapshot, blobs)
-//                TODO improve json cross module logic
-                val snapshotString = defaultCoreJson.encodeToString(storable)
+                val snapshotString = json.encodeToString(storable)
                 localStorage[key] = snapshotString
             } catch (e: Exception) {
                 //TODO check for QUOTA_EXCEEDED_ERR
@@ -55,8 +58,7 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
         try {
             val key = nameToKey(name)
             localStorage.getItem(key)?.let { snapshotString ->
-                //                TODO improve json cross module logic
-                val stored = defaultCoreJson.decodeFromString<StoredSnapshot>(snapshotString)
+                val stored = json.decodeFromString<StoredSnapshot>(snapshotString)
                 stored.meta to stored.blobs
             }
         } catch (e: Exception) {
@@ -81,6 +83,15 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
     companion object : SnapshotStoreFactory {
         override val type: String = "localStorage"
 
-        override fun build(context: Context, meta: Meta): SnapshotStore = LocalStorageSnapshotStore()
+        override fun build(context: Context, meta: Meta): SnapshotStore {
+            val json = context.plugins[SerializationPlugin]?.json
+                ?: Json {
+                    serializersModule = controlsApiSerializersModule
+                    ignoreUnknownKeys = true
+                    encodeDefaults = true
+                }
+
+            return LocalStorageSnapshotStore(json)
+        }
     }
 }
