@@ -28,7 +28,7 @@ public data class IntrospectionFeature(
 
     public companion object : FeatureKey<IntrospectionFeature> {
         public const val ID: String = "feature.introspection"
-        public const val CAPABILITY: String = "space.kscience.controls.composite.old.features.Introspection"
+        public const val CAPABILITY: String = "space.kscience.controls.core.features.Introspection"
         override val id: String = ID
     }
 }

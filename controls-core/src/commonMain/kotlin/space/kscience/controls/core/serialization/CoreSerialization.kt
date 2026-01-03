@@ -14,6 +14,7 @@ import space.kscience.controls.core.descriptors.*
 import space.kscience.controls.core.events.*
 import space.kscience.controls.core.faults.*
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.MetadataFeature
 import space.kscience.controls.core.features.ReconfigurableFeature
 import space.kscience.controls.core.messages.*
 import space.kscience.controls.core.meta.AdapterBinding
@@ -73,6 +74,7 @@ public val controlsCoreSerializersModule: SerializersModule = SerializersModule 
 
     polymorphic(Feature::class) {
         subclass(ReconfigurableFeature::class)
+        subclass(MetadataFeature::class)
     }
 
     polymorphic(MemberDescriptor::class) {

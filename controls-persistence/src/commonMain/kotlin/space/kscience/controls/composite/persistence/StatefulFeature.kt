@@ -15,6 +15,7 @@ import space.kscience.dataforge.meta.Meta
 @SerialName(StatefulFeature.ID)
 public data class StatefulFeature(
     val supportsHotRestore: Boolean = false,
+    val migratorId: String? = null
 ) : Feature {
     override val key: FeatureKey<*> get() = StatefulFeature
     override val capability: String get() = StatefulDevice.CAPABILITY

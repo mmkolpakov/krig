@@ -15,11 +15,14 @@ import space.kscience.controls.core.composition.LocalChildComponentConfig
 import space.kscience.controls.core.composition.RemoteChildComponentConfig
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.double
+import space.kscience.dataforge.meta.string
+import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 // --- Mocks and Test Fixtures ---
 
@@ -58,17 +61,18 @@ class CompositionDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(parentSpec, Global)
+        val composition = blueprint.composition ?: fail("CompositionFeature missing")
+        val children = composition.children
 
-//        TODO("blueprint is simplified")
-//        assertEquals(3, blueprint.children.size)
-//
-//        val singleChildConfig = blueprint.children["singleChild".asName()]
-//        assertIs<LocalChildComponentConfig>(singleChildConfig)
-//        assertEquals(childBlueprint.id, singleChildConfig.blueprintId)
-//        assertEquals("childValue", singleChildConfig.meta["childKey"].string)
-//
-//        val multiChildConfig = blueprint.children["multiChild2".asName()]
-//        assertIs<LocalChildComponentConfig>(multiChildConfig)
+        assertEquals(3, children.size)
+
+        val singleChildConfig = children["singleChild".asName()]
+        assertIs<LocalChildComponentConfig>(singleChildConfig)
+        assertEquals(childBlueprint.id, singleChildConfig.blueprintId)
+        assertEquals("childValue", singleChildConfig.meta["childKey"].string)
+
+        val multiChildConfig = children["multiChild2".asName()]
+        assertIs<LocalChildComponentConfig>(multiChildConfig)
     }
 
     /**

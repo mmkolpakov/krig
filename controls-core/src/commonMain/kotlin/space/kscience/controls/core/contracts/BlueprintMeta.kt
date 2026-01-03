@@ -27,8 +27,6 @@ public data class BlueprintMeta(
     val actions: Collection<ActionDescriptor>,
     val streams: Collection<StreamDescriptor>,
     val meta: Meta,
-    val stateMigratorId: String? = null,
-    val tags: Set<MemberTag> = emptySet(),
 ) : MetaRepr {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }

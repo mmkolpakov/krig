@@ -4,11 +4,16 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import space.kscience.controls.alarms.alarmsSerializersModule
 import space.kscience.controls.automation.automationSerializersModule
+import space.kscience.controls.connectivity.connectivitySerializersModule
+import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.core.serialization.controlsCoreSerializersModule
 import space.kscience.controls.fsm.fsmSerializersModule
+import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.telemetry.telemetrySerializersModule
+import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.dataforge.meta.Meta
 
 /**
@@ -45,4 +50,9 @@ public val ControlsCompositeSerializersModule: SerializersModule = SerializersMo
     include(fsmSerializersModule)
     include(alarmsSerializersModule)
     include(telemetrySerializersModule)
+    include(connectivitySerializersModule)
+    polymorphic(GuardSpec::class) {
+        subclass(TimedPredicateGuardSpec::class, TimedPredicateGuardSpec.serializer())
+        subclass(ValueChangeGuardSpec::class, ValueChangeGuardSpec.serializer())
+    }
 }

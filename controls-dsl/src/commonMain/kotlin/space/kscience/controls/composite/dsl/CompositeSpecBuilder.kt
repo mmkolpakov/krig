@@ -36,6 +36,7 @@ import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.contracts.DeviceDriver
+import space.kscience.controls.core.features.MetadataFeature
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.context.logger
@@ -81,7 +82,6 @@ public class CompositeSpecBuilder<D : Device>(
     internal val _protectedStreams = mutableMapOf<Name, DeviceStreamSpec<D>>()
 
     internal val _children = mutableMapOf<Name, ChildComponentConfig>()
-    internal val _tags = mutableSetOf<MemberTag>()
     internal val _peerConnections = mutableMapOf<Name, PeerBlueprint<out PeerConnection>>()
     private var _lifecycle: suspend BuildingStateMachine.(device: D, context: LifecycleContext<D>) -> Unit = { _, _ -> }
     private var _operationalFsm: (suspend BuildingStateMachine.(device: D, context: LifecycleContext<D>) -> Unit)? = null
@@ -152,13 +152,28 @@ public class CompositeSpecBuilder<D : Device>(
      * to declare that it conforms to a specific profile or "dialect".
      *
      * Example:
-     * ```     * addTag(ProfileTag("yandex.light.dimmable", "1.0"))
+     * ```
+     * addTag(ProfileTag("yandex.light.dimmable", "1.0"))
      * ```
      *
      * @param tag The [MemberTag] instance to add to the blueprint's tag set.
      */
     public fun addTag(tag: MemberTag) {
-        _tags.add(tag)
+        val existingFeature = _features[MetadataFeature.ID] as? MetadataFeature
+        val existingTags = existingFeature?.tags ?: emptySet()
+        val existingDesc = existingFeature?.description
+
+        feature(MetadataFeature(tags = existingTags + tag, description = existingDesc))
+    }
+
+    /**
+     * Sets a human-readable description for the blueprint via [MetadataFeature].
+     */
+    public fun description(text: String) {
+        val existingFeature = _features[MetadataFeature.ID] as? MetadataFeature
+        val existingTags = existingFeature?.tags ?: emptySet()
+
+        feature(MetadataFeature(tags = existingTags, description = text))
     }
 
     /**
@@ -573,7 +588,6 @@ public class CompositeSpecBuilder<D : Device>(
         return SimpleDeviceBlueprint(
             id = BlueprintId(id),
             version = this.version,
-            tags = _tags.toSet(),
             deviceContractFqName = deviceContractFqName,
             properties = _properties.toMap(),
             actions = _actions.toMap(),

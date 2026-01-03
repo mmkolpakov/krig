@@ -12,6 +12,7 @@ kscience {
     wasmJs()
 
     useCoroutines()
+    useSerialization()
 
     commonMain {
         api(projects.controlsCore)

@@ -2,6 +2,7 @@ package space.kscience.controls.composite.dsl.properties
 
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.composite.dsl.StatePropertyDelegate
+import space.kscience.controls.composite.persistence.StatefulFeature
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.runtime.CompositeDeviceContext
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
@@ -44,8 +45,7 @@ public inline fun <reified T, D> DeviceSpecification<D>.stateProperty(
     noinline descriptorBuilder: PropertyDescriptorBuilder.() -> Unit = {},
 ): StatePropertyDelegate<D, T> where D : Device, D : CompositeDeviceContext, D : StatefulDevice {
     return PropertyDelegateProvider { thisRef, property ->
-//        TODO("StatefulFeature moved to persist module")
-//        thisRef.registerFeature(StatefulFeature())
+        thisRef.registerFeature(StatefulFeature())
 
         lateinit var spec: MutableDevicePropertySpec<D, T>
 

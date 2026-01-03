@@ -35,7 +35,6 @@ import space.kscience.dataforge.names.Name
 public data class SimpleDeviceBlueprint<D : Device>(
     override val id: BlueprintId,
     override val version: String = "0.1.0",
-    override val tags: Set<MemberTag> = emptySet(),
     override val features: Map<String, Feature>,
     override val properties: Map<Name, DevicePropertySpec<D, *>>,
     override val actions: Map<Name, DeviceActionSpec<D, *, *>>,
@@ -45,7 +44,6 @@ public data class SimpleDeviceBlueprint<D : Device>(
     @Transient val operationalFsm: (suspend BuildingStateMachine.(device: D, context: LifecycleContext<D>) -> Unit)?,
     @Transient override val driver: DeviceDriver<D>,
     @Transient val logic: (suspend D.(DeviceFlows) -> Unit)?,
-    val stateMigratorId: String? = null,
     override val deviceContractFqName: String,
     @Transient val propertyReadLogic: Map<Name, suspend D.() -> Any?>,
     @Transient val propertyWriteLogic: Map<Name, suspend D.(Any?) -> Unit>,

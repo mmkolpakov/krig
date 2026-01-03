@@ -43,12 +43,6 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val version: String get() = "0.1.0"
 
     /**
-     * A set of extensible, semantic [MemberTag]s for classifying the blueprint itself.
-     * For example, a blueprint for a Yandex Smart Home light could be tagged with a `ProfileTag("yandex.light.dimmable", "1.0")`.
-     */
-    public val tags: Set<MemberTag>
-
-    /**
      * A map of features supported by this device. The key is the unique ID defined by [FeatureKey.id].
      */
     public val features: Map<String, Feature>

@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.core.contracts.ReconfigurableDevice
 import space.kscience.controls.core.serialization.serializableToMeta
-import space.kscience.controls.core.state.StatefulDevice
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 

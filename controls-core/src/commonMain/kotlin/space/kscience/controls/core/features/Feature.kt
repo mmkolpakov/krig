@@ -1,6 +1,7 @@
 package space.kscience.controls.core.features
 
 import kotlinx.serialization.Polymorphic
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 
 /**
@@ -42,4 +43,14 @@ public interface Feature : MetaRepr {
      * For example, `space.kscience.controls.core.contracts.Device`.
      */
     public val capability: String
+
+    override fun toMeta(): Meta = Meta.EMPTY
 }
+
+/**
+ * Base class for Runtime/Logic features that are not serialized and live only in memory.
+ */
+public abstract class RuntimeFeature(
+    override val key: FeatureKey<*>,
+    override val capability: String
+) : Feature

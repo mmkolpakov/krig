@@ -2,6 +2,8 @@ package space.kscience.controls.fsm
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import ru.nsk.kstatemachine.statemachine.BuildingStateMachine
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.features.Feature
 import space.kscience.controls.core.features.FeatureKey
@@ -32,6 +34,8 @@ public data class OperationalFsmFeature(
     val states: Set<String>,
     val events: Set<String>,
 ) : Feature {
+    @Transient
+    public var fsmBuilder: (suspend BuildingStateMachine.(device: Any, context: Any) -> Unit)? = null
     override val key: FeatureKey<*> get() = OperationalFsmFeature
     override val capability: String = CAPABILITY
 
@@ -57,6 +61,8 @@ public data class LifecycleFeature(
     ),
     val initialStateName: String = "Stopped",
 ) : Feature {
+    @Transient
+    public var fsmBuilder: (suspend BuildingStateMachine.(device: Any, context: Any) -> Unit)? = null
     override val key: FeatureKey<*> get() = LifecycleFeature
     override val capability: String get() = Device.CAPABILITY
 
