@@ -11,6 +11,7 @@ import space.kscience.controls.connectivity.PropertyTransformerDescriptor
 import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.features.Feature
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MutableMeta
 import kotlin.contracts.ExperimentalContracts
@@ -116,6 +117,7 @@ public class PropertyBindingBuilder<P : Device, C : Device> {
 public class ChildConfigBuilder<P : Device, C : Device> {
     public var lifecycle: DeviceLifecycleConfig = DeviceLifecycleConfig()
     public var meta: Meta = Meta.EMPTY
+    public val features: MutableSet<Feature> = mutableSetOf()
     private val bindingsBuilder = PropertyBindingBuilder<P, C>()
 
     /**
@@ -160,6 +162,13 @@ public class ChildConfigBuilder<P : Device, C : Device> {
         this.meta = Meta(block)
     }
 
-    internal fun buildBindings(): ChildPropertyBindings =
-        ChildPropertyBindings(bindingsBuilder.bindings)
+    /**
+     * Adds an arbitrary feature to the child's configuration.
+     */
+    public fun feature(feature: Feature) {
+        features.add(feature)
+    }
+
+    internal fun buildBindings(): List<PropertyBinding> =
+        bindingsBuilder.bindings
 }

@@ -4,6 +4,7 @@ import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import ru.nsk.kstatemachine.event.Event
+import space.kscience.controls.alarms.AlarmsFeature
 import space.kscience.controls.automation.ActionSpec
 import space.kscience.controls.automation.AttachActionSpec
 import space.kscience.controls.automation.AwaitPredicateActionSpec
@@ -25,6 +26,7 @@ import space.kscience.controls.automation.TransactionPlan
 import space.kscience.controls.automation.WritePropertyActionSpec
 import space.kscience.controls.composite.old.serialization.controlsJson
 import space.kscience.controls.connectivity.BinaryDataFeature
+import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.connectivity.ConstPropertyBinding
@@ -194,7 +196,9 @@ class SerializationTest {
             PlanExecutorFeature(),
             IntrospectionFeature(true),
             RemoteMirrorFeature(emptyList()),
-            OperationalGuardsFeature(emptyList())
+            OperationalGuardsFeature(emptyList()),
+            AlarmsFeature(emptyMap()),
+            ChildBindingsFeature(emptyList())
         )
 
         val serializer = PolymorphicSerializer(Feature::class)

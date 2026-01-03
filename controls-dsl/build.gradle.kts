@@ -37,6 +37,7 @@ kscience {
         api(projects.controlsData)
         api(projects.controlsValidation)
         api(projects.controlsFeatureAnalytics)
+        api(projects.controlsPersistence)
     }
 
     commonTest {

@@ -37,8 +37,6 @@ public data class SimpleDeviceBlueprint<D : Device>(
     override val version: String = "0.1.0",
     override val tags: Set<MemberTag> = emptySet(),
     override val features: Map<String, Feature>,
-    val peerConnections: Map<Name, PeerBlueprint<out PeerConnection>>,
-    val children: Map<Name, ChildComponentConfig>,
     override val properties: Map<Name, DevicePropertySpec<D, *>>,
     override val actions: Map<Name, DeviceActionSpec<D, *, *>>,
     override val streams: Map<Name, DeviceStreamSpec<D>>,

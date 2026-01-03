@@ -9,12 +9,15 @@ import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.fsm.OperationalFsmFeature
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
+import space.kscience.controls.fsm.lifecycleFeature
+import space.kscience.controls.fsm.operationalFsm
 import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.misc.DFExperimental
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
@@ -45,7 +48,7 @@ class BehaviorDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(spec, Global)
-        val feature = blueprint.features[OperationalGuardsFeature.CAPABILITY]
+        val feature = blueprint[OperationalGuardsFeature]
         assertIs<OperationalGuardsFeature>(feature)
         assertEquals(1, feature.guards.size)
         val guard = feature.guards.first()
@@ -76,7 +79,7 @@ class BehaviorDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(spec, Global)
-        val feature = blueprint.features["ru.nsk.kstatemachine.statemachine.StateMachine"]
+        val feature = blueprint[OperationalFsmFeature]
         assertIs<OperationalFsmFeature>(feature)
 
         val expectedEventName = serializer<MyGuardEvent>().descriptor.serialName
@@ -98,8 +101,8 @@ class BehaviorDslTest {
             operationalFsm(setOf("Idle")) { _, _ -> }
         }
 
-//        assertNotNull(blueprint.lifecycle)
-//        assertNotNull(blueprint.operationalFsm)
-        assertTrue(blueprint.features.containsKey("ru.nsk.kstatemachine.statemachine.StateMachine"))
+        assertNotNull(blueprint.lifecycleFeature)
+        assertNotNull(blueprint.operationalFsm)
+        assertTrue(blueprint.features.containsKey(OperationalFsmFeature.ID))
     }
 }

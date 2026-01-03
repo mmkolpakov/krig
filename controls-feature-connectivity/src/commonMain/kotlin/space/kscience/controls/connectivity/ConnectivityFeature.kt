@@ -5,20 +5,25 @@ import kotlinx.serialization.Serializable
 import space.kscience.controls.core.connectivity.PeerBlueprint
 import space.kscience.controls.core.connectivity.PeerConnection
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.FeatureKey
 import space.kscience.controls.core.serialization.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
 @Serializable
-@SerialName("feature.connectivity")
+@SerialName(ConnectivityFeature.ID)
 public data class ConnectivityFeature(
     val peerConnections: Map<Name, PeerBlueprint<out PeerConnection>>
 ) : Feature {
+    override val key: FeatureKey<*> get() = ConnectivityFeature
     override val capability: String = CAPABILITY
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 
-    public companion object {
+    public companion object : FeatureKey<ConnectivityFeature> {
+        public const val ID: String = "feature.connectivity"
         public const val CAPABILITY: String = "space.kscience.controls.connectivity"
+
+        override val id: String = ID
     }
 }

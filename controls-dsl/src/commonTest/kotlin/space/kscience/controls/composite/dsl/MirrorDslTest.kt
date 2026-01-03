@@ -52,7 +52,7 @@ class MirrorDslTest {
         }
         val blueprint = compositeDeviceUnchecked(localSpec, Global)
 
-        val feature = blueprint.features["space.kscience.controls.composite.old.features.RemoteMirroring"]
+        val feature = blueprint[RemoteMirrorFeature]
         assertIs<RemoteMirrorFeature>(feature)
         assertEquals(1, feature.entries.size)
 

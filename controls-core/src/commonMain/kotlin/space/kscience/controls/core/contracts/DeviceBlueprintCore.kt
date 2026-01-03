@@ -1,11 +1,18 @@
 package space.kscience.controls.core.contracts
 
+import space.kscience.controls.core.InternalControlsApi
+import space.kscience.controls.core.composition.ChildComponentConfig
+import space.kscience.controls.core.connectivity.PeerBlueprint
+import space.kscience.controls.core.connectivity.PeerConnection
+import space.kscience.controls.core.descriptors.ActionDescriptor
+import space.kscience.controls.core.descriptors.PropertyDescriptor
+import space.kscience.controls.core.descriptors.StreamDescriptor
+import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.FeatureKey
+import space.kscience.controls.core.identifiers.BlueprintId
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.DeviceStreamSpec
-import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.features.Feature
-import space.kscience.controls.core.identifiers.BlueprintId
 import space.kscience.controls.core.meta.MemberTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
@@ -42,10 +49,21 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val tags: Set<MemberTag>
 
     /**
-     * A map of features supported by this device. The key is the fully qualified name of the capability interface,
-     * and the value is a [Feature] object providing detailed metadata about that capability.
+     * A map of features supported by this device. The key is the unique ID defined by [FeatureKey.id].
      */
     public val features: Map<String, Feature>
+
+    /**
+     * Retrieves a feature configuration by its type-safe key.
+     * This is the preferred way to access features.
+     *
+     * @param key The [FeatureKey] of the desired feature (usually the feature's companion object).
+     * @return The feature instance if present, or `null`.
+     */
+    public operator fun <F : Feature> get(key: FeatureKey<F>): F? {
+        @Suppress("UNCHECKED_CAST")
+        return features[key.id] as? F
+    }
 
     /**
      * A map of all **public** property specifications defined for this device.
@@ -80,8 +98,6 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
 
     /**
      * The fully qualified name of the device contract interface 'D'.
-     * For runtime validation without full reflection capabilities.
-     * The DSL should populate this automatically.
      */
     public val deviceContractFqName: String
 

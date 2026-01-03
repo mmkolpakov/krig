@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.FeatureKey
 import space.kscience.controls.core.serialization.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
@@ -26,17 +27,20 @@ public data class FsmDescriptor(
  * @property events A set of event class names that can drive the operational FSM.
  */
 @Serializable
-@SerialName("feature.operationalFsm")
+@SerialName(OperationalFsmFeature.ID)
 public data class OperationalFsmFeature(
     val states: Set<String>,
     val events: Set<String>,
 ) : Feature {
+    override val key: FeatureKey<*> get() = OperationalFsmFeature
     override val capability: String = CAPABILITY
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 
-    public companion object {
+    public companion object : FeatureKey<OperationalFsmFeature> {
+        public const val ID: String = "feature.operationalFsm"
         public const val CAPABILITY: String = "ru.nsk.kstatemachine.statemachine.StateMachine"
+        override val id: String = ID
     }
 }
 
@@ -44,7 +48,7 @@ public data class OperationalFsmFeature(
  * A feature describing the lifecycle management capabilities of a device.
  */
 @Serializable
-@SerialName("feature.lifecycle")
+@SerialName(LifecycleFeature.ID)
 public data class LifecycleFeature(
     val supportedStates: Set<String> = setOf(
         "Stopped",
@@ -53,7 +57,13 @@ public data class LifecycleFeature(
     ),
     val initialStateName: String = "Stopped",
 ) : Feature {
+    override val key: FeatureKey<*> get() = LifecycleFeature
     override val capability: String get() = Device.CAPABILITY
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
+
+    public companion object : FeatureKey<LifecycleFeature> {
+        public const val ID: String = "feature.lifecycle"
+        override val id: String = ID
+    }
 }

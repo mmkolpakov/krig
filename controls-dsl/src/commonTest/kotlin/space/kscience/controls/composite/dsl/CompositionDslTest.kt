@@ -2,12 +2,24 @@ package space.kscience.controls.composite.dsl
 
 import space.kscience.controls.composite.dsl.properties.doubleProperty
 import space.kscience.controls.composite.dsl.properties.mutableDoubleProperty
+import space.kscience.controls.connectivity.ChildBindingsFeature
+import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.LinearTransformDescriptor
+import space.kscience.controls.connectivity.ParentPropertyBinding
+import space.kscience.controls.connectivity.TransformedPropertyBinding
+import space.kscience.controls.connectivity.composition
+import space.kscience.controls.connectivity.connectivity
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.addressing.Address
+import space.kscience.controls.core.composition.LocalChildComponentConfig
+import space.kscience.controls.core.composition.RemoteChildComponentConfig
 import space.kscience.dataforge.context.Global
+import space.kscience.dataforge.meta.double
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 
 // --- Mocks and Test Fixtures ---
 
@@ -83,24 +95,27 @@ class CompositionDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(parentSpec, Global)
-        //        TODO("blueprint is simplified")
-//        val childConfig = blueprint.children["boundChild".asName()] as LocalChildComponentConfig
-//        val bindings = childConfig.bindings.bindings
-//
-//        assertEquals(3, bindings.size)
-//
-//        val constBinding = bindings.find { it is ConstPropertyBinding }
-//        assertIs<ConstPropertyBinding>(constBinding)
-//        assertEquals(42.0, constBinding.value.double)
-//
-//        val parentBinding = bindings.find { it is ParentPropertyBinding }
-//        assertIs<ParentPropertyBinding>(parentBinding)
-//        assertEquals(childSpec.childTarget.name, parentBinding.targetName)
-//        assertEquals(parentSpec.parentSource.name, parentBinding.sourceName)
-//
-//        val transformedBinding = bindings.find { it is TransformedPropertyBinding }
-//        assertIs<TransformedPropertyBinding>(transformedBinding)
-//        assertEquals(2.0, (transformedBinding.transformer as LinearTransformDescriptor).scale)
+
+        val children = blueprint.composition?.children ?: emptyMap()
+        val childConfig = children["boundChild".asName()] as LocalChildComponentConfig
+        val bindingsFeature = childConfig.features.find { it.key == ChildBindingsFeature } as? ChildBindingsFeature
+        assertNotNull(bindingsFeature, "ChildBindingsFeature should be present")
+
+        val bindings = bindingsFeature.bindings
+        assertEquals(3, bindings.size)
+
+        val constBinding = bindings.find { it is ConstPropertyBinding }
+        assertIs<ConstPropertyBinding>(constBinding)
+        assertEquals(42.0, constBinding.value.double)
+
+        val parentBinding = bindings.find { it is ParentPropertyBinding }
+        assertIs<ParentPropertyBinding>(parentBinding)
+        assertEquals(childSpec.childTarget.name, parentBinding.targetName)
+        assertEquals(parentSpec.parentSource.name, parentBinding.sourceName)
+
+        val transformedBinding = bindings.find { it is TransformedPropertyBinding }
+        assertIs<TransformedPropertyBinding>(transformedBinding)
+        assertEquals(2.0, (transformedBinding.transformer as LinearTransformDescriptor).scale)
     }
 
     /**
@@ -123,11 +138,10 @@ class CompositionDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(parentSpec, Global)
-        //        TODO("blueprint is simplified")
-//        val remoteChildConfig = blueprint.children["remoteProxy".asName()]
-//        assertIs<RemoteChildComponentConfig>(remoteChildConfig)
-//        assertEquals("actualRemoteDevice".asName(), remoteChildConfig.remoteDeviceName)
-//        assertEquals("remotePeer".asName(), remoteChildConfig.peerName)
+        val remoteChildConfig = blueprint.composition?.children?.get("remoteProxy".asName())
+        assertIs<RemoteChildComponentConfig>(remoteChildConfig)
+        assertEquals("actualRemoteDevice".asName(), remoteChildConfig.remoteDeviceName)
+        assertEquals("remotePeer".asName(), remoteChildConfig.peerName)
     }
 
     /**
@@ -144,8 +158,8 @@ class CompositionDslTest {
             }
         }
         val blueprint = compositeDeviceUnchecked(spec, Global)
-        //        TODO("blueprint is simplified")
-//        assertNotNull(blueprint.peerConnections["myPeer".asName()])
-//        assertEquals("myPeer", blueprint.peerConnections["myPeer".asName()]?.id)
+        val peers = blueprint.connectivity?.peerConnections ?: emptyMap()
+        assertNotNull(peers["myPeer".asName()])
+        assertEquals("myPeer", peers["myPeer".asName()]?.id)
     }
 }

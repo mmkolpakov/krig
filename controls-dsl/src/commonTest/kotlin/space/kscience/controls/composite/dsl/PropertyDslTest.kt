@@ -2,6 +2,7 @@ package space.kscience.controls.composite.dsl
 
 import kotlinx.serialization.Serializable
 import space.kscience.controls.composite.dsl.properties.*
+import space.kscience.controls.composite.persistence.StatefulFeature
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.runtime.CompositeDeviceContext
@@ -74,7 +75,10 @@ class PropertyDslTest {
         assertNotNull(stateSpec)
         assertEquals(PropertyKind.LOGICAL, stateSpec.descriptor.kind)
         assertTrue(stateSpec.descriptor.persistent, "Stateful property should be persistent by default.")
-        assertTrue(blueprint.features.containsKey(StatefulDevice.CAPABILITY), "StatefulFeature should be added automatically.")
+        assertTrue(
+            blueprint.features.containsKey(StatefulFeature.ID),
+            "StatefulFeature should be added automatically."
+        )
     }
 
     /**

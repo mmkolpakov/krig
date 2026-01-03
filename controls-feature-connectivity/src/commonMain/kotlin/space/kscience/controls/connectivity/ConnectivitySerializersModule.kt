@@ -11,6 +11,7 @@ import space.kscience.controls.core.features.Feature
 public val connectivitySerializersModule: SerializersModule = SerializersModule {
     polymorphic(Feature::class) {
         subclass(RemoteMirrorFeature::class)
+        subclass(ChildBindingsFeature::class)
     }
 
     polymorphic(AddressSource::class) {

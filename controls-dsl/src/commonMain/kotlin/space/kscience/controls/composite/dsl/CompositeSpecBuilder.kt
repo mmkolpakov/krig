@@ -20,6 +20,8 @@ import space.kscience.controls.core.meta.MemberTag
 import space.kscience.controls.core.identifiers.BlueprintId
 import space.kscience.controls.core.addressing.Address
 import space.kscience.controls.composite.dsl.lifecycle.DriverLogicFragment
+import space.kscience.controls.connectivity.CompositionFeature
+import space.kscience.controls.connectivity.ConnectivityFeature
 import space.kscience.controls.core.composition.ChildComponentConfig
 import space.kscience.controls.core.connectivity.DiscoveredAddressSource
 import space.kscience.controls.core.connectivity.FailoverStrategy
@@ -458,7 +460,7 @@ public class CompositeSpecBuilder<D : Device>(
 
         val builder = ChildConfigBuilder<D, C>().apply(configBuilder)
 
-        if (builder.buildBindings().bindings.isNotEmpty()) {
+        if (builder.buildBindings().isNotEmpty()) {
             context.logger.warn { "Property bindings for remote child '$name' are not supported and will be ignored." }
         }
 
@@ -529,25 +531,28 @@ public class CompositeSpecBuilder<D : Device>(
     internal fun build(id: String, deviceContractFqName: String): DeviceBlueprint<D> {
         val finalDriver = this.userDeviceDriver ?: error("Device driver must be defined for the blueprint '$id'.")
 
-        // Auto-add LifecycleFeature if not present
-        if (!_features.containsKey(Device.CAPABILITY)) {
+        // 1. Auto-add LifecycleFeature using Type-Safe Key ID
+        if (!_features.containsKey(LifecycleFeature.ID)) {
             feature(LifecycleFeature())
         }
 
-        // Auto-add OperationalFsmFeature if an FSM is defined or guards are used.
-        if (this._operationalFsm != null || _features.containsKey(OperationalGuardsFeature.CAPABILITY)) {
-            // Get events from actions
-//            val actionEventNames = (_actions.values + _protectedActions.values).flatMap {
-//                listOfNotNull(
-//                    it.operationalEventTypeName,
-//                    it.operationalSuccessEventTypeName,
-//                    it.operationalFailureEventTypeName
-//                )
-//            }.toSet()
+        // 2. Pack Children into CompositionFeature
+        if (_children.isNotEmpty()) {
+            // Retrieve existing feature using ID constant
+            val existingChildren = (_features[CompositionFeature.ID] as? CompositionFeature)?.children ?: emptyMap()
+            feature(CompositionFeature(existingChildren + _children))
+        }
 
-            // Get events from guards
+        // 3. Pack Peers into ConnectivityFeature
+        if (_peerConnections.isNotEmpty()) {
+            val existingPeers = (_features[ConnectivityFeature.ID] as? ConnectivityFeature)?.peerConnections ?: emptyMap()
+            feature(ConnectivityFeature(existingPeers + _peerConnections))
+        }
+
+        // 4. Auto-add OperationalFsmFeature
+        if (this._operationalFsm != null || _features.containsKey(OperationalGuardsFeature.ID)) {
             val guardEventNames =
-                (_features[OperationalGuardsFeature.CAPABILITY] as? OperationalGuardsFeature)?.guards?.map {
+                (_features[OperationalGuardsFeature.ID] as? OperationalGuardsFeature)?.guards?.map {
                     when (it) {
                         is TimedPredicateGuardSpec -> it.postEventSerialName
                         is ValueChangeGuardSpec -> it.postEventSerialName
@@ -555,8 +560,7 @@ public class CompositeSpecBuilder<D : Device>(
                     }
                 }?.toSet() ?: emptySet()
 
-
-            val existingFsmFeature = _features[OperationalFsmFeature.CAPABILITY] as? OperationalFsmFeature
+            val existingFsmFeature = _features[OperationalFsmFeature.ID] as? OperationalFsmFeature
 
             val updatedFeature = OperationalFsmFeature(
                 states = this._operationalFsmStates + (existingFsmFeature?.states ?: emptySet()),
@@ -566,14 +570,11 @@ public class CompositeSpecBuilder<D : Device>(
             feature(updatedFeature)
         }
 
-
         return SimpleDeviceBlueprint(
             id = BlueprintId(id),
             version = this.version,
             tags = _tags.toSet(),
             deviceContractFqName = deviceContractFqName,
-            children = _children.toMap(),
-            peerConnections = _peerConnections.toMap(),
             properties = _properties.toMap(),
             actions = _actions.toMap(),
             streams = _streams.toMap(),

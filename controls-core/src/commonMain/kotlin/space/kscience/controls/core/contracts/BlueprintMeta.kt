@@ -23,8 +23,6 @@ public data class BlueprintMeta(
     val version: String = "0.1.0",
     val deviceContractFqName: String,
     val features: Map<String, Feature>,
-    val peerConnections: Map<Name, PeerBlueprint<out PeerConnection>>,
-    val children: Map<Name, ChildComponentConfig>,
     val properties: Collection<PropertyDescriptor>,
     val actions: Collection<ActionDescriptor>,
     val streams: Collection<StreamDescriptor>,

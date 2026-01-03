@@ -3,18 +3,30 @@ package space.kscience.controls.automation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.core.features.Feature
+import space.kscience.controls.core.features.FeatureKey
+import space.kscience.controls.core.serialization.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 
 /**
  * A feature indicating that the device can execute a [TransactionPlan].
- * The runtime uses this feature to correctly dispatch plan-based actions to the device.
+ *
+ * @property maxHistorySize The number of executed plans to keep in the history log for introspection.
+ * @property allowParallelExecution If true, the device can execute multiple root plans simultaneously.
+ *                                  If false, new plans will queue or fail while one is running.
  */
 @Serializable
-@SerialName("feature.planExecutor")
+@SerialName(PlanExecutorFeature.ID)
 public data class PlanExecutorFeature(
-    override val capability: String = PlanExecutorDevice.CAPABILITY
+    val maxHistorySize: Int = 10,
+    val allowParallelExecution: Boolean = false
 ) : Feature {
-    override fun toMeta(): Meta = Meta {
-        "capability" put capability
+    override val key: FeatureKey<*> get() = PlanExecutorFeature
+    override val capability: String get() = PlanExecutorDevice.CAPABILITY
+
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
+
+    public companion object : FeatureKey<PlanExecutorFeature> {
+        public const val ID: String = "feature.planExecutor"
+        override val id: String = ID
     }
 }

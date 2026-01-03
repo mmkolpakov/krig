@@ -186,10 +186,9 @@ class ValidationTest {
 
         val errors = validator.validate(blueprintForManualTest, corruptedFeature, MockRegistry)
 
-        //        TODO("blueprint is simplified")
-//        assertEquals(1, errors.size)
-//        assertIs<ValidationError.InvalidMirror>(errors.first())
-//        assertTrue(errors.first().message.contains("Type mismatch"))
+        assertEquals(1, errors.size)
+        assertIs<ValidationError.InvalidMirror>(errors.first())
+        assertTrue(errors.first().message.contains("Type mismatch"))
     }
 
     @Test
