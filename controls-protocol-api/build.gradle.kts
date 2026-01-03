@@ -22,7 +22,7 @@ kscience {
     useCoroutines()
 
     commonMain {
-        api(projects.controlsModel)
+        api(projects.controlsCore)
         api(projects.controlsPorts)
     }
 }

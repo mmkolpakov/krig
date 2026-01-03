@@ -22,7 +22,8 @@ kscience {
     useSerialization()
 
     commonMain {
-        api(projects.controlsModel)
+        api(projects.controlsCore)
+        api(projects.controlsServiceApi)
         api(libs.sqldelight.runtime)
         implementation(libs.okio)
         api(libs.sqldelight.coroutines)

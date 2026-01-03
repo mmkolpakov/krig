@@ -6,7 +6,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import org.w3c.dom.set
-import space.kscience.controls.composite.old.serialization.controlsJson
+import space.kscience.controls.core.serialization.defaultCoreJson
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -40,7 +40,8 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
             try {
                 val key = nameToKey(name)
                 val storable = StoredSnapshot(snapshot, blobs)
-                val snapshotString = controlsJson.encodeToString(storable)
+                //                TODO improve json cross module logic
+                val snapshotString = defaultCoreJson.encodeToString(storable)
                 localStorage[key] = snapshotString
             } catch (e: Exception) {
                 //TODO check for QUOTA_EXCEEDED_ERR
@@ -53,7 +54,8 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
         try {
             val key = nameToKey(name)
             localStorage.getItem(key)?.let { snapshotString ->
-                val stored = controlsJson.decodeFromString<StoredSnapshot>(snapshotString)
+                //                TODO improve json cross module logic
+                val stored = defaultCoreJson.decodeFromString<StoredSnapshot>(snapshotString)
                 stored.meta to stored.blobs
             }
         } catch (e: Exception) {

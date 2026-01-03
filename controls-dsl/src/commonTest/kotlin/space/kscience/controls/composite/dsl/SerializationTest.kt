@@ -24,7 +24,6 @@ import space.kscience.controls.automation.StopActionSpec
 import space.kscience.controls.automation.TaskExecutorFeature
 import space.kscience.controls.automation.TransactionPlan
 import space.kscience.controls.automation.WritePropertyActionSpec
-import space.kscience.controls.composite.old.serialization.controlsJson
 import space.kscience.controls.connectivity.BinaryDataFeature
 import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature

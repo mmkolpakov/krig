@@ -7,7 +7,6 @@ import space.kscience.controls.composite.dsl.properties.doubleProperty
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.descriptors.PropertyDescriptor
 import space.kscience.controls.core.meta.UiTestHint
-import space.kscience.controls.composite.old.serialization.ControlsCompositeSerializersModule
 import space.kscience.dataforge.context.Context
 import space.kscience.controls.core.meta.MemberTag
 import space.kscience.dataforge.names.asName

@@ -25,7 +25,7 @@ kscience {
     useSerialization()
 
     commonMain {
-        api(projects.controlsModel)
+        api(projects.controlsCore)
         api(libs.dataforge.io)
         implementation(spclibs.kotlinx.coroutines.core)
         api(libs.okio)

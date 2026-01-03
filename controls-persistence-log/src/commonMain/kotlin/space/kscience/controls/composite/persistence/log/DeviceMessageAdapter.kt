@@ -2,20 +2,20 @@ package space.kscience.controls.composite.persistence.log
 
 import app.cash.sqldelight.ColumnAdapter
 import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.json.Json
 import space.kscience.controls.core.messages.DeviceMessage
-import space.kscience.controls.composite.old.serialization.controlsJson
 
 /**
  * A SQLDelight `ColumnAdapter` for the polymorphic `DeviceMessage` interface.
- * It serializes the object to a JSON string for storage in a TEXT column
- * and deserializes it back on retrieval.
+ * It requires a configured [Json] instance to handle serialization/deserialization
+ * of diverse message types provided by various feature plugins.
  */
-internal object DeviceMessageAdapter : ColumnAdapter<DeviceMessage, String> {
+internal class DeviceMessageAdapter(private val json: Json) : ColumnAdapter<DeviceMessage, String> {
     override fun decode(databaseValue: String): DeviceMessage {
-        return controlsJson.decodeFromString(PolymorphicSerializer(DeviceMessage::class), databaseValue)
+        return json.decodeFromString(PolymorphicSerializer(DeviceMessage::class), databaseValue)
     }
 
     override fun encode(value: DeviceMessage): String {
-        return controlsJson.encodeToString(PolymorphicSerializer(DeviceMessage::class), value)
+        return json.encodeToString(PolymorphicSerializer(DeviceMessage::class), value)
     }
 }

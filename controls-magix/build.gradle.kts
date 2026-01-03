@@ -23,7 +23,8 @@ kscience {
     useSerialization()
 
     commonMain {
-        api(projects.controlsModel)
+        api(projects.controlsCore)
+        api(projects.controlsServiceApi)
         api(projects.magixApi)
         implementation(libs.uuid)
     }

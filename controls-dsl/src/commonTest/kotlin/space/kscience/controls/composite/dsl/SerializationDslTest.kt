@@ -13,7 +13,6 @@ import space.kscience.controls.core.meta.MemberTag
 import space.kscience.controls.core.meta.ModbusTestBinding
 import space.kscience.controls.core.descriptors.PropertyDescriptor
 import space.kscience.controls.core.meta.UiTestHint
-import space.kscience.controls.composite.old.serialization.ControlsCompositeSerializersModule
 import space.kscience.controls.validation.DefaultValidatorsPlugin
 import space.kscience.controls.validation.FeatureValidatorRegistry
 import space.kscience.dataforge.context.AbstractPlugin

@@ -22,7 +22,8 @@ kscience {
     useCoroutines()
 
     commonMain {
-        api(projects.controlsModel)
+        api(projects.controlsCore)
+        api(projects.controlsServiceApi)
         api(projects.controlsPorts)
         api(libs.ktor.network)
         api(libs.kotlinx.coroutines.core)

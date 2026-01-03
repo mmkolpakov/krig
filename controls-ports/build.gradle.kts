@@ -20,7 +20,6 @@ kscience {
     useCoroutines()
 
     commonMain {
-        api(projects.controlsModel)
         api(libs.dataforge.context)
         api(libs.okio)
     }

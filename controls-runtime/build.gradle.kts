@@ -21,7 +21,6 @@ kscience {
     useSerialization()
 
     commonMain {
-        api(projects.controlsModel)
         api(projects.controlsMetrics)
         api(projects.controlsDsl)
         api(projects.controlsPersistence)

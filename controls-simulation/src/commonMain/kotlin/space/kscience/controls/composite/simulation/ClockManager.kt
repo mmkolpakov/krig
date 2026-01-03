@@ -1,6 +1,7 @@
 package space.kscience.controls.composite.simulation
 
 import kotlinx.coroutines.*
+//TODO think about utils module, not core for common things
 import space.kscience.controls.core.serialization.instant
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.*

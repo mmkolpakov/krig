@@ -23,8 +23,8 @@ kscience {
     useSerialization()
 
     commonMain {
-        api(projects.controlsModel)
         implementation(libs.kotlinx.atomicfu)
+        api(libs.dataforge.io)
     }
 
     commonTest {

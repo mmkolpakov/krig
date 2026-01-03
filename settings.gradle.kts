@@ -95,7 +95,4 @@ include(
     ":controls-simulation",
     ":controls-runtime",
     ":controls-data",
-
-    // DEPRECATED
-    ":controls-model"
 )
