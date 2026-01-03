@@ -2,7 +2,7 @@ package space.kscience.controls.automation
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.descriptors.ActionLogicSource
+import space.kscience.controls.api.descriptors.ActionLogicSource
 
 /**
  * Specifies that the action's logic is defined inline as a declarative [TransactionPlan].

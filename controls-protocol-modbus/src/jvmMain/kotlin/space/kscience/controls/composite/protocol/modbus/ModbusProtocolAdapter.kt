@@ -3,8 +3,8 @@ package space.kscience.controls.composite.protocol.modbus
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.composite.ports.Port
 import space.kscience.controls.composite.protocol.api.ProtocolAdapter
 import space.kscience.dataforge.meta.Meta

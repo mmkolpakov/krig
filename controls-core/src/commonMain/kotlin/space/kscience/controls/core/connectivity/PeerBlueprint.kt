@@ -1,7 +1,8 @@
 package space.kscience.controls.core.connectivity
 
-import space.kscience.controls.core.connectivity.AddressSource
-import space.kscience.controls.core.spec.ResiliencePolicy
+import space.kscience.controls.api.connectivity.AddressSource
+import space.kscience.controls.api.connectivity.FailoverStrategy
+import space.kscience.controls.api.spec.ResiliencePolicy
 
 /**
  * A blueprint for a [PeerConnection]. This is a stateless factory that defines

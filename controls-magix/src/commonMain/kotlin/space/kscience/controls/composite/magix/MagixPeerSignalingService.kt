@@ -4,10 +4,10 @@ import com.benasher44.uuid.uuid4
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.messages.BinaryDataRequest
-import space.kscience.controls.core.messages.BinaryReadyNotification
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.messages.BinaryDataRequest
+import space.kscience.controls.api.messages.BinaryReadyNotification
 import space.kscience.controls.services.PeerSignalingService
 import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.PluginTag

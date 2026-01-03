@@ -1,17 +1,17 @@
 package space.kscience.controls.validation
 
+import space.kscience.controls.api.descriptors.attribute
+import space.kscience.controls.api.descriptors.attributes.AccessAttribute
 import space.kscience.controls.connectivity.ChildBindingsFeature
-import space.kscience.controls.connectivity.CompositionFeature
 import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.connectivity.composition
 import space.kscience.controls.connectivity.connectivity
-import space.kscience.controls.core.composition.LocalChildComponentConfig
-import space.kscience.controls.core.composition.RemoteChildComponentConfig
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.composition.LocalChildComponentConfig
+import space.kscience.controls.api.composition.RemoteChildComponentConfig
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.services.discovery.blueprintRegistry
 import space.kscience.dataforge.context.Context
@@ -101,8 +101,9 @@ private fun validateLocalChild(
                 if (targetSpec == null) {
                     errors.add(ValidationError.InvalidBinding(childName, binding.targetName, "Target property '${binding.targetName}' does not exist in child."))
                 } else {
+                    val targetAccess = targetSpec.descriptor.attribute<AccessAttribute>()
                     // Check mutability
-                    if (!targetSpec.descriptor.mutable) {
+                    if (targetAccess?.mutable != true) {
                         errors.add(ValidationError.InvalidBinding(childName, binding.targetName, "Target property '${binding.targetName}' is not mutable."))
                     }
                     // Simple type matching by name
@@ -115,11 +116,24 @@ private fun validateLocalChild(
                 val targetSpec = childBlueprint.properties[binding.targetName]
                 if (targetSpec == null) {
                     errors.add(ValidationError.InvalidBinding(childName, binding.targetName, "Target property '${binding.targetName}' not found in child."))
-                } else if (!targetSpec.descriptor.mutable) {
-                    errors.add(ValidationError.InvalidBinding(childName, binding.targetName, "Target property '${binding.targetName}' is not mutable."))
                 } else {
-                    if (!targetSpec.descriptor.metaDescriptor.validate(binding.value.value)) {
-                        errors.add(ValidationError.InvalidBinding(childName, binding.targetName, "Constant value '${binding.value}' is not valid for target property constraints."))
+                    val targetAccess = targetSpec.descriptor.attribute<AccessAttribute>()
+                    if (targetAccess?.mutable != true) {
+                        errors.add(
+                            ValidationError.InvalidBinding(
+                                childName,
+                                binding.targetName,
+                                "Target property '${binding.targetName}' is not mutable."
+                            )
+                        )
+                    } else if (!targetSpec.descriptor.metaDescriptor.validate(binding.value.value)) {
+                        errors.add(
+                            ValidationError.InvalidBinding(
+                                childName,
+                                binding.targetName,
+                                "Constant value '${binding.value}' is not valid for target property constraints."
+                            )
+                        )
                     }
                 }
             }
@@ -138,6 +152,7 @@ private fun validateLocalChild(
 private fun validateRemoteChild(
     parentBlueprint: DeviceBlueprint<*>,
     childName: Name,
+//    TODO Parameter "childBlueprint" is never used
     childConfig: RemoteChildComponentConfig,
     childBlueprint: DeviceBlueprint<*>,
     errors: MutableList<ValidationError>,

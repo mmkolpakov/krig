@@ -7,7 +7,7 @@ import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.dataforge.meta.Meta

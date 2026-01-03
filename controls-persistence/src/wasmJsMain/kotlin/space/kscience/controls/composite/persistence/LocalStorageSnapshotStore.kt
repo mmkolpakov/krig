@@ -6,6 +6,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import org.w3c.dom.set
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.controls.core.serialization.defaultCoreJson
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -19,7 +20,7 @@ import space.kscience.dataforge.names.toStringUnescaped
 @Serializable
 private data class StoredSnapshot(
     val meta: Meta,
-    val blobs: Map<Name, @Serializable(with = Base64ByteArraySerializer::class) ByteArray>? = null,
+    val blobs: Map<Name, Base64Bytes>? = null,
 )
 
 /**
@@ -35,7 +36,7 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
 
     private fun nameToKey(name: Name): String = "$keyPrefix${name.toStringUnescaped()}"
 
-    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, ByteArray>?) {
+    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, Base64Bytes>?) {
         mutex.withLock {
             try {
                 val key = nameToKey(name)
@@ -50,7 +51,7 @@ internal class LocalStorageSnapshotStore(private val keyPrefix: String = "contro
         }
     }
 
-    override suspend fun load(name: Name): Pair<Meta, Map<Name, ByteArray>?>? = mutex.withLock {
+    override suspend fun load(name: Name): Pair<Meta, Map<Name, Base64Bytes>?>? = mutex.withLock {
         try {
             val key = nameToKey(name)
             localStorage.getItem(key)?.let { snapshotString ->

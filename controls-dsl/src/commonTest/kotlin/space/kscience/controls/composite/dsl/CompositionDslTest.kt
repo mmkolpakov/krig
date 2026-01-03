@@ -10,9 +10,9 @@ import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.connectivity.composition
 import space.kscience.controls.connectivity.connectivity
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.composition.LocalChildComponentConfig
-import space.kscience.controls.core.composition.RemoteChildComponentConfig
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.composition.LocalChildComponentConfig
+import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.double
 import space.kscience.dataforge.meta.string
@@ -45,7 +45,7 @@ class CompositionDslTest {
     private val childBlueprint = compositeDeviceUnchecked(childSpec, Global)
 
     /**
-     * Verifies that `child` and `children` blocks correctly register [space.kscience.controls.core.composition.LocalChildComponentConfig]
+     * Verifies that `child` and `children` blocks correctly register [LocalChildComponentConfig]
      * with the specified blueprint ID, metadata, and lifecycle overrides.
      */
     @Test
@@ -123,7 +123,7 @@ class CompositionDslTest {
     }
 
     /**
-     * Verifies that the `remoteChild` DSL correctly creates a [space.kscience.controls.core.composition.RemoteChildComponentConfig]
+     * Verifies that the `remoteChild` DSL correctly creates a [RemoteChildComponentConfig]
      * and populates it with the correct remote device name and peer connection name.
      */
     @Test

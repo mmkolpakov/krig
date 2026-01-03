@@ -1,9 +1,9 @@
 package space.kscience.controls.core.contracts
 
-import space.kscience.controls.core.features.Feature
-import space.kscience.controls.core.features.FeatureKey
+import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.core.features.MetadataFeature
-import space.kscience.controls.core.meta.MemberTag
+import space.kscience.controls.api.meta.MemberTag
 
 /**
  * Access to the [MetadataFeature] of the blueprint.

@@ -1,19 +1,12 @@
 package space.kscience.controls.core.contracts
 
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.composition.ChildComponentConfig
-import space.kscience.controls.core.connectivity.PeerBlueprint
-import space.kscience.controls.core.connectivity.PeerConnection
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.descriptors.StreamDescriptor
-import space.kscience.controls.core.features.Feature
-import space.kscience.controls.core.features.FeatureKey
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.features.FeatureKey
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.DeviceStreamSpec
-import space.kscience.controls.core.meta.MemberTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.misc.DfType

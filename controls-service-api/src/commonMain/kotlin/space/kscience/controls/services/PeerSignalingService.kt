@@ -1,8 +1,8 @@
 package space.kscience.controls.services
 
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.messages.BinaryReadyNotification
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.messages.BinaryReadyNotification
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

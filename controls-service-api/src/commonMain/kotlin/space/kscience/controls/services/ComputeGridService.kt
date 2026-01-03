@@ -2,10 +2,10 @@ package space.kscience.controls.services
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.faults.SerializableDeviceFailure
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.faults.SerializableDeviceFailure
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

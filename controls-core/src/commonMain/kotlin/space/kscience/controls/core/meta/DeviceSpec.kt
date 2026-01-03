@@ -2,9 +2,9 @@ package space.kscience.controls.core.meta
 
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.StreamPort
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.descriptors.StreamDescriptor
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import kotlin.reflect.KType

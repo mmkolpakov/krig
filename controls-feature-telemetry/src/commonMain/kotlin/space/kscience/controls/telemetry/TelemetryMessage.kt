@@ -2,11 +2,11 @@ package space.kscience.controls.telemetry
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.data.DataQuality
-import space.kscience.controls.core.data.RawValue
-import space.kscience.controls.core.identifiers.CorrelationId
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.data.DataQuality
+import space.kscience.controls.api.data.RawValue
+import space.kscience.controls.api.identifiers.CorrelationId
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.names.Name
 import kotlin.time.Instant
 

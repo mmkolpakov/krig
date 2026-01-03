@@ -5,8 +5,8 @@ import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.dataforge.meta.*
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName

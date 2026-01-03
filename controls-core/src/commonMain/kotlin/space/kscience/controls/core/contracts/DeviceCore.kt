@@ -2,15 +2,15 @@ package space.kscience.controls.core.contracts
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.context.SystemPrincipal
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.context.SystemPrincipal
 import space.kscience.controls.core.contracts.Device.Companion.ACTION_TARGET
 import space.kscience.controls.core.contracts.Device.Companion.CHILD_DEVICE_TARGET
 import space.kscience.controls.core.contracts.Device.Companion.PROPERTY_TARGET
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.names.Name

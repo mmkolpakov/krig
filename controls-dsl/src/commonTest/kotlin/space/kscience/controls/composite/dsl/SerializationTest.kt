@@ -2,7 +2,6 @@ package space.kscience.controls.composite.dsl
 
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import ru.nsk.kstatemachine.event.Event
 import space.kscience.controls.alarms.AlarmsFeature
 import space.kscience.controls.automation.ActionSpec
@@ -34,23 +33,23 @@ import space.kscience.controls.connectivity.PropertyBinding
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.controls.connectivity.ToStringTransformerDescriptor
 import space.kscience.controls.connectivity.TransformedPropertyBinding
-import space.kscience.controls.core.messages.BinaryDataRequest
-import space.kscience.controls.core.messages.BinaryReadyNotification
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.faults.SerializableDeviceFailure
-import space.kscience.controls.core.faults.ValidationFault
+import space.kscience.controls.api.messages.BinaryDataRequest
+import space.kscience.controls.api.messages.BinaryReadyNotification
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.faults.SerializableDeviceFailure
+import space.kscience.controls.api.faults.ValidationFault
 import space.kscience.controls.telemetry.DataSourceFeature
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.features.Feature
 import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.core.features.ReconfigurableFeature
-import space.kscience.controls.core.identifiers.toBlueprintId
-import space.kscience.controls.core.messages.DescriptionMessage
-import space.kscience.controls.core.messages.DeviceAttachedMessage
-import space.kscience.controls.core.messages.DeviceDetachedMessage
-import space.kscience.controls.core.messages.DeviceErrorMessage
-import space.kscience.controls.core.messages.DeviceMessage
-import space.kscience.controls.core.messages.PredicateChangedMessage
-import space.kscience.controls.core.messages.PropertyChangedMessage
+import space.kscience.controls.api.identifiers.toBlueprintId
+import space.kscience.controls.api.messages.DescriptionMessage
+import space.kscience.controls.api.messages.DeviceAttachedMessage
+import space.kscience.controls.api.messages.DeviceDetachedMessage
+import space.kscience.controls.api.messages.DeviceErrorMessage
+import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.controls.api.messages.PredicateChangedMessage
+import space.kscience.controls.api.messages.PropertyChangedMessage
 import space.kscience.controls.fsm.IntrospectionFeature
 import space.kscience.controls.fsm.LifecycleFeature
 import space.kscience.controls.fsm.LifecycleStateChangedMessage
@@ -78,7 +77,7 @@ class SerializationTest {
     private object TestEvent : Event
 
     /**
-     * Verifies that all subtypes of [space.kscience.controls.core.messages.DeviceMessage] are correctly serialized and deserialized.
+     * Verifies that all subtypes of [DeviceMessage] are correctly serialized and deserialized.
      * This is critical for the message bus and any communication layer.
      */
     @Test
@@ -180,7 +179,7 @@ class SerializationTest {
     }
 
     /**
-     * Verifies that all standard [space.kscience.controls.core.features.Feature] subtypes are correctly serialized.
+     * Verifies that all standard [Feature] subtypes are correctly serialized.
      * This test is critical because Feature is an open polymorphic interface.
      */
     @Test
@@ -227,7 +226,7 @@ class SerializationTest {
     }
 
     /**
-     * Verifies that [space.kscience.controls.core.faults.SerializableDeviceFailure] correctly serializes a nested [DeviceFault].
+     * Verifies that [SerializableDeviceFailure] correctly serializes a nested [DeviceFault].
      */
     @Test
     fun testDeviceFaultSerialization() {
@@ -239,7 +238,7 @@ class SerializationTest {
         )
 
         val json = controlsJson.encodeToString(failure)
-        val restored = controlsJson.decodeFromString<space.kscience.controls.core.faults.SerializableDeviceFailure>(json)
+        val restored = controlsJson.decodeFromString<SerializableDeviceFailure>(json)
 
         assertEquals(failure, restored)
 

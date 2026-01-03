@@ -1,6 +1,6 @@
 package space.kscience.controls.validation
 
-import space.kscience.controls.core.composition.RemoteChildComponentConfig
+import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.connectivity.RemoteMirrorFeature

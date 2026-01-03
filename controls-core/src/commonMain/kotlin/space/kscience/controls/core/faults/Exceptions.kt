@@ -1,8 +1,7 @@
 package space.kscience.controls.core.faults
 
-import kotlinx.serialization.Serializable
-import space.kscience.controls.core.faults.DeviceFault
-import space.kscience.dataforge.meta.Meta
+import space.kscience.controls.api.faults.DeviceFault
+import space.kscience.controls.api.faults.SerializableDeviceFailure
 import space.kscience.dataforge.names.Name
 
 /**
@@ -14,35 +13,6 @@ import space.kscience.dataforge.names.Name
  * operational errors and can be correctly serialized via [toSerializableFailure].
  */
 public class DeviceSecurityException(message: String, cause: Throwable? = null) : CompositeHubException(message, cause)
-
-
-/**
- * A serializable representation of a device failure, suitable for transmission over the network or between processes.
- * This structure captures the essential information about an exception without relying on platform-specific serialization.
- * It can represent both unexpected system failures and predictable business faults.
- *
- * @property type The simple class name of the original exception, used for identification.
- * @property message The descriptive message of the failure.
- * @property stackTrace An optional string representation of the stack trace, useful for remote debugging of system failures.
- * @property details Additional context-specific details about the error, provided as a [Meta] object.
- * @property code An optional, machine-readable error code (e.g., "E-1024", "TIMEOUT").
- * @property retryable A flag indicating whether the operation that caused this failure can be safely retried.
- * @property fault If non-null, this indicates that the failure was a predictable business fault, not a system error.
- *                 Clients can use the presence of this field to handle the outcome as a valid negative response
- *                 rather than an unexpected exception.
- * @property cause An optional serializable representation of the underlying cause, allowing for nested error reporting.
- */
-@Serializable
-public data class SerializableDeviceFailure(
-    val type: String,
-    val message: String,
-    val stackTrace: String? = null,
-    val details: Meta = Meta.EMPTY,
-    val code: String? = null,
-    val retryable: Boolean = false,
-    val fault: DeviceFault? = null,
-    val cause: SerializableDeviceFailure? = null,
-)
 
 /**
  * A base exception for all control operations on a [space.kscience.controls.composite.old.contracts.CompositeDeviceHub].
@@ -80,7 +50,7 @@ public open class CompositeHubException(message: String, cause: Throwable? = nul
  * @param cause An optional underlying exception, though typically not needed for business faults.
  */
 public class DeviceFaultException(public val fault: DeviceFault, cause: Throwable? = null) :
-    space.kscience.controls.core.faults.CompositeHubException("A predictable business fault occurred: ${fault::class.simpleName}", cause) {
+    CompositeHubException("A predictable business fault occurred: ${fault::class.simpleName}", cause) {
     /**
      * Overrides the base implementation to correctly populate the `fault` field in the
      * resulting [SerializableDeviceFailure].

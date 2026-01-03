@@ -3,12 +3,13 @@ package space.kscience.controls.composite.dsl
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import space.kscience.controls.api.descriptors.tags
 import space.kscience.controls.composite.dsl.properties.doubleProperty
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.meta.UiTestHint
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.meta.UiTestHint
 import space.kscience.dataforge.context.Context
-import space.kscience.controls.core.meta.MemberTag
+import space.kscience.controls.api.meta.MemberTag
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals

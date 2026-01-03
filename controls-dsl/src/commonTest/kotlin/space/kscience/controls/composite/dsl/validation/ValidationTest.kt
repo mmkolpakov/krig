@@ -11,7 +11,7 @@ import space.kscience.controls.composite.dsl.guards.guards
 import space.kscience.controls.composite.dsl.guards.post
 import space.kscience.controls.composite.dsl.properties.booleanProperty
 import space.kscience.controls.composite.dsl.properties.predicate
-import space.kscience.controls.core.addressing.Address
+import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.validation.ValidationError
 import space.kscience.controls.services.discovery.BlueprintRegistry
@@ -22,7 +22,7 @@ import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.validation.CompositeSpecValidator
 import space.kscience.controls.validation.DefaultValidatorsPlugin
 import space.kscience.controls.validation.FeatureValidatorRegistry

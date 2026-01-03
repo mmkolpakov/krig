@@ -4,7 +4,7 @@ import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta

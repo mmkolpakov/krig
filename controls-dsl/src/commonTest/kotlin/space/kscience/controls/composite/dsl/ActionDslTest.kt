@@ -5,13 +5,15 @@ import space.kscience.controls.composite.dsl.actions.metaAction
 import space.kscience.controls.composite.dsl.actions.plan
 import space.kscience.controls.composite.dsl.actions.taskAction
 import space.kscience.controls.composite.dsl.actions.unitAction
-import space.kscience.controls.core.addressing.Address
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.descriptors.attribute
+import space.kscience.controls.api.descriptors.attributes.ImplementationAttribute
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorFeature
-import space.kscience.controls.core.meta.UnitMetaConverter
+import space.kscience.controls.common.meta.UnitMetaConverter
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.get
@@ -93,7 +95,7 @@ class ActionDslTest {
         assertNotNull(planActionSpec)
 
         // Check if the plan is serialized into the descriptor's meta
-        val planMeta = planActionSpec.descriptor.meta["plan"]
+        val planMeta = planActionSpec.descriptor.attribute<ImplementationAttribute>()?.executionMeta["plan"]
         assertNotNull(planMeta)
         assertEquals("start", planMeta["type"].string)
     }
@@ -126,8 +128,8 @@ class ActionDslTest {
 
         // Check descriptor fields
         val descriptor = taskActionSpec.descriptor
-        assertEquals("com.example.myTask", descriptor.taskBlueprintId)
-        assertEquals("space.kscience.controls.composite.dsl.MyTaskInput", descriptor.taskInputTypeName)
-        assertEquals("space.kscience.controls.composite.dsl.MyTaskOutput", descriptor.taskOutputTypeName)
+        assertEquals("com.example.myTask", descriptor.attribute<ImplementationAttribute>()?.taskBlueprintId)
+        assertEquals("space.kscience.controls.composite.dsl.MyTaskInput", descriptor.attribute<ImplementationAttribute>()?.taskInputTypeName)
+        assertEquals("space.kscience.controls.composite.dsl.MyTaskOutput", descriptor.attribute<ImplementationAttribute>()?.taskOutputTypeName)
     }
 }

@@ -8,7 +8,7 @@ import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.connectivity.MirrorEntry
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 

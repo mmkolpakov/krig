@@ -1,11 +1,12 @@
 package space.kscience.controls.alarms
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.descriptors.MemberDescriptor
-import space.kscience.controls.core.identifiers.Permission
-import space.kscience.controls.core.meta.AdapterBinding
-import space.kscience.controls.core.meta.MemberTag
-import space.kscience.controls.core.serialization.serializableToMeta
+import space.kscience.controls.api.descriptors.MemberAttribute
+import space.kscience.controls.api.descriptors.MemberDescriptor
+import space.kscience.controls.api.identifiers.Permission
+import space.kscience.controls.api.meta.AdapterBinding
+import space.kscience.controls.api.meta.MemberTag
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Duration
@@ -16,6 +17,7 @@ import kotlin.time.Duration
  * @property predicateName The name of a boolean property (a `PREDICATE`) on the same device that triggers this alarm.
  * @property retainTime An optional duration for which the alarm should remain in an active state even after the
  *                      triggering predicate becomes false.
+ * @property attributes TODO desc
  */
 @Serializable
 public data class AlarmDescriptor(
@@ -24,11 +26,7 @@ public data class AlarmDescriptor(
     val predicateName: Name,
     val severity: AlarmSeverity,
     val retainTime: Duration = Duration.ZERO,
-    // Policies to be added later if needed via Meta or extensions
-    override val readPermissions: Set<Permission> = emptySet(),
-    override val writePermissions: Set<Permission> = emptySet(),
-    override val tags: Set<MemberTag> = emptySet(),
-    override val bindings: Map<String, AdapterBinding> = emptyMap(),
+    override val attributes: Set<MemberAttribute> = emptySet()
 ) : MemberDescriptor {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }

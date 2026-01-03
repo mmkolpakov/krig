@@ -3,6 +3,7 @@ package space.kscience.controls.composite.persistence
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.names.Name
 import kotlin.test.BeforeTest
@@ -25,8 +26,8 @@ class FileSnapshotStoreTest : SnapshotStoreTestBase() {
     fun `save creates physical files`() = runTest {
         val testName = Name.parse("device.test")
         val testBlobs = mapOf(
-            Name.parse("blob1") to "blob one".encodeToByteArray(),
-            Name.parse("blob2") to "blob two".encodeToByteArray()
+            Name.parse("blob1") to Base64Bytes("blob one".encodeToByteArray()),
+            Name.parse("blob2") to Base64Bytes("blob two".encodeToByteArray())
         )
         store.save(testName, testMeta, testBlobs)
 

@@ -2,10 +2,10 @@ package space.kscience.controls.alarms
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.context.Principal
-import space.kscience.controls.core.identifiers.CorrelationId
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.context.Principal
+import space.kscience.controls.api.identifiers.CorrelationId
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.names.Name
 import kotlin.time.Duration
 import kotlin.time.Instant

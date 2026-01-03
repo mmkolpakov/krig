@@ -2,6 +2,7 @@ package space.kscience.controls.composite.persistence
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -11,18 +12,18 @@ import space.kscience.dataforge.names.Name
  * State is lost when the application terminates. Useful for testing and temporary storage.
  */
 public class InMemorySnapshotStore : SnapshotStore {
-    private data class Snapshot(val meta: Meta, val blobs: Map<Name, ByteArray>?)
+    private data class Snapshot(val meta: Meta, val blobs: Map<Name, Base64Bytes>?)
 
     private val storage = mutableMapOf<Name, Snapshot>()
     private val mutex = Mutex()
 
-    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, ByteArray>?) {
+    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, Base64Bytes>?) {
         mutex.withLock {
             storage[name] = Snapshot(snapshot, blobs)
         }
     }
 
-    override suspend fun load(name: Name): Pair<Meta, Map<Name, ByteArray>?>? = mutex.withLock {
+    override suspend fun load(name: Name): Pair<Meta, Map<Name, Base64Bytes>?>? = mutex.withLock {
         storage[name]?.let { it.meta to it.blobs }
     }
 

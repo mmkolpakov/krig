@@ -1,7 +1,7 @@
 package space.kscience.controls.composite.protocol.api
 
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.composite.ports.Port
 import space.kscience.dataforge.meta.Meta
 

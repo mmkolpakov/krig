@@ -2,13 +2,14 @@ package space.kscience.controls.core.serialization
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import space.kscience.controls.api.serialization.SerializationContributor
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 
 /**
  * A central infrastructure plugin that aggregates serialization configurations from all other loaded plugins.
  *
- * It scans the [Context] for any plugins implementing [SerializationContributor] and combines their
+ * It scans the [Context] for any plugins implementing [space.kscience.controls.api.serialization.SerializationContributor] and combines their
  * [SerializersModule]s with the core module. This results in a single, context-aware [Json] instance
  * capable of handling all polymorphic types (DeviceMessage, Feature, etc.) present in the runtime.
  */
@@ -16,7 +17,7 @@ public class SerializationPlugin : AbstractPlugin() {
     override val tag: PluginTag get() = Companion.tag
 
     /**
-     * Lazily finds all plugins in the context that implement [SerializationContributor].
+     * Lazily finds all plugins in the context that implement [space.kscience.controls.api.serialization.SerializationContributor].
      */
     private val contributors: Collection<SerializationContributor> by lazy {
         context.plugins.filterIsInstance<SerializationContributor>()

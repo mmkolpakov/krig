@@ -2,7 +2,7 @@ package space.kscience.controls.connectivity
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.serialization.serializableToMeta
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Factory
 import space.kscience.dataforge.meta.Meta

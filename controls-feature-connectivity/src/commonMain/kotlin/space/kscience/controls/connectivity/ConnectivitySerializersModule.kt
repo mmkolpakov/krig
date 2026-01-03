@@ -3,10 +3,10 @@ package space.kscience.controls.connectivity
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import space.kscience.controls.core.connectivity.AddressSource
-import space.kscience.controls.core.connectivity.DiscoveredAddressSource
-import space.kscience.controls.core.connectivity.StaticAddressSource
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.connectivity.AddressSource
+import space.kscience.controls.api.connectivity.DiscoveredAddressSource
+import space.kscience.controls.api.connectivity.StaticAddressSource
+import space.kscience.controls.api.features.Feature
 
 public val connectivitySerializersModule: SerializersModule = SerializersModule {
     polymorphic(Feature::class) {

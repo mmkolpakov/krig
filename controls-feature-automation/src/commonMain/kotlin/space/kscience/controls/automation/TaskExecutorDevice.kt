@@ -1,7 +1,7 @@
 package space.kscience.controls.automation
 
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.context.SystemPrincipal
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.context.SystemPrincipal
 import space.kscience.controls.core.contracts.Device
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name

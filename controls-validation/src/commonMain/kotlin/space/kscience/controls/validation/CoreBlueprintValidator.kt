@@ -1,7 +1,9 @@
 package space.kscience.controls.validation
 
+import space.kscience.controls.api.descriptors.attribute
+import space.kscience.controls.api.descriptors.attributes.FsmAttribute
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyKind
 
 /**
  * Performs core validation checks on a blueprint that are not tied to a specific feature.
@@ -14,7 +16,8 @@ internal fun validateCoreBlueprint(blueprint: DeviceBlueprint<*>): List<Validati
     val errors = mutableListOf<ValidationError>()
     // Validate action requirements
     blueprint.actions.values.forEach { action ->
-        action.descriptor.requiredPredicates.forEach { predicateName ->
+        val actionFsm = action.descriptor.attribute<FsmAttribute>()
+        actionFsm?.requiredPredicates?.forEach { predicateName ->
             val predicateSpec = blueprint.properties[predicateName]
             if (predicateSpec == null) {
                 errors.add(

@@ -1,7 +1,7 @@
 package space.kscience.controls.core.contracts
 
 import kotlinx.coroutines.flow.StateFlow
-import space.kscience.controls.core.lifecycle.DeviceLifecycleState
+import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.dataforge.context.ContextAware
 
 /**
@@ -9,7 +9,7 @@ import space.kscience.dataforge.context.ContextAware
  * The lifecycle itself is driven by external events (e.g., from a [CompositeDeviceHub]),
  * not by direct calls to `start()` or `stop()` on the component itself.
  *
- * @see space.kscience.controls.core.lifecycle.DeviceLifecycleState for possible states.
+ * @see DeviceLifecycleState for possible states.
  */
 public interface ManagedComponent : ContextAware {
     /**

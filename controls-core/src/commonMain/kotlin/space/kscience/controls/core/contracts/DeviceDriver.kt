@@ -53,7 +53,7 @@ public fun interface DeviceDriver<D : Device> {
 
     /**
      * A hook called by the runtime immediately after the device has successfully started and
-     * its lifecycle state has transitioned to [space.kscience.controls.core.lifecycle.DeviceLifecycleState.Running].
+     * its lifecycle state has transitioned to [space.kscience.controls.api.lifecycle.DeviceLifecycleState.Running].
      * @param device The device instance that has started.
      */
     public suspend fun afterStart(device: D) {}
@@ -79,7 +79,7 @@ public fun interface DeviceDriver<D : Device> {
     public suspend fun onReset(device: D) {}
 
     /**
-     * A hook called when a device enters the [space.kscience.controls.core.lifecycle.DeviceLifecycleState.Failed] state.
+     * A hook called when a device enters the [space.kscience.controls.api.lifecycle.DeviceLifecycleState.Failed] state.
      * @param device The device instance that failed.
      * @param error The optional error that caused the failure.
      */

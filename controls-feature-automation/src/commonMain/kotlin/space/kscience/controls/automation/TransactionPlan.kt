@@ -3,11 +3,11 @@ package space.kscience.controls.automation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.spec.RetryPolicy
-import space.kscience.controls.core.spec.TimeoutPolicy
-import space.kscience.controls.core.identifiers.BlueprintId
-import space.kscience.controls.core.serialization.serializableToMeta
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.spec.RetryPolicy
+import space.kscience.controls.api.spec.TimeoutPolicy
+import space.kscience.controls.api.identifiers.BlueprintId
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.names.Name

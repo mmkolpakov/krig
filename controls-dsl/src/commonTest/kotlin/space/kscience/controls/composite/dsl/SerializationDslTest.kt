@@ -3,16 +3,21 @@ package space.kscience.controls.composite.dsl
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import space.kscience.controls.api.descriptors.bindings
+import space.kscience.controls.api.descriptors.tags
 import space.kscience.controls.composite.dsl.properties.doubleProperty
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
-import space.kscience.controls.core.meta.AdapterBinding
-import space.kscience.controls.core.meta.MemberTag
-import space.kscience.controls.core.meta.ModbusTestBinding
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.meta.UiTestHint
+import space.kscience.controls.api.meta.AdapterBinding
+import space.kscience.controls.api.meta.MemberTag
+import space.kscience.controls.api.meta.ModbusTestBinding
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.meta.UiTestHint
+import space.kscience.controls.api.descriptors.maxValue
+import space.kscience.controls.api.descriptors.minValue
+import space.kscience.controls.api.descriptors.unit
 import space.kscience.controls.validation.DefaultValidatorsPlugin
 import space.kscience.controls.validation.FeatureValidatorRegistry
 import space.kscience.dataforge.context.AbstractPlugin
@@ -85,7 +90,6 @@ class SerializationDslTest {
         assertEquals("V", restoredDescriptor.unit)
         assertEquals(0.0, restoredDescriptor.minValue, "minValue should be deserialized")
         assertEquals(100.0, restoredDescriptor.maxValue, "maxValue should be deserialized")
-        assertEquals(0.0..100.0, restoredDescriptor.valueRange, "Transient valueRange should be reconstructed")
 
         assertEquals(1, restoredDescriptor.tags.size)
         val tag = restoredDescriptor.tags.first()

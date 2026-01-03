@@ -5,6 +5,7 @@ import kotlinx.coroutines.sync.withLock
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.debug
 import space.kscience.dataforge.context.error
@@ -52,7 +53,7 @@ public class FileSnapshotStore(
 
     private fun nameToPath(name: Name): Path = this.basePath / name.toStringUnescaped()
 
-    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, ByteArray>?) {
+    override suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, Base64Bytes>?) {
         mutex.withLock {
             val snapshotDir = nameToPath(name)
             try {
@@ -73,10 +74,10 @@ public class FileSnapshotStore(
                 if (!blobs.isNullOrEmpty()) {
                     val blobsDir = snapshotDir / BLOBS_DIR_NAME
                     fs.createDirectories(blobsDir)
-                    blobs.forEach { (blobName, bytes) ->
+                    blobs.forEach { (blobName, base64Bytes) ->
                         val blobFile = blobsDir / blobName.toStringUnescaped()
                         fs.write(blobFile) {
-                            write(bytes)
+                            write(base64Bytes.bytes)
                         }
                     }
                 }
@@ -89,7 +90,7 @@ public class FileSnapshotStore(
         }
     }
 
-    override suspend fun load(name: Name): Pair<Meta, Map<Name, ByteArray>?>? = mutex.withLock {
+    override suspend fun load(name: Name): Pair<Meta, Map<Name, Base64Bytes>?>? = mutex.withLock {
         val snapshotDir = nameToPath(name)
         if (!fs.exists(snapshotDir)) return@withLock null
 
@@ -102,11 +103,11 @@ public class FileSnapshotStore(
 
             // Load blobs
             val blobsDir = snapshotDir / BLOBS_DIR_NAME
-            val blobs: Map<Name, ByteArray>? = if (fs.exists(blobsDir)) {
+            val blobs: Map<Name, Base64Bytes>? = if (fs.exists(blobsDir)) {
                 fs.list(blobsDir).associate { blobFile ->
                     val blobName = blobFile.name.asName()
                     val bytes = fs.read(blobFile) { readByteArray() }
-                    blobName to bytes
+                    blobName to Base64Bytes(bytes)
                 }
             } else {
                 null

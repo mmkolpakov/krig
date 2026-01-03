@@ -2,9 +2,9 @@ package space.kscience.controls.core.state
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
-import space.kscience.controls.core.data.Quality
-import space.kscience.controls.core.data.StateValue
-import space.kscience.controls.core.data.okState
+import space.kscience.controls.api.data.Quality
+import space.kscience.controls.api.data.StateValue
+import space.kscience.controls.api.data.okState
 import kotlin.reflect.KProperty
 import kotlin.time.Clock
 import kotlin.time.Instant

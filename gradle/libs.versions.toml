@@ -2,12 +2,12 @@
 # Core Framework
 kscience-tools = "0.20.2-kotlin-2.3.0"
 atomicfu = "0.30.0-beta"
-dataforge = "0.10.1"
+dataforge = "0.10.2"
 kstatemachine = "0.35.0"
-kotlinx-datetime = "0.7.1"
+kotlinx-datetime = "0.7.1-0.6.x-compat"
 kotlinx-coroutines = "1.10.2"
 ktor = "3.3.3"
-okio = "3.16.2"
+okio = "3.16.4"
 kotlinx-io-core = "0.8.2"
 sqldelight = "2.2.1"
 
@@ -22,7 +22,7 @@ hivemq = "1.3.10"
 rabbitmq = "5.27.1"
 
 # Integration & Drivers
-j2mod = "3.2.1"
+j2mod = "3.3.0"
 milo = "1.0.2"
 pi4j = "3.0.2"
 pi4j-ktx = "2.4.0"
@@ -34,8 +34,8 @@ tornadofx = "1.7.20"
 koala-plots = "0.10.2"
 
 # Testing
-logback = "1.5.21"
-testcontainers = "2.0.2"
+logback = "1.5.23"
+testcontainers = "2.0.3"
 uuid = "0.8.4"
 
 # Gradle Plugins

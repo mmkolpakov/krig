@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.PolymorphicSerializer
 import space.kscience.controls.core.contracts.MessageBroker
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.misc.DFExperimental
 import space.kscience.dataforge.names.Name
 import space.kscience.magix.api.*

@@ -1,6 +1,7 @@
 package space.kscience.controls.composite.persistence
 
 import kotlinx.coroutines.test.runTest
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
@@ -26,8 +27,8 @@ abstract class SnapshotStoreTestBase {
         "number" put 42
     }
     private val testBlobs = mapOf(
-        Name.parse("blob1") to "blob one".encodeToByteArray(),
-        Name.parse("blob2") to "blob two".encodeToByteArray()
+        Name.parse("blob1") to Base64Bytes("blob one".encodeToByteArray()),
+        Name.parse("blob2") to Base64Bytes("blob two".encodeToByteArray())
     )
 
     @Test
@@ -55,8 +56,8 @@ abstract class SnapshotStoreTestBase {
         assertEquals(testMeta, meta)
         assertNotNull(blobs)
         assertEquals(2, blobs.size)
-        assertEquals(testBlobs["blob1"]?.decodeToString(), blobs["blob1"]?.decodeToString())
-        assertEquals(testBlobs["blob2"]?.decodeToString(), blobs["blob2"]?.decodeToString())
+        assertEquals(testBlobs["blob1"]?.bytes?.decodeToString(), blobs["blob1"]?.bytes?.decodeToString())
+        assertEquals(testBlobs["blob2"]?.bytes?.decodeToString(), blobs["blob2"]?.bytes?.decodeToString())
     }
 
     @Test
@@ -67,7 +68,7 @@ abstract class SnapshotStoreTestBase {
             "value" put "newValue"
             "number" put 99
         }
-        val newBlobs = mapOf(Name.parse("newBlob") to "new data".encodeToByteArray())
+        val newBlobs = mapOf(Name.parse("newBlob") to Base64Bytes("new data".encodeToByteArray()))
 
         store.save(testName, newSnapshot, newBlobs)
         val loaded = store.load(testName)
@@ -78,7 +79,7 @@ abstract class SnapshotStoreTestBase {
         assertEquals("newValue", meta["value"].string)
         assertNotNull(blobs)
         assertEquals(1, blobs.size)
-        assertEquals("new data", blobs["newBlob"]?.decodeToString())
+        assertEquals("new data", blobs["newBlob"]?.bytes?.decodeToString())
     }
 
     @Test

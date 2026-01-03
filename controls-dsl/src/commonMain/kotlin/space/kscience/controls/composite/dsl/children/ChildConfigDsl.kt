@@ -3,7 +3,6 @@ package space.kscience.controls.composite.dsl.children
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.fsm.DeviceLifecycleConfig
-import space.kscience.controls.connectivity.ChildPropertyBindings
 import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.PropertyBinding
@@ -11,7 +10,7 @@ import space.kscience.controls.connectivity.PropertyTransformerDescriptor
 import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.features.Feature
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MutableMeta
 import kotlin.contracts.ExperimentalContracts

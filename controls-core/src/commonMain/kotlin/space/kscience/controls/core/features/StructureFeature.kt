@@ -3,12 +3,14 @@ package space.kscience.controls.core.features
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.descriptors.ActionDescriptor
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.descriptors.StreamDescriptor
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.controls.core.runtime.HydratableDeviceState
-import space.kscience.controls.core.serialization.serializableToMeta
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 

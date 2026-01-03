@@ -4,12 +4,12 @@ import kotlinx.serialization.serializer
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.spec.QoS
+import space.kscience.controls.api.spec.QoS
 import space.kscience.controls.core.contracts.StreamPort
 import space.kscience.controls.core.meta.DeviceStreamSpec
-import space.kscience.controls.core.descriptors.StreamDescriptor
-import space.kscience.controls.core.spec.StreamDirection
-import space.kscience.controls.core.identifiers.Permission
+import space.kscience.controls.api.descriptors.StreamDescriptor
+import space.kscience.controls.api.spec.StreamDirection
+import space.kscience.controls.api.identifiers.Permission
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
 import kotlin.properties.PropertyDelegateProvider
@@ -72,16 +72,8 @@ public inline fun <reified T, D : Device> DeviceSpecification<D>.stream(
         val fqName = serializer<T>().descriptor.serialName
         val descriptor = StreamDescriptor(
             name = streamName,
-            description = dslBuilder.description,
             dataTypeFqName = fqName,
-            permissions = dslBuilder.permissions,
-            suggestedRateHz = dslBuilder.suggestedRateHz,
-            direction = dslBuilder.direction,
-            deliveryHint = dslBuilder.deliveryHint,
-            readPermissions = TODO(),
-            writePermissions = TODO(),
-            tags = TODO(),
-            bindings = TODO()
+            attributes = TODO()
         )
 
         val spec = object : DeviceStreamSpec<D> {

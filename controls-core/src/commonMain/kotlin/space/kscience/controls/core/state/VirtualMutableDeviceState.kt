@@ -2,9 +2,9 @@ package space.kscience.controls.core.state
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import space.kscience.controls.core.data.Quality
-import space.kscience.controls.core.data.StateValue
-import space.kscience.controls.core.data.okState
+import space.kscience.controls.api.data.Quality
+import space.kscience.controls.api.data.StateValue
+import space.kscience.controls.api.data.okState
 
 /**
  * A [MutableDeviceState] that does not correspond to a physical state,

@@ -1,6 +1,6 @@
 package space.kscience.controls.services
 
-import space.kscience.controls.core.context.Principal
+import space.kscience.controls.api.context.Principal
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 

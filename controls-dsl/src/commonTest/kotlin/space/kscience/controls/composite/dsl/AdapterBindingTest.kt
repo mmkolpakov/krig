@@ -3,12 +3,13 @@ package space.kscience.controls.composite.dsl
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import space.kscience.controls.api.descriptors.bindings
 import space.kscience.controls.composite.dsl.properties.PropertyDescriptorBuilder
 import space.kscience.controls.composite.dsl.properties.doubleProperty
 import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.meta.AdapterBinding
-import space.kscience.controls.core.meta.ModbusTestBinding
-import space.kscience.controls.core.descriptors.PropertyDescriptor
+import space.kscience.controls.api.meta.AdapterBinding
+import space.kscience.controls.api.meta.ModbusTestBinding
+import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test

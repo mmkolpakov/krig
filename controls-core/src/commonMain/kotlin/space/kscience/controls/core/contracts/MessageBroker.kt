@@ -1,7 +1,7 @@
 package space.kscience.controls.core.contracts
 
 import kotlinx.coroutines.flow.Flow
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.names.Name
 
 /**

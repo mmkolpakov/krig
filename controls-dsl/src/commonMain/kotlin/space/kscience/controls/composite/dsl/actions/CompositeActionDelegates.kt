@@ -12,10 +12,10 @@ import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorFeature
 import space.kscience.controls.automation.TransactionPlan
-import space.kscience.controls.core.serialization.serializable
-import space.kscience.controls.core.descriptors.ActionDescriptor
+import space.kscience.controls.common.meta.serializable
+import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.unit
+import space.kscience.controls.common.meta.unit
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.MetaConverter.Companion.meta

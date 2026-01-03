@@ -1,6 +1,6 @@
 package space.kscience.controls.services
 
-import space.kscience.controls.core.addressing.TransportAddress
+import space.kscience.controls.api.addressing.TransportAddress
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

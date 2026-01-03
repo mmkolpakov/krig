@@ -2,7 +2,7 @@ package space.kscience.controls.fsm.events
 
 import kotlinx.serialization.Serializable
 import ru.nsk.kstatemachine.event.Event
-import space.kscience.controls.core.faults.SerializableDeviceFailure
+import space.kscience.controls.api.faults.SerializableDeviceFailure
 
 /**
  * Defines the standard vocabulary of events that drive the device's lifecycle state machine.
@@ -21,7 +21,7 @@ public sealed interface DeviceLifecycleEvent : Event {
     @Serializable
     public data object Stop : DeviceLifecycleEvent
 
-    /** A command to reset the device from a [space.kscience.controls.core.lifecycle.DeviceLifecycleState.Failed] state back to [space.kscience.controls.core.lifecycle.DeviceLifecycleState.Stopped]. */
+    /** A command to reset the device from a [space.kscience.controls.api.lifecycle.DeviceLifecycleState.Failed] state back to [space.kscience.controls.api.lifecycle.DeviceLifecycleState.Stopped]. */
     @Serializable
     public data object Reset : DeviceLifecycleEvent
 

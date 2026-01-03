@@ -61,6 +61,8 @@ dependencyResolutionManagement {
 include(
     // Core & Base
     ":controls-core",
+    ":controls-common",
+    ":controls-api",
     ":controls-service-api",
     ":controls-validation",
 

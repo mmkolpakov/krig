@@ -1,9 +1,9 @@
 package space.kscience.controls.analytics
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.identifiers.BlueprintId
-import space.kscience.controls.core.identifiers.toBlueprintId
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.identifiers.BlueprintId
+import space.kscience.controls.api.identifiers.toBlueprintId
 import space.kscience.dataforge.names.Name
 import kotlin.time.Duration
 import kotlin.time.Instant

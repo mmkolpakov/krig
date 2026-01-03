@@ -8,7 +8,7 @@ import space.kscience.controls.composite.dsl.children.ChildConfigBuilder
 import space.kscience.controls.composite.dsl.properties.ActionDescriptorBuilder
 import space.kscience.controls.composite.dsl.properties.PropertyDescriptorBuilder
 import space.kscience.controls.composite.dsl.streams.StreamDescriptorBuilder
-import space.kscience.controls.core.composition.LocalChildComponentConfig
+import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.TaskExecutorFeature
@@ -16,10 +16,10 @@ import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.DeviceStreamSpec
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.descriptors.PropertyDescriptor
-import space.kscience.controls.core.descriptors.PropertyKind
-import space.kscience.controls.core.descriptors.StreamDescriptor
-import space.kscience.controls.core.meta.unit
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.StreamDescriptor
+import space.kscience.controls.common.meta.unit
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.contracts.StreamPort
@@ -288,16 +288,8 @@ public inline fun <reified T, D : Device> CompositeSpecBuilder<D>.stream(
     val fqName = serializer<T>().descriptor.serialName
     val descriptor = StreamDescriptor(
         name = name,
-        description = dslBuilder.description,
         dataTypeFqName = fqName,
-        permissions = dslBuilder.permissions,
-        suggestedRateHz = TODO(),
-        direction = TODO(),
-        deliveryHint = TODO(),
-        readPermissions = TODO(),
-        writePermissions = TODO(),
-        tags = TODO(),
-        bindings = TODO()
+        attributes = TODO()
     )
 
     val spec = object : DeviceStreamSpec<D> {

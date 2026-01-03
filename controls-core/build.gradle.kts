@@ -15,6 +15,7 @@ kscience {
     useSerialization()
 
     commonMain {
+        api(projects.controlsApi)
         api(libs.dataforge.context)
         api(libs.dataforge.meta)
         api(libs.dataforge.io)

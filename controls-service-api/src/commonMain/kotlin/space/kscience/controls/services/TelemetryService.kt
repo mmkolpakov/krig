@@ -1,7 +1,7 @@
 package space.kscience.controls.services
 
 import kotlinx.coroutines.flow.SharedFlow
-import space.kscience.controls.core.events.ExecutionEvent
+import space.kscience.controls.api.events.ExecutionEvent
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

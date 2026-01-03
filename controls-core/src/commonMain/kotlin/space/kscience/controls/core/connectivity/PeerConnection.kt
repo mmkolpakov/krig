@@ -1,9 +1,9 @@
 package space.kscience.controls.core.connectivity
 
 import kotlinx.coroutines.flow.StateFlow
-import space.kscience.controls.core.addressing.Address
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.spec.QoS
+import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.spec.QoS
 import space.kscience.dataforge.io.Envelope
 import kotlin.time.Duration
 

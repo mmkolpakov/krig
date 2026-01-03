@@ -1,5 +1,7 @@
 package space.kscience.controls.composite.dsl
 
+import space.kscience.controls.api.descriptors.description
+import space.kscience.controls.api.descriptors.readPermissions
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.fsm.IntrospectionFeature
 import space.kscience.dataforge.context.Global
@@ -49,8 +51,9 @@ class StandardFragmentsTest {
             "Returns a PlantUML string representation of the device's lifecycle FSM.",
             lifecycleActionSpec.descriptor.description
         )
+//        TODO readPermissions only
         assertTrue(
-            lifecycleActionSpec.descriptor.permissions.any { it.id == "device.diagnostics.read" },
+            lifecycleActionSpec.descriptor.readPermissions.any { it.id == "device.diagnostics.read" },
             "Lifecycle diagram action should require 'device.diagnostics.read' permission."
         )
 
@@ -62,7 +65,7 @@ class StandardFragmentsTest {
             operationalActionSpec.descriptor.description
         )
         assertTrue(
-            operationalActionSpec.descriptor.permissions.any { it.id == "device.diagnostics.read" },
+            operationalActionSpec.descriptor.readPermissions.any { it.id == "device.diagnostics.read" },
             "Operational diagram action should require 'device.diagnostics.read' permission."
         )
     }

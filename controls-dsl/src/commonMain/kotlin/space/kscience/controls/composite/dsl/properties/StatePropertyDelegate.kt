@@ -6,7 +6,7 @@ import space.kscience.controls.composite.persistence.StatefulFeature
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.runtime.CompositeDeviceContext
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.descriptors.PropertyKind
+import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.core.state.MutableDeviceState
 import space.kscience.controls.core.state.StatefulDevice
 import space.kscience.controls.core.state.value

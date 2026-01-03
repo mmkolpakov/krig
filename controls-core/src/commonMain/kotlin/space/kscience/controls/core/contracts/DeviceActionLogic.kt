@@ -1,6 +1,6 @@
 package space.kscience.controls.core.contracts
 
-import space.kscience.controls.core.context.ExecutionContext
+import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

@@ -3,7 +3,7 @@ package space.kscience.controls.composite.persistence.log
 import app.cash.sqldelight.ColumnAdapter
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.json.Json
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.messages.DeviceMessage
 
 /**
  * A SQLDelight `ColumnAdapter` for the polymorphic `DeviceMessage` interface.

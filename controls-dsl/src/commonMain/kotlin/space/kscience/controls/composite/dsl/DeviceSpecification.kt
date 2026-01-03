@@ -7,7 +7,7 @@ import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.features.Feature
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.DeviceStreamSpec

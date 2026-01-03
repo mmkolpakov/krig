@@ -1,5 +1,5 @@
 import kotlin.time.Instant;
-import space.kscience.controls.core.identifiers.CorrelationId;
+import space.kscience.controls.api.identifiers.CorrelationId;
 import space.kscience.controls.core.messages.DeviceMessage;
 
 -- The primary table for storing all device messages.

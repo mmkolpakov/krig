@@ -4,25 +4,40 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import space.kscience.controls.core.composition.ChildComponentConfig
-import space.kscience.controls.core.composition.LocalChildComponentConfig
-import space.kscience.controls.core.composition.RemoteChildComponentConfig
-import space.kscience.controls.core.connectivity.AddressSource
-import space.kscience.controls.core.connectivity.DiscoveredAddressSource
-import space.kscience.controls.core.connectivity.StaticAddressSource
-import space.kscience.controls.core.descriptors.*
-import space.kscience.controls.core.events.*
-import space.kscience.controls.core.faults.*
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.descriptors.ActionDescriptor
+import space.kscience.controls.api.descriptors.MemberDescriptor
+import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.descriptors.StreamDescriptor
+import space.kscience.controls.api.composition.ChildComponentConfig
+import space.kscience.controls.api.composition.LocalChildComponentConfig
+import space.kscience.controls.api.composition.RemoteChildComponentConfig
+import space.kscience.controls.api.connectivity.AddressSource
+import space.kscience.controls.api.connectivity.DiscoveredAddressSource
+import space.kscience.controls.api.connectivity.StaticAddressSource
+import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.messages.ActionFaultMessage
+import space.kscience.controls.api.messages.BinaryDataRequest
+import space.kscience.controls.api.messages.BinaryReadyNotification
+import space.kscience.controls.api.messages.DescriptionMessage
+import space.kscience.controls.api.messages.DeviceAttachedMessage
+import space.kscience.controls.api.messages.DeviceDetachedMessage
+import space.kscience.controls.api.messages.DeviceErrorMessage
+import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.controls.api.messages.PredicateChangedMessage
+import space.kscience.controls.api.messages.PropertyChangedMessage
 import space.kscience.controls.core.features.MetadataFeature
 import space.kscience.controls.core.features.ReconfigurableFeature
-import space.kscience.controls.core.messages.*
-import space.kscience.controls.core.meta.AdapterBinding
-import space.kscience.controls.core.meta.AliasTag
-import space.kscience.controls.core.meta.MemberTag
-import space.kscience.controls.core.meta.ModbusTestBinding
-import space.kscience.controls.core.meta.ProfileTag
-import space.kscience.controls.core.validation.*
+import space.kscience.controls.api.meta.AdapterBinding
+import space.kscience.controls.api.meta.AliasTag
+import space.kscience.controls.api.meta.MemberTag
+import space.kscience.controls.api.meta.ModbusTestBinding
+import space.kscience.controls.api.meta.ProfileTag
+import space.kscience.controls.api.validation.CustomPredicateRuleDescriptor
+import space.kscience.controls.api.validation.MinLengthRuleDescriptor
+import space.kscience.controls.api.validation.RangeRuleDescriptor
+import space.kscience.controls.api.validation.RegexRuleDescriptor
+import space.kscience.controls.api.validation.ValidationRuleDescriptor
+import space.kscience.controls.common.meta.baseJson
 
 /**
  * A `SerializersModule` containing polymorphic serialization rules for all sealed interfaces
@@ -39,18 +54,6 @@ public val controlsCoreSerializersModule: SerializersModule = SerializersModule 
         subclass(RemoteChildComponentConfig::class)
     }
 
-    polymorphic(DeviceFault::class) {
-        subclass(AuthenticationFault::class)
-        subclass(AuthorizationFault::class)
-        subclass(GenericDeviceFault::class)
-        subclass(InvalidStateFault::class)
-        subclass(NotFoundFault::class)
-        subclass(PreconditionFault::class)
-        subclass(ResourceBusyFault::class)
-        subclass(TimeoutFault::class)
-        subclass(ValidationFault::class)
-    }
-
     polymorphic(DeviceMessage::class) {
         subclass(ActionFaultMessage::class)
         subclass(DescriptionMessage::class)
@@ -61,15 +64,6 @@ public val controlsCoreSerializersModule: SerializersModule = SerializersModule 
         subclass(PredicateChangedMessage::class)
         subclass(BinaryDataRequest::class)
         subclass(BinaryReadyNotification::class)
-    }
-
-    polymorphic(ExecutionEvent::class) {
-        subclass(ActionCompleted::class)
-        subclass(ActionDispatched::class)
-        subclass(ActionStarted::class)
-        subclass(CacheHit::class)
-        subclass(CacheMiss::class)
-        subclass(FaultReported::class)
     }
 
     polymorphic(Feature::class) {
@@ -107,7 +101,7 @@ public val controlsCoreSerializersModule: SerializersModule = SerializersModule 
  * such as in internal logic or property delegates that handle simple, non-polymorphic types.
  * It serves as a sensible default to avoid boilerplate in common cases.
  */
-public val defaultCoreJson: Json = Json {
+public val defaultCoreJson: Json = Json(baseJson) {
     serializersModule = controlsCoreSerializersModule
     ignoreUnknownKeys = true
     encodeDefaults = true

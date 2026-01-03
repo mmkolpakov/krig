@@ -2,8 +2,8 @@ package space.kscience.controls.fsm
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import space.kscience.controls.core.serialization.SchemeAsMetaSerializer
-import space.kscience.controls.core.spec.RestartStrategy
+import space.kscience.controls.common.meta.SchemeAsMetaSerializer
+import space.kscience.controls.api.spec.RestartStrategy
 import space.kscience.dataforge.meta.*
 import kotlin.time.Duration.Companion.seconds
 

@@ -2,8 +2,10 @@ package space.kscience.controls.core.features
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.meta.MemberTag
-import space.kscience.controls.core.serialization.serializableToMeta
+import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.features.FeatureKey
+import space.kscience.controls.api.meta.MemberTag
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 
 /**

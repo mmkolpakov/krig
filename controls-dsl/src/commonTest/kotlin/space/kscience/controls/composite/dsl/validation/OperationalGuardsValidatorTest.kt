@@ -12,7 +12,7 @@ import space.kscience.controls.composite.dsl.guards.post
 import space.kscience.controls.composite.dsl.properties.booleanProperty
 import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.validation.ValidationError
-import space.kscience.controls.core.identifiers.BlueprintId
+import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry

@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.context.SystemPrincipal
-import space.kscience.controls.core.messages.PropertyChangedMessage
-import space.kscience.controls.core.descriptors.PropertyDescriptor
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.context.SystemPrincipal
+import space.kscience.controls.api.messages.PropertyChangedMessage
+import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.dataforge.data.Data
 import space.kscience.dataforge.data.DataTree
 import space.kscience.dataforge.meta.Meta

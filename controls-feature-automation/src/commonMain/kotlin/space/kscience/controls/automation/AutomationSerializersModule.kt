@@ -3,8 +3,8 @@ package space.kscience.controls.automation
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import space.kscience.controls.core.descriptors.ActionLogicSource
-import space.kscience.controls.core.features.Feature
+import space.kscience.controls.api.descriptors.ActionLogicSource
+import space.kscience.controls.api.features.Feature
 
 public val automationSerializersModule: SerializersModule = SerializersModule {
     polymorphic(ActionLogicSource::class) {

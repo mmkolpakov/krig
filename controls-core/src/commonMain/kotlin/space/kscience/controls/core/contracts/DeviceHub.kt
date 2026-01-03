@@ -1,7 +1,7 @@
 package space.kscience.controls.core.contracts
 
-import space.kscience.controls.core.context.ExecutionContext
-import space.kscience.controls.core.context.SystemPrincipal
+import space.kscience.controls.api.context.ExecutionContext
+import space.kscience.controls.api.context.SystemPrincipal
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
@@ -24,7 +24,7 @@ public interface DeviceHub {
      *
      * @param deviceName The name of the target device.
      * @param propertyName The name of the property to read.
-     * @param context The [space.kscience.controls.core.context.ExecutionContext] for this operation.
+     * @param context The [ExecutionContext] for this operation.
      * @return The property value as a [space.kscience.dataforge.meta.Meta] object.
      * @throws space.kscience.controls.core.faults.DeviceNotFoundInCompositeHubException if the device does not exist.
      * @throws space.kscience.controls.core.faults.DevicePropertyException if the read operation fails.

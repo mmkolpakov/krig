@@ -2,7 +2,7 @@ package space.kscience.controls.services
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.messages.DeviceMessage
+import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Plugin
 import space.kscience.dataforge.context.PluginFactory

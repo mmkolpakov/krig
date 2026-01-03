@@ -1,5 +1,6 @@
 package space.kscience.controls.composite.persistence
 
+import space.kscience.controls.common.serialization.Base64Bytes
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
@@ -39,7 +40,7 @@ public interface SnapshotStore {
      * @throws SnapshotStoreException on general storage failures.
      * @throws SnapshotQuotaException if storage limits are exceeded.
      */
-    public suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, ByteArray>? = null)
+    public suspend fun save(name: Name, snapshot: Meta, blobs: Map<Name, Base64Bytes>? = null)
 
     /**
      * Loads the latest snapshot for a given device name, including both metadata and binary data.
@@ -51,7 +52,7 @@ public interface SnapshotStore {
      * @throws SnapshotFormatException if the stored data is malformed.
      * @throws SnapshotStoreException on general storage failures.
      */
-    public suspend fun load(name: Name): Pair<Meta, Map<Name, ByteArray>?>?
+    public suspend fun load(name: Name): Pair<Meta, Map<Name, Base64Bytes>?>?
 
     /**
      * Deletes the entire snapshot for a given device name, including its metadata and all
