@@ -27,7 +27,7 @@ private object MyGuardEvent : Event
 /**
  * A test suite for DSL constructs related to device behavior, such as FSMs and guards.
  */
-//all passed
+//not all passed
 class BehaviorDslTest {
 
     /**
@@ -36,6 +36,7 @@ class BehaviorDslTest {
      */
     @OptIn(DFExperimental::class)
     @Test
+//    FAILED
     fun testGuardsRegistration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -64,6 +65,7 @@ class BehaviorDslTest {
      */
     @OptIn(DFExperimental::class)
     @Test
+//    FAILED
     fun testGuardsAndFsmIntegration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -94,6 +96,7 @@ class BehaviorDslTest {
      * capture their lambda bodies and store them in the final [DeviceBlueprint].
      */
     @Test
+//    FAILED
     fun testLifecycleAndFsmLambdaCapture() {
         val blueprint = deviceBlueprintUnchecked<Device>("test", Global) {
             driver { _, _ -> error("Not for runtime") }

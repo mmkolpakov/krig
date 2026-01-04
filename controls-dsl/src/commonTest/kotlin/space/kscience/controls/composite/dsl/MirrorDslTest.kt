@@ -29,7 +29,7 @@ private class RemoteDeviceSpecForMirror : DeviceSpecification<Device>() {
 /**
  * A test suite for the `mirrors` DSL.
  */
-//all passed
+//not all passed
 class MirrorDslTest {
 
     private val remoteSpec = RemoteDeviceSpecForMirror()
@@ -40,6 +40,7 @@ class MirrorDslTest {
      * and populates it with the defined [MirrorEntry]s.
      */
     @Test
+//    FAILED
     fun testMirrorRegistration() {
         val localSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"

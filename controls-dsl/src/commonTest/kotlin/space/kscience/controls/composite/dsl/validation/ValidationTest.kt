@@ -37,7 +37,7 @@ import space.kscience.dataforge.names.asName
 import kotlin.test.*
 import kotlin.time.Duration.Companion.seconds
 
-//all passed
+//not all passed
 /**
  * A collection of unit and integration tests for the validation framework.
  * These tests are placed in the `dsl` module to allow usage of the DSL for creating
@@ -143,6 +143,7 @@ class ValidationTest {
     }
 
     @Test
+//    FAILED
     fun `test remote mirror validator via registry`() {
         val remoteBlueprint = MockRegistry.remoteBlueprint
         @Suppress("UNCHECKED_CAST")

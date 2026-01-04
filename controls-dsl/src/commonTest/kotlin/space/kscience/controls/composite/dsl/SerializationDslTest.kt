@@ -28,6 +28,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+//not all passed
 class SerializationDslTest {
 
     private object MockBlueprintRegistry : AbstractPlugin(), BlueprintRegistry {
@@ -60,6 +61,7 @@ class SerializationDslTest {
     }
 
     @Test
+//    FAILED
     fun `should correctly serialize and deserialize PropertyDescriptor`() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.serialization.success"

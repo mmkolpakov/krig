@@ -27,7 +27,7 @@ private data class MySerializableData(val text: String, val number: Int)
 /**
  * A test suite for property-related DSL delegates in [DeviceSpecification].
  */
-//all passed
+//not all passed
 class PropertyDslTest {
 
     /**
@@ -63,6 +63,7 @@ class PropertyDslTest {
      * with `PropertyKind.LOGICAL`, marks it as persistent, and adds the `StatefulFeature`.
      */
     @Test
+//    FAILED
     fun testStatefulPropertyDelegate() {
         val spec = object : DeviceSpecification<TestStatefulDeviceForDsl>() {
             override val id = "test.device"

@@ -151,4 +151,12 @@ public sealed interface RawValue {
      */
     @Serializable
     public data class M(public val value: Meta) : RawValue
+
+    /**
+     * Represents a raw JSON string.
+     * Corresponds to [DataType.JSON].
+     */
+    @Serializable
+    @JvmInline
+    public value class JsonRaw(public val jsonString: String) : RawValue
 }

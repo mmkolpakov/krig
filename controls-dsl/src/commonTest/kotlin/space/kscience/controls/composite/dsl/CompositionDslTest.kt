@@ -38,7 +38,7 @@ private class ChildSpecForComposition : DeviceSpecification<Device>() {
 /**
  * A test suite for DSL constructs related to device composition, including children, peers, and bindings.
  */
-//all passed
+//not all passed
 class CompositionDslTest {
 
     private val childSpec = ChildSpecForComposition()
@@ -49,6 +49,7 @@ class CompositionDslTest {
      * with the specified blueprint ID, metadata, and lifecycle overrides.
      */
     @Test
+//    FAILED
     fun testLocalChildRegistration() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -80,6 +81,7 @@ class CompositionDslTest {
      * constant, parent-to-child, and transformed parent-to-child.
      */
     @Test
+//    FAILED
     fun testPropertyBindings() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -127,6 +129,7 @@ class CompositionDslTest {
      * and populates it with the correct remote device name and peer connection name.
      */
     @Test
+//    FAILED
     fun testRemoteChildRegistration() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -153,6 +156,7 @@ class CompositionDslTest {
      * in the blueprint's `peerConnections` map.
      */
     @Test
+//    FAILED
     fun testPeerRegistration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"

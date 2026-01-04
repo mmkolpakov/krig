@@ -24,7 +24,7 @@ private class MyTestSpecWithId : DeviceSpecification<Device>() {
 /**
  * Tests for the primary blueprint factory functions: `deviceBlueprint` and `compositeDevice`.
  */
-//all passed
+//not all passed
 class BlueprintBuilderTest {
 
     /**
@@ -84,6 +84,7 @@ class BlueprintBuilderTest {
      * Verifies that the `addTag` method in the DSL correctly adds tags to the final blueprint.
      */
     @Test
+//    FAILED
     fun testShouldAddTagsToBlueprint() {
         val profileTag = ProfileTag("my.test.profile", "1.0.0")
 

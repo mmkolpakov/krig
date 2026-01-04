@@ -3,6 +3,9 @@ package space.kscience.controls.api.serialization
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import space.kscience.controls.api.addressing.IpcAddress
+import space.kscience.controls.api.addressing.TcpAddress
+import space.kscience.controls.api.addressing.TransportAddress
 import space.kscience.controls.api.composition.ChildComponentConfig
 import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.api.composition.RemoteChildComponentConfig
@@ -47,6 +50,11 @@ public val controlsApiSerializersModule: SerializersModule = SerializersModule {
     polymorphic(AddressSource::class) {
         subclass(DiscoveredAddressSource::class)
         subclass(StaticAddressSource::class)
+    }
+
+    polymorphic(TransportAddress::class) {
+        subclass(TcpAddress::class)
+        subclass(IpcAddress::class)
     }
 
     // Member Attributes

@@ -66,11 +66,9 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * A test suite to verify the polymorphic serialization of all core models in `controls-composite-old`.
- * This ensures that the communication and persistence layers can reliably handle all defined types,
- * which is critical for the framework's distributed and persistent nature.
+ * A test suite to verify the polymorphic serialization of all core models.
  */
-//all passed
+//not all passed
 class SerializationTest {
 
     @Serializable
@@ -183,6 +181,7 @@ class SerializationTest {
      * This test is critical because Feature is an open polymorphic interface.
      */
     @Test
+//    FAILED
     fun testFeatureSerialization() {
         val features = listOf(
             LifecycleFeature(),
