@@ -11,20 +11,6 @@ import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.names.Name
 
 /**
- * A serializable descriptor for a single device within a desired hub state.
- *
- * @property blueprintId The ID of the blueprint for this device.
- * @property meta The configuration meta to be applied to this device instance.
- * @property desiredState The desired lifecycle state for this device (`Running` or `Stopped`).
- */
-@Serializable
-public data class DeviceStateDescriptor(
-    val blueprintId: BlueprintId,
-    val meta: Meta = Meta.EMPTY,
-    val desiredState: DeviceLifecycleState = DeviceLifecycleState.Running,
-)
-
-/**
  * A declarative, serializable old representing the desired state of an entire `DeviceHub`.
  * This descriptor is the cornerstone of the GitOps/declarative management pattern. A runtime component
  * (like a `SelfHealingHub`) can use this descriptor as the source of truth and continuously work to

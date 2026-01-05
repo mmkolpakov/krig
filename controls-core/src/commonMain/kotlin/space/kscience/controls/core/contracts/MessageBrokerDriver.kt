@@ -18,29 +18,3 @@ public fun interface MessageBrokerDriver<B : MessageBroker> {
      */
     public fun create(context: Context, meta: Meta): B
 }
-
-/**
- * A blueprint for a [MessageBroker]. This is a stateless factory that defines
- * how to create a message broker instance.
- *
- * @param B The type of the message broker this blueprint creates.
- */
-public interface MessageBrokerBlueprint<B : MessageBroker> {
-    /**
-     * A unique identifier for this blueprint.
-     */
-    public val id: String
-
-    /**
-     * The driver responsible for creating the [MessageBroker] instance.
-     */
-    public val driver: MessageBrokerDriver<B>
-}
-
-/**
- * A simple data-holding implementation of [MessageBrokerBlueprint].
- */
-public data class SimpleMessageBrokerBlueprint<B : MessageBroker>(
-    override val id: String,
-    override val driver: MessageBrokerDriver<B>,
-) : MessageBrokerBlueprint<B>
