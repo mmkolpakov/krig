@@ -26,11 +26,16 @@ import space.kscience.controls.core.connectivity.SimplePeerBlueprint
 import space.kscience.controls.api.connectivity.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.addressing.Address
+import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.persistent
+import space.kscience.controls.connectivity.ChildBindingsFeature
+import space.kscience.controls.connectivity.ConstPropertyBinding
+import space.kscience.controls.connectivity.ParentPropertyBinding
+import space.kscience.controls.connectivity.composition
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
 import space.kscience.controls.core.state.StateSnapshot
 import space.kscience.dataforge.context.Context
@@ -127,20 +132,29 @@ class DslTest {
         assertEquals("test.parent", blueprint.id.value)
         assertTrue(blueprint.properties.containsKey("parentProperty".asName()))
 
-        //        TODO("blueprint is simplified")
-//        val constChildConfig = blueprint.children["constChild".asName()] as? LocalChildComponentConfig
-//        assertNotNull(constChildConfig)
-//        assertEquals("test.child", constChildConfig.blueprintId.value)
-//        assertEquals(true, constChildConfig.meta["meta.override"].boolean)
-//        assertEquals(1, constChildConfig.bindings.bindings.size)
-//        val constBinding = constChildConfig.bindings.bindings.first() as? ConstPropertyBinding
-//        assertNotNull(constBinding)
-//        assertEquals(123.0, constBinding.value.double)
-//
-//        val boundChildConfig = blueprint.children["boundChild".asName()] as? LocalChildComponentConfig
-//        assertNotNull(boundChildConfig)
-//        assertEquals(1, boundChildConfig.bindings.bindings.size)
-//        assertIs<ParentPropertyBinding>(boundChildConfig.bindings.bindings.first())
+        val children = blueprint.composition?.children ?: emptyMap()
+
+        val constChildConfig = children["constChild".asName()] as? LocalChildComponentConfig
+        assertNotNull(constChildConfig)
+        assertEquals("test.child", constChildConfig.blueprintId.value)
+        assertEquals(true, constChildConfig.meta["meta.override"].boolean)
+
+        // Проверяем биндинги через Feature, так как они теперь там
+        val constBindingsFeature = constChildConfig.features.filterIsInstance<ChildBindingsFeature>().firstOrNull()
+        assertNotNull(constBindingsFeature)
+        assertEquals(1, constBindingsFeature.bindings.size)
+
+        val constBinding = constBindingsFeature.bindings.first() as? ConstPropertyBinding
+        assertNotNull(constBinding)
+        assertEquals(123.0, constBinding.value.double)
+
+        val boundChildConfig = children["boundChild".asName()] as? LocalChildComponentConfig
+        assertNotNull(boundChildConfig)
+
+        val boundBindingsFeature = boundChildConfig.features.filterIsInstance<ChildBindingsFeature>().firstOrNull()
+        assertNotNull(boundBindingsFeature)
+        assertEquals(1, boundBindingsFeature.bindings.size)
+        assertIs<ParentPropertyBinding>(boundBindingsFeature.bindings.first())
     }
 
     @Test

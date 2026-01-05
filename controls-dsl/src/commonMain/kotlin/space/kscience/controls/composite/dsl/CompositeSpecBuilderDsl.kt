@@ -20,6 +20,7 @@ import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.controls.common.meta.unit
+import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.contracts.StreamPort
@@ -60,8 +61,14 @@ public fun <D : Device, C : Device> CompositeSpecBuilder<D>.child(
     contract {
         callsInPlace(configBuilder, InvocationKind.EXACTLY_ONCE)
     }
-    // The logic is identical to the one in DeviceSpecification, but now available directly on the builder.
     val builder = ChildConfigBuilder<D, C>().apply(configBuilder)
+
+    val childFeatures = builder.features.toMutableSet()
+    val bindings = builder.buildBindings()
+    if (bindings.isNotEmpty()) {
+        childFeatures.add(ChildBindingsFeature(bindings))
+    }
+
     val config = LocalChildComponentConfig(
         blueprintId = blueprint.id,
         blueprintVersion = blueprint.version,

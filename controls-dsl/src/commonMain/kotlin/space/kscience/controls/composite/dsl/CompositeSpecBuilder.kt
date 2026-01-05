@@ -37,6 +37,7 @@ import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.contracts.DeviceDriver
 import space.kscience.controls.api.features.MetadataFeature
+import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.context.logger
@@ -526,10 +527,18 @@ public class CompositeSpecBuilder<D : Device>(
     ) {
         names.forEach { childName ->
             val builder = ChildConfigBuilder<D, C>().apply { configBuilder(childName) }
+
+            val childFeatures = builder.features.toMutableSet()
+            val bindings = builder.buildBindings()
+            if (bindings.isNotEmpty()) {
+                childFeatures.add(ChildBindingsFeature(bindings))
+            }
+
             val config = LocalChildComponentConfig(
                 blueprintId = blueprint.id,
                 blueprintVersion = blueprint.version,
                 meta = builder.meta,
+                features = childFeatures
             )
             registerChild(childName, config)
         }
