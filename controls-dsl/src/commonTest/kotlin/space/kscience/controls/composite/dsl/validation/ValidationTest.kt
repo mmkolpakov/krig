@@ -19,9 +19,9 @@ import space.kscience.controls.connectivity.MirrorEntry
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.connectivity.RemoteMirrorFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.validation.CompositeSpecValidator
 import space.kscience.controls.validation.DefaultValidatorsPlugin

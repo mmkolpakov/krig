@@ -3,9 +3,9 @@
 package space.kscience.controls.composite.dsl.properties
 
 import space.kscience.controls.composite.dsl.DeviceSpecification
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.misc.DFExperimental
 import space.kscience.dataforge.names.Name

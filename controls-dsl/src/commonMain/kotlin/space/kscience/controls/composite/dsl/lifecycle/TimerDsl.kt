@@ -6,7 +6,7 @@ import ru.nsk.kstatemachine.state.onExit
 import ru.nsk.kstatemachine.state.transition
 import ru.nsk.kstatemachine.transition.onTriggered
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.fsm.events.TimerTickEvent
 import kotlin.time.Duration
 

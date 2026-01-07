@@ -6,18 +6,19 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.composite.dsl.CompositeSpecBuilder
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.core.runtime.CompositeDeviceContext
 import space.kscience.controls.core.runtime.HydratableDeviceState
-import space.kscience.controls.core.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.api.data.Quality
 import space.kscience.controls.api.data.StateValue
 import space.kscience.controls.api.data.okState
-import space.kscience.controls.core.state.DeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.DeviceState
 import space.kscience.dataforge.context.error
 import space.kscience.dataforge.context.logger
 import space.kscience.dataforge.meta.MetaConverter
@@ -83,14 +84,14 @@ internal inline fun <D : Device, reified T : Any> DeviceSpecification<D>.interna
                     val computedValue = device.read(values)
                     val combinedTimestamp = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
                     val combinedQuality =
-                        if (states.all { it.quality == Quality.OK }) Quality.OK else Quality.INVALID
+                        if (states.all { it.quality == DataQuality.OK }) DataQuality.OK else DataQuality.UNKNOWN
                     StateValue(computedValue, combinedTimestamp, combinedQuality)
                 } catch (e: Exception) {
                     device.context.logger.error(e) { "Failed to compute derived property '${spec.name}'" }
                     StateValue(
                         initialValue,
                         states.maxOfOrNull { it.timestamp } ?: device.clock.now(),
-                        Quality.ERROR
+                        DataQuality.BAD
                     )
                 }
             }.stateIn(
@@ -376,11 +377,11 @@ public fun <D : Device> CompositeSpecBuilder<D>.predicate(
             try {
                 val computedValue = device.read(values)
                 val combinedTimestamp = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
-                val combinedQuality = if (states.all { it.quality == Quality.OK }) Quality.OK else Quality.INVALID
+                val combinedQuality = if (states.all { it.quality == DataQuality.OK }) DataQuality.OK else DataQuality.UNKNOWN
                 StateValue(computedValue, combinedTimestamp, combinedQuality)
             } catch (e: Exception) {
                 device.context.logger.error(e) { "Failed to compute predicate property '$name'" }
-                StateValue(false, states.maxOfOrNull { it.timestamp } ?: device.clock.now(), Quality.ERROR)
+                StateValue(false, states.maxOfOrNull { it.timestamp } ?: device.clock.now(), DataQuality.BAD)
             }
         }.stateIn(
             scope = device,

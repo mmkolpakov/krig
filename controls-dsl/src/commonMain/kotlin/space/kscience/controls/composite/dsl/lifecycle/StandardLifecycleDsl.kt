@@ -12,13 +12,13 @@ import space.kscience.controls.composite.dsl.CompositeSpecDsl
 import space.kscience.controls.core.faults.CompositeHubException
 import space.kscience.controls.core.faults.CompositeHubTransactionException
 import space.kscience.controls.core.faults.DeviceLifecycleException
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.fsm.events.DeviceLifecycleEvent
 import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.controls.fsm.LifecycleContext
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
 import space.kscience.dataforge.context.error
 import space.kscience.dataforge.context.logger
 import kotlin.contracts.ExperimentalContracts

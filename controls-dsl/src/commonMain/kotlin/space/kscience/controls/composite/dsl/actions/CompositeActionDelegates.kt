@@ -6,7 +6,7 @@ import kotlinx.serialization.serializer
 import space.kscience.controls.composite.dsl.ActionDelegateProvider
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.composite.dsl.properties.ActionDescriptorBuilder
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature
@@ -14,7 +14,7 @@ import space.kscience.controls.automation.TaskExecutorFeature
 import space.kscience.controls.automation.TransactionPlan
 import space.kscience.controls.common.meta.serializable
 import space.kscience.controls.api.descriptors.ActionDescriptor
-import space.kscience.controls.core.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
 import space.kscience.controls.common.meta.unit
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
@@ -27,7 +27,7 @@ import kotlin.properties.ReadOnlyProperty
 
 /**
  * A centralized, internal factory for creating action delegate providers.
- * This function encapsulates the boilerplate for creating and registering a [space.kscience.controls.core.meta.DeviceActionSpec].
+ * This function encapsulates the boilerplate for creating and registering a [DeviceActionSpec].
  * It handles both inline logic (`execute` lambda) and external logic (`logicId`).
  */
 @PublishedApi
@@ -107,7 +107,7 @@ public fun <D : Device, I, O> DeviceSpecification<D>.action(
 /**
  * A base delegate for creating a device action specification that references an external logic component.
  * This overload does not take an `execute` lambda. Instead, it relies on the runtime to resolve the
- * `logicId` to a [space.kscience.controls.core.contracts.DeviceActionLogic] implementation.
+ * `logicId` to a [space.kscience.controls.core.legacy_alpha_2.contracts.DeviceActionLogic] implementation.
  *
  * @param logicId The unique [Name] of the external action logic to be resolved by the runtime.
  * @param logicVersionConstraint An optional version constraint for the external logic.

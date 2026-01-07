@@ -11,7 +11,5 @@ kscience {
 
     commonMain {
         api(projects.controlsCommon)
-
-        api(libs.dataforge.meta)
     }
 }

@@ -4,8 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import space.kscience.controls.core.state.DeviceState
-import space.kscience.controls.core.state.MutableDeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.DeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
 import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.meta.MetaConverter
 

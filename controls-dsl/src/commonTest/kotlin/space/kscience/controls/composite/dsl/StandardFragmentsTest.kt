@@ -2,7 +2,7 @@ package space.kscience.controls.composite.dsl
 
 import space.kscience.controls.api.descriptors.description
 import space.kscience.controls.api.descriptors.readPermissions
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.fsm.IntrospectionFeature
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.names.asName

@@ -13,9 +13,9 @@ import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
 import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.fsm.LifecycleContext
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
 import space.kscience.controls.api.meta.MemberTag
 import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.api.addressing.Address
@@ -33,9 +33,9 @@ import space.kscience.controls.core.connectivity.SimplePeerBlueprint
 import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.controls.api.connectivity.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.contracts.DeviceDriver
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceDriver
 import space.kscience.controls.api.features.MetadataFeature
 import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.dataforge.context.Context
@@ -59,7 +59,7 @@ public annotation class CompositeSpecDsl
 
 
 /**
- * A builder for composing [space.kscience.controls.core.contracts.DeviceBlueprint] instances using a DSL.
+ * A builder for composing [DeviceBlueprint] instances using a DSL.
  * This class is the primary entry point for defining a device's structure and behavior.
  * Properties and actions are typically declared using delegated properties, which automatically register themselves.
  * This builder is used to configure other aspects like child components, lifecycle, and the device driver.

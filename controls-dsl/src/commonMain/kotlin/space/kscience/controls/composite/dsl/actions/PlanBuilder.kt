@@ -23,10 +23,10 @@ import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.spec.RestartStrategy
 import space.kscience.controls.api.spec.RetryPolicy
 import space.kscience.controls.api.spec.TimeoutPolicy
-import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter

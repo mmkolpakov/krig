@@ -13,8 +13,8 @@ import space.kscience.controls.composite.dsl.properties.booleanProperty
 import space.kscience.controls.composite.dsl.properties.predicate
 import space.kscience.controls.validation.ValidationError
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec

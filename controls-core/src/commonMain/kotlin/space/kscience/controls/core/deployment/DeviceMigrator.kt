@@ -1,6 +1,6 @@
 package space.kscience.controls.core.deployment
 
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.dataforge.meta.Meta
 
 /**

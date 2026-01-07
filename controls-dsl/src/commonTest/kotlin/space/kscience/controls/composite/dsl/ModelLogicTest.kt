@@ -5,6 +5,7 @@ import space.kscience.controls.api.data.Quality
 import space.kscience.controls.api.data.StateValue
 import space.kscience.controls.api.addressing.toAddress
 import space.kscience.controls.api.addressing.toAddressOrNull
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
@@ -59,17 +60,17 @@ class ModelLogicTest {
         val time1 = clock.now()
         val time2 = time1 + 10.seconds
 
-        val state1 = StateValue("value1", time1, Quality.OK)
-        val state2 = StateValue(123, time2, Quality.STALE)
+        val state1 = StateValue("value1", time1, DataQuality.OK)
+        val state2 = StateValue(123, time2, DataQuality.UNKNOWN)
 
         val combined = StateValue.combine(state1, state2) { v1, v2 -> "$v1:$v2" }
 
         assertEquals("value1:123", combined.value)
         assertEquals(time2, combined.timestamp, "Timestamp should be the maximum of the two.")
-        assertEquals(Quality.STALE, combined.quality, "Quality should be the 'worst' of the two.")
+        assertEquals(Quality.UNKNOWN, combined.quality.quality, "Quality should be the 'worst' of the two.")
 
-        val errorState = StateValue(456, time1, Quality.ERROR)
+        val errorState = StateValue(456, time1, DataQuality.BAD)
         val combinedWithError = StateValue.combine(state1, errorState) { v1, v2 -> "$v1:$v2" }
-        assertEquals(Quality.ERROR, combinedWithError.quality, "ERROR quality should have the highest priority.")
+        assertEquals(Quality.BAD, combinedWithError.quality.quality, "ERROR quality should have the highest priority.")
     }
 }

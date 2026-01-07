@@ -1,7 +1,7 @@
 package space.kscience.controls.core.runtime
 
 import kotlinx.coroutines.channels.Channel
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 
 /**
  * A capability interface defining the contract for a service that provides

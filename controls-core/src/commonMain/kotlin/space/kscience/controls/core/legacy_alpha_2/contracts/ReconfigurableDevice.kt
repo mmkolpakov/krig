@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import space.kscience.controls.api.features.ReconfigurableFeature
 import space.kscience.dataforge.meta.Meta
@@ -19,12 +19,12 @@ public interface ReconfigurableDevice : Device {
     }
 
     /**
-     * Applies new configuration parameters from the provided [space.kscience.dataforge.meta.Meta] object to the device.
+     * Applies new configuration parameters from the provided [Meta] object to the device.
      *
      * This method should be implemented to be atomic where possible. If the configuration is invalid
      * or cannot be applied, it should throw an exception.
      *
-     * @param meta A [space.kscience.dataforge.meta.Meta] object containing the new configuration values. The device should
+     * @param meta A [Meta] object containing the new configuration values. The device should
      * only read the parameters it understands and ignore others.
      */
     public suspend fun reconfigure(meta: Meta)

@@ -8,7 +8,7 @@ import space.kscience.controls.composite.dsl.actions.unitAction
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.descriptors.attribute
 import space.kscience.controls.api.descriptors.attributes.ImplementationAttribute
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.PlanExecutorFeature

@@ -7,8 +7,8 @@ import space.kscience.controls.api.descriptors.bindings
 import space.kscience.controls.api.descriptors.tags
 import space.kscience.controls.composite.dsl.properties.doubleProperty
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.api.meta.AdapterBinding
 import space.kscience.controls.api.meta.MemberTag

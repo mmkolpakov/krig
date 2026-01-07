@@ -28,7 +28,7 @@ import space.kscience.controls.api.meta.AliasTag
 import space.kscience.controls.api.meta.AdapterBinding
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.api.meta.ActionOutputSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
 import space.kscience.controls.api.validation.ValidationRuleDescriptor
 import space.kscience.dataforge.meta.*
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor

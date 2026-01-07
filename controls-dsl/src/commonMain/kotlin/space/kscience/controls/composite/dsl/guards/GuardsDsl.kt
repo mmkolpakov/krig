@@ -3,10 +3,10 @@ package space.kscience.controls.composite.dsl.guards
 import kotlinx.serialization.serializer
 import ru.nsk.kstatemachine.event.Event
 import space.kscience.controls.composite.dsl.CompositeSpecBuilder
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.validation.TimedPredicateGuardSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.core.features.GuardSpec
 import space.kscience.controls.fsm.guards.ValueChangeGuardSpec

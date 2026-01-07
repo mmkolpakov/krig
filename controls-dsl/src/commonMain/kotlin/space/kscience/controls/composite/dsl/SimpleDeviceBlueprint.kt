@@ -3,14 +3,14 @@ package space.kscience.controls.composite.dsl
 import kotlinx.serialization.Transient
 import ru.nsk.kstatemachine.statemachine.BuildingStateMachine
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.contracts.DeviceDriver
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceDriver
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
 import space.kscience.controls.core.runtime.DeviceFlows
 import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.fsm.LifecycleContext
@@ -18,7 +18,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
 /**
- * A simple data-holding implementation of [space.kscience.controls.core.contracts.DeviceBlueprint].
+ * A simple data-holding implementation of [DeviceBlueprint].
  * This class stores all parts of the blueprint, including the non-serializable behavior logic.
  * It also separates the public API members from the non-public ones, which are intended for internal
  * use by the device driver.

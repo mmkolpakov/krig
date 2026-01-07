@@ -5,12 +5,12 @@ import space.kscience.controls.composite.dsl.children.MirrorBuilder
 import space.kscience.controls.composite.dsl.guards.GuardsBuilder
 import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.api.features.Feature
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
 import space.kscience.dataforge.names.Name
 
 /**

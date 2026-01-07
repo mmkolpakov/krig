@@ -14,5 +14,6 @@ kscience {
         api(libs.dataforge.io)
         api(libs.kotlinx.io.core)
         api(libs.kotlinx.datetime)
+        implementation(libs.kotlinx.atomicfu)
     }
 }

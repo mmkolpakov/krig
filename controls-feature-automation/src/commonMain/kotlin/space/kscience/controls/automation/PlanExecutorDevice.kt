@@ -2,7 +2,7 @@ package space.kscience.controls.automation
 
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.dataforge.meta.Meta
 
 /**

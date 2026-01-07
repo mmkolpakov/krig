@@ -1,12 +1,12 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.contracts.Device.Companion.ACTION_TARGET
-import space.kscience.controls.core.contracts.Device.Companion.CHILD_DEVICE_TARGET
-import space.kscience.controls.core.contracts.Device.Companion.PROPERTY_TARGET
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device.Companion.ACTION_TARGET
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device.Companion.CHILD_DEVICE_TARGET
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device.Companion.PROPERTY_TARGET
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
@@ -111,7 +111,7 @@ public interface Device : ManagedComponent, CoroutineScope, PropertyDevice, Acti
          * The unique, fully-qualified name for the [Device] capability.
          * Used for feature detection and serialization.
          */
-        public const val CAPABILITY: String = "space.kscience.controls.core.contracts.Device"
+        public const val CAPABILITY: String = "space.kscience.controls.core.legacy_alpha_2.contracts.Device"
 
         /** DataForge provider target for accessing child devices. */
         public const val CHILD_DEVICE_TARGET: String = "child"

@@ -4,10 +4,10 @@ import kotlinx.serialization.serializer
 import space.kscience.controls.composite.dsl.CompositeSpecBuilder
 import space.kscience.controls.composite.dsl.properties.PropertyDescriptorBuilder
 import space.kscience.controls.composite.dsl.property
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.connectivity.MirrorEntry
 import space.kscience.controls.connectivity.RemoteMirrorFeature
-import space.kscience.controls.core.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name

@@ -11,7 +11,7 @@ import space.kscience.controls.connectivity.connectivity
 import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.services.discovery.blueprintRegistry
 import space.kscience.dataforge.context.Context

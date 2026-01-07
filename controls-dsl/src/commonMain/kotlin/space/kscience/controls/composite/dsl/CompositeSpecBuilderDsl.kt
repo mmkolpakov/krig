@@ -12,18 +12,18 @@ import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.automation.PlanExecutorFeature
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.automation.TaskExecutorFeature
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.DeviceStreamSpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.controls.common.meta.unit
 import space.kscience.controls.connectivity.ChildBindingsFeature
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.core.contracts.StreamPort
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.StreamPort
 import space.kscience.dataforge.meta.*
 import space.kscience.dataforge.misc.DFExperimental
 import space.kscience.dataforge.names.Name
@@ -282,7 +282,7 @@ public inline fun <reified I, reified O, D> CompositeSpecBuilder<D>.taskAction(
  * @param T The type of the primary data object in the stream.
  * @param name The name of the stream.
  * @param descriptorBuilder A DSL block to configure the stream's descriptor.
- * @param get A suspendable factory lambda that creates a [space.kscience.controls.core.contracts.StreamPort] instance. The runtime is responsible
+ * @param get A suspendable factory lambda that creates a [StreamPort] instance. The runtime is responsible
  *            for managing the lifecycle of the created port.
  * @return The created and registered [DeviceStreamSpec].
  */

@@ -1,8 +1,8 @@
 package space.kscience.controls.core.runtime
 
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.state.DeviceState
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.state.DeviceState
 
 /**
  * An internal contract for a property delegate that can be "hydrated" by the runtime.

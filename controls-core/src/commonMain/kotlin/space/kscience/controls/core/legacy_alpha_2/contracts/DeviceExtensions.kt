@@ -1,8 +1,8 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
 import space.kscience.controls.core.InternalControlsApi
 
 // Type-safe extensions for interacting with devices using specifications.

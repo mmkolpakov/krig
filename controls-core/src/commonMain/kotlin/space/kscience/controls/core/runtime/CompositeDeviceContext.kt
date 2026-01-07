@@ -1,11 +1,11 @@
 package space.kscience.controls.core.runtime
 
 import space.kscience.controls.core.context.CompositeContext
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.state.DeviceState
-import space.kscience.controls.core.state.MutableDeviceState
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.state.DeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
 import space.kscience.dataforge.names.Name
 import kotlin.time.Clock
 

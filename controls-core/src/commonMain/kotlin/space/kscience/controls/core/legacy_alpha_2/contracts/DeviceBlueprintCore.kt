@@ -1,12 +1,12 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.meta.DeviceActionSpec
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceActionSpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.misc.DfType

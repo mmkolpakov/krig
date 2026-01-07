@@ -6,7 +6,7 @@ import kotlinx.serialization.modules.subclass
 import space.kscience.controls.api.descriptors.bindings
 import space.kscience.controls.composite.dsl.properties.PropertyDescriptorBuilder
 import space.kscience.controls.composite.dsl.properties.doubleProperty
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.meta.AdapterBinding
 import space.kscience.controls.api.meta.ModbusTestBinding
 import space.kscience.controls.api.descriptors.PropertyDescriptor

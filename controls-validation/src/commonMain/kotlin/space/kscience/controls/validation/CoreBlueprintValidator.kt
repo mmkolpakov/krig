@@ -2,7 +2,7 @@ package space.kscience.controls.validation
 
 import space.kscience.controls.api.descriptors.attribute
 import space.kscience.controls.api.descriptors.attributes.FsmAttribute
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.api.descriptors.PropertyKind
 
 /**

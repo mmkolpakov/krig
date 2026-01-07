@@ -1,4 +1,4 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
 import kotlinx.serialization.Serializable
 import space.kscience.dataforge.meta.Meta

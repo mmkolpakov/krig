@@ -2,7 +2,7 @@ package space.kscience.controls.composite.dsl.properties
 
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
 import space.kscience.controls.core.faults.DeviceFaultException
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.faults.ValidationFault
 import space.kscience.controls.api.validation.MinLengthRuleDescriptor
 import space.kscience.controls.api.validation.RangeRuleDescriptor

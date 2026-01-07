@@ -2,14 +2,14 @@ package space.kscience.controls.automation
 
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
 /**
  * A capability interface for devices that can execute `dataforge-data` tasks.
  * This contract formalizes the integration with the DataForge workspace and task execution engine.
- * A [space.kscience.controls.core.contracts.DeviceBlueprint] must declare the [TaskExecutorFeature]
+ * A [space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint] must declare the [TaskExecutorFeature]
  * for a device to implement this interface. The runtime is responsible for checking this capability.
  */
 public interface TaskExecutorDevice : Device {

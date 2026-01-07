@@ -10,7 +10,7 @@ import kotlinx.coroutines.withTimeout
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.messages.PropertyChangedMessage
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.PropertyKind

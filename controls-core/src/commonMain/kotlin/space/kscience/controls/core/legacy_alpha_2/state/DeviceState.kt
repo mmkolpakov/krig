@@ -1,7 +1,8 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.api.data.Quality
 import space.kscience.controls.api.data.StateValue
 import space.kscience.controls.api.data.okState
@@ -46,8 +47,6 @@ public fun <T> DeviceState<T>.requireValue(): T = stateValue.value ?: error("Dev
 /** The timestamp of the last state update. Accessing this is a shortcut for `stateValue.timestamp`. */
 public val <T> DeviceState<T>.timestamp: Instant get() = stateValue.timestamp
 
-/** The quality of the current state value. Accessing this is a shortcut for `stateValue.quality`. */
-public val <T> DeviceState<T>.quality: Quality get() = stateValue.quality
 
 /**
  * A mutable state of a device property, allowing for updates.
@@ -74,7 +73,7 @@ public interface MutableDeviceState<T> : DeviceState<T> {
      * @param quality The new quality to set.
      * @param message An optional message, typically used for [Quality.ERROR].
      */
-    public suspend fun updateQuality(quality: Quality, message: String? = null)
+    public suspend fun updateQuality(quality: DataQuality, message: String? = null)
 }
 
 /**

@@ -1,7 +1,7 @@
 package space.kscience.controls.composite.dsl
 
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.tags
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.tags
 import space.kscience.controls.api.meta.ProfileTag
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.*

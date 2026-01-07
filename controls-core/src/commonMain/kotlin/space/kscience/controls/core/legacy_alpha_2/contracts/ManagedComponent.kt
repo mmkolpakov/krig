@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import kotlinx.coroutines.flow.StateFlow
 import space.kscience.controls.api.lifecycle.DeviceLifecycleState
@@ -13,7 +13,7 @@ import space.kscience.dataforge.context.ContextAware
  */
 public interface ManagedComponent : ContextAware {
     /**
-     * A reactive [kotlinx.coroutines.flow.StateFlow] representing the current state of the component's lifecycle.
+     * A reactive [StateFlow] representing the current state of the component's lifecycle.
      * This provides a safe, observable way to track the component's status.
      */
     public val lifecycleState: StateFlow<DeviceLifecycleState>

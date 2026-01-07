@@ -9,7 +9,7 @@ import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.connectivity.composition
 import space.kscience.controls.connectivity.connectivity
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.api.composition.RemoteChildComponentConfig

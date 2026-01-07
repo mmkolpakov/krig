@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.identifiers.BlueprintId

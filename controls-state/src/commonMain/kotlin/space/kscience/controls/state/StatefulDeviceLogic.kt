@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.state.MutableDeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
 
 /**
  * A concrete implementation of the logic required for a stateful device.

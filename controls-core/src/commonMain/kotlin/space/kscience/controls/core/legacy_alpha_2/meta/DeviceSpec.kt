@@ -1,7 +1,7 @@
-package space.kscience.controls.core.meta
+package space.kscience.controls.core.legacy_alpha_2.meta
 
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.contracts.StreamPort
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.StreamPort
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.StreamDescriptor

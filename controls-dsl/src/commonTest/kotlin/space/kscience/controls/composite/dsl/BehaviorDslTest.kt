@@ -6,7 +6,7 @@ import ru.nsk.kstatemachine.event.Event
 import space.kscience.controls.composite.dsl.guards.guards
 import space.kscience.controls.composite.dsl.guards.post
 import space.kscience.controls.composite.dsl.properties.predicate
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.fsm.OperationalFsmFeature
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
 import space.kscience.controls.fsm.lifecycleFeature

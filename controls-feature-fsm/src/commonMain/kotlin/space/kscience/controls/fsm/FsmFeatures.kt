@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.nsk.kstatemachine.statemachine.BuildingStateMachine
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta

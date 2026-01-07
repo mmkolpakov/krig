@@ -3,10 +3,10 @@ package space.kscience.controls.composite.dsl.streams
 import kotlinx.serialization.serializer
 import space.kscience.controls.composite.dsl.CompositeSpecDsl
 import space.kscience.controls.composite.dsl.DeviceSpecification
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.spec.QoS
-import space.kscience.controls.core.contracts.StreamPort
-import space.kscience.controls.core.meta.DeviceStreamSpec
+import space.kscience.controls.core.legacy_alpha_2.contracts.StreamPort
+import space.kscience.controls.core.legacy_alpha_2.meta.DeviceStreamSpec
 import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.controls.api.spec.StreamDirection
 import space.kscience.controls.api.identifiers.Permission

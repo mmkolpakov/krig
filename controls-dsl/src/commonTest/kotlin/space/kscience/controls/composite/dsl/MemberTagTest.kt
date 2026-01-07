@@ -5,7 +5,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import space.kscience.controls.api.descriptors.tags
 import space.kscience.controls.composite.dsl.properties.doubleProperty
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.meta.UiTestHint
 import space.kscience.dataforge.context.Context

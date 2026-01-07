@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta
-import space.kscience.controls.core.state.StatefulDevice
+import space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice
 import space.kscience.dataforge.meta.Meta
 
 /**

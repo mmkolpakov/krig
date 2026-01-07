@@ -1,4 +1,4 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
 import space.kscience.dataforge.names.Name
 

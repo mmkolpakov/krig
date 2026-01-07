@@ -4,12 +4,12 @@ import kotlinx.serialization.Serializable
 import space.kscience.controls.composite.dsl.properties.*
 import space.kscience.controls.composite.persistence.StatefulFeature
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.core.runtime.CompositeDeviceContext
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.api.descriptors.mutable
 import space.kscience.controls.api.descriptors.persistent
-import space.kscience.controls.core.state.StatefulDevice
+import space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.misc.DFExperimental

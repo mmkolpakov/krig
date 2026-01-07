@@ -1,8 +1,9 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.api.data.Quality
 import space.kscience.controls.api.data.StateValue
 import space.kscience.controls.api.data.okState
@@ -63,7 +64,7 @@ public class LateBindableDeviceState<T>(initialStateValue: StateValue<T?>) : Mut
         _stateValue = stateValue
     }
 
-    override suspend fun updateQuality(quality: Quality, message: String?) {
+    override suspend fun updateQuality(quality: DataQuality, message: String?) {
         if (isBound) error("Cannot directly update a bound LateBindableDeviceState. Writes should go to the source.")
         _stateValue = _stateValue.copy(quality = quality)
     }

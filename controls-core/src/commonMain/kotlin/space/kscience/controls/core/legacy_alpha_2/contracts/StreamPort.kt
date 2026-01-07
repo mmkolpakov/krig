@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.io.Buffer
@@ -7,7 +7,7 @@ import kotlinx.io.Buffer
  * A port for continuous, low-latency, bidirectional streaming of binary data.
  * Unlike `Port`, which is designed for discrete byte array messages, `StreamPort` is optimized for
  * scenarios involving continuous data flow, such as video feeds, high-frequency sensor data,
- * or waveform transmission. It uses `kotlinx-io`'s [kotlinx.io.Buffer] to minimize data copying and improve performance.
+ * or waveform transmission. It uses `kotlinx-io`'s [Buffer] to minimize data copying and improve performance.
  *
  * A `StreamPort` is a managed resource. The runtime is responsible for its entire lifecycle,
  * including calling [close] when the owning device is stopped or detached to ensure that
@@ -20,7 +20,7 @@ import kotlinx.io.Buffer
  */
 public interface StreamPort : AutoCloseable {
     /**
-     * A hot [kotlinx.coroutines.flow.Flow] of incoming data chunks. Each element is a [kotlinx.io.Buffer] containing a segment
+     * A hot [Flow] of incoming data chunks. Each element is a [Buffer] containing a segment
      * of the data stream. The size and boundaries of these chunks are determined by the underlying
      * transport and are not guaranteed to align with logical message boundaries.
      * Consumers of this flow are responsible for reassembling messages if necessary.

@@ -1,8 +1,6 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.controls.common.meta.serializableMetaConverter
 import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta

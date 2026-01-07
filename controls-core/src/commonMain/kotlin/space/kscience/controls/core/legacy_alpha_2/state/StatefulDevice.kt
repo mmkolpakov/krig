@@ -1,11 +1,11 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 
 /**
  * A capability interface for devices that can have their state saved and restored.
  * This is used by persistence mechanisms to manage device state across restarts.
- * A [space.kscience.controls.core.contracts.DeviceBlueprint] must declare this capability for it to be used.
+ * A [space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint] must declare this capability for it to be used.
  */
 public interface StatefulDevice : Device {
     /**
@@ -15,7 +15,7 @@ public interface StatefulDevice : Device {
         /**
          * The unique, fully-qualified name for the [StatefulDevice] capability.
          */
-        public const val CAPABILITY: String = "space.kscience.controls.core.state.StatefulDevice"
+        public const val CAPABILITY: String = "space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice"
     }
 
 //    /**

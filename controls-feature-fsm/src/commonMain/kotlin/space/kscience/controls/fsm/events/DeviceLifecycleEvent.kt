@@ -6,7 +6,7 @@ import space.kscience.controls.api.faults.SerializableDeviceFailure
 
 /**
  * Defines the standard vocabulary of events that drive the device's lifecycle state machine.
- * These events correspond to commands issued by a [space.kscience.controls.core.contracts.DeviceHub].
+ * These events correspond to commands issued by a [space.kscience.controls.core.legacy_alpha_2.contracts.DeviceHub].
  */
 public sealed interface DeviceLifecycleEvent : Event {
     /** A command to instantiate and attach the device to the hub. */

@@ -1,10 +1,6 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.core.legacy_alpha_2.contracts
 
 import space.kscience.controls.api.context.ExecutionContext
-import space.kscience.dataforge.context.Context
-import space.kscience.dataforge.context.Plugin
-import space.kscience.dataforge.context.PluginFactory
-import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.misc.Named
 import space.kscience.dataforge.names.Name

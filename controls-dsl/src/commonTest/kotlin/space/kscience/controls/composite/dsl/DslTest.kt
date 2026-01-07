@@ -17,9 +17,9 @@ import space.kscience.controls.core.runtime.CompositeDeviceContext
 import space.kscience.controls.core.runtime.ConstructorElement
 import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.controls.api.messages.DeviceMessage
-import space.kscience.controls.core.meta.DevicePropertySpec
-import space.kscience.controls.core.state.MutableDeviceState
-import space.kscience.controls.core.state.StatefulDevice
+import space.kscience.controls.core.legacy_alpha_2.meta.DevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
+import space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice
 import space.kscience.controls.api.connectivity.FailoverStrategy
 import space.kscience.controls.core.connectivity.PeerConnection
 import space.kscience.controls.core.connectivity.SimplePeerBlueprint
@@ -28,7 +28,7 @@ import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.composition.LocalChildComponentConfig
 import space.kscience.controls.api.context.ExecutionContext
-import space.kscience.controls.core.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.persistent
@@ -36,8 +36,8 @@ import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.composition
-import space.kscience.controls.core.meta.MutableDevicePropertySpec
-import space.kscience.controls.core.state.StateSnapshot
+import space.kscience.controls.core.legacy_alpha_2.meta.MutableDevicePropertySpec
+import space.kscience.controls.core.legacy_alpha_2.state.StateSnapshot
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.*

@@ -3,11 +3,11 @@ package space.kscience.controls.validation
 import space.kscience.controls.api.descriptors.attribute
 import space.kscience.controls.api.descriptors.attributes.ImplementationAttribute
 import space.kscience.controls.api.descriptors.attributes.PersistenceAttribute
-import space.kscience.controls.core.contracts.DeviceBlueprint
+import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.automation.PlanExecutorDevice
 import space.kscience.controls.automation.TaskExecutorDevice
 import space.kscience.controls.api.descriptors.PropertyKind
-import space.kscience.controls.core.state.StatefulDevice
+import space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice
 import space.kscience.dataforge.meta.get
 
 /**

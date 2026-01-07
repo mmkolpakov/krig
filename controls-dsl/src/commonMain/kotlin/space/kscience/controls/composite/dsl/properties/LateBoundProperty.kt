@@ -1,10 +1,10 @@
 package space.kscience.controls.composite.dsl.properties
 
 import space.kscience.controls.composite.dsl.DeviceSpecification
-import space.kscience.controls.core.contracts.Device
-import space.kscience.controls.core.state.LateBindableDeviceState
+import space.kscience.controls.core.legacy_alpha_2.contracts.Device
+import space.kscience.controls.core.legacy_alpha_2.state.LateBindableDeviceState
 import space.kscience.controls.api.data.okState
-import space.kscience.controls.core.state.value
+import space.kscience.controls.core.legacy_alpha_2.state.value
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import kotlin.properties.PropertyDelegateProvider

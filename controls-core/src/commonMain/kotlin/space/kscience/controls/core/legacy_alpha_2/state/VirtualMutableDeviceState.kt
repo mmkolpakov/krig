@@ -1,7 +1,8 @@
-package space.kscience.controls.core.state
+package space.kscience.controls.core.legacy_alpha_2.state
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.api.data.Quality
 import space.kscience.controls.api.data.StateValue
 import space.kscience.controls.api.data.okState
@@ -29,7 +30,7 @@ public class VirtualMutableDeviceState<T>(initialValue: T) : MutableDeviceState<
         flow.value = stateValue
     }
 
-    override suspend fun updateQuality(quality: Quality, message: String?) {
+    override suspend fun updateQuality(quality: DataQuality, message: String?) {
         // message is currently ignored in StateValue, but could be used for logging
         flow.value = flow.value.copy(quality = quality)
     }
