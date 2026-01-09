@@ -93,7 +93,6 @@ include(
     ":controls-ktor",
 
     // Tools
-    ":controls-dsl",
     ":controls-simulation",
     ":controls-runtime",
     ":controls-data",

@@ -3,16 +3,11 @@ package space.kscience.controls.common.meta
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
+import space.kscience.controls.common.serialization.baseJson
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.toJson
 import space.kscience.dataforge.meta.toMeta
-
-public val baseJson: Json = Json {
-    ignoreUnknownKeys = true
-    encodeDefaults = true
-    prettyPrint = false
-}
 
 /**
  * Converts a `@Serializable` object to a [Meta] representation using the core JSON config.

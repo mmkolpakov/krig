@@ -1,11 +1,7 @@
 package space.kscience.controls.alarms
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.api.descriptors.MemberAttribute
-import space.kscience.controls.api.descriptors.MemberDescriptor
-import space.kscience.controls.api.identifiers.Permission
-import space.kscience.controls.api.meta.AdapterBinding
-import space.kscience.controls.api.meta.MemberTag
+import space.kscience.controls.api.structure.MemberDescriptor
 import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -26,7 +22,7 @@ public data class AlarmDescriptor(
     val predicateName: Name,
     val severity: AlarmSeverity,
     val retainTime: Duration = Duration.ZERO,
-    override val attributes: Set<MemberAttribute> = emptySet()
+    override val attributes: Meta = Meta.EMPTY
 ) : MemberDescriptor {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }

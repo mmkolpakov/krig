@@ -2,7 +2,6 @@ package space.kscience.controls.automation
 
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
@@ -12,7 +11,7 @@ import space.kscience.dataforge.names.Name
  * A [space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint] must declare the [TaskExecutorFeature]
  * for a device to implement this interface. The runtime is responsible for checking this capability.
  */
-public interface TaskExecutorDevice : Device {
+public interface TaskExecutorDevice {
     /**
      * Companion object holding stable identifiers for the capability.
      */

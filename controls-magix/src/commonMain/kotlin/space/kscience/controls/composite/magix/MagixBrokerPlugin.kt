@@ -1,6 +1,5 @@
 package space.kscience.controls.composite.magix
 
-import space.kscience.controls.core.legacy_alpha_2.contracts.MessageBroker
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
@@ -65,14 +64,15 @@ public class MagixBrokerPlugin(meta: Meta) : AbstractPlugin(meta) {
         return endpoint
     }
 
-    /**
-     * Creates a new [MagixMessageBroker] instance using the configured Magix endpoint.
-     *
-     * @param originTarget The Magix target for broadcast messages, defaulting to the hubId.
-     * @return A configured instance of [MagixMessageBroker].
-     */
-    public fun broker(originTarget: Name = this.hubId.parseAsName()): MessageBroker =
-        MagixMessageBroker(context, getEndpoint(), hubId.parseAsName(), originTarget)
+//    TODO MessageBroker removed from alpha 3 core
+//    /**
+//     * Creates a new [MagixMessageBroker] instance using the configured Magix endpoint.
+//     *
+//     * @param originTarget The Magix target for broadcast messages, defaulting to the hubId.
+//     * @return A configured instance of [MagixMessageBroker].
+//     */
+//    public fun broker(originTarget: Name = this.hubId.parseAsName()): MessageBroker =
+//        MagixMessageBroker(context, getEndpoint(), hubId.parseAsName(), originTarget)
 
     /**
      * Creates a new [MagixPeerSignalingService] instance for P2P signaling.

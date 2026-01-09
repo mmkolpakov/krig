@@ -9,6 +9,7 @@ import space.kscience.dataforge.names.asName
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 
+//TODO move to dsl in the future to clean api
 /**
  * A specialized extension of DataForge's [MetaSpec] designed to declaratively define the output
  * structure of a [DeviceActionSpec]. It provides a mechanism for creating type-safe references ([MetaRef])

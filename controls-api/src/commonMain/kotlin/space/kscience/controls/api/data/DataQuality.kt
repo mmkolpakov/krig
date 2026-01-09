@@ -4,38 +4,43 @@ import kotlinx.serialization.Serializable
 
 /**
  * Represents the quality or validity of a piece of state data.
- * The order is CRITICAL: it maps to Int in the SoA registry (Fast Path).
- * 0 is the default value for initialized arrays, so it maps to UNKNOWN.
+ *
+ * This enum is critical for the "Fast Path" as it maps directly to `AtomicInt` ordinal values
+ * in the Property Registry (SoA).
+ *
+ * **Ordinal stability is required.** Do not reorder.
  */
 @Serializable
 public enum class Quality {
     /**
-     * The state is unknown or not yet read from the device.
-     * Default value for zero-initialized arrays.
+     * The data is unknown or not yet read from the device.
+     * Default value for initialized arrays (ordinal 0).
      */
     UNKNOWN,
 
     /**
-     * The data is valid and fresh.
+     * The data is valid, fresh, and within expected operational limits.
      */
     OK,
 
     /**
-     * The data is valid but might be suspicious or degraded
-     * (e.g. calibration overdue, value out of operational range but valid).
+     * The data is valid (read successfully), but might be suspicious, degraded, or out of soft limits (Alarm).
+     * Examples: Calibration overdue, value clamped, sensor heating up.
      */
     WARNING,
 
     /**
      * The data is invalid.
-     * (e.g. sensor fault, communication error, open circuit).
+     * Examples: Sensor open circuit, communication timeout, hardware fault.
      */
     BAD
 }
 
 /**
- * A detailed quality indicator for a piece of state data (Slow Path DTO).
- * Contains the [Quality] enum for logic and an optional [comment] for UI/Logging.
+ * A structured container for data quality on the "Slow Path".
+ * Provides the [Quality] status and an optional human-readable [comment] explaining the cause.
+ *
+ * This class is used when full meta-information about a value is required (e.g., in UI or Logs).
  */
 @Serializable
 public data class DataQuality(

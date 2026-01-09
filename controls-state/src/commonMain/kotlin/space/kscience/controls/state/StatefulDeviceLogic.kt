@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import space.kscience.controls.core.InternalControlsApi
-import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
 
 /**
  * A concrete implementation of the logic required for a stateful device.
@@ -15,32 +14,33 @@ import space.kscience.controls.core.legacy_alpha_2.state.MutableDeviceState
  * within a `StatefulDevice` implementation.
  */
 public class StatefulDeviceLogic {
-    private val stateCache = atomic(emptyMap<String, MutableDeviceState<*>>())
-
-    /**
-     * A thread-safe, idempotent way to get or create a state delegate.
-     * This method is public to be accessible from the `stateful` delegate in another module.
-     */
-    public fun <T> getOrPutState(
-        key: String,
-        provider: () -> MutableDeviceState<T>,
-    ): MutableDeviceState<T> {
-        // Fast path: check if the value already exists without entering the update block.
-        stateCache.value[key]?.let {
-            @Suppress("UNCHECKED_CAST")
-            return it as MutableDeviceState<T>
-        }
-        // Slow path: atomically update the map if the key is missing.
-        val updatedMap = stateCache.updateAndGet { currentMap ->
-            if (currentMap.containsKey(key)) {
-                currentMap
-            } else {
-                currentMap + (key to provider())
-            }
-        }
-        @Suppress("UNCHECKED_CAST")
-        return updatedMap.getValue(key) as MutableDeviceState<T>
-    }
+//    TODO MutableDeviceState is now removed from alpha-3 core
+//    private val stateCache = atomic(emptyMap<String, MutableDeviceState<*>>())
+//
+//    /**
+//     * A thread-safe, idempotent way to get or create a state delegate.
+//     * This method is public to be accessible from the `stateful` delegate in another module.
+//     */
+//    public fun <T> getOrPutState(
+//        key: String,
+//        provider: () -> MutableDeviceState<T>,
+//    ): MutableDeviceState<T> {
+//        // Fast path: check if the value already exists without entering the update block.
+//        stateCache.value[key]?.let {
+//            @Suppress("UNCHECKED_CAST")
+//            return it as MutableDeviceState<T>
+//        }
+//        // Slow path: atomically update the map if the key is missing.
+//        val updatedMap = stateCache.updateAndGet { currentMap ->
+//            if (currentMap.containsKey(key)) {
+//                currentMap
+//            } else {
+//                currentMap + (key to provider())
+//            }
+//        }
+//        @Suppress("UNCHECKED_CAST")
+//        return updatedMap.getValue(key) as MutableDeviceState<T>
+//    }
 
 
     private val _isDirty = MutableStateFlow(false)

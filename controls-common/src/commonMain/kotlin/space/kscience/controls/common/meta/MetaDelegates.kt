@@ -2,6 +2,7 @@ package space.kscience.controls.common.meta
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import space.kscience.controls.common.serialization.baseJson
 import space.kscience.dataforge.meta.*
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.meta.descriptors.ValueRestriction

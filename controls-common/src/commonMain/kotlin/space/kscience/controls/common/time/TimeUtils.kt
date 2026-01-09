@@ -1,64 +1,66 @@
 package space.kscience.controls.common.time
 
-import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.meta.Scheme
-import space.kscience.dataforge.meta.convertable
-import space.kscience.dataforge.meta.string
+import space.kscience.dataforge.meta.*
 import kotlin.properties.ReadWriteProperty
 import kotlin.time.Duration
 import kotlin.time.Instant
 
 /**
- * A [space.kscience.dataforge.meta.MetaConverter] for [kotlin.time.Instant], which serializes it to an ISO-8601 string.
+ * A strictly validating [MetaConverter] for [Instant].
+ *
+ * This prevents the system from silently falling back to defaults when a configuration error occurs.
  */
-private object InstantConverter : MetaConverter<Instant> {
-    override fun readOrNull(source: Meta): Instant? = source.string?.let { Instant.Companion.parse(it) }
+public object InstantMetaConverter : MetaConverter<Instant> {
+    override fun readOrNull(source: Meta): Instant? {
+        if (source.value == null) return null
+        return source.string?.let { Instant.parse(it) }
+            ?: error("Meta value '$source' cannot be interpreted as Instant string.")
+    }
+
     override fun convert(obj: Instant): Meta = Meta(obj.toString())
 }
 
 /**
- * A [MetaConverter] for [kotlin.time.Duration], which serializes it to an ISO-8601 duration string.
+ * A strictly validating [MetaConverter] for [Duration].
+ * - Supports ISO-8601 duration format (e.g., "PT1.5S").
+ * - Throws on invalid format.
  */
-private object DurationConverter : MetaConverter<Duration> {
-    override fun readOrNull(source: Meta): Duration? = source.string?.let { Duration.Companion.parse(it) }
+public object DurationMetaConverter : MetaConverter<Duration> {
+    override fun readOrNull(source: Meta): Duration? {
+        if (source.value == null) return null
+
+        return source.string?.let { Duration.parse(it) }
+            ?: error("Meta value '$source' cannot be interpreted as Duration string.")
+    }
+
     override fun convert(obj: Duration): Meta = Meta(obj.toString())
 }
 
 /**
- * Provides a singleton instance of a [MetaConverter] for [Instant].
+ * Extension to safely parse an Instant from Meta.
+ * Throws if the data exists but is malformed.
  */
-public val MetaConverter.Companion.instant: MetaConverter<Instant> get() = InstantConverter
+public val Meta?.instant: Instant? get() = this?.let { InstantMetaConverter.readOrNull(it) }
 
 /**
- * Provides a singleton instance of a [MetaConverter] for [Duration].
+ * Extension to safely parse a Duration from Meta.
+ * Throws if the data exists but is malformed.
  */
-public val MetaConverter.Companion.duration: MetaConverter<Duration> get() = DurationConverter
+public val Meta?.duration: Duration? get() = this?.let { DurationMetaConverter.readOrNull(it) }
 
 /**
- * An extension property to safely read an [Instant] from a nullable [Meta] object.
- * It expects the meta's value to be a string in ISO-8601 format.
- * Returns `null` if the meta is null, has no value, or the value is not a valid Instant string.
- */
-public val Meta?.instant: Instant? get() = this?.value?.string?.let {
-    try {
-        Instant.Companion.parse(it)
-    } catch (e: Exception) {
-        null
-    }
-}
-
-/**
- * A property delegate for a non-nullable [Duration] value with a mandatory default.
- * The duration is stored as an ISO-8601 string.
+ * Delegate for [Duration] properties in [Scheme]s.
  *
- * @param default The default value to be used.
+ * @param default The default duration to use ONLY if the key is missing.
+ * @throws IllegalArgumentException if the key exists but contains an invalid duration string.
  */
 public fun Scheme.duration(default: Duration): ReadWriteProperty<Any?, Duration> =
-    convertable(DurationConverter, default)
+    convertable(DurationMetaConverter, default)
 
 /**
- * A property delegate for a nullable [Duration] value.
- * The duration is stored as an ISO-8601 string.
+ * Delegate for nullable [Duration] properties in [Scheme]s.
+ *
+ * @throws IllegalArgumentException if the key exists but contains an invalid duration string.
  */
-public val Scheme.duration: ReadWriteProperty<Any?, Duration?> get() = convertable(DurationConverter)
+public fun Scheme.duration(): ReadWriteProperty<Any?, Duration?> =
+    convertable(DurationMetaConverter)

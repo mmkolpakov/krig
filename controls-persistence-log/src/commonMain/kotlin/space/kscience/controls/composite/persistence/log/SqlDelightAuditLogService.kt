@@ -46,16 +46,17 @@ public class SqlDelightAuditLogService(
     )
 
     override suspend fun record(message: DeviceMessage) {
-        db.appDatabaseQueries.insert_audit_log(
-            timestamp = message.time,
-            source_device_hub = message.sourceDevice?.route?.toString() ?: "UNKNOWN",
-            source_device_name = message.sourceDevice?.device?.toString() ?: "UNKNOWN",
-            target_device_hub = message.targetDevice?.route?.toString() ?: "UNKNOWN",
-            target_device_name = message.targetDevice?.device?.toString() ?: "UNKNOWN",
-            message_type = message::class.simpleName ?: "UNKNOWN",
-            correlation_id = message.correlationId,
-            payload = message,
-        )
+//        TODO DeviceMessage is changed in alpha 3 core
+//        db.appDatabaseQueries.insert_audit_log(
+//            timestamp = message.time,
+//            source_device_hub = message.sourceDevice?.route?.toString() ?: "UNKNOWN",
+//            source_device_name = message.sourceDevice?.device?.toString() ?: "UNKNOWN",
+//            target_device_hub = message.targetDevice?.route?.toString() ?: "UNKNOWN",
+//            target_device_name = message.targetDevice?.device?.toString() ?: "UNKNOWN",
+//            message_type = message::class.simpleName ?: "UNKNOWN",
+//            correlation_id = message.correlationId,
+//            payload = message,
+//        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

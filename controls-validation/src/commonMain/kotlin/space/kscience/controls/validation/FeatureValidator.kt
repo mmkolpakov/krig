@@ -1,8 +1,8 @@
 package space.kscience.controls.validation
 
-import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
 import space.kscience.controls.services.discovery.BlueprintRegistry
 import space.kscience.controls.api.features.Feature
+import space.kscience.controls.api.structure.DeviceBlueprint
 import space.kscience.dataforge.context.Factory
 
 /**
@@ -24,7 +24,7 @@ public fun interface FeatureValidator<in F : Feature> {
      *                 (e.g., checking properties of a child device's blueprint).
      * @return A list of [ValidationError]s found. An empty list signifies that the feature is valid.
      */
-    public fun validate(blueprint: DeviceBlueprint<*>, feature: F, registry: BlueprintRegistry): List<ValidationError>
+    public fun validate(blueprint: DeviceBlueprint, feature: F, registry: BlueprintRegistry): List<ValidationError>
 }
 
 /**

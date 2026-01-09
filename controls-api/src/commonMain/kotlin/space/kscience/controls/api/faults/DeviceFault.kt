@@ -4,6 +4,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.meta.toMeta
@@ -21,8 +22,29 @@ import space.kscience.dataforge.meta.toMeta
 public interface DeviceFault : MetaRepr {
     /**
      * A stable, machine-readable error code (e.g., "VALIDATION_ERROR").
-     * This code is not intended for display to the user but for use in client-side logic
-     * to reliably identify the type of fault. It should not change between minor versions.
+     * Used by clients to programmatically react to specific error types.
      */
     public val code: String
+
+    /**
+     * A human-readable description of the fault.
+     */
+    public val message: String
+
+    /**
+     * Additional context details.
+     */
+    public val details: Meta
+}
+
+/**
+ * A generic container for any fault that is received as pure Meta (e.g. from a remote device).
+ */
+@Serializable
+public data class GenericFault(
+    override val code: String,
+    override val message: String,
+    override val details: Meta = Meta.EMPTY
+) : DeviceFault {
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }

@@ -10,15 +10,15 @@ import space.kscience.dataforge.meta.Meta
 /**
  * A central infrastructure plugin that aggregates serialization configurations from all other loaded plugins.
  *
- * It scans the [Context] for any plugins implementing [space.kscience.controls.api.serialization.SerializationContributor] and combines their
+ * It scans the [Context] for any plugins implementing [SerializationContributor] and combines their
  * [SerializersModule]s with the core module. This results in a single, context-aware [Json] instance
- * capable of handling all polymorphic types (DeviceMessage, Feature, etc.) present in the runtime.
+ * capable of handling all polymorphic types (DeviceMessage, Feature, DeviceFault, etc.) present in the runtime.
  */
 public class SerializationPlugin : AbstractPlugin() {
     override val tag: PluginTag get() = Companion.tag
 
     /**
-     * Lazily finds all plugins in the context that implement [space.kscience.controls.api.serialization.SerializationContributor].
+     * Lazily finds all plugins in the context that implement [SerializationContributor].
      */
     private val contributors: Collection<SerializationContributor> by lazy {
         context.plugins.filterIsInstance<SerializationContributor>()
@@ -33,7 +33,7 @@ public class SerializationPlugin : AbstractPlugin() {
             // 1. Include base types from controls-api
             include(controlsApiSerializersModule)
 
-            // 2. Include modules from all loaded feature plugins
+            // 2. Include modules from all loaded feature plugins (e.g. FSM, Automation)
             contributors.forEach { contributor ->
                 include(contributor.serializersModule)
             }

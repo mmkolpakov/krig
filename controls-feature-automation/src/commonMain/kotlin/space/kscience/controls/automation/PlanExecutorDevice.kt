@@ -2,7 +2,6 @@ package space.kscience.controls.automation
 
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.dataforge.meta.Meta
 
 /**
@@ -13,7 +12,7 @@ import space.kscience.dataforge.meta.Meta
  * for a device to implement this interface. The runtime is responsible for checking this capability
  * and invoking [executePlan] when a plan-based action is triggered.
  */
-public interface PlanExecutorDevice : Device {
+public interface PlanExecutorDevice {
     /**
      * Companion object holding stable identifiers for the capability.
      */

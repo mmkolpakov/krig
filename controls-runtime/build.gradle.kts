@@ -22,7 +22,6 @@ kscience {
 
     commonMain {
         api(projects.controlsMetrics)
-        api(projects.controlsDsl)
         api(projects.controlsPersistence)
         implementation(libs.kotlinx.atomicfu)
         api(libs.kstatemachine.core)

@@ -1,58 +1,32 @@
 package space.kscience.controls.api.context
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import space.kscience.attributes.Attributes
+import space.kscience.attributes.AttributesBuilder
+import space.kscience.attributes.modified
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.identifiers.CorrelationId
-import space.kscience.dataforge.meta.Meta
 import kotlin.random.Random
 
 /**
- * Represents the identity of the caller performing an action or query.
- * This can be extended to include authentication tokens, roles, and other security attributes.
+ * A context container for a single execution flow (e.g., a command, a query, or a transaction).
+ * It carries metadata through the system layers, spanning both the Control Plane (In-Memory)
+ * and Data Plane (Network/Persistence).
  *
- * @property name A human-readable name for the principal (e.g., username).
- * @property roles A set of roles associated with the principal, used for authorization.
- * @property attributes A [Meta] object containing additional, arbitrary attributes about the principal
- *                      (e.g., session ID, source IP address, authentication token details).
- */
-public interface Principal {
-    public val name: String
-    public val roles: Set<String>
-    public val attributes: Meta
-}
-
-/**
- * A simple, data-holding implementation of [Principal].
- */
-@Serializable
-public data class SimplePrincipal(
-    override val name: String,
-    override val roles: Set<String> = emptySet(),
-    override val attributes: Meta = Meta.EMPTY,
-) : Principal
-
-/**
- * A system-level principal used for internal operations or when no specific principal is provided.
- * By default, it has all permissions.
- */
-public object SystemPrincipal : Principal {
-    override val name: String = "system"
-    override val roles: Set<String> = setOf("system")
-    override val attributes: Meta = Meta.EMPTY
-}
-
-/**
- * A context for a single execution flow (a command plan or a query), carrying cross-cutting concerns
- * like security principal and tracing information.
+ * ### Serialization Strategy
+ * The [attributes] field is marked as [Contextual]. This means the specific set of attributes
+ * that are transmitted over the wire is determined by the [kotlinx.serialization.modules.SerializersModule]
+ * configured in the runtime.
  *
- * @param principal The identity of the caller. Defaults to a system principal.
- * @param correlationId A type-safe ID to trace a request through different components. Defaults to a random value.
- * @param originAddress The network address from which the original request was initiated. Can be null for internal requests.
- * @param fromCache Indicates that the primary result of this execution context was retrieved from a cache rather than being computed live.
- * @param traceContext An optional map containing trace propagation headers (e.g., W3C Trace Context).
- *                     This allows for seamless integration with distributed tracing systems like OpenTelemetry.
- *                     The runtime is responsible for propagating this context across network boundaries.
- * @param attributes Additional metadata for the execution context, for extensibility.
+ * - **Runtime Attributes** (e.g., DB Transactions, Auth Tokens) are typically **Transient** and dropped during serialization.
+ * - **Protocol Attributes** (e.g., TraceID, Priority) are registered in the serializer and preserved.
+ *
+ * @property principal The identity of the caller initiating this execution.
+ * @property correlationId A unique identifier for distributed tracing and log correlation.
+ * @property originAddress The network address of the caller, if applicable.
+ * @property fromCache Indicates whether the result associated with this context was served from a cache.
+ * @property attributes A type-safe container for extension data.
  */
 @Serializable
 public data class ExecutionContext(
@@ -60,6 +34,14 @@ public data class ExecutionContext(
     val correlationId: CorrelationId = CorrelationId("exec-${Random.nextLong().toString(16)}"),
     val originAddress: Address? = null,
     val fromCache: Boolean = false,
-    val traceContext: Map<String, String>? = null,
-    val attributes: Meta = Meta.EMPTY,
-)
+    @Contextual
+    val attributes: Attributes = Attributes.EMPTY,
+) {
+    /**
+     * Creates a copy of this context with modified attributes using the provided [builder].
+     * This is a zero-copy operation if no changes are actually made.
+     */
+    public fun withAttributes(builder: AttributesBuilder<*>.() -> Unit): ExecutionContext {
+        return copy(attributes = attributes.modified<ExecutionContext>(builder))
+    }
+}

@@ -11,5 +11,7 @@ kscience {
 
     commonMain {
         api(projects.controlsCommon)
+        api(libs.attributes.kt) //for Type-Safe Runtime Context
+        api(libs.attributes.kt.serialization)
     }
 }

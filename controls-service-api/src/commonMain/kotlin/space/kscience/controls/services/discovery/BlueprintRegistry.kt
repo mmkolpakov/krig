@@ -1,7 +1,7 @@
 package space.kscience.controls.services.discovery
 
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.core.legacy_alpha_2.contracts.DeviceBlueprint
+import space.kscience.controls.api.structure.DeviceBlueprint
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 
@@ -22,7 +22,7 @@ public interface BlueprintRegistry : Plugin {
      * @param id The type-safe [BlueprintId] of the blueprint.
      * @return The corresponding [DeviceBlueprint], or `null` if no blueprint with that ID is found.
      */
-    public fun findById(id: BlueprintId): DeviceBlueprint<*>?
+    public fun findById(id: BlueprintId): DeviceBlueprint?
 
     public companion object : PluginFactory<BlueprintRegistry> {
         override val tag: PluginTag = PluginTag("device.blueprint.registry", group = PluginTag.DATAFORGE_GROUP)

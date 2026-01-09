@@ -19,5 +19,6 @@ kscience {
         api(libs.dataforge.meta)
         api(libs.dataforge.context)
         api(libs.kstatemachine.core)
+        implementation(libs.kstatemachine.coroutines)
     }
 }

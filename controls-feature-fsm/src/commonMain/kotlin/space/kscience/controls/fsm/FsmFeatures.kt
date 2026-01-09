@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import ru.nsk.kstatemachine.statemachine.BuildingStateMachine
-import space.kscience.controls.core.legacy_alpha_2.contracts.Device
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta
@@ -64,7 +63,7 @@ public data class LifecycleFeature(
     @Transient
     public var fsmBuilder: (suspend BuildingStateMachine.(device: Any, context: Any) -> Unit)? = null
     override val key: FeatureKey<*> get() = LifecycleFeature
-    override val capability: String get() = Device.CAPABILITY
+    override val capability: String get() = TODO()
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 

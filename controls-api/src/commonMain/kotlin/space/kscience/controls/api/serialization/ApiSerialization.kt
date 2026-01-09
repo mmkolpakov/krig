@@ -12,28 +12,24 @@ import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.controls.api.connectivity.AddressSource
 import space.kscience.controls.api.connectivity.DiscoveredAddressSource
 import space.kscience.controls.api.connectivity.StaticAddressSource
-import space.kscience.controls.api.descriptors.*
-import space.kscience.controls.api.descriptors.attributes.*
 import space.kscience.controls.api.events.*
 import space.kscience.controls.api.faults.*
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.MetadataFeature
 import space.kscience.controls.api.features.ReconfigurableFeature
-import space.kscience.controls.api.messages.ActionFaultMessage
-import space.kscience.controls.api.messages.BinaryDataRequest
-import space.kscience.controls.api.messages.BinaryReadyNotification
-import space.kscience.controls.api.messages.DescriptionMessage
-import space.kscience.controls.api.messages.DeviceAttachedMessage
-import space.kscience.controls.api.messages.DeviceDetachedMessage
 import space.kscience.controls.api.messages.DeviceErrorMessage
 import space.kscience.controls.api.messages.DeviceMessage
-import space.kscience.controls.api.messages.PredicateChangedMessage
-import space.kscience.controls.api.messages.PropertyChangedMessage
-import space.kscience.controls.api.meta.AdapterBinding
 import space.kscience.controls.api.meta.AliasTag
 import space.kscience.controls.api.meta.MemberTag
-import space.kscience.controls.api.meta.ModbusTestBinding
 import space.kscience.controls.api.meta.ProfileTag
+import space.kscience.controls.api.spec.DeadbandPolicy
+import space.kscience.controls.api.spec.RealtimePolicy
+import space.kscience.controls.api.spec.SampledPolicy
+import space.kscience.controls.api.spec.TelemetryPolicy
+import space.kscience.controls.api.structure.ActionDescriptor
+import space.kscience.controls.api.structure.MemberDescriptor
+import space.kscience.controls.api.structure.PropertyDescriptor
+import space.kscience.controls.api.structure.StreamDescriptor
 import space.kscience.controls.api.validation.CustomPredicateRuleDescriptor
 import space.kscience.controls.api.validation.MinLengthRuleDescriptor
 import space.kscience.controls.api.validation.RangeRuleDescriptor
@@ -57,20 +53,6 @@ public val controlsApiSerializersModule: SerializersModule = SerializersModule {
         subclass(IpcAddress::class)
     }
 
-    // Member Attributes
-    polymorphic(MemberAttribute::class) {
-        subclass(MetadataAttribute::class)
-        subclass(BehaviorAttribute::class)
-        subclass(AccessAttribute::class)
-        subclass(TelemetryAttribute::class)
-        subclass(BindingsAttribute::class)
-        subclass(PersistenceAttribute::class)
-        subclass(ValidationAttribute::class)
-        subclass(ImplementationAttribute::class)
-        subclass(FsmAttribute::class)
-        subclass(StreamAttribute::class)
-    }
-
     // Descriptors
     polymorphic(MemberDescriptor::class) {
         subclass(ActionDescriptor::class)
@@ -86,28 +68,12 @@ public val controlsApiSerializersModule: SerializersModule = SerializersModule {
 
     // Device Faults
     polymorphic(DeviceFault::class) {
-        subclass(AuthenticationFault::class)
-        subclass(AuthorizationFault::class)
-        subclass(GenericDeviceFault::class)
-        subclass(InvalidStateFault::class)
-        subclass(NotFoundFault::class)
-        subclass(PreconditionFault::class)
-        subclass(ResourceBusyFault::class)
-        subclass(TimeoutFault::class)
-        subclass(ValidationFault::class)
+        subclass(GenericFault::class)
     }
 
     // Messages
     polymorphic(DeviceMessage::class) {
-        subclass(ActionFaultMessage::class)
-        subclass(DescriptionMessage::class)
         subclass(DeviceErrorMessage::class)
-        subclass(PropertyChangedMessage::class)
-        subclass(DeviceAttachedMessage::class)
-        subclass(DeviceDetachedMessage::class)
-        subclass(PredicateChangedMessage::class)
-        subclass(BinaryDataRequest::class)
-        subclass(BinaryReadyNotification::class)
     }
 
     // Features
@@ -132,16 +98,17 @@ public val controlsApiSerializersModule: SerializersModule = SerializersModule {
         subclass(ProfileTag::class)
     }
 
-    // Adapter binding
-    polymorphic(AdapterBinding::class) {
-        subclass(ModbusTestBinding::class)
-    }
-
     // Validation
     polymorphic(ValidationRuleDescriptor::class) {
         subclass(CustomPredicateRuleDescriptor::class)
         subclass(MinLengthRuleDescriptor::class)
         subclass(RangeRuleDescriptor::class)
         subclass(RegexRuleDescriptor::class)
+    }
+
+    polymorphic(TelemetryPolicy::class) {
+        subclass(RealtimePolicy::class)
+        subclass(SampledPolicy::class)
+        subclass(DeadbandPolicy::class)
     }
 }

@@ -16,6 +16,7 @@ kscience {
 
     commonMain {
         api(projects.controlsCore)
+        api(projects.controlsServiceApi)
         api(projects.controlsFeatureFsm)
         api(libs.dataforge.meta)
         api(libs.dataforge.context)

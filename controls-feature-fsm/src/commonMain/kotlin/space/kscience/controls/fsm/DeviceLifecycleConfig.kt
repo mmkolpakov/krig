@@ -58,8 +58,8 @@ public class PersistenceConfig : Scheme() {
 @Serializable(with = DeviceLifecycleConfig.Serializer::class)
 public class DeviceLifecycleConfig : Scheme() {
     public var lifecycleMode: LifecycleMode by enum(LifecycleMode.LINKED)
-    public var startTimeout: Duration? by duration
-    public var stopTimeout: Duration? by duration
+    public var startTimeout: Duration? by duration()
+    public var stopTimeout: Duration? by duration()
     public var onError: ChildDeviceErrorHandler by enum(ChildDeviceErrorHandler.RESTART)
     public var restartPolicy: RestartPolicy by scheme(RestartPolicy)
     public var lazyAttach: Boolean by boolean(false)

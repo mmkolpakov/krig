@@ -7,6 +7,7 @@ import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.api.data.RawValue
 import space.kscience.controls.api.identifiers.CorrelationId
 import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Instant
 
@@ -34,14 +35,12 @@ public data class TagUpdate(
 @Serializable
 @SerialName("telemetry")
 public data class TelemetryPacket(
-    override val sourceDevice: Address,
+    override val source: Address,
     val updates: List<TagUpdate>,
     override val time: Instant,
-    override val targetDevice: Address? = null,
-    override val requestId: String? = null,
-    override val correlationId: CorrelationId? = null
+    override val target: Address? = null,
+    override val attributes: Meta,
 ) : DeviceMessage {
-
-    override fun changeSource(block: (Name) -> Name): TelemetryPacket =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+    public fun changeSource(block: (Name) -> Name): TelemetryPacket =
+        copy(source = source.copy(device = block(source.device)))
 }

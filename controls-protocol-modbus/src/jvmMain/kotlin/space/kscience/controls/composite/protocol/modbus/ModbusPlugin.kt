@@ -15,7 +15,7 @@ import space.kscience.dataforge.names.Name
 public class ModbusPlugin : AbstractPlugin() {
     override val tag: PluginTag get() = Companion.tag
 
-    private val adapter = ModbusProtocolAdapter()
+    private val adapter: Any = TODO()
 
     override fun content(target: String): Map<Name, Any> = when (target) {
         // TODO A future standard target for protocol adapters

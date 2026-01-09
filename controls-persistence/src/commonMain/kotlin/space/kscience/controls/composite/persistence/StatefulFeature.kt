@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta
-import space.kscience.controls.core.legacy_alpha_2.state.StatefulDevice
 import space.kscience.dataforge.meta.Meta
 
 /**
@@ -18,7 +17,7 @@ public data class StatefulFeature(
     val migratorId: String? = null
 ) : Feature {
     override val key: FeatureKey<*> get() = StatefulFeature
-    override val capability: String get() = StatefulDevice.CAPABILITY
+    override val capability: String get() = TODO()
 
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 

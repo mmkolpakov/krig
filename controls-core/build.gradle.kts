@@ -18,6 +18,9 @@ kscience {
     commonMain {
         api(projects.controlsApi)
         api(libs.dataforge.context)
+        api(libs.dataforge.data)
         implementation(libs.kotlinx.atomicfu)
+        implementation(libs.kstatemachine.core)
+        implementation(libs.kstatemachine.coroutines)
     }
 }
