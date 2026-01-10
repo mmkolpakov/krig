@@ -94,6 +94,7 @@ include(
 
     // Tools
     ":controls-dsl",
+    ":controls-dsl-core",
     ":controls-simulation",
     ":controls-runtime",
     ":controls-data",

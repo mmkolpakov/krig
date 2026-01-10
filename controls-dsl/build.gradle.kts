@@ -40,6 +40,8 @@ kscience {
         api(projects.controlsValidation)
         api(projects.controlsFeatureAnalytics)
         api(projects.controlsPersistence)
+//        TODO split dsl
+        api(projects.controlsDslCore)
     }
 
     commonTest {
