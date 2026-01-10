@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import space.kscience.controls.api.data.DataQuality
 import space.kscience.controls.composite.dsl.CompositeSpecBuilder
 import space.kscience.controls.composite.dsl.DeviceSpecification
 import space.kscience.controls.core.InternalControlsApi
@@ -41,7 +42,7 @@ internal inline fun <D : Device, reified T : Any> DeviceSpecification<D>.interna
     dependencies: Array<out DevicePropertySpec<D, *>>,
     initialValue: T,
     noinline descriptorBuilder: PropertyDescriptorBuilder.() -> Unit = {},
-    noinline read: suspend D.(values: List<Any?>) -> T,
+    noinline calculate: suspend D.(values: List<Any?>) -> T,
 ): PropertyDelegateProvider<DeviceSpecification<D>, ReadOnlyProperty<DeviceSpecification<D>, DevicePropertySpec<D, T>>> {
 
     // This is the delegate provider for the *public property spec*.
@@ -54,61 +55,59 @@ internal inline fun <D : Device, reified T : Any> DeviceSpecification<D>.interna
         converter = converter,
         descriptorBuilder = descriptorBuilder,
         read = {
-            error(
-                "Property is a derived property. " +
-                        "Its value must be read from the device's reactive state, not via a direct driver call."
-            )
+            error("Derived property '${this.name}' cannot be read directly. Use reactive state.")
         },
         write = null
     )
 
-    // This outer provider wraps the spec provider to add the hydration logic.
     return PropertyDelegateProvider { thisRef, property ->
-        // 1. Get the DevicePropertySpec using the delegate created above.
-        //    This step also registers the property spec within the DeviceSpecification.
         val spec = specDelegateProvider.provideDelegate(thisRef, property).getValue(thisRef, property)
 
-        // 2. Now that the spec is created and registered, create the hydration logic for it.
         val hydrator = HydratableDeviceState<D, T> { device ->
             val deviceContext = (device as? CompositeDeviceContext)
-                ?: error("Device must implement CompositeDeviceContext to hydrate a derived state.")
+                ?: error("Device must implement CompositeDeviceContext to use derived properties.")
 
-            val flows: List<Flow<StateValue<*>>> = dependencies.map { depSpec ->
+            val dependencyFlows: List<Flow<StateValue<*>>> = dependencies.map { depSpec ->
                 deviceContext.getState(depSpec).stateFlow
             }
 
-            combine(flows) { states ->
-                val values = states.map { it.value }
-                try {
-                    val computedValue = device.read(values)
-                    val combinedTimestamp = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
-                    val combinedQuality =
-                        if (states.all { it.quality == Quality.OK }) Quality.OK else Quality.INVALID
-                    StateValue(computedValue, combinedTimestamp, combinedQuality)
-                } catch (e: Exception) {
-                    device.context.logger.error(e) { "Failed to compute derived property '${spec.name}'" }
-                    StateValue(
+            val combinedFlow = combine(dependencyFlows) { states ->
+                val maxTimestamp = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
+                val aggregatedQuality = DataQuality.combine(states.map { it.quality })
+                if (aggregatedQuality.quality == Quality.BAD) {
+                    return@combine StateValue(
                         initialValue,
-                        states.maxOfOrNull { it.timestamp } ?: device.clock.now(),
-                        Quality.ERROR
+                        maxTimestamp,
+                        aggregatedQuality
                     )
                 }
-            }.stateIn(
+                try {
+                    val inputValues = states.map { it.value }
+                    val result = device.calculate(inputValues)
+                    StateValue(result, maxTimestamp, aggregatedQuality)
+                } catch (e: Exception) {
+                    device.context.logger.error(e) {
+                        "Error calculating derived property '${spec.name}'"
+                    }
+                    StateValue(
+                        initialValue,
+                        maxTimestamp,
+                        DataQuality(Quality.BAD, "Calculation Exception: ${e.message}")
+                    )
+                }
+            }
+            val stateFlow = combinedFlow.stateIn(
                 scope = device,
                 started = SharingStarted.Lazily,
                 initialValue = okState(initialValue, device.clock)
-            ).let { stateFlow ->
-                object : DeviceState<T> {
-                    override val stateValue: StateValue<T?> get() = stateFlow.value
-                    override val stateFlow: StateFlow<StateValue<T?>> get() = stateFlow
-                }
+            )
+            object : DeviceState<T> {
+                override val stateValue: StateValue<T?> get() = stateFlow.value
+                override val stateFlow: StateFlow<StateValue<T?>> get() = stateFlow
             }
         }
-
-        // 3. Register the hydrator with the DeviceSpecification instance.
         thisRef.registeredHydrators[spec.name] = hydrator
 
-        // 4. Return the delegate that provides the registered spec as a read-only property.
         ReadOnlyProperty { _, _ -> spec }
     }
 }
@@ -354,42 +353,50 @@ public fun <D : Device> CompositeSpecBuilder<D>.predicate(
         override val valueType = typeOf<Boolean>()
 
         override suspend fun read(device: D): Boolean? {
-            error(
-                "Property '$name' is a derived predicate and should be read from its reactive state, not via a direct driver call."
-            )
+            error("Predicate '$name' cannot be read directly. Use reactive state.")
         }
     }
     registerProperty(spec)
 
-    // Register the hydration logic for this directly-built predicate.
     @OptIn(InternalControlsApi::class)
     val hydrator = HydratableDeviceState<D, Boolean> { device ->
         val deviceContext = (device as? CompositeDeviceContext)
-            ?: error("Device must implement CompositeDeviceContext to hydrate a derived state.")
+            ?: error("Device must implement CompositeDeviceContext to use predicates.")
 
-        val flows: List<Flow<StateValue<*>>> = dependencies.map { depSpec ->
+        val flows = dependencies.map { depSpec ->
             deviceContext.getState(depSpec).stateFlow
         }
 
         combine(flows) { states ->
-            val values = states.map { it.value }
+            val maxTime = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
+            val combinedQuality = DataQuality.combine(states.map { it.quality })
+            if (combinedQuality.quality == Quality.BAD) {
+                return@combine StateValue(
+                    false,
+                    maxTime,
+                    combinedQuality
+                )
+            }
             try {
-                val computedValue = device.read(values)
-                val combinedTimestamp = states.maxOfOrNull { it.timestamp } ?: device.clock.now()
-                val combinedQuality = if (states.all { it.quality == Quality.OK }) Quality.OK else Quality.INVALID
-                StateValue(computedValue, combinedTimestamp, combinedQuality)
+                val inputValues = states.map { it.value }
+                val result = device.read(inputValues)
+                StateValue(result, maxTime, combinedQuality)
             } catch (e: Exception) {
-                device.context.logger.error(e) { "Failed to compute predicate property '$name'" }
-                StateValue(false, states.maxOfOrNull { it.timestamp } ?: device.clock.now(), Quality.ERROR)
+                device.context.logger.error(e) { "Predicate '$name' calculation failed" }
+                StateValue(
+                    false,
+                    maxTime,
+                    DataQuality(Quality.BAD, "Predicate error: ${e.message}")
+                )
             }
         }.stateIn(
             scope = device,
             started = SharingStarted.Lazily,
             initialValue = okState(false, device.clock)
-        ).let { stateFlow ->
+        ).let { flow ->
             object : DeviceState<Boolean> {
-                override val stateValue: StateValue<Boolean?> get() = stateFlow.value
-                override val stateFlow: StateFlow<StateValue<Boolean?>> get() = stateFlow
+                override val stateValue get() = flow.value
+                override val stateFlow get() = flow
             }
         }
     }

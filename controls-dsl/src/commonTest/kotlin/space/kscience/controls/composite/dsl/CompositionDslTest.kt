@@ -11,8 +11,8 @@ import space.kscience.controls.connectivity.composition
 import space.kscience.controls.connectivity.connectivity
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.api.addressing.Address
-import space.kscience.controls.api.composition.LocalChildComponentConfig
-import space.kscience.controls.api.composition.RemoteChildComponentConfig
+import space.kscience.controls.core.composition.LocalChildComponentConfig
+import space.kscience.controls.connectivity.connectivity.RemoteChildComponentConfig
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.meta.double
 import space.kscience.dataforge.meta.string
@@ -135,20 +135,18 @@ class CompositionDslTest {
             override val id = "test.device"
             override fun CompositeSpecBuilder<Device>.configure() {
                 driver { _, _ -> error("Not for runtime") }
-                val remotePeer by peer({ _, _ -> error("Not for runtime") }, Address("remoteHub", "peer"))
                 remoteChild(
                     name = "remoteProxy".asName(),
                     blueprint = childBlueprint,
-                    remoteDeviceName = "actualRemoteDevice".asName(),
-                    via = remotePeer
+                    target = Address("remoteHub".asName(), "actualRemoteDevice".asName())
                 )
             }
         }
         val blueprint = compositeDeviceUnchecked(parentSpec, Global)
         val remoteChildConfig = blueprint.composition?.children?.get("remoteProxy".asName())
         assertIs<RemoteChildComponentConfig>(remoteChildConfig)
-        assertEquals("actualRemoteDevice".asName(), remoteChildConfig.remoteDeviceName)
-        assertEquals("remotePeer".asName(), remoteChildConfig.peerName)
+        assertEquals("actualRemoteDevice".asName(), remoteChildConfig.target.device)
+        assertEquals("remoteHub".asName(), remoteChildConfig.target.route)
     }
 
     /**

@@ -9,7 +9,7 @@ import kotlin.time.Instant
 public data class StateValue<out T>(
     val value: T,
     val timestamp: Instant,
-    val quality: Quality,
+    val quality: DataQuality,
 ) {
     /**
      * Creates a new [StateValue] by applying a mapping function to the value,
@@ -23,17 +23,7 @@ public data class StateValue<out T>(
 
     public companion object {
         /**
-         * A helper function to combine two Quality values, returning the "worst" of the two.
-         */
-        private fun combineQuality(q1: Quality, q2: Quality): Quality = when {
-            q1 == Quality.ERROR || q2 == Quality.ERROR -> Quality.ERROR
-            q1 == Quality.INVALID || q2 == Quality.INVALID -> Quality.INVALID
-            q1 == Quality.STALE || q2 == Quality.STALE -> Quality.STALE
-            else -> Quality.OK
-        }
-
-        /**
-         * Creates a new [StateValue] by combining two source states.
+         * A helper function to combine Quality values.
          */
         public fun <T1, T2, R> combine(
             s1: StateValue<T1>,
@@ -42,7 +32,7 @@ public data class StateValue<out T>(
         ): StateValue<R> = StateValue(
             value = mapper(s1.value, s2.value),
             timestamp = maxOf(s1.timestamp, s2.timestamp),
-            quality = combineQuality(s1.quality, s2.quality)
+            quality = DataQuality.combine(s1.quality, s2.quality)
         )
     }
 }
@@ -50,4 +40,4 @@ public data class StateValue<out T>(
 /**
  * Creates a [StateValue] with the current time and [Quality.OK].
  */
-public fun <T> okState(value: T, clock: Clock = Clock.System): StateValue<T> = StateValue(value, clock.now(), Quality.OK)
+public fun <T> okState(value: T, clock: Clock = Clock.System): StateValue<T> = StateValue(value, clock.now(), DataQuality.OK)

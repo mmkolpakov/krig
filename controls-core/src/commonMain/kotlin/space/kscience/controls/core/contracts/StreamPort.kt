@@ -9,12 +9,6 @@ import kotlinx.io.Buffer
  * scenarios involving continuous data flow, such as video feeds, high-frequency sensor data,
  * or waveform transmission. It uses `kotlinx-io`'s [kotlinx.io.Buffer] to minimize data copying and improve performance.
  *
- * A `StreamPort` is a managed resource. The runtime is responsible for its entire lifecycle,
- * including calling [close] when the owning device is stopped or detached to ensure that
- * underlying resources like sockets or file handles are properly released. This contract is defined
- * in the `old` module because it is a fundamental part of a device's public-facing API,
- * similar to properties and actions.
- *
  * The [incoming] flow is expected to complete normally when the port is closed gracefully,
  * or fail with an exception (e.g., PortException) if an unrecoverable communication error occurs.
  */

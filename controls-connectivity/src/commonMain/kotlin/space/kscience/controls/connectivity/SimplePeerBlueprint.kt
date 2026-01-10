@@ -1,7 +1,7 @@
 package space.kscience.controls.connectivity
 
-import space.kscience.controls.api.connectivity.AddressSource
-import space.kscience.controls.api.connectivity.FailoverStrategy
+import space.kscience.controls.connectivity.config.AddressSource
+import space.kscience.controls.connectivity.config.FailoverStrategy
 import space.kscience.controls.api.spec.ResiliencePolicy
 
 /**

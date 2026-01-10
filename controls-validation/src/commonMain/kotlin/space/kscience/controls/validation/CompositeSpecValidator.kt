@@ -8,8 +8,8 @@ import space.kscience.controls.connectivity.ParentPropertyBinding
 import space.kscience.controls.connectivity.TransformedPropertyBinding
 import space.kscience.controls.connectivity.composition
 import space.kscience.controls.connectivity.connectivity
-import space.kscience.controls.api.composition.LocalChildComponentConfig
-import space.kscience.controls.api.composition.RemoteChildComponentConfig
+import space.kscience.controls.core.composition.LocalChildComponentConfig
+import space.kscience.controls.connectivity.connectivity.RemoteChildComponentConfig
 import space.kscience.controls.api.identifiers.BlueprintId
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.connectivity.services.discovery.BlueprintRegistry
@@ -17,6 +17,7 @@ import space.kscience.controls.connectivity.services.discovery.blueprintRegistry
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.descriptors.validate
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.isEmpty
 
 /**
  * A utility object for validating [DeviceBlueprint] instances.
@@ -152,13 +153,14 @@ private fun validateLocalChild(
 private fun validateRemoteChild(
     parentBlueprint: DeviceBlueprint<*>,
     childName: Name,
-//    TODO Parameter "childBlueprint" is never used
     childConfig: RemoteChildComponentConfig,
     childBlueprint: DeviceBlueprint<*>,
     errors: MutableList<ValidationError>,
 ) {
-    val peerConnections = parentBlueprint.connectivity?.peerConnections ?: emptyMap()
-    if (!peerConnections.containsKey(childConfig.peerName)) {
-        errors.add(ValidationError.InvalidRemoteChild(childName, "Peer connection with name '${childConfig.peerName}' is not defined in the parent blueprint."))
+    if (childConfig.target.route.isEmpty()) {
+        errors.add(ValidationError.InvalidRemoteChild(childName, "Target Hub ID (route) cannot be empty."))
+    }
+    if (childConfig.target.device.isEmpty()) {
+        errors.add(ValidationError.InvalidRemoteChild(childName, "Target Device ID cannot be empty."))
     }
 }

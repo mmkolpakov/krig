@@ -46,8 +46,11 @@ class MirrorDslTest {
             override val id = "test.device"
             override fun CompositeSpecBuilder<Device>.configure() {
                 driver { _, _ -> error("Not for runtime") }
-                val remotePeer by peer({ _, _ -> error("Not for runtime") }, Address("remoteHub", "peer"))
-                remoteChild("remote".asName(), remoteBlueprint, "remoteDevice".asName(), remotePeer)
+                remoteChild(
+                    name = "remote".asName(),
+                    blueprint = remoteBlueprint,
+                    target = Address(route = "remoteHub", device = "remoteDevice")
+                )
                 mirrors {
                     mirror("remote".asName(), remoteSpec.remoteValue, "localValue".asName(), MetaConverter.double)
                 }
@@ -76,8 +79,11 @@ class MirrorDslTest {
             override val id = "test.device"
             override fun CompositeSpecBuilder<Device>.configure() {
                 driver { _, _ -> error("Not for runtime") }
-                val remotePeer by peer({ _, _ -> error("Not for runtime") }, Address("remoteHub", "peer"))
-                remoteChild("remote".asName(), remoteBlueprint, "remoteDevice".asName(), remotePeer)
+                remoteChild(
+                    name = "remote".asName(),
+                    blueprint = remoteBlueprint,
+                    target = Address(route = "remoteHub", device = "remoteDevice")
+                )
                 mirrors {
                     mirror("remote".asName(), remoteSpec.remoteValue, "localValue".asName(), MetaConverter.double)
                 }

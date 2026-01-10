@@ -20,11 +20,11 @@ import space.kscience.controls.api.messages.DeviceMessage
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.state.MutableDeviceState
 import space.kscience.controls.core.state.StatefulDevice
-import space.kscience.controls.api.connectivity.FailoverStrategy
-import space.kscience.controls.api.connectivity.StaticAddressSource
+import space.kscience.controls.connectivity.config.FailoverStrategy
+import space.kscience.controls.connectivity.config.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.addressing.Address
-import space.kscience.controls.api.composition.LocalChildComponentConfig
+import space.kscience.controls.core.composition.LocalChildComponentConfig
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.api.descriptors.ActionDescriptor
@@ -173,28 +173,6 @@ class DslTest {
     }
 
     @Test
-    fun `should fail validation on remote child with non-existent peer`() = runTest {
-        val spec = object : DeviceSpecification<TestDevice>() {
-            override fun CompositeSpecBuilder<TestDevice>.configure() {
-                driver { ctx, meta -> TestDeviceImpl(ctx, "remoteInvalid".asName(), meta, coroutineContext) }
-                val fakePeer = SimplePeerBlueprint<PeerConnection>(
-                    "fake.peer",
-                    StaticAddressSource(emptyList()), FailoverStrategy.ORDERED
-                ) { _, _ -> error("Should not be called") }
-                remoteChild(
-                    name = "remoteChild".asName(),
-                    blueprint = compositeDeviceUnchecked(ChildDeviceSpec(), Global),
-                    remoteDeviceName = "remoteDevice".asName(),
-                    via = fakePeer
-                )
-            }
-        }
-        assertFailsWith<IllegalStateException>("Peer connection blueprint 'fake.peer' is not registered in this spec. It must be declared as a property before being used.") {
-            compositeDeviceUnchecked(spec, Global)
-        }
-    }
-
-    @Test
     fun `should build a kitchen sink blueprint without state conflicts`() = runTest {
         val sinkSpec = object : DeviceSpecification<KitchenSinkDevice>() {
             override val id: String = "test.kitchenSink"
@@ -214,15 +192,12 @@ class DslTest {
             override fun CompositeSpecBuilder<KitchenSinkDevice>.configure() {
                 driver { ctx, meta -> TestDeviceImpl(ctx, "kitchenSink".asName(), meta, coroutineContext) }
 
-                val peer by peer({ _, _ -> error("not called") }, Address("hub", "peer"))
-
                 child("child1".asName(), childBlueprint)
                 children(childBlueprint, listOf("child2".asName(), "child3".asName()))
                 remoteChild(
                     name = "remoteChild".asName(),
                     blueprint = childBlueprint,
-                    remoteDeviceName = "remoteDevice".asName(),
-                    via = peer
+                    target = Address(route = "hub", device = "remoteDevice")
                 )
 
                 operationalFsm(setOf("IDLE", "RUNNING")) { _, _ -> }

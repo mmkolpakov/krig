@@ -1,4 +1,4 @@
-package space.kscience.controls.api.connectivity
+package space.kscience.controls.connectivity.config
 
 /**
  * Defines the strategy for selecting an address when multiple are available, particularly for failover.

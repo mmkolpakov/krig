@@ -15,7 +15,7 @@ import space.kscience.controls.api.spec.QoS
 import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.controls.core.contracts.ManagedComponent
 import space.kscience.controls.connectivity.services.AddressResolver
-import space.kscience.controls.api.addressing.TcpAddress
+import space.kscience.controls.connectivity.addressing.TcpAddress
 import space.kscience.controls.connectivity.PeerConnection
 import space.kscience.controls.connectivity.PeerConnectionException
 import space.kscience.dataforge.context.Context

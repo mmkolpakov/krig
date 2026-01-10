@@ -30,8 +30,9 @@ public class SerializationPlugin : AbstractPlugin() {
      */
     public val jsonSerializersModule: SerializersModule by lazy {
         SerializersModule {
-            // 1. Include base types from controls-api
+            // 1. Include base types
             include(controlsApiSerializersModule)
+            include(controlsCoreSerializersModule)
 
             // 2. Include modules from all loaded feature plugins
             contributors.forEach { contributor ->

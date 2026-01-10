@@ -1,5 +1,6 @@
-package space.kscience.controls.api.connectivity
+package space.kscience.controls.connectivity.config
 
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.addressing.Address
@@ -7,8 +8,8 @@ import space.kscience.controls.api.addressing.Address
 /**
  * Defines the source of addresses for a peer connection, allowing for both static and dynamic configurations.
  */
-@Serializable
-public sealed interface AddressSource
+@Polymorphic
+public interface AddressSource
 
 /**
  * A static, fixed list of addresses for a peer.

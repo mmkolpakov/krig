@@ -155,8 +155,11 @@ class ValidationTest {
             override val id = "validation.mirror.valid"
             override fun CompositeSpecBuilder<Device>.configure() {
                 driver { _, _ -> error("not for runtime") }
-                val peer by peer({ _, _ -> error("not called") }, Address("remoteHub".asName(), "peer".asName()))
-                remoteChild("remote".asName(), remoteBlueprint, "remote".asName(), via = peer)
+                remoteChild(
+                    "remote".asName(),
+                    remoteBlueprint,
+                    Address("remoteHub".asName(), "device".asName())
+                )
                 mirrors {
                     mirror("remote".asName(), remoteTempProperty, "local_temp".asName(), MetaConverter.double)
                 }

@@ -3,15 +3,8 @@ package space.kscience.controls.api.serialization
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
-import space.kscience.controls.api.addressing.IpcAddress
-import space.kscience.controls.api.addressing.TcpAddress
 import space.kscience.controls.api.addressing.TransportAddress
 import space.kscience.controls.api.composition.ChildComponentConfig
-import space.kscience.controls.api.composition.LocalChildComponentConfig
-import space.kscience.controls.api.composition.RemoteChildComponentConfig
-import space.kscience.controls.api.connectivity.AddressSource
-import space.kscience.controls.api.connectivity.DiscoveredAddressSource
-import space.kscience.controls.api.connectivity.StaticAddressSource
 import space.kscience.controls.api.descriptors.*
 import space.kscience.controls.api.descriptors.attributes.*
 import space.kscience.controls.api.events.*
@@ -46,16 +39,8 @@ import space.kscience.controls.api.validation.ValidationRuleDescriptor
  */
 public val controlsApiSerializersModule: SerializersModule = SerializersModule {
 
-    //Addressing
-    polymorphic(AddressSource::class) {
-        subclass(DiscoveredAddressSource::class)
-        subclass(StaticAddressSource::class)
-    }
-
-    polymorphic(TransportAddress::class) {
-        subclass(TcpAddress::class)
-        subclass(IpcAddress::class)
-    }
+    polymorphic(ChildComponentConfig::class)
+    polymorphic(TransportAddress::class)
 
     // Member Attributes
     polymorphic(MemberAttribute::class) {
@@ -76,12 +61,6 @@ public val controlsApiSerializersModule: SerializersModule = SerializersModule {
         subclass(ActionDescriptor::class)
         subclass(PropertyDescriptor::class)
         subclass(StreamDescriptor::class)
-    }
-
-    // Child configs
-    polymorphic(ChildComponentConfig::class) {
-        subclass(LocalChildComponentConfig::class)
-        subclass(RemoteChildComponentConfig::class)
     }
 
     // Device Faults

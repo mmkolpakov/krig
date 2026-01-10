@@ -23,11 +23,11 @@ import space.kscience.controls.composite.dsl.lifecycle.DriverLogicFragment
 import space.kscience.controls.connectivity.CompositionFeature
 import space.kscience.controls.connectivity.ConnectivityFeature
 import space.kscience.controls.api.composition.ChildComponentConfig
-import space.kscience.controls.api.connectivity.DiscoveredAddressSource
-import space.kscience.controls.api.connectivity.FailoverStrategy
-import space.kscience.controls.api.composition.LocalChildComponentConfig
-import space.kscience.controls.api.composition.RemoteChildComponentConfig
-import space.kscience.controls.api.connectivity.StaticAddressSource
+import space.kscience.controls.connectivity.config.DiscoveredAddressSource
+import space.kscience.controls.connectivity.config.FailoverStrategy
+import space.kscience.controls.core.composition.LocalChildComponentConfig
+import space.kscience.controls.connectivity.connectivity.RemoteChildComponentConfig
+import space.kscience.controls.connectivity.config.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.core.contracts.Device
 import space.kscience.controls.core.contracts.DeviceBlueprint
@@ -459,33 +459,27 @@ public class CompositeSpecBuilder<D : Device>(
      * @param name The local name for the remote child proxy within this composite device.
      * @param blueprint The blueprint of the remote device. This is used for type safety, static analysis,
      *                  and generating the client-side proxy with the correct properties and actions.
-     * @param remoteDeviceName The local name of the target device *on the remote hub*.
-     * @param via The [space.kscience.controls.connectivity.PeerBlueprint] instance (typically obtained from a `peer` delegate) that defines
-     *            the connection to the remote hub.
+     * @param target The full network address of the remote device.
      * @param configBuilder A DSL block to configure the local proxy's lifecycle and metadata overrides.
      */
     public fun <C : Device> remoteChild(
         name: Name,
         blueprint: DeviceBlueprint<C>,
-        remoteDeviceName: Name,
-        via: PeerBlueprint<out PeerConnection>,
+        target: Address,
         configBuilder: ChildConfigBuilder<D, C>.() -> Unit = {},
     ) {
-        val peerName = this._peerConnections.entries.find { it.value.id == via.id }?.key
-            ?: error("Peer connection blueprint '${via.id}' is not registered in this spec. It must be declared as a property before being used.")
-
         val builder = ChildConfigBuilder<D, C>().apply(configBuilder)
 
         if (builder.buildBindings().isNotEmpty()) {
-            context.logger.warn { "Property bindings for remote child '$name' are not supported and will be ignored." }
+            logger.warn { "Warning: Property bindings are not supported for remote child '$name'" }
         }
 
         val config = RemoteChildComponentConfig(
-            remoteDeviceName = remoteDeviceName,
-            peerName = peerName,
+            target = target,
             blueprintId = blueprint.id,
             blueprintVersion = blueprint.version,
-            meta = builder.meta
+            meta = builder.meta,
+            features = builder.features
         )
         registerChild(name, config)
     }
