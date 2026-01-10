@@ -471,7 +471,7 @@ public class CompositeSpecBuilder<D : Device>(
         via: PeerBlueprint<out PeerConnection>,
         configBuilder: ChildConfigBuilder<D, C>.() -> Unit = {},
     ) {
-        val peerName = this._peerConnections.entries.find { it.value == via }?.key
+        val peerName = this._peerConnections.entries.find { it.value.id == via.id }?.key
             ?: error("Peer connection blueprint '${via.id}' is not registered in this spec. It must be declared as a property before being used.")
 
         val builder = ChildConfigBuilder<D, C>().apply(configBuilder)

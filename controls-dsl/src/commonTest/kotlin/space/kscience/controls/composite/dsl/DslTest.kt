@@ -99,9 +99,10 @@ private class ChildDeviceSpec : DeviceSpecification<TestDevice>() {
     }
 }
 
-//all passed
+//not all passed
 class DslTest {
 
+//    TODO Failed actual value is null ==> expected: not <null>
     @Test
     fun `should create a valid blueprint with bindings`() = runTest {
         val childSpec = ChildDeviceSpec()

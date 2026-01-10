@@ -84,7 +84,7 @@ class BlueprintBuilderTest {
      * Verifies that the `addTag` method in the DSL correctly adds tags to the final blueprint.
      */
     @Test
-//    FAILED
+//    FAILED The blueprint should have one tag. (was 0)
     fun testShouldAddTagsToBlueprint() {
         val profileTag = ProfileTag("my.test.profile", "1.0.0")
 

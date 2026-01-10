@@ -61,7 +61,7 @@ class SerializationDslTest {
     }
 
     @Test
-//    FAILED
+//    FAILED minValue should be deserialized, actual null
     fun `should correctly serialize and deserialize PropertyDescriptor`() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.serialization.success"

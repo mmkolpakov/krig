@@ -40,7 +40,7 @@ class MirrorDslTest {
      * and populates it with the defined [MirrorEntry]s.
      */
     @Test
-//    FAILED
+//    FAILED Expected value to be of type <space.kscience.controls.connectivity.RemoteMirrorFeature>, actual <null>.
     fun testMirrorRegistration() {
         val localSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"

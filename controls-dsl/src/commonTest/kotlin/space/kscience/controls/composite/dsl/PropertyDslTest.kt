@@ -63,7 +63,7 @@ class PropertyDslTest {
      * with `PropertyKind.LOGICAL`, marks it as persistent, and adds the `StatefulFeature`.
      */
     @Test
-//    FAILED
+//    FAILED StatefulFeature should be added automatically.
     fun testStatefulPropertyDelegate() {
         val spec = object : DeviceSpecification<TestStatefulDeviceForDsl>() {
             override val id = "test.device"

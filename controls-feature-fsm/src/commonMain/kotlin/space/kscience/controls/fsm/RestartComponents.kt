@@ -1,3 +1,5 @@
+@file:OptIn(DFExperimental::class)
+
 package space.kscience.controls.fsm
 
 import kotlinx.serialization.Serializable
@@ -5,6 +7,7 @@ import kotlinx.serialization.Transient
 import space.kscience.controls.common.meta.SchemeAsMetaSerializer
 import space.kscience.controls.api.spec.RestartStrategy
 import space.kscience.dataforge.meta.*
+import space.kscience.dataforge.misc.DFExperimental
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -18,7 +21,7 @@ import kotlin.time.Duration.Companion.seconds
 public class RestartPolicy : Scheme() {
     public var maxAttempts: Int by int(5)
     public var strategy: RestartStrategy by convertable(
-        MetaConverter.serializable(TODO()),
+        MetaConverter.serializable<RestartStrategy>(),
         default = RestartStrategy.Linear(2.seconds)
     )
     public var resetOnSuccess: Boolean by boolean(true)

@@ -12,6 +12,8 @@ public val connectivitySerializersModule: SerializersModule = SerializersModule 
     polymorphic(Feature::class) {
         subclass(RemoteMirrorFeature::class)
         subclass(ChildBindingsFeature::class)
+        subclass(BinaryDataFeature::class)
+        subclass(CompositionFeature::class)
     }
 
     polymorphic(AddressSource::class) {

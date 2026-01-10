@@ -49,7 +49,7 @@ class CompositionDslTest {
      * with the specified blueprint ID, metadata, and lifecycle overrides.
      */
     @Test
-//    FAILED
+//    FAILED CompositionFeature missing
     fun testLocalChildRegistration() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -81,7 +81,7 @@ class CompositionDslTest {
      * constant, parent-to-child, and transformed parent-to-child.
      */
     @Test
-//    FAILED
+//    FAILED null cannot be cast to non-null type space.kscience.controls.api.composition.LocalChildComponentConfig
     fun testPropertyBindings() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -129,7 +129,7 @@ class CompositionDslTest {
      * and populates it with the correct remote device name and peer connection name.
      */
     @Test
-//    FAILED
+//    FAILED Expected value to be of type <space.kscience.controls.api.composition.RemoteChildComponentConfig>, actual <null>.
     fun testRemoteChildRegistration() {
         val parentSpec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -156,7 +156,7 @@ class CompositionDslTest {
      * in the blueprint's `peerConnections` map.
      */
     @Test
-//    FAILED
+//    FAILED actual value is null ==> expected: not <null>
     fun testPeerRegistration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"

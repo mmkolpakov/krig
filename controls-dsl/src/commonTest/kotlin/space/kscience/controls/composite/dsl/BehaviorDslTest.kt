@@ -36,7 +36,7 @@ class BehaviorDslTest {
      */
     @OptIn(DFExperimental::class)
     @Test
-//    FAILED
+//    FAILED Expected value to be of type <space.kscience.controls.fsm.guards.OperationalGuardsFeature>, actual <null>.
     fun testGuardsRegistration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -65,7 +65,7 @@ class BehaviorDslTest {
      */
     @OptIn(DFExperimental::class)
     @Test
-//    FAILED
+//    FAILED Expected value to be of type <space.kscience.controls.fsm.OperationalFsmFeature>, actual <null>.
     fun testGuardsAndFsmIntegration() {
         val spec = object : DeviceSpecification<Device>() {
             override val id = "test.device"
@@ -96,7 +96,7 @@ class BehaviorDslTest {
      * capture their lambda bodies and store them in the final [DeviceBlueprint].
      */
     @Test
-//    FAILED
+//    FAILED actual value is null ==> expected: not <null>
     fun testLifecycleAndFsmLambdaCapture() {
         val blueprint = deviceBlueprintUnchecked<Device>("test", Global) {
             driver { _, _ -> error("Not for runtime") }

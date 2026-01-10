@@ -68,7 +68,7 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * A test suite to verify the polymorphic serialization of all core models.
  */
-//not all passed
+//all passed
 class SerializationTest {
 
     @Serializable
@@ -181,7 +181,6 @@ class SerializationTest {
      * This test is critical because Feature is an open polymorphic interface.
      */
     @Test
-//    FAILED
     fun testFeatureSerialization() {
         val features = listOf(
             LifecycleFeature(),

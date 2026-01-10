@@ -143,7 +143,7 @@ class ValidationTest {
     }
 
     @Test
-//    FAILED
+//    FAILED Valid mirror configuration should produce no errors. Got: [InvalidMirror(blueprintId=validation.mirror.valid, localName=local_temp, reason=Remote child 'remote' not found in the blueprint.)]
     fun `test remote mirror validator via registry`() {
         val remoteBlueprint = MockRegistry.remoteBlueprint
         @Suppress("UNCHECKED_CAST")
