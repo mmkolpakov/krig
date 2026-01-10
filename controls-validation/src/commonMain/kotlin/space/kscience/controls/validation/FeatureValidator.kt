@@ -1,7 +1,7 @@
 package space.kscience.controls.validation
 
 import space.kscience.controls.core.contracts.DeviceBlueprint
-import space.kscience.controls.services.discovery.BlueprintRegistry
+import space.kscience.controls.connectivity.services.discovery.BlueprintRegistry
 import space.kscience.controls.api.features.Feature
 import space.kscience.dataforge.context.Factory
 

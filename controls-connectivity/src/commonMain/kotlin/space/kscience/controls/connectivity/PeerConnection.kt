@@ -1,4 +1,4 @@
-package space.kscience.controls.core.connectivity
+package space.kscience.controls.connectivity
 
 import kotlinx.coroutines.flow.StateFlow
 import space.kscience.controls.api.addressing.Address
@@ -9,7 +9,7 @@ import kotlin.time.Duration
 
 /**
  * A contract for a runtime service that enables direct, efficient, peer-to-peer exchange of large binary data,
- * represented as [space.kscience.dataforge.io.Envelope]s. This mechanism bypasses the standard message bus to avoid overhead.
+ * represented as [Envelope]s. This mechanism bypasses the standard message bus to avoid overhead.
  *
  * This contract is defined in the old to allow blueprints to declare their capability
  * (via [BinaryDataFeature]) to use it. The actual implementation
@@ -23,7 +23,7 @@ public interface PeerConnection {
         /**
          * The unique, fully-qualified name for the [PeerConnection] capability.
          */
-        public const val CAPABILITY: String = "space.kscience.controls.core.connectivity.PeerConnection"
+        public const val CAPABILITY: String = "space.kscience.controls.connectivity.PeerConnection"
     }
 
     /**
@@ -45,13 +45,13 @@ public interface PeerConnection {
     public suspend fun disconnect()
 
     /**
-     * Retrieves an [space.kscience.dataforge.io.Envelope] containing binary data from a peer device.
+     * Retrieves an [Envelope] containing binary data from a peer device.
      *
      * @param address The network address of the target device.
      * @param contentId A unique identifier for the specific piece of content being requested.
      * @param context The [ExecutionContext] providing security and tracing information for this operation.
      * @param timeout An optional duration to wait for the operation to complete. If null, a default timeout may be used.
-     * @return The requested [space.kscience.dataforge.io.Envelope], or `null` if the content is not found. The implementation may return a lazy-loaded envelope.
+     * @return The requested [Envelope], or `null` if the content is not found. The implementation may return a lazy-loaded envelope.
      * @throws PeerConnectionTimeoutException if the operation times out.
      * @throws PeerConnectionException for other communication errors.
      */
@@ -63,7 +63,7 @@ public interface PeerConnection {
     ): Envelope?
 
     /**
-     * Sends an [space.kscience.dataforge.io.Envelope] containing binary data to a peer device.
+     * Sends an [Envelope] containing binary data to a peer device.
      *
      * @param address The network address of the target device.
      * @param contentId A unique identifier for this piece of content. This is crucial for the receiving end

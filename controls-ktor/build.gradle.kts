@@ -23,6 +23,7 @@ kscience {
 
     commonMain {
         api(projects.controlsCore)
+        api(projects.controlsConnectivity)
         api(projects.controlsServiceApi)
         api(projects.controlsPorts)
         api(libs.ktor.network)

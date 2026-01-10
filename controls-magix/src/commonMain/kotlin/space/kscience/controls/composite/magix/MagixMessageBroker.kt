@@ -5,14 +5,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.PolymorphicSerializer
-import space.kscience.controls.core.contracts.MessageBroker
 import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.controls.connectivity.MessageBroker
 import space.kscience.dataforge.misc.DFExperimental
 import space.kscience.dataforge.names.Name
 import space.kscience.magix.api.*
 
 /**
- * A [MessageBroker] implementation that uses a [MagixEndpoint] for communication.
+ * A [space.kscience.controls.connectivity.MessageBroker] implementation that uses a [MagixEndpoint] for communication.
  * It translates the broker's topic-based publish/subscribe old to Magix's source/target endpoint old.
  *
  * @property coroutineScope The scope for managing subscription jobs.

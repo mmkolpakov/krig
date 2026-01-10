@@ -1,6 +1,6 @@
 package space.kscience.controls.composite.magix
 
-import space.kscience.controls.core.contracts.MessageBroker
+import space.kscience.controls.connectivity.MessageBroker
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get

@@ -1,4 +1,4 @@
-package space.kscience.controls.core.connectivity
+package space.kscience.controls.connectivity
 
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta

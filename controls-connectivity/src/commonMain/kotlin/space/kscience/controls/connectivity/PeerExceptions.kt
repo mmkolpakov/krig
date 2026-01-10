@@ -1,4 +1,4 @@
-package space.kscience.controls.core.connectivity
+package space.kscience.controls.connectivity
 
 /**
  * A base exception for errors related to peer-to-peer communication.

@@ -21,8 +21,6 @@ import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.state.MutableDeviceState
 import space.kscience.controls.core.state.StatefulDevice
 import space.kscience.controls.api.connectivity.FailoverStrategy
-import space.kscience.controls.core.connectivity.PeerConnection
-import space.kscience.controls.core.connectivity.SimplePeerBlueprint
 import space.kscience.controls.api.connectivity.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.addressing.Address
@@ -35,6 +33,8 @@ import space.kscience.controls.api.descriptors.persistent
 import space.kscience.controls.connectivity.ChildBindingsFeature
 import space.kscience.controls.connectivity.ConstPropertyBinding
 import space.kscience.controls.connectivity.ParentPropertyBinding
+import space.kscience.controls.connectivity.PeerConnection
+import space.kscience.controls.connectivity.SimplePeerBlueprint
 import space.kscience.controls.connectivity.composition
 import space.kscience.controls.core.meta.MutableDevicePropertySpec
 import space.kscience.controls.core.state.StateSnapshot

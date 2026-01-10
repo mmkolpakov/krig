@@ -1,4 +1,4 @@
-package space.kscience.controls.core.connectivity
+package space.kscience.controls.connectivity
 
 import space.kscience.controls.api.connectivity.AddressSource
 import space.kscience.controls.api.connectivity.FailoverStrategy

@@ -1,4 +1,4 @@
-package space.kscience.controls.services
+package space.kscience.controls.connectivity.services
 
 import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.context.ExecutionContext

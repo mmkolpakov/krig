@@ -1,4 +1,4 @@
-package space.kscience.controls.services.discovery
+package space.kscience.controls.connectivity.services.discovery
 
 import kotlinx.coroutines.flow.Flow
 import space.kscience.controls.api.addressing.AddressUpdateEvent

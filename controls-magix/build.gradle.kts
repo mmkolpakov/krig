@@ -24,6 +24,7 @@ kscience {
 
     commonMain {
         api(projects.controlsCore)
+        api(projects.controlsConnectivity)
         api(projects.controlsServiceApi)
         api(projects.magixApi)
         implementation(libs.uuid)

@@ -1,9 +1,10 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.connectivity
 
 import kotlinx.coroutines.flow.StateFlow
+import space.kscience.controls.core.contracts.DeviceHub
 
 /**
- * A contract for a proxy to a remote [DeviceHub].
+ * A contract for a proxy to a remote [space.kscience.controls.core.contracts.DeviceHub].
  * This interface allows treating a remote hub as if it were local, abstracting away the
  * underlying communication mechanism. It extends the base hub contract with
  * connection management capabilities.

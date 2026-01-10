@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.connectivity
 
 import kotlinx.coroutines.flow.Flow
 import space.kscience.controls.api.messages.DeviceMessage

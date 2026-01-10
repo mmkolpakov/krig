@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.connectivity
 
 /**
  * A blueprint for a [MessageBroker]. This is a stateless factory that defines

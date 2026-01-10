@@ -185,7 +185,7 @@ public data class BinaryDataRequest(
 
 /**
  * Notifies listeners that a new binary content is available for retrieval from this device.
- * The actual data transfer must be done via a separate mechanism like [space.kscience.controls.core.connectivity.PeerConnection].
+ * The actual data transfer must be done via a separate mechanism like [PeerConnection].
  *
  * @param contentId A unique identifier for this specific piece of binary content.
  * @param contentMeta Metadata describing the binary content (e.g., size, format).

@@ -8,7 +8,7 @@ import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.messages.BinaryDataRequest
 import space.kscience.controls.api.messages.BinaryReadyNotification
-import space.kscience.controls.services.PeerSignalingService
+import space.kscience.controls.connectivity.services.PeerSignalingService
 import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.io.Envelope

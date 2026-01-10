@@ -76,6 +76,7 @@ include(
     ":controls-feature-analytics",
 
     // Infrastructure
+    ":controls-connectivity",
     ":controls-metrics",
     ":controls-persistence",
     ":controls-persistence-log",

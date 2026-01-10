@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-description = "Connectivity features: Child composition, Peer connections, and Property bindings"
+description = "Connectivity abstractions: MessageBroker, PeerConnection, Discovery"
 
 kscience {
     jvm()
@@ -16,9 +16,6 @@ kscience {
 
     commonMain {
         api(projects.controlsCore)
-        api(projects.controlsConnectivity)
-        api(projects.controlsFeatureFsm)
-        api(libs.dataforge.meta)
         api(libs.dataforge.context)
         api(libs.dataforge.io)
     }

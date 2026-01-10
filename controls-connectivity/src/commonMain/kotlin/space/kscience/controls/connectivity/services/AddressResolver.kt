@@ -1,4 +1,4 @@
-package space.kscience.controls.services
+package space.kscience.controls.connectivity.services
 
 import space.kscience.controls.api.addressing.TransportAddress
 import space.kscience.dataforge.context.Context

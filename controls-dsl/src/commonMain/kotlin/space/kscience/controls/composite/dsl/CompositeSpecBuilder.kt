@@ -5,7 +5,7 @@ import space.kscience.controls.composite.dsl.children.ChildConfigBuilder
 import space.kscience.controls.composite.dsl.lifecycle.DriverLogicBuilder
 import space.kscience.controls.core.runtime.HydratableDeviceState
 import space.kscience.controls.core.runtime.DeviceFlows
-import space.kscience.controls.services.discovery.BlueprintRegistry
+import space.kscience.controls.connectivity.services.discovery.BlueprintRegistry
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.fsm.LifecycleFeature
 import space.kscience.controls.fsm.OperationalFsmFeature
@@ -25,11 +25,7 @@ import space.kscience.controls.connectivity.ConnectivityFeature
 import space.kscience.controls.api.composition.ChildComponentConfig
 import space.kscience.controls.api.connectivity.DiscoveredAddressSource
 import space.kscience.controls.api.connectivity.FailoverStrategy
-import space.kscience.controls.core.connectivity.PeerBlueprint
 import space.kscience.controls.api.composition.LocalChildComponentConfig
-import space.kscience.controls.core.connectivity.PeerConnection
-import space.kscience.controls.core.connectivity.PeerDriver
-import space.kscience.controls.core.connectivity.SimplePeerBlueprint
 import space.kscience.controls.api.composition.RemoteChildComponentConfig
 import space.kscience.controls.api.connectivity.StaticAddressSource
 import space.kscience.controls.core.InternalControlsApi
@@ -38,6 +34,10 @@ import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.core.contracts.DeviceDriver
 import space.kscience.controls.api.features.MetadataFeature
 import space.kscience.controls.connectivity.ChildBindingsFeature
+import space.kscience.controls.connectivity.PeerBlueprint
+import space.kscience.controls.connectivity.PeerConnection
+import space.kscience.controls.connectivity.PeerDriver
+import space.kscience.controls.connectivity.SimplePeerBlueprint
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.context.logger
@@ -338,11 +338,11 @@ public class CompositeSpecBuilder<D : Device>(
      * A peer connection represents a direct, efficient communication link to another hub or service,
      * typically for binary data transfer.
      *
-     * @param P The type of the [PeerConnection].
+     * @param P The type of the [space.kscience.controls.connectivity.PeerConnection].
      * @param driver The driver to create the connection instance.
      * @param addresses A vararg list of static [Address] objects.
      * @param failoverStrategy The strategy for handling multiple addresses.
-     * @return A [PropertyDelegateProvider] for a [PeerBlueprint]. The delegate ensures the blueprint
+     * @return A [PropertyDelegateProvider] for a [space.kscience.controls.connectivity.PeerBlueprint]. The delegate ensures the blueprint
      * is registered at build time.
      */
     public fun <P : PeerConnection> peer(
@@ -365,11 +365,11 @@ public class CompositeSpecBuilder<D : Device>(
     /**
      * Declares a peer connection that uses a discovery service to find its endpoint.
      *
-     * @param P The type of the [PeerConnection].
+     * @param P The type of the [space.kscience.controls.connectivity.PeerConnection].
      * @param driver The driver to create the connection instance.
      * @param serviceId The ID of the service to discover.
      * @param failoverStrategy The strategy for handling multiple discovered addresses.
-     * @return A [PropertyDelegateProvider] for a [PeerBlueprint].
+     * @return A [PropertyDelegateProvider] for a [space.kscience.controls.connectivity.PeerBlueprint].
      */
     public fun <P : PeerConnection> peer(
         driver: PeerDriver<P>,
@@ -460,7 +460,7 @@ public class CompositeSpecBuilder<D : Device>(
      * @param blueprint The blueprint of the remote device. This is used for type safety, static analysis,
      *                  and generating the client-side proxy with the correct properties and actions.
      * @param remoteDeviceName The local name of the target device *on the remote hub*.
-     * @param via The [PeerBlueprint] instance (typically obtained from a `peer` delegate) that defines
+     * @param via The [space.kscience.controls.connectivity.PeerBlueprint] instance (typically obtained from a `peer` delegate) that defines
      *            the connection to the remote hub.
      * @param configBuilder A DSL block to configure the local proxy's lifecycle and metadata overrides.
      */

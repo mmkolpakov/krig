@@ -1,4 +1,4 @@
-package space.kscience.controls.services
+package space.kscience.controls.connectivity.services
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable

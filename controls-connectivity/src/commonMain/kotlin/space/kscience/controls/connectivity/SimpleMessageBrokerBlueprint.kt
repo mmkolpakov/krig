@@ -1,4 +1,4 @@
-package space.kscience.controls.core.contracts
+package space.kscience.controls.connectivity
 
 /**
  * A simple data-holding implementation of [MessageBrokerBlueprint].
