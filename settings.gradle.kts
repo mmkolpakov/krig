@@ -94,7 +94,6 @@ include(
     ":controls-ktor",
 
     // Tools
-    ":controls-dsl",
     ":controls-dsl-core",
     ":controls-simulation",
     ":controls-runtime",

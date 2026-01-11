@@ -10,6 +10,7 @@ ktor = "3.3.3"
 okio = "3.16.4"
 kotlinx-io-core = "0.8.2"
 sqldelight = "2.2.1"
+attributes-kt = "0.4.0"
 
 # RSocket
 rsocket = "0.20.0"
@@ -52,6 +53,8 @@ dataforge-data = { module = "space.kscience:dataforge-data", version.ref = "data
 
 # kscience
 kscience-gradle-tools = { module = "space.kscience:gradle-tools", version.ref = "kscience-tools" }
+attributes-kt = { module = "space.kscience:attributes-kt", version.ref = "attributes-kt" }
+attributes-kt-serialization = { module = "space.kscience:attributes-kt-serialization", version.ref = "attributes-kt" }
 
 # KotlinX
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }

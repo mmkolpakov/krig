@@ -11,7 +11,8 @@ kscience {
 
     commonMain {
         api(projects.controlsCommon)
-
+        api(libs.attributes.kt)
+        api(libs.attributes.kt.serialization)
         api(libs.dataforge.meta)
     }
 }

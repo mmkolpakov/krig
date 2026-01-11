@@ -11,6 +11,8 @@ import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.controls.core.meta.DeviceActionSpec
+import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.names.Name
@@ -161,4 +163,58 @@ public interface Device : ManagedComponent, CoroutineScope, PropertyDevice, Acti
      * @return A map of named content items.
      */
     override fun content(target: String): Map<Name, Any> = emptyMap()
+
+    /**
+     * Opens a direct, typed accessor for a property (Data Plane).
+     *
+     * This method attempts to provide the most efficient path to the hardware/driver, avoiding
+     * the overhead of [Meta] serialization where possible.
+     *
+     * If the driver does not support a specialized accessor for the given property,
+     * a fallback implementation wrapping [readProperty] and [writeProperty] is returned.
+     *
+     * @param spec The typed specification of the property.
+     * @return A [PropertyAccessor] for reading and writing values.
+     */
+    @OptIn(InternalControlsApi::class)
+    public fun <D : Device, T> openPropertyAccessor(spec: DevicePropertySpec<D, T>): PropertyAccessor<T> {
+        return object : GenericAccessor<T> {
+            override val propertySpec: DevicePropertySpec<*, T> = spec
+
+            override suspend fun read(): T {
+                val meta = readProperty(spec.name)
+                return spec.converter.read(meta)
+            }
+
+            override suspend fun write(value: T) {
+                val meta = spec.converter.convert(value)
+                writeProperty(spec.name, meta)
+            }
+        }
+    }
+
+    /**
+     * Opens a direct, typed accessor for an action (Data Plane).
+     *
+     * This method attempts to provide the most efficient path to execute the action logic,
+     * avoiding the overhead of [Meta] serialization where possible.
+     *
+     * If the driver does not support a specialized accessor, a fallback implementation
+     * wrapping [execute] is returned.
+     *
+     * @param spec The typed specification of the action.
+     * @return An [ActionAccessor] for invoking the action.
+     */
+    @OptIn(InternalControlsApi::class)
+    public fun <D : Device, I, O> openActionAccessor(spec: DeviceActionSpec<D, I, O>): ActionAccessor<I, O> {
+        return object : TypedActionAccessor<I, O> {
+            override val actionSpec: DeviceActionSpec<*, I, O> = spec
+
+            override suspend fun invoke(input: I): O {
+                val inputMeta = spec.inputConverter.convert(input)
+                val resultMeta = execute(spec.name, inputMeta)
+                return spec.outputConverter.read(resultMeta ?: Meta.EMPTY)
+            }
+        }
+    }
 }
