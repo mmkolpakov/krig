@@ -1,9 +1,9 @@
 package space.kscience.controls.core.contracts
 
-import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.features.Feature
-import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.api.identifiers.BlueprintId
+import space.kscience.controls.core.InternalControlsApi
+import space.kscience.controls.core.features.FeatureSpec
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
 import space.kscience.controls.core.meta.DeviceStreamSpec
@@ -36,20 +36,20 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val version: String get() = "0.1.0"
 
     /**
-     * A map of features supported by this device. The key is the unique ID defined by [FeatureKey.id].
+     * A map of features supported by this device. The key is the unique ID defined by the feature specification.
      */
     public val features: Map<String, Feature>
 
     /**
-     * Retrieves a feature configuration by its type-safe key.
+     * Retrieves a feature configuration by its type-safe specification.
      * This is the preferred way to access features.
      *
-     * @param key The [FeatureKey] of the desired feature (usually the feature's companion object).
+     * @param spec The [FeatureSpec] of the desired feature.
      * @return The feature instance if present, or `null`.
      */
-    public operator fun <F : Feature> get(key: FeatureKey<F>): F? {
+    public operator fun <F : Feature> get(spec: FeatureSpec<F, *>): F? {
         @Suppress("UNCHECKED_CAST")
-        return features[key.id] as? F
+        return features[spec.id] as? F
     }
 
     /**
@@ -60,7 +60,6 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
 
     /**
      * A map of all **public** action specifications defined for this device.
-     * The key is the action name.
      */
     public val actions: Map<Name, DeviceActionSpec<D, *, *>>
 
@@ -71,27 +70,14 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val streams: Map<Name, DeviceStreamSpec<D>>
 
     /**
-     * Additional metadata for the blueprint itself. This meta is layered at the bottom
-     * of the final device's configuration meta.
+     * Additional metadata for the blueprint itself.
      */
     public val meta: Meta
-
-    /**
-     * The driver responsible for creating the device instance and handling its lifecycle hooks.
-     * This driver does NOT contain the logic for properties and actions; that logic is part of the blueprint itself.
-     */
-    @InternalControlsApi
-    public val driver: DeviceDriver<D>
 
     /**
      * The fully qualified name of the device contract interface 'D'.
      */
     public val deviceContractFqName: String
-
-    override fun toMeta(): Meta {
-        TODO("Not yet implemented")
-    }
-
 
     public companion object {
         public const val TYPE: String = "device.blueprint"

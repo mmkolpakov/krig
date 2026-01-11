@@ -3,7 +3,6 @@ package space.kscience.controls.connectivity
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.features.Feature
-import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -30,16 +29,7 @@ public data class MirrorEntry(
  * feed them into local, read-only proxy properties.
  */
 @Serializable
-@SerialName(RemoteMirrorFeature.ID)
+@SerialName("feature.remoteMirror")
 public data class RemoteMirrorFeature(val entries: List<MirrorEntry>) : Feature {
-    override val key: FeatureKey<*> get() = RemoteMirrorFeature
-    override val capability: String get() = CAPABILITY
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
-
-    public companion object : FeatureKey<RemoteMirrorFeature> {
-        public const val ID: String = "feature.remoteMirror"
-        public const val CAPABILITY: String = "space.kscience.controls.composite.old.features.RemoteMirroring"
-
-        override val id: String = ID
-    }
 }

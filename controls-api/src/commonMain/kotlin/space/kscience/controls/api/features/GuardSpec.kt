@@ -1,4 +1,4 @@
-package space.kscience.controls.core.features
+package space.kscience.controls.api.features
 
 import kotlinx.serialization.Polymorphic
 

@@ -4,25 +4,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.composition.ChildComponentConfig
 import space.kscience.controls.api.features.Feature
-import space.kscience.controls.api.features.FeatureKey
 import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
+/**
+ * A feature that defines the structure of a composite device (its children).
+ */
 @Serializable
-@SerialName(CompositionFeature.ID)
+@SerialName("feature.composition")
 public data class CompositionFeature(
     val children: Map<Name, ChildComponentConfig>
 ) : Feature {
-    override val key: FeatureKey<*> get() = CompositionFeature
-    override val capability: String = CAPABILITY
-
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
-
-    public companion object : FeatureKey<CompositionFeature> {
-        public const val ID: String = "feature.composition"
-        public const val CAPABILITY: String = "space.kscience.controls.composition"
-
-        override val id: String = ID
-    }
 }

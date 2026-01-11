@@ -2,7 +2,7 @@ package space.kscience.controls.validation
 
 import space.kscience.controls.core.contracts.DeviceBlueprint
 import space.kscience.controls.connectivity.services.discovery.BlueprintRegistry
-import space.kscience.controls.core.features.GuardSpec
+import space.kscience.controls.api.features.GuardSpec
 import space.kscience.controls.fsm.guards.ValueChangeGuardSpec
 import space.kscience.controls.api.descriptors.PropertyKind
 import space.kscience.controls.fsm.guards.OperationalGuardsFeature
@@ -55,7 +55,7 @@ public class OperationalGuardsValidator : FeatureValidator<OperationalGuardsFeat
  * The factory for [OperationalGuardsValidator].
  */
 internal object OperationalGuardsValidatorFactory : FeatureValidatorFactory {
-    override val capability: String get() = OperationalGuardsFeature.CAPABILITY
+    override val capability: String get() = TODO()
 
     override fun build(context: Context, meta: Meta): FeatureValidator<*> = OperationalGuardsValidator()
 }

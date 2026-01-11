@@ -1,5 +1,8 @@
 package space.kscience.controls.composite.persistence
 
+import kotlinx.serialization.modules.SerializersModule
+import space.kscience.controls.api.serialization.SerializationContributor
+import space.kscience.controls.core.capabilities.CapabilityFactory
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
@@ -8,22 +11,13 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 
 /**
- * A DataForge plugin that provides a [SnapshotStore] for device state persistence.
- * The type of store is configured via the plugin's metadata and is discovered dynamically
- * using the [SnapshotStoreFactory] plugin mechanism.
- *
- * Example configuration:
- * ```
- * plugin(PersistencePlugin) {
- *     "store" {
- *         "type" put "file" // or "memory", "localStorage"
- *         "path" put "./snapshots" // for "file" store
- *     }
- * }
- * ```
+ * A DataForge plugin that provides a [SnapshotStore] for device state persistence
+ * and registers the Persistence capability factory.
  */
-public class PersistencePlugin(meta: Meta) : AbstractPlugin(meta) {
+public class PersistencePlugin(meta: Meta) : AbstractPlugin(meta), SerializationContributor {
     override val tag: PluginTag get() = Companion.tag
+
+    override val serializersModule: SerializersModule get() = persistenceSerializersModule
 
     private val factories by lazy {
         context.gather<SnapshotStoreFactory>(SnapshotStoreFactory.SNAPSHOT_STORE_FACTORY_TARGET)
@@ -31,13 +25,9 @@ public class PersistencePlugin(meta: Meta) : AbstractPlugin(meta) {
 
     /**
      * Creates a new [SnapshotStore] instance based on the provided metadata.
-     * The 'type' property in the meta is used to find the appropriate factory.
-     * @param meta The configuration for the store.
-     * @return A new [SnapshotStore] instance.
-     * @throws IllegalStateException if a factory for the specified type is not found.
      */
     public fun newStore(meta: Meta): SnapshotStore {
-        val type = meta["type"].string ?: "memory" // Default to in-memory if not specified
+        val type = meta["type"].string ?: "memory"
         val factory = factories.values.find { it.type == type }
             ?: error("A snapshot store factory for type '$type' is not registered in the context.")
         return factory.build(context, meta)
@@ -45,7 +35,6 @@ public class PersistencePlugin(meta: Meta) : AbstractPlugin(meta) {
 
     /**
      * The default snapshot store instance, configured via the plugin's metadata block.
-     * If no configuration is provided, it defaults to an in-memory store.
      */
     public val store: SnapshotStore by lazy {
         newStore(meta["store"] ?: Meta.EMPTY)
@@ -56,6 +45,14 @@ public class PersistencePlugin(meta: Meta) : AbstractPlugin(meta) {
             InMemorySnapshotStore.type.asName() to InMemorySnapshotStore,
             FileSnapshotStore.type.asName() to FileSnapshotStore
         ) + platformSnapshotStoreFactories()
+
+        CapabilityFactory.TARGET -> mapOf(
+            PersistenceSpec.name to CapabilityFactory<StatefulFeature, PersistenceCapability> { _, _, _ ->
+                // TODO: Return PersistenceCapabilityImpl(device, feature, store)
+                throw NotImplementedError("PersistenceCapabilityImpl is not yet implemented in runtime")
+            }
+        )
+
         else -> emptyMap()
     }
 

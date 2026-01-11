@@ -2,7 +2,7 @@ package space.kscience.controls.validation
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.controls.core.features.GuardSpec
+import space.kscience.controls.api.features.GuardSpec
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Duration

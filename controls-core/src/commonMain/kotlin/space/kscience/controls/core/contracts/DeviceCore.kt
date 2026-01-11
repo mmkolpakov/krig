@@ -4,15 +4,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import space.kscience.controls.api.context.ExecutionContext
 import space.kscience.controls.api.context.SystemPrincipal
-import space.kscience.controls.core.contracts.Device.Companion.ACTION_TARGET
-import space.kscience.controls.core.contracts.Device.Companion.CHILD_DEVICE_TARGET
-import space.kscience.controls.core.contracts.Device.Companion.PROPERTY_TARGET
-import space.kscience.controls.core.InternalControlsApi
 import space.kscience.controls.api.descriptors.ActionDescriptor
 import space.kscience.controls.api.descriptors.PropertyDescriptor
+import space.kscience.controls.api.lifecycle.DeviceLifecycleState
 import space.kscience.controls.api.messages.DeviceMessage
+import space.kscience.controls.api.messages.PropertyChangedMessage
+import space.kscience.controls.api.spec.CoreDeviceSpec
+import space.kscience.controls.core.InternalControlsApi
+import space.kscience.controls.core.capabilities.CapabilityKey
+import space.kscience.controls.core.capabilities.DeviceCapability
 import space.kscience.controls.core.meta.DeviceActionSpec
 import space.kscience.controls.core.meta.DevicePropertySpec
+import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.names.Name
@@ -20,7 +23,8 @@ import space.kscience.dataforge.provider.Provider
 import kotlin.time.Clock
 
 /**
- * A contract for a device that exposes properties.
+ * A contract for a device that exposes properties via the **Control Plane**.
+ * Operations here typically return [Meta] and are suitable for configuration, UI, and slow control.
  */
 public interface PropertyDevice {
     /**
@@ -30,30 +34,35 @@ public interface PropertyDevice {
 
     /**
      * Reads the physical value of a property. This operation may involve I/O and is therefore suspendable.
-     * Upon successful read, it should also update the logical state and emit a [PropertyChangedMessage].
+     * Upon successful read, the implementation should also update the logical state and emit a [PropertyChangedMessage].
      *
      * @param propertyName The name of the property to read.
      * @param context The execution context, providing security and tracing information.
      * @return The value of the property as a [Meta] object.
-     * @throws space.kscience.controls.core.faults.CompositeHubException if the property does not exist or a read error occurs.
      */
     @InternalControlsApi
-    public suspend fun readProperty(propertyName: Name, context: ExecutionContext = ExecutionContext(SystemPrincipal)): Meta
+    public suspend fun readProperty(
+        propertyName: Name,
+        context: ExecutionContext = ExecutionContext(SystemPrincipal)
+    ): Meta
 
     /**
-     * Writes a new value to a mutable property. This is a suspendable operation.
+     * Writes a new value to a mutable property.
      *
      * @param propertyName The name of the property to write.
      * @param value The new value to set.
      * @param context The execution context, providing security and tracing information.
-     * @throws space.kscience.controls.core.faults.CompositeHubException if the property is not mutable or a write error occurs.
      */
     @InternalControlsApi
-    public suspend fun writeProperty(propertyName: Name, value: Meta, context: ExecutionContext = ExecutionContext(SystemPrincipal))
+    public suspend fun writeProperty(
+        propertyName: Name,
+        value: Meta,
+        context: ExecutionContext = ExecutionContext(SystemPrincipal)
+    )
 }
 
 /**
- * A contract for a device that exposes actions.
+ * A contract for a device that exposes actions via the **Control Plane**.
  */
 public interface ActionDevice {
     /**
@@ -67,8 +76,7 @@ public interface ActionDevice {
      * @param actionName The name of the action to execute.
      * @param argument An optional [Meta] object containing arguments for the action.
      * @param context The execution context, providing security and tracing information.
-     * @return An optional [Meta] object representing the result of the action. Returns `null` if the action does not produce a result.
-     * @throws space.kscience.controls.core.faults.CompositeHubException if the action is not supported or fails during execution.
+     * @return An optional [Meta] object representing the result of the action.
      */
     @InternalControlsApi
     public suspend fun execute(
@@ -79,102 +87,68 @@ public interface ActionDevice {
 }
 
 /**
- * A general interface describing a managed Device. A [Device] instance serves as a [CoroutineScope]
- * for all its internal operations. It also acts as a [Provider] for its children, properties, and actions,
- * enabling seamless integration with the DataForge ecosystem.
+ * The fundamental interface describing a Managed Device.
  *
- * The device's lifecycle is formally defined and managed by a Finite State Machine (FSM).
- * Commands to change the lifecycle state (e.g., start, stop) are sent as events to this FSM,
- * typically by a [space.kscience.controls.composite.old.contracts.CompositeDeviceHub]. The current state of the lifecycle is exposed reactively
- * via the [lifecycleState] property from the [ManagedComponent] interface.
+ * A [Device] is a container for:
+ * 1.  **Properties & Actions** (The base interface to the hardware).
+ * 2.  **Capabilities** (Composable units of logic like FSM, Automation, Streaming).
+ * 3.  **State** (Reactive properties).
  *
- * ### Communication Model: Hybrid RPC and Event Stream
- *
- * This interface employs a hybrid communication old that combines the simplicity of RPC-style method calls
- * with the observability of an event stream, aligning with the Command Query Responsibility Segregation (CQRS) pattern.
- *
- * - **Commands and Queries (RPC-style):** The methods `readProperty`, `writeProperty`, and `execute` define a clear,
- *   synchronous-looking (but asynchronous) contract for interactions. This provides a straightforward API for developers.
- *   **Important:** While these look like direct method calls, a compliant runtime
- *   **should** translate these calls into internal, serializable request messages. This ensures that in a
- *   distributed system, all interactions can be transmitted over a network and audited.
- *
- * - **Notifications (Event Stream):** The `messageFlow` property provides a one-way, hot [SharedFlow] of [DeviceMessage]s.
- *   This flow broadcasts asynchronous notifications about state changes, such as property updates, lifecycle events,
- *   and errors. It is not used for requests or direct command responses.
- *
+ * It serves as a [CoroutineScope] for all its internal operations and acts as a [Provider]
+ * for introspection.
  */
-public interface Device : ManagedComponent, CoroutineScope, PropertyDevice, ActionDevice, Provider {
-    /**
-     * Companion object holding stable identifiers for the capability.
-     */
-    public companion object {
-        /**
-         * The unique, fully-qualified name for the [Device] capability.
-         * Used for feature detection and serialization.
-         */
-        public const val CAPABILITY: String = "space.kscience.controls.core.contracts.Device"
-
-        /** DataForge provider target for accessing child devices. */
-        public const val CHILD_DEVICE_TARGET: String = "child"
-        /** DataForge provider target for accessing property descriptors. */
-        public const val PROPERTY_TARGET: String = PropertyDescriptor.TYPE
-        /** DataForge provider target for accessing action descriptors. */
-        public const val ACTION_TARGET: String = ActionDescriptor.TYPE
-    }
+public interface Device : PropertyDevice, ActionDevice, ContextAware, CoroutineScope, Provider {
 
     /**
      * The local name of this device instance within its parent hub.
-     * This name is used for addressing within the hub's scope.
      */
     public val name: Name
 
     /**
-     * The configuration meta for the device. This is an [ObservableMeta], meaning that the device
-     * can react to configuration changes in real-time without requiring a restart. The runtime
-     * is responsible for constructing this meta by layering blueprint, child, and attachment configurations.
+     * The configuration meta for the device. This is an [ObservableMeta], allowing the device
+     * to react to configuration changes in real-time.
      */
     public val meta: ObservableMeta
 
     /**
-     * A hot flow of messages originating from this device. This includes property changes,
-     * action results, log messages, and lifecycle events. The flow is shared and may have a replay cache.
+     * A hot flow of messages originating from this device (property changes, events, errors).
      */
     public val messageFlow: SharedFlow<DeviceMessage>
 
     /**
-     * The clock associated with this device. It may be a system clock, a virtual clock for simulations,
-     * or a compressed-time clock. This clock **must** be used as the source for all timestamps
-     * in [StateValue] updates originating from this device to ensure time consistency.
+     * The clock associated with this device. It may be a virtual clock for simulations.
+     * Must be used for all timestamping.
      */
     public val clock: Clock
 
     /**
-     * Provides content for DataForge's [Provider] mechanism. A runtime implementation of [Device]
-     * **must** override this method to expose its properties, actions, and child devices for introspection.
-     * The default implementation returns an empty map.
+     * A shortcut accessor for the device's current lifecycle state.
+     * This value is read directly from the standard [CoreDeviceSpec.LifecycleState] property.
+     */
+    public val lifecycleState: DeviceLifecycleState
+
+    /**
+     * Retrieves a specific [DeviceCapability] attached to this device.
+     * This is the primary mechanism for accessing extended functionality.
      *
-     * Standard targets:
-     * - [PROPERTY_TARGET]: Exposes [PropertyDescriptor]s.
-     * - [ACTION_TARGET]: Exposes [ActionDescriptor]s.
-     * - [CHILD_DEVICE_TARGET]: Exposes child [Device]s.
-     *
-     * @param target A string identifier for the type of content being requested.
-     * @return A map of named content items.
+     * @param key The type-safe key identifying the requested capability.
+     * @return The capability instance if present, or `null`.
+     */
+    public fun <C : DeviceCapability> capability(key: CapabilityKey<C>): C?
+
+    // --- Provider Implementation ---
+
+    /**
+     * Provides content for DataForge's [Provider] mechanism.
+     * Default targets include properties (`property`) and actions (`action`).
      */
     override fun content(target: String): Map<Name, Any> = emptyMap()
 
+    // --- Data Plane Accessors ---
+
     /**
      * Opens a direct, typed accessor for a property (Data Plane).
-     *
-     * This method attempts to provide the most efficient path to the hardware/driver, avoiding
-     * the overhead of [Meta] serialization where possible.
-     *
-     * If the driver does not support a specialized accessor for the given property,
-     * a fallback implementation wrapping [readProperty] and [writeProperty] is returned.
-     *
-     * @param spec The typed specification of the property.
-     * @return A [PropertyAccessor] for reading and writing values.
+     * If the driver does not support a specialized accessor, a generic fallback is returned.
      */
     @OptIn(InternalControlsApi::class)
     public fun <D : Device, T> openPropertyAccessor(spec: DevicePropertySpec<D, T>): PropertyAccessor<T> {
@@ -195,15 +169,6 @@ public interface Device : ManagedComponent, CoroutineScope, PropertyDevice, Acti
 
     /**
      * Opens a direct, typed accessor for an action (Data Plane).
-     *
-     * This method attempts to provide the most efficient path to execute the action logic,
-     * avoiding the overhead of [Meta] serialization where possible.
-     *
-     * If the driver does not support a specialized accessor, a fallback implementation
-     * wrapping [execute] is returned.
-     *
-     * @param spec The typed specification of the action.
-     * @return An [ActionAccessor] for invoking the action.
      */
     @OptIn(InternalControlsApi::class)
     public fun <D : Device, I, O> openActionAccessor(spec: DeviceActionSpec<D, I, O>): ActionAccessor<I, O> {

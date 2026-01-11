@@ -5,12 +5,13 @@ import space.kscience.controls.core.meta.DevicePropertySpec
 /**
  * A typed, low-overhead tunnel for accessing device properties, bypassing the [space.kscience.dataforge.meta.Meta] boxing.
  *
- * Accessors are intended for the "Data Plane" (hot control loops, telemetry streaming), whereas
- * [space.kscience.controls.core.contracts.PropertyDevice.readProperty] is intended for the "Control Plane" (configuration, UI).
+ * Accessors constitute the **Data Plane** of the framework. They are intended for hot control loops,
+ * high-frequency telemetry, and real-time visualization, where the overhead of creating `Meta` objects
+ * and parsing them is unacceptable.
  *
  * @param T The type of the property value.
  */
-public sealed interface PropertyAccessor<T> {
+public interface PropertyAccessor<T> {
     /**
      * The specification of the property this accessor is bound to.
      */
@@ -19,50 +20,53 @@ public sealed interface PropertyAccessor<T> {
 
 /**
  * A specialized accessor for [Double] properties to ensure zero-allocation read/write operations.
- * Used for high-frequency telemetry and analog control.
+ * Used for high-frequency analog control and telemetry.
  */
 public interface DoubleAccessor : PropertyAccessor<Double> {
     /**
-     * Reads the current value of the property directly from the driver.
-     * This is a suspendable operation to support I/O-bound drivers.
+     * Reads the current value of the property directly from the driver/hardware.
      */
-    public suspend fun read(): Double
+    public suspend fun readDouble(): Double
 
     /**
-     * Writes a new value to the property directly to the driver.
+     * Writes a new value to the property directly to the driver/hardware.
      */
-    public suspend fun write(value: Double)
-
-    /**
-     * Attempts to read the value synchronously without blocking.
-     * Useful for drivers that maintain a local atomic cache of the value.
-     *
-     * @return The value if available immediately, or [Double.NaN] if I/O is required or value is unavailable.
-     */
-    public fun tryRead(): Double = Double.NaN
+    public suspend fun writeDouble(value: Double)
 }
 
 /**
  * A specialized accessor for [Int] properties to ensure zero-allocation read/write operations.
- * Used for discrete states, counters, and digital control.
+ * Used for discrete states, counters, and registers.
  */
 public interface IntAccessor : PropertyAccessor<Int> {
     /**
-     * Reads the current value of the property directly from the driver.
+     * Reads the current value of the property directly from the driver/hardware.
      */
-    public suspend fun read(): Int
+    public suspend fun readInt(): Int
 
     /**
-     * Writes a new value to the property directly to the driver.
+     * Writes a new value to the property directly to the driver/hardware.
      */
-    public suspend fun write(value: Int)
+    public suspend fun writeInt(value: Int)
+}
 
+/**
+ * A specialized accessor for reading arrays of data (e.g., waveforms, spectra, images)
+ * into a pre-allocated buffer. This enables **Zero-Allocation** data transfer patterns,
+ * which are critical for performance in garbage-collected environments (JVM, Native).
+ *
+ * @param T The type of the array (e.g., `DoubleArray`, `IntArray`, `ByteArray`).
+ */
+public interface ArrayAccessor<T> : PropertyAccessor<T> {
     /**
-     * Attempts to read the value synchronously without blocking.
+     * Reads the property value directly into the provided [buffer].
      *
-     * @return The value if available immediately, or `null` if I/O is required.
+     * @param buffer The destination array/buffer.
+     * @param offset The index in the [buffer] at which to start writing data.
+     * @param size The maximum number of elements to read.
+     * @return The actual number of elements read and written to the buffer.
      */
-    public fun tryRead(): Int? = null
+    public suspend fun readInto(buffer: T, offset: Int, size: Int): Int
 }
 
 /**

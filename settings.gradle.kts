@@ -72,7 +72,6 @@ include(
     ":controls-feature-alarms",
     ":controls-feature-telemetry",
     ":controls-feature-connectivity",
-    ":controls-state",
     ":controls-feature-analytics",
 
     // Infrastructure

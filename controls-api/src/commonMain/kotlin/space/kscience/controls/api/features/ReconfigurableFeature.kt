@@ -8,20 +8,14 @@ import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 
 /**
  * A feature describing the device's ability to be reconfigured at runtime.
+ *
+ * @property reconfigDescriptor A descriptor defining the structure of the configuration meta
+ *                              that this device accepts via the reconfiguration interface.
  */
 @Serializable
-@SerialName(ReconfigurableFeature.ID)
+@SerialName("feature.reconfigurable")
 public data class ReconfigurableFeature(
-    val reconfigDescriptor: MetaDescriptor = MetaDescriptor.Companion.EMPTY,
+    val reconfigDescriptor: MetaDescriptor = MetaDescriptor.EMPTY,
 ) : Feature {
-    override val key: FeatureKey<*> get() = ReconfigurableFeature
-    override val capability: String get() = CAPABILITY_ID
-
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
-
-    public companion object : FeatureKey<ReconfigurableFeature> {
-        public const val ID: String = "feature.reconfigurable"
-        public const val CAPABILITY_ID: String = "space.kscience.controls.core.contracts.ReconfigurableDevice"
-        override val id: String = ID
-    }
 }

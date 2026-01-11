@@ -26,9 +26,7 @@ public class FeatureValidatorRegistry(meta: Meta) : AbstractPlugin(meta) {
      */
     @Suppress("UNCHECKED_CAST")
     public fun <F : Feature> getValidatorFor(feature: F): FeatureValidator<F>? {
-        // Find a factory whose capability matches the feature's capability.
-        val factory = factories.values.find { it.capability == feature.capability }
-        return factory?.build(context, Meta.EMPTY) as? FeatureValidator<F>
+        TODO()
     }
 
     public companion object : PluginFactory<FeatureValidatorRegistry> {
