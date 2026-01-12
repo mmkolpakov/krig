@@ -7,7 +7,6 @@ import space.kscience.controls.api.descriptors.PropertyDescriptor
 import space.kscience.controls.api.descriptors.StreamDescriptor
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.common.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 

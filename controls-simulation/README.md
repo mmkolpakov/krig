@@ -4,7 +4,7 @@
 
 ## Description
 
-This module provides a pluggable, multiplatform virtual time engine for `controls-composite-kt`.
+This module provides a pluggable, multiplatform virtual time engine for `controls-ng`.
 It allows for deterministic, fast-forward simulation and testing of complex, time-dependent device logic
 without relying on real-world wall-clock time.
 

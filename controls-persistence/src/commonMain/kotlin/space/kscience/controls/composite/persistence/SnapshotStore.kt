@@ -1,6 +1,6 @@
 package space.kscience.controls.composite.persistence
 
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 

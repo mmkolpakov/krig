@@ -6,9 +6,8 @@ import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.composition.ChildComponentConfig
 import space.kscience.controls.api.features.Feature
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.names.Name
 
 /**
  * Configuration for a child device that exists remotely and is accessed via a local proxy.

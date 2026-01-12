@@ -3,7 +3,7 @@ package space.kscience.controls.api.features
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.meta.MemberTag
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 
 /**

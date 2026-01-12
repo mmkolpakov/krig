@@ -1,7 +1,7 @@
 package space.kscience.controls.fsm
 
 import kotlinx.serialization.modules.SerializersModule
-import space.kscience.controls.api.serialization.SerializationContributor
+import space.kscience.controls.core.serialization.SerializationContributor
 import space.kscience.controls.core.capabilities.CapabilityFactory
 import space.kscience.controls.fsm.capability.LifecycleCapability
 import space.kscience.controls.fsm.capability.OperationalFsmCapability

@@ -1,7 +1,7 @@
 package space.kscience.controls.api.descriptors
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.misc.DfType
 import space.kscience.dataforge.names.Name

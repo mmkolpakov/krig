@@ -1,4 +1,4 @@
-package space.kscience.controls.api.meta
+package space.kscience.controls.api.dsl.action
 
 import space.kscience.dataforge.meta.*
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor

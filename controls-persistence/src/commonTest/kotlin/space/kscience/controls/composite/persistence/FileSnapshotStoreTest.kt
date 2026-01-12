@@ -3,7 +3,7 @@ package space.kscience.controls.composite.persistence
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import okio.fakefilesystem.FakeFileSystem
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.names.Name
 import kotlin.test.BeforeTest

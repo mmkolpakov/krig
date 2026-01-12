@@ -2,7 +2,7 @@ package space.kscience.controls.composite.simulation
 
 import kotlinx.coroutines.*
 //TODO think about utils module, not core for common things
-import space.kscience.controls.common.time.instant
+import space.kscience.controls.api.utils.instant
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.*
 import kotlin.coroutines.CoroutineContext

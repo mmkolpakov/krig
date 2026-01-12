@@ -7,7 +7,7 @@ import space.kscience.controls.api.addressing.Address
 import space.kscience.controls.api.spec.RetryPolicy
 import space.kscience.controls.api.spec.TimeoutPolicy
 import space.kscience.controls.api.identifiers.BlueprintId
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.names.Name

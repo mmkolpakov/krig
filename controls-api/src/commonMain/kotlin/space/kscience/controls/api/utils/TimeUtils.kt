@@ -1,4 +1,4 @@
-package space.kscience.controls.common.time
+package space.kscience.controls.api.utils
 
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
@@ -10,7 +10,7 @@ import kotlin.time.Duration
 import kotlin.time.Instant
 
 /**
- * A [space.kscience.dataforge.meta.MetaConverter] for [kotlin.time.Instant], which serializes it to an ISO-8601 string.
+ * A [MetaConverter] for [Instant], which serializes it to an ISO-8601 string.
  */
 private object InstantConverter : MetaConverter<Instant> {
     override fun readOrNull(source: Meta): Instant? = source.string?.let { Instant.Companion.parse(it) }
@@ -18,7 +18,7 @@ private object InstantConverter : MetaConverter<Instant> {
 }
 
 /**
- * A [MetaConverter] for [kotlin.time.Duration], which serializes it to an ISO-8601 duration string.
+ * A [MetaConverter] for [Duration], which serializes it to an ISO-8601 duration string.
  */
 private object DurationConverter : MetaConverter<Duration> {
     override fun readOrNull(source: Meta): Duration? = source.string?.let { Duration.Companion.parse(it) }

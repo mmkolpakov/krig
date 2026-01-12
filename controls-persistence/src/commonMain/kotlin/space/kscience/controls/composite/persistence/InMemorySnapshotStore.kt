@@ -2,7 +2,7 @@ package space.kscience.controls.composite.persistence
 
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name

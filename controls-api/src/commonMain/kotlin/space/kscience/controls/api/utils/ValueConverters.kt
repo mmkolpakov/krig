@@ -1,4 +1,4 @@
-package space.kscience.controls.common.meta
+package space.kscience.controls.api.utils
 
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter

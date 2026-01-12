@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-description = "Core data models and contracts for controls-composite-kt"
+description = "Core data models and contracts for controls-ng"
 
 kscience {
     jvm()

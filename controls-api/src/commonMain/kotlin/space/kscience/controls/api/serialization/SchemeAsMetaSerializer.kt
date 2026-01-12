@@ -1,4 +1,4 @@
-package space.kscience.controls.common.meta
+package space.kscience.controls.api.serialization
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor

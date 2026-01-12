@@ -12,7 +12,7 @@ This module provides a high-performance, persistent implementation of the `Audit
 -   **Data Integrity**: Leverages SQLite's transactional guarantees to ensure that log entries are written atomically and safely, preventing data corruption.
 -   **Type-Safe API**: Uses SQLDelight to generate a type-safe Kotlin API for all database interactions, eliminating runtime errors related to SQL syntax or data types.
 -   **Multiplatform Support**: Provides a common implementation that works seamlessly across JVM and Native platforms.
--   **Pluggable Architecture**: Implemented as a DataForge plugin (`SqlDelightAuditLogPlugin`), allowing it to be easily configured and swapped in as the `AuditLogService` provider in a `controls-composite-kt` runtime.
+-   **Pluggable Architecture**: Implemented as a DataForge plugin (`SqlDelightAuditLogPlugin`), allowing it to be easily configured and swapped in as the `AuditLogService` provider in a `controls-ng` runtime.
 
 ## Usage
 

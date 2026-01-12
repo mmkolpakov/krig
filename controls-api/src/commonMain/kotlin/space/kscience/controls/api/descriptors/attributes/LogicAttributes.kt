@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.descriptors.MemberAttribute
 import space.kscience.controls.api.validation.ValidationRuleDescriptor
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.Value
 import space.kscience.dataforge.names.Name

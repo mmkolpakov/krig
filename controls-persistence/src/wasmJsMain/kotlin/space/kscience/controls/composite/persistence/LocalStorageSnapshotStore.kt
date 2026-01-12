@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.w3c.dom.set
 import space.kscience.controls.api.serialization.controlsApiSerializersModule
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.controls.core.serialization.SerializationPlugin
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta

@@ -5,7 +5,7 @@ import kotlinx.coroutines.sync.withLock
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.debug
 import space.kscience.dataforge.context.error

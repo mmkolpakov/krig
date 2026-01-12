@@ -8,7 +8,7 @@ import space.kscience.controls.api.descriptors.attributes.PersistenceAttribute
 import space.kscience.controls.api.descriptors.attributes.ValidationAttribute
 import space.kscience.controls.api.spec.ResourceLockSpec
 import space.kscience.controls.api.validation.ValidationRuleDescriptor
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.Value
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor

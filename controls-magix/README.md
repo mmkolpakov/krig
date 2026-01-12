@@ -4,7 +4,7 @@
 
 ## Description
 
-This module provides an adapter layer to use the [Magix message bus](https://github.com/SciProgCentre/magix) as the primary communication backbone for `controls-composite-kt`. It implements the core `MessageBroker` contract and provides services for peer-to-peer signaling, enabling the creation of distributed control systems.
+This module provides an adapter layer to use the [Magix message bus](https://github.com/SciProgCentre/magix) as the primary communication backbone for `controls-ng`. It implements the core `MessageBroker` contract and provides services for peer-to-peer signaling, enabling the creation of distributed control systems.
 
 ## Key Features
 

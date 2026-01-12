@@ -6,7 +6,7 @@
 
 ## Description
 
-This module is the core execution engine of the `controls-composite-kt` framework. It is the reference implementation that takes the declarative, stateless `DeviceBlueprint` models from `controls-model` and brings them to life as stateful, interactive, and manageable `Device` instances.
+This module is the core execution engine of the `controls-ng` framework. It is the reference implementation that takes the declarative, stateless `DeviceBlueprint` models from `controls-model` and brings them to life as stateful, interactive, and manageable `Device` instances.
 
 The runtime is responsible for interpreting the blueprint's structure, managing the complete lifecycle via formal Finite State Machines (FSMs), executing reactive property bindings, running user-defined logic, and coordinating complex transactional plans.
 

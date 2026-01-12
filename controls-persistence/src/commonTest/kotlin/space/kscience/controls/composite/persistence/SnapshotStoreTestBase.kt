@@ -1,7 +1,7 @@
 package space.kscience.controls.composite.persistence
 
 import kotlinx.coroutines.test.runTest
-import space.kscience.controls.common.serialization.Base64Bytes
+import space.kscience.controls.api.utils.Base64Bytes
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int

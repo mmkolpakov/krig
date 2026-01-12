@@ -4,7 +4,7 @@
 
 ## Description
 
-This module provides a cross-platform, foundational API for metrics collection within the `controls-composite-kt` framework. It defines universal contracts for common metric types like counters, gauges, and histograms, and includes a default, high-performance, in-memory implementation based on `kotlinx.atomicfu`.
+This module provides a cross-platform, foundational API for metrics collection within the `controls-ng` framework. It defines universal contracts for common metric types like counters, gauges, and histograms, and includes a default, high-performance, in-memory implementation based on `kotlinx.atomicfu`.
 
 The core philosophy is to decouple metric instrumentation from specific monitoring backends. Your device logic can record metrics using the provided APIs, and a separate exporter module (like `controls-exporter-prometheus`) can then collect and expose this data.
 

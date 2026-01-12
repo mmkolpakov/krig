@@ -4,13 +4,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.controls.api.identifiers.Permission
 import space.kscience.controls.api.descriptors.MemberAttribute
+import space.kscience.controls.api.descriptors.MemberDescriptor
+import space.kscience.controls.api.descriptors.attr
+import space.kscience.controls.api.descriptors.attribute
 import space.kscience.controls.api.meta.AdapterBinding
 import space.kscience.controls.api.meta.MemberTag
 import space.kscience.controls.api.spec.CachePolicy
 import space.kscience.controls.api.spec.QoS
 import space.kscience.controls.api.spec.ResourceLockSpec
 import space.kscience.controls.api.spec.StreamDirection
-import space.kscience.controls.common.meta.serializableToMeta
+import space.kscience.controls.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
 import kotlin.time.Duration
 
@@ -32,6 +35,16 @@ public data class MetadataAttribute(
 }
 
 /**
+ * Quick access to the [MetadataAttribute] of a descriptor.
+ */
+public val MemberDescriptor.metadata: MetadataAttribute?
+    get() = attribute()
+public val MemberDescriptor.description: String? by attr(MetadataAttribute::description)
+public val MemberDescriptor.unit: String? by attr(MetadataAttribute::unit)
+public val MemberDescriptor.tags: Set<MemberTag>
+    get() = metadata?.tags ?: emptySet()
+
+/**
  * Attributes defining the runtime behavior, timing, and concurrency constraints.
  */
 @Serializable
@@ -47,6 +60,12 @@ public data class BehaviorAttribute(
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
+public val MemberDescriptor.behavior: BehaviorAttribute?
+    get() = attribute()
+public val MemberDescriptor.timeout: Duration? by attr(BehaviorAttribute::timeout)
+public val MemberDescriptor.requiredLocks: List<ResourceLockSpec>
+    get() = behavior?.requiredLocks ?: emptyList()
+
 /**
  * Attributes defining security and access control.
  */
@@ -60,6 +79,16 @@ public data class AccessAttribute(
 ) : MemberAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
+
+public val MemberDescriptor.access: AccessAttribute?
+    get() = attribute()
+
+public val MemberDescriptor.readable: Boolean by attr(true, AccessAttribute::readable)
+public val MemberDescriptor.mutable: Boolean by attr(false, AccessAttribute::mutable)
+public val MemberDescriptor.readPermissions: Set<Permission>
+    get() = access?.readPermissions ?: emptySet()
+public val MemberDescriptor.writePermissions: Set<Permission>
+    get() = access?.writePermissions ?: emptySet()
 
 /**
  * Attributes for configuring telemetry, metrics, and monitoring.
@@ -83,6 +112,9 @@ public data class BindingsAttribute(
 ) : MemberAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
+
+public val MemberDescriptor.bindings: Map<String, AdapterBinding>
+    get() = attribute<BindingsAttribute>()?.bindings ?: emptyMap()
 
 /**
  * Specific configuration for Data Streams.

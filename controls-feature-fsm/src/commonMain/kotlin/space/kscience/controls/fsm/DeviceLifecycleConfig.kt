@@ -1,8 +1,8 @@
 package space.kscience.controls.fsm
 
 import kotlinx.serialization.Serializable
-import space.kscience.controls.common.meta.SchemeAsMetaSerializer
-import space.kscience.controls.common.time.duration
+import space.kscience.controls.api.serialization.SchemeAsMetaSerializer
+import space.kscience.controls.api.utils.duration
 import space.kscience.dataforge.meta.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds

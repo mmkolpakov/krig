@@ -1,4 +1,4 @@
-package space.kscience.controls.api.serialization
+package space.kscience.controls.core.serialization
 
 import kotlinx.serialization.modules.SerializersModule
 import space.kscience.dataforge.context.Plugin

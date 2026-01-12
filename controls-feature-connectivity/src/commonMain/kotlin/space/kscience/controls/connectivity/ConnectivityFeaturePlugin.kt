@@ -1,7 +1,7 @@
 package space.kscience.controls.connectivity
 
 import kotlinx.serialization.modules.SerializersModule
-import space.kscience.controls.api.serialization.SerializationContributor
+import space.kscience.controls.core.serialization.SerializationContributor
 import space.kscience.controls.core.capabilities.CapabilityFactory
 import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context

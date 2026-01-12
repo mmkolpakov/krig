@@ -1,4 +1,4 @@
-rootProject.name = "controls-composite-kt"
+rootProject.name = "controls-ng"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -61,7 +61,6 @@ dependencyResolutionManagement {
 include(
     // Core & Base
     ":controls-core",
-    ":controls-common",
     ":controls-api",
     ":controls-service-api",
     ":controls-validation",
