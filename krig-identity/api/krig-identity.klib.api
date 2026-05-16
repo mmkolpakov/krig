@@ -1,0 +1,349 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <space.kscience:krig-identity>
+abstract interface space.kscience.krig.api.addressing/TransportAddress // space.kscience.krig.api.addressing/TransportAddress|null[0]
+
+abstract interface space.kscience.krig.api.context/Principal { // space.kscience.krig.api.context/Principal|null[0]
+    abstract val attributes // space.kscience.krig.api.context/Principal.attributes|{}attributes[0]
+        abstract fun <get-attributes>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/Principal.attributes.<get-attributes>|<get-attributes>(){}[0]
+    abstract val name // space.kscience.krig.api.context/Principal.name|{}name[0]
+        abstract fun <get-name>(): kotlin/String // space.kscience.krig.api.context/Principal.name.<get-name>|<get-name>(){}[0]
+    abstract val roles // space.kscience.krig.api.context/Principal.roles|{}roles[0]
+        abstract fun <get-roles>(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.api.context/Principal.roles.<get-roles>|<get-roles>(){}[0]
+}
+
+abstract interface space.kscience.krig.api.identifiers/ControlsPermission : space.kscience.krig.api.identifiers/Permission { // space.kscience.krig.api.identifiers/ControlsPermission|null[0]
+    final class DeviceExecute : space.kscience.krig.api.identifiers/ControlsPermission { // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute|null[0]
+        constructor <init>(kotlin/String, kotlin/String) // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
+        final val action // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.action|{}action[0]
+            final fun <get-action>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.action.<get-action>|<get-action>(){}[0]
+        final val device // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.device|{}device[0]
+            final fun <get-device>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.device.<get-device>|<get-device>(){}[0]
+        final val id // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.id|{}id[0]
+            final fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.id.<get-id>|<get-id>(){}[0]
+
+        final fun component1(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.component1|component1(){}[0]
+        final fun component2(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.component2|component2(){}[0]
+        final fun copy(kotlin/String = ..., kotlin/String = ...): space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.copy|copy(kotlin.String;kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceExecute.toString|toString(){}[0]
+    }
+
+    final class DeviceRead : space.kscience.krig.api.identifiers/ControlsPermission { // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead|null[0]
+        constructor <init>(kotlin/String, kotlin/String) // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
+        final val device // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.device|{}device[0]
+            final fun <get-device>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.device.<get-device>|<get-device>(){}[0]
+        final val id // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.id|{}id[0]
+            final fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.id.<get-id>|<get-id>(){}[0]
+        final val property // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.property|{}property[0]
+            final fun <get-property>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.property.<get-property>|<get-property>(){}[0]
+
+        final fun component1(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.component1|component1(){}[0]
+        final fun component2(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.component2|component2(){}[0]
+        final fun copy(kotlin/String = ..., kotlin/String = ...): space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.copy|copy(kotlin.String;kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceRead.toString|toString(){}[0]
+    }
+
+    final class DeviceSubscribe : space.kscience.krig.api.identifiers/ControlsPermission { // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe|null[0]
+        constructor <init>(kotlin/String) // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.<init>|<init>(kotlin.String){}[0]
+
+        final val device // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.device|{}device[0]
+            final fun <get-device>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.device.<get-device>|<get-device>(){}[0]
+        final val id // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.id|{}id[0]
+            final fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.id.<get-id>|<get-id>(){}[0]
+
+        final fun component1(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.component1|component1(){}[0]
+        final fun copy(kotlin/String = ...): space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.copy|copy(kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceSubscribe.toString|toString(){}[0]
+    }
+
+    final class DeviceWrite : space.kscience.krig.api.identifiers/ControlsPermission { // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite|null[0]
+        constructor <init>(kotlin/String, kotlin/String) // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
+        final val device // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.device|{}device[0]
+            final fun <get-device>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.device.<get-device>|<get-device>(){}[0]
+        final val id // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.id|{}id[0]
+            final fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.id.<get-id>|<get-id>(){}[0]
+        final val property // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.property|{}property[0]
+            final fun <get-property>(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.property.<get-property>|<get-property>(){}[0]
+
+        final fun component1(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.component1|component1(){}[0]
+        final fun component2(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.component2|component2(){}[0]
+        final fun copy(kotlin/String = ..., kotlin/String = ...): space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.copy|copy(kotlin.String;kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/ControlsPermission.DeviceWrite.toString|toString(){}[0]
+    }
+}
+
+abstract interface space.kscience.krig.api.identifiers/Permission { // space.kscience.krig.api.identifiers/Permission|null[0]
+    abstract val id // space.kscience.krig.api.identifiers/Permission.id|{}id[0]
+        abstract fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/Permission.id.<get-id>|<get-id>(){}[0]
+}
+
+abstract interface space.kscience.krig.api.services/AuditAction { // space.kscience.krig.api.services/AuditAction|null[0]
+    abstract val id // space.kscience.krig.api.services/AuditAction.id|{}id[0]
+        abstract fun <get-id>(): kotlin/String // space.kscience.krig.api.services/AuditAction.id.<get-id>|<get-id>(){}[0]
+
+    final object Companion { // space.kscience.krig.api.services/AuditAction.Companion|null[0]
+        final val DeviceExecute // space.kscience.krig.api.services/AuditAction.Companion.DeviceExecute|{}DeviceExecute[0]
+            final fun <get-DeviceExecute>(): space.kscience.krig.api.services/AuditAction // space.kscience.krig.api.services/AuditAction.Companion.DeviceExecute.<get-DeviceExecute>|<get-DeviceExecute>(){}[0]
+        final val DeviceRead // space.kscience.krig.api.services/AuditAction.Companion.DeviceRead|{}DeviceRead[0]
+            final fun <get-DeviceRead>(): space.kscience.krig.api.services/AuditAction // space.kscience.krig.api.services/AuditAction.Companion.DeviceRead.<get-DeviceRead>|<get-DeviceRead>(){}[0]
+        final val DeviceSubscribe // space.kscience.krig.api.services/AuditAction.Companion.DeviceSubscribe|{}DeviceSubscribe[0]
+            final fun <get-DeviceSubscribe>(): space.kscience.krig.api.services/AuditAction // space.kscience.krig.api.services/AuditAction.Companion.DeviceSubscribe.<get-DeviceSubscribe>|<get-DeviceSubscribe>(){}[0]
+        final val DeviceWrite // space.kscience.krig.api.services/AuditAction.Companion.DeviceWrite|{}DeviceWrite[0]
+            final fun <get-DeviceWrite>(): space.kscience.krig.api.services/AuditAction // space.kscience.krig.api.services/AuditAction.Companion.DeviceWrite.<get-DeviceWrite>|<get-DeviceWrite>(){}[0]
+    }
+}
+
+abstract interface space.kscience.krig.api.services/AuditService : space.kscience.dataforge.context/Plugin { // space.kscience.krig.api.services/AuditService|null[0]
+    open val isActive // space.kscience.krig.api.services/AuditService.isActive|{}isActive[0]
+        open fun <get-isActive>(): kotlin/Boolean // space.kscience.krig.api.services/AuditService.isActive.<get-isActive>|<get-isActive>(){}[0]
+    open val tag // space.kscience.krig.api.services/AuditService.tag|{}tag[0]
+        open fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.api.services/AuditService.tag.<get-tag>|<get-tag>(){}[0]
+
+    abstract suspend fun record(space.kscience.krig.api.context/Principal, space.kscience.krig.api.services/AuditAction, space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.services/AuditService.record|record(space.kscience.krig.api.context.Principal;space.kscience.krig.api.services.AuditAction;space.kscience.dataforge.meta.Meta){}[0]
+
+    final object Companion : space.kscience.dataforge.context/PluginFactory<space.kscience.krig.api.services/AuditService> { // space.kscience.krig.api.services/AuditService.Companion|null[0]
+        final val tag // space.kscience.krig.api.services/AuditService.Companion.tag|{}tag[0]
+            final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.api.services/AuditService.Companion.tag.<get-tag>|<get-tag>(){}[0]
+
+        final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.services/AuditService // space.kscience.krig.api.services/AuditService.Companion.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
+    }
+}
+
+abstract interface space.kscience.krig.api.services/AuthorizationService : space.kscience.dataforge.context/Plugin { // space.kscience.krig.api.services/AuthorizationService|null[0]
+    open val tag // space.kscience.krig.api.services/AuthorizationService.tag|{}tag[0]
+        open fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.api.services/AuthorizationService.tag.<get-tag>|<get-tag>(){}[0]
+
+    abstract suspend fun checkPermission(space.kscience.krig.api.context/Principal, space.kscience.krig.api.identifiers/Permission) // space.kscience.krig.api.services/AuthorizationService.checkPermission|checkPermission(space.kscience.krig.api.context.Principal;space.kscience.krig.api.identifiers.Permission){}[0]
+
+    final object Companion : space.kscience.dataforge.context/PluginFactory<space.kscience.krig.api.services/AuthorizationService> { // space.kscience.krig.api.services/AuthorizationService.Companion|null[0]
+        final val tag // space.kscience.krig.api.services/AuthorizationService.Companion.tag|{}tag[0]
+            final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.api.services/AuthorizationService.Companion.tag.<get-tag>|<get-tag>(){}[0]
+
+        final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.services/AuthorizationService // space.kscience.krig.api.services/AuthorizationService.Companion.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
+    }
+}
+
+final class space.kscience.krig.api.addressing/Address { // space.kscience.krig.api.addressing/Address|null[0]
+    constructor <init>(kotlin/String, kotlin/String) // space.kscience.krig.api.addressing/Address.<init>|<init>(kotlin.String;kotlin.String){}[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name) // space.kscience.krig.api.addressing/Address.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+
+    final val device // space.kscience.krig.api.addressing/Address.device|{}device[0]
+        final fun <get-device>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.addressing/Address.device.<get-device>|<get-device>(){}[0]
+    final val route // space.kscience.krig.api.addressing/Address.route|{}route[0]
+        final fun <get-route>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.addressing/Address.route.<get-route>|<get-route>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.api.addressing/Address.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.addressing/Address.component2|component2(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.api.addressing/Address // space.kscience.krig.api.addressing/Address.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.addressing/Address.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.addressing/Address.hashCode|hashCode(){}[0]
+    final fun resolveChild(space.kscience.dataforge.names/Name): space.kscience.krig.api.addressing/Address // space.kscience.krig.api.addressing/Address.resolveChild|resolveChild(space.kscience.dataforge.names.Name){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.addressing/Address.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.addressing/Address> { // space.kscience.krig.api.addressing/Address.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.addressing/Address.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.addressing/Address.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.addressing/Address.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.addressing/Address // space.kscience.krig.api.addressing/Address.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.addressing/Address) // space.kscience.krig.api.addressing/Address.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.addressing.Address){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.addressing/Address.Companion|null[0]
+        final fun parse(kotlin/String): space.kscience.krig.api.addressing/Address // space.kscience.krig.api.addressing/Address.Companion.parse|parse(kotlin.String){}[0]
+        final fun parseOrNull(kotlin/String): space.kscience.krig.api.addressing/Address? // space.kscience.krig.api.addressing/Address.Companion.parseOrNull|parseOrNull(kotlin.String){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.addressing/Address> // space.kscience.krig.api.addressing/Address.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.context/ExecutionContext { // space.kscience.krig.api.context/ExecutionContext|null[0]
+    constructor <init>(space.kscience.krig.api.context/Principal = ..., space.kscience.krig.api.identifiers/CorrelationId = ..., space.kscience.krig.api.addressing/Address? = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.attributes/Attributes = ...) // space.kscience.krig.api.context/ExecutionContext.<init>|<init>(space.kscience.krig.api.context.Principal;space.kscience.krig.api.identifiers.CorrelationId;space.kscience.krig.api.addressing.Address?;space.kscience.dataforge.meta.Meta;space.kscience.attributes.Attributes){}[0]
+
+    final val attributes // space.kscience.krig.api.context/ExecutionContext.attributes|{}attributes[0]
+        final fun <get-attributes>(): space.kscience.attributes/Attributes // space.kscience.krig.api.context/ExecutionContext.attributes.<get-attributes>|<get-attributes>(){}[0]
+    final val correlationId // space.kscience.krig.api.context/ExecutionContext.correlationId|{}correlationId[0]
+        final fun <get-correlationId>(): space.kscience.krig.api.identifiers/CorrelationId // space.kscience.krig.api.context/ExecutionContext.correlationId.<get-correlationId>|<get-correlationId>(){}[0]
+    final val originAddress // space.kscience.krig.api.context/ExecutionContext.originAddress|{}originAddress[0]
+        final fun <get-originAddress>(): space.kscience.krig.api.addressing/Address? // space.kscience.krig.api.context/ExecutionContext.originAddress.<get-originAddress>|<get-originAddress>(){}[0]
+    final val principal // space.kscience.krig.api.context/ExecutionContext.principal|{}principal[0]
+        final fun <get-principal>(): space.kscience.krig.api.context/Principal // space.kscience.krig.api.context/ExecutionContext.principal.<get-principal>|<get-principal>(){}[0]
+    final val properties // space.kscience.krig.api.context/ExecutionContext.properties|{}properties[0]
+        final fun <get-properties>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/ExecutionContext.properties.<get-properties>|<get-properties>(){}[0]
+
+    final fun component1(): space.kscience.krig.api.context/Principal // space.kscience.krig.api.context/ExecutionContext.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.identifiers/CorrelationId // space.kscience.krig.api.context/ExecutionContext.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.addressing/Address? // space.kscience.krig.api.context/ExecutionContext.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/ExecutionContext.component4|component4(){}[0]
+    final fun component5(): space.kscience.attributes/Attributes // space.kscience.krig.api.context/ExecutionContext.component5|component5(){}[0]
+    final fun copy(space.kscience.krig.api.context/Principal = ..., space.kscience.krig.api.identifiers/CorrelationId = ..., space.kscience.krig.api.addressing/Address? = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.attributes/Attributes = ...): space.kscience.krig.api.context/ExecutionContext // space.kscience.krig.api.context/ExecutionContext.copy|copy(space.kscience.krig.api.context.Principal;space.kscience.krig.api.identifiers.CorrelationId;space.kscience.krig.api.addressing.Address?;space.kscience.dataforge.meta.Meta;space.kscience.attributes.Attributes){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.context/ExecutionContext.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.context/ExecutionContext.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.context/ExecutionContext.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.context/ExecutionContext> { // space.kscience.krig.api.context/ExecutionContext.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.context/ExecutionContext.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.context/ExecutionContext.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.context/ExecutionContext.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.context/ExecutionContext // space.kscience.krig.api.context/ExecutionContext.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.context/ExecutionContext) // space.kscience.krig.api.context/ExecutionContext.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.context.ExecutionContext){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.context/ExecutionContext.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.context/ExecutionContext.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.context/ExecutionContext> // space.kscience.krig.api.context/ExecutionContext.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.context/ExecutionContextElement : kotlin.coroutines/CoroutineContext.Element { // space.kscience.krig.api.context/ExecutionContextElement|null[0]
+    constructor <init>(space.kscience.krig.api.context/ExecutionContext) // space.kscience.krig.api.context/ExecutionContextElement.<init>|<init>(space.kscience.krig.api.context.ExecutionContext){}[0]
+
+    final val context // space.kscience.krig.api.context/ExecutionContextElement.context|{}context[0]
+        final fun <get-context>(): space.kscience.krig.api.context/ExecutionContext // space.kscience.krig.api.context/ExecutionContextElement.context.<get-context>|<get-context>(){}[0]
+    final val key // space.kscience.krig.api.context/ExecutionContextElement.key|{}key[0]
+        final fun <get-key>(): kotlin.coroutines/CoroutineContext.Key<*> // space.kscience.krig.api.context/ExecutionContextElement.key.<get-key>|<get-key>(){}[0]
+
+    final object Key : kotlin.coroutines/CoroutineContext.Key<space.kscience.krig.api.context/ExecutionContextElement> // space.kscience.krig.api.context/ExecutionContextElement.Key|null[0]
+}
+
+final class space.kscience.krig.api.context/SimplePrincipal : space.kscience.krig.api.context/Principal { // space.kscience.krig.api.context/SimplePrincipal|null[0]
+    constructor <init>(kotlin/String, kotlin.collections/Set<kotlin/String> = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.context/SimplePrincipal.<init>|<init>(kotlin.String;kotlin.collections.Set<kotlin.String>;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val attributes // space.kscience.krig.api.context/SimplePrincipal.attributes|{}attributes[0]
+        final fun <get-attributes>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/SimplePrincipal.attributes.<get-attributes>|<get-attributes>(){}[0]
+    final val name // space.kscience.krig.api.context/SimplePrincipal.name|{}name[0]
+        final fun <get-name>(): kotlin/String // space.kscience.krig.api.context/SimplePrincipal.name.<get-name>|<get-name>(){}[0]
+    final val roles // space.kscience.krig.api.context/SimplePrincipal.roles|{}roles[0]
+        final fun <get-roles>(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.api.context/SimplePrincipal.roles.<get-roles>|<get-roles>(){}[0]
+
+    final fun component1(): kotlin/String // space.kscience.krig.api.context/SimplePrincipal.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.api.context/SimplePrincipal.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/SimplePrincipal.component3|component3(){}[0]
+    final fun copy(kotlin/String = ..., kotlin.collections/Set<kotlin/String> = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.api.context/SimplePrincipal // space.kscience.krig.api.context/SimplePrincipal.copy|copy(kotlin.String;kotlin.collections.Set<kotlin.String>;space.kscience.dataforge.meta.Meta){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.context/SimplePrincipal.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.context/SimplePrincipal.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.context/SimplePrincipal.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.context/SimplePrincipal> { // space.kscience.krig.api.context/SimplePrincipal.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.context/SimplePrincipal.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.context/SimplePrincipal.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.context/SimplePrincipal.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.context/SimplePrincipal // space.kscience.krig.api.context/SimplePrincipal.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.context/SimplePrincipal) // space.kscience.krig.api.context/SimplePrincipal.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.context.SimplePrincipal){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.context/SimplePrincipal.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.context/SimplePrincipal.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.context/SimplePrincipal> // space.kscience.krig.api.context/SimplePrincipal.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final value class space.kscience.krig.api.identifiers/BlueprintId { // space.kscience.krig.api.identifiers/BlueprintId|null[0]
+    constructor <init>(kotlin/String) // space.kscience.krig.api.identifiers/BlueprintId.<init>|<init>(kotlin.String){}[0]
+
+    final val value // space.kscience.krig.api.identifiers/BlueprintId.value|{}value[0]
+        final fun <get-value>(): kotlin/String // space.kscience.krig.api.identifiers/BlueprintId.value.<get-value>|<get-value>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/BlueprintId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/BlueprintId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/BlueprintId.toString|toString(){}[0]
+
+    final object Companion { // space.kscience.krig.api.identifiers/BlueprintId.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.identifiers/BlueprintId> // space.kscience.krig.api.identifiers/BlueprintId.Companion.serializer|serializer(){}[0]
+    }
+
+    final object Serializer : kotlinx.serialization/KSerializer<space.kscience.krig.api.identifiers/BlueprintId> { // space.kscience.krig.api.identifiers/BlueprintId.Serializer|null[0]
+        final val descriptor // space.kscience.krig.api.identifiers/BlueprintId.Serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.identifiers/BlueprintId.Serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.identifiers/BlueprintId // space.kscience.krig.api.identifiers/BlueprintId.Serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.identifiers/BlueprintId) // space.kscience.krig.api.identifiers/BlueprintId.Serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.identifiers.BlueprintId){}[0]
+    }
+}
+
+final value class space.kscience.krig.api.identifiers/CorrelationId : kotlin.coroutines/CoroutineContext.Element { // space.kscience.krig.api.identifiers/CorrelationId|null[0]
+    constructor <init>(kotlin/String) // space.kscience.krig.api.identifiers/CorrelationId.<init>|<init>(kotlin.String){}[0]
+
+    final val id // space.kscience.krig.api.identifiers/CorrelationId.id|{}id[0]
+        final fun <get-id>(): kotlin/String // space.kscience.krig.api.identifiers/CorrelationId.id.<get-id>|<get-id>(){}[0]
+    final val key // space.kscience.krig.api.identifiers/CorrelationId.key|{}key[0]
+        final fun <get-key>(): kotlin.coroutines/CoroutineContext.Key<*> // space.kscience.krig.api.identifiers/CorrelationId.key.<get-key>|<get-key>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/CorrelationId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/CorrelationId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/CorrelationId.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.identifiers/CorrelationId> { // space.kscience.krig.api.identifiers/CorrelationId.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.identifiers/CorrelationId.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.identifiers/CorrelationId.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.identifiers/CorrelationId.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.identifiers/CorrelationId // space.kscience.krig.api.identifiers/CorrelationId.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.identifiers/CorrelationId) // space.kscience.krig.api.identifiers/CorrelationId.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.identifiers.CorrelationId){}[0]
+    }
+
+    final object Key : kotlin.coroutines/CoroutineContext.Key<space.kscience.krig.api.identifiers/CorrelationId> { // space.kscience.krig.api.identifiers/CorrelationId.Key|null[0]
+        final val Unspecified // space.kscience.krig.api.identifiers/CorrelationId.Key.Unspecified|{}Unspecified[0]
+            final fun <get-Unspecified>(): space.kscience.krig.api.identifiers/CorrelationId // space.kscience.krig.api.identifiers/CorrelationId.Key.Unspecified.<get-Unspecified>|<get-Unspecified>(){}[0]
+
+        final fun fromWire(kotlin/String?): space.kscience.krig.api.identifiers/CorrelationId? // space.kscience.krig.api.identifiers/CorrelationId.Key.fromWire|fromWire(kotlin.String?){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.identifiers/CorrelationId> // space.kscience.krig.api.identifiers/CorrelationId.Key.serializer|serializer(){}[0]
+    }
+}
+
+final object space.kscience.krig.api.context/AnonymousPrincipal : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.context/Principal { // space.kscience.krig.api.context/AnonymousPrincipal|null[0]
+    final val attributes // space.kscience.krig.api.context/AnonymousPrincipal.attributes|{}attributes[0]
+        final fun <get-attributes>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.context/AnonymousPrincipal.attributes.<get-attributes>|<get-attributes>(){}[0]
+    final val name // space.kscience.krig.api.context/AnonymousPrincipal.name|{}name[0]
+        final fun <get-name>(): kotlin/String // space.kscience.krig.api.context/AnonymousPrincipal.name.<get-name>|<get-name>(){}[0]
+    final val roles // space.kscience.krig.api.context/AnonymousPrincipal.roles|{}roles[0]
+        final fun <get-roles>(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.api.context/AnonymousPrincipal.roles.<get-roles>|<get-roles>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.context/AnonymousPrincipal.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.context/AnonymousPrincipal.hashCode|hashCode(){}[0]
+    final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.context/AnonymousPrincipal> // space.kscience.krig.api.context/AnonymousPrincipal.serializer|serializer(){}[0]
+    final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.context/AnonymousPrincipal.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.context/AnonymousPrincipal.toString|toString(){}[0]
+}
+
+final object space.kscience.krig.api.identifiers/ControlsPermissions { // space.kscience.krig.api.identifiers/ControlsPermissions|null[0]
+    final fun deviceExecute(kotlin/String, kotlin/String): space.kscience.krig.api.identifiers/ControlsPermission // space.kscience.krig.api.identifiers/ControlsPermissions.deviceExecute|deviceExecute(kotlin.String;kotlin.String){}[0]
+    final fun deviceRead(kotlin/String, kotlin/String): space.kscience.krig.api.identifiers/ControlsPermission // space.kscience.krig.api.identifiers/ControlsPermissions.deviceRead|deviceRead(kotlin.String;kotlin.String){}[0]
+    final fun deviceSubscribe(kotlin/String): space.kscience.krig.api.identifiers/ControlsPermission // space.kscience.krig.api.identifiers/ControlsPermissions.deviceSubscribe|deviceSubscribe(kotlin.String){}[0]
+    final fun deviceWrite(kotlin/String, kotlin/String): space.kscience.krig.api.identifiers/ControlsPermission // space.kscience.krig.api.identifiers/ControlsPermissions.deviceWrite|deviceWrite(kotlin.String;kotlin.String){}[0]
+}
+
+final val space.kscience.krig.api.context/executionContext // space.kscience.krig.api.context/executionContext|@kotlin.coroutines.CoroutineContext{}executionContext[0]
+    final fun (kotlin.coroutines/CoroutineContext).<get-executionContext>(): space.kscience.krig.api.context/ExecutionContext? // space.kscience.krig.api.context/executionContext.<get-executionContext>|<get-executionContext>@kotlin.coroutines.CoroutineContext(){}[0]
+final val space.kscience.krig.api.identifiers/isSpecified // space.kscience.krig.api.identifiers/isSpecified|@space.kscience.krig.api.identifiers.CorrelationId{}isSpecified[0]
+    final fun (space.kscience.krig.api.identifiers/CorrelationId).<get-isSpecified>(): kotlin/Boolean // space.kscience.krig.api.identifiers/isSpecified.<get-isSpecified>|<get-isSpecified>@space.kscience.krig.api.identifiers.CorrelationId(){}[0]
+final val space.kscience.krig.api.identifiers/wireValue // space.kscience.krig.api.identifiers/wireValue|@space.kscience.krig.api.identifiers.CorrelationId{}wireValue[0]
+    final fun (space.kscience.krig.api.identifiers/CorrelationId).<get-wireValue>(): kotlin/String? // space.kscience.krig.api.identifiers/wireValue.<get-wireValue>|<get-wireValue>@space.kscience.krig.api.identifiers.CorrelationId(){}[0]
+final val space.kscience.krig.api.services/auditService // space.kscience.krig.api.services/auditService|@space.kscience.dataforge.context.Context{}auditService[0]
+    final fun (space.kscience.dataforge.context/Context).<get-auditService>(): space.kscience.krig.api.services/AuditService // space.kscience.krig.api.services/auditService.<get-auditService>|<get-auditService>@space.kscience.dataforge.context.Context(){}[0]
+final val space.kscience.krig.api.services/authorizationService // space.kscience.krig.api.services/authorizationService|@space.kscience.dataforge.context.Context{}authorizationService[0]
+    final fun (space.kscience.dataforge.context/Context).<get-authorizationService>(): space.kscience.krig.api.services/AuthorizationService // space.kscience.krig.api.services/authorizationService.<get-authorizationService>|<get-authorizationService>@space.kscience.dataforge.context.Context(){}[0]
+
+final fun (kotlin/String).space.kscience.krig.api.addressing/toAddress(): space.kscience.krig.api.addressing/Address // space.kscience.krig.api.addressing/toAddress|toAddress@kotlin.String(){}[0]
+final fun (kotlin/String).space.kscience.krig.api.addressing/toAddressOrNull(): space.kscience.krig.api.addressing/Address? // space.kscience.krig.api.addressing/toAddressOrNull|toAddressOrNull@kotlin.String(){}[0]
+final fun (kotlin/String).space.kscience.krig.api.identifiers/toBlueprintId(): space.kscience.krig.api.identifiers/BlueprintId // space.kscience.krig.api.identifiers/toBlueprintId|toBlueprintId@kotlin.String(){}[0]
+final fun space.kscience.krig.api.context/executionContextOf(space.kscience.krig.api.context/ExecutionContext): kotlin.coroutines/CoroutineContext // space.kscience.krig.api.context/executionContextOf|executionContextOf(space.kscience.krig.api.context.ExecutionContext){}[0]

@@ -1,46 +1,45 @@
 [versions]
-# Core Framework
-kscience-tools = "0.20.2-kotlin-2.3.0"
-atomicfu = "0.30.0-beta"
-dataforge = "0.10.2"
-kstatemachine = "0.35.0"
-kotlinx-datetime = "0.7.1-0.6.x-compat"
-kotlinx-coroutines = "1.10.2"
-ktor = "3.3.3"
-okio = "3.16.4"
-kotlinx-io-core = "0.8.2"
-sqldelight = "2.2.1"
+kotlin = "2.4.0-Beta2"
+
+# Core runtime
+atomicfu = "0.32.1"
+dataforge = "0.11.0-dev-2"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.10.0"
+kotlinx-io-core = "0.9.0"
 attributes-kt = "0.4.0"
 
-# RSocket
-rsocket = "0.20.0"
+# Arrow (typed errors)
+arrow = "2.2.2.1"
 
-# Persistence & IO
-xodus = "2.0.1"
-jSerialComm = { module = "com.fazecast:jSerialComm", version = "2.11.2" }
-kmongo = "5.5.1"
-hivemq = "1.3.10"
-rabbitmq = "5.27.1"
-
-# Integration & Drivers
-j2mod = "3.3.0"
-milo = "1.0.2"
-pi4j = "3.0.2"
-pi4j-ktx = "2.4.0"
-plc4j = "0.13.1"
-
-# UI & Visualization
-visionforge = "0.5.0"
-tornadofx = "1.7.20"
-koala-plots = "0.10.2"
+# Immutable collections
+kotlinx-collections-immutable = "0.4.0"
 
 # Testing
-logback = "1.5.23"
-testcontainers = "2.0.3"
-uuid = "0.8.4"
+turbine = "1.2.1"
+kotest = "6.1.11"
+
+# Formal verification
+lincheck = "2.39"
+
+# Code Generation (used by krig-ksp-processor + buildSrc convention plugin)
+ksp = "2.3.7"
+kctfork = "0.13.0-alpha01"
+
+# Static Analysis
+detekt = "2.0.0-alpha.2"
+
+# Documentation
+dokka = "2.2.0"
+
+# Benchmarking
+kotlinx-benchmark = "0.4.17"
+
+# Jupyter
+kotlin-jupyter = "0.19.0-937-1"
 
 # Gradle Plugins
-ben-manes-versions = "0.53.0"
+ben-manes-versions = "0.54.0"
 version-catalog-update = "1.0.1"
 foojay-resolver = "1.0.0"
 
@@ -50,74 +49,58 @@ dataforge-io = { module = "space.kscience:dataforge-io", version.ref = "dataforg
 dataforge-meta = { module = "space.kscience:dataforge-meta", version.ref = "dataforge" }
 dataforge-context = { module = "space.kscience:dataforge-context", version.ref = "dataforge" }
 dataforge-data = { module = "space.kscience:dataforge-data", version.ref = "dataforge" }
+tables-kt = { module = "space.kscience:tables-kt", version.ref = "dataforge" }
 
 # kscience
-kscience-gradle-tools = { module = "space.kscience:gradle-tools", version.ref = "kscience-tools" }
 attributes-kt = { module = "space.kscience:attributes-kt", version.ref = "attributes-kt" }
 attributes-kt-serialization = { module = "space.kscience:attributes-kt-serialization", version.ref = "attributes-kt" }
 
+# Kotlin compiler plugins for buildSrc
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-serialization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin" }
+kotlin-power-assert-plugin = { module = "org.jetbrains.kotlin:kotlin-power-assert", version.ref = "kotlin" }
+
+# Gradle plugins for buildSrc
+dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
+detekt-gradle-plugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+ksp-gradle-plugin = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
+
 # KotlinX
 kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io-core" }
+kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinx-serialization" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
+kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }
 
-# KStateMachine
-kstatemachine-core = { module = "io.github.nsk90:kstatemachine", version.ref = "kstatemachine" }
-kstatemachine-coroutines = { module = "io.github.nsk90:kstatemachine-coroutines", version.ref = "kstatemachine" }
-kstatemachine-serialization = { module = "io.github.nsk90:kstatemachine-serialization", version.ref = "kstatemachine" }
+# Arrow
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 
-# Ktor
-ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
-ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
-ktor-network = { module = "io.ktor:ktor-network", version.ref = "ktor" }
-ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
-rsocket-ktor-client = { module = "io.rsocket.kotlin:ktor-client-rsocket", version.ref = "rsocket" }
-rsocket-transport-ktor-tcp = { module = "io.rsocket.kotlin:rsocket-transport-ktor-tcp", version.ref = "rsocket" }
+# Testing
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
-# Okio
-okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
-okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
-okio-nodefilesystem = { module = "com.squareup.okio:okio-nodefilesystem", version.ref = "okio" }
-okio-wasifilesystem = { module = "com.squareup.okio:okio-wasifilesystem", version.ref = "okio" }
+# KSP
+ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+ksp-aa-embeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embeddable", version.ref = "ksp" }
+kctfork-core = { module = "dev.zacsweers.kctfork:core", version.ref = "kctfork" }
+kctfork-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kctfork" }
 
-# Other
-uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-xodus-entity-store = { module = "org.jetbrains.xodus:xodus-entity-store", version.ref = "xodus" }
-tornadofx = { module = "no.tornado:tornadofx", version.ref = "tornadofx" }
-hivemq-mqtt-client = { module = "com.hivemq:hivemq-mqtt-client", version.ref = "hivemq" }
-rabbitmq-amqp-client = { module = "com.rabbitmq:amqp-client", version.ref = "rabbitmq" }
-j2mod = { module = "com.ghgande:j2mod", version.ref = "j2mod" }
-kmongo-coroutine-serialization = { module = "org.litote.kmongo:kmongo-coroutine-serialization", version.ref = "kmongo" }
-milo-client = { module = "org.eclipse.milo:milo-sdk-client", version.ref = "milo" }
-pi4j-ktx = { module = "com.pi4j:pi4j-ktx", version.ref = "pi4j-ktx" }
-plc4j-spi = { module = "org.apache.plc4x:plc4j-spi", version.ref = "plc4j" }
-visionforge-server = { module = "space.kscience:visionforge-server", version.ref = "visionforge" }
-koalaplot-core = { module = "io.github.koalaplot:koalaplot-core", version.ref = "koala-plots" }
-testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+# Jupyter
+kotlin-jupyter-api = { module = "org.jetbrains.kotlinx:kotlin-jupyter-api", version.ref = "kotlin-jupyter" }
 
-sqldelight-gradle = { module = "app.cash.sqldelight:gradle-plugin", version.ref = "sqldelight" }
-sqldelight-driver-sqlite = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
-sqldelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
-sqldelight-driver-jdbc-sqlite = { module = "app.cash.sqldelight:jdbc-driver", version.ref = "sqldelight" }
-sqldelight-driver-sqljs = { module = "app.cash.sqldelight:sqljs-driver", version.ref = "sqldelight" }
-sqldelight-runtime = { module = "app.cash.sqldelight:runtime", version.ref = "sqldelight" }
-sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+# Lincheck
+lincheck = { module = "org.jetbrains.kotlinx:lincheck", version.ref = "lincheck" }
 
 [plugins]
-# KotlinX
 kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
 
-# KScience
-kscience-project = { id = "space.kscience.gradle.project", version.ref = "kscience-tools" }
-kscience-mpp = { id = "space.kscience.gradle.mpp", version.ref = "kscience-tools" }
-kscience-jvm = { id = "space.kscience.gradle.jvm", version.ref = "kscience-tools" }
-kscience-js = { id = "space.kscience.gradle.js", version.ref = "kscience-tools" }
-
-# Build tools
 ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "ben-manes-versions" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }
 
-sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
+foojay-resolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay-resolver" }

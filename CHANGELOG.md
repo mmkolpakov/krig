@@ -9,15 +9,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+-   **New telemetry model:** `Timestamped<T>`, `ObservedValue<T>`, and flat
+    `DataQuality` (Good/Uncertain/Bad) replace the old polymorphic hierarchy.
+-   **New typed access layer:** `TypedAction<I,O>`, `TypedBackend`,
+    `TypedBackendBuilder`, `FlowSampler` for zero-allocation typed read/write/sample/action.
+-   **New pipeline core:** `Pipeline.kt` replaces `PipelineExecutors.kt` — compiles
+    gate/lock/timeout/retry/observer chain once and reuses on hot path via `foldRight`.
+-   **New simulation engine:** `SimulationScheduler`, `ProcessDsl` (`hold`,
+    `waitUntil`, `request`), `Resource<T>`, `Signal<T>` — virtual-time DES.
+-   **New capability snapshotting:** `CapabilitySnapshotting` for stateful device
+    checkpointing via the typed pipeline.
+-   **New KSP generators:** `KrigSymbolProcessor` with three independent passes —
+    `DeviceFeatureSpecContractValidator`, `ContributesAggregator`,
+    `SerializersModuleGenerator`. Fine-grained incremental processing.
+-   **New devices DSL:** `KrigDsl.kt`, `ExpressionDsl.kt`, inline device builder
+    (`propertyDouble`, `mutableProperty`, etc.), `DemoSuite.kt` with curated demos.
+-   **New transport primitives:** Framer merged into `krig-primitives`.
+-   **New compiler flag:** `-Xreturn-value-checker=full` across all modules.
+
 ### Changed
 
-### Deprecated
+-   **Complete rebrand:** `controls-*` → `krig-*`, package `space.kscience.controls.*`
+    → `space.kscience.krig.*`, internal API annotation `@InternalControlsApi` →
+    `@InternalKrigApi`. Convention plugins renamed `controls-mpp-*` → `krig-mpp-*`.
+-   **Breaking telemetry model:** Replaced `StateValue` / `ValueWithTime`
+    and polymorphic `Quality` with `Timestamped`, `ObservedValue`, and flat
+    `DataQuality`. Existing alpha Xodus/Mongo logs serialized with the old
+    telemetry shape must be migrated or recreated.
+-   **Typed backend rewritten:** Old `PrimitiveSamplers` / `LockFreeSpscRings` replaced
+    by `FlowSampler` (ring-buffer over `kotlinx.coroutines.flow`).
+-   **DSL simplified:** `ControlsDsl.kt` removed; single `device.kt` entry point.
+    `DeviceGroupBuilder` uses context receivers instead of explicit scope passing.
+-   **Pipeline simplified:** `PipelineExecutors.kt`, `ReadWriteMutex` removed.
+    Pipeline interceptors composed via `foldRight` in the new `Pipeline.kt`.
+    Resource locks use `ResourceLockRegistry` backed by `ResourceLockSpec`.
+-   **KSP processor redesigned:** Old monolithic `ControlsSymbolProcessor` split into
+    three independent generators. Processor service provider renamed to
+    `KrigSymbolProcessorProvider`.
+-   **Simulation module redesigned:** `VirtualTimeDispatcher` / `controls-simulation`
+    replaced by `DeterministicScheduler` (wrapping `TestCoroutineScheduler`),
+    `ProcessDsl`, `Resource`, `Signal`.
+-   **ABI exclusion:** Changed from `@InternalControlsApi` to `@InternalKrigApi`.
+    ABI validation runs on all modules.
+-   **Gradle:** 9.5.0 → 9.5.1, Kotlin 2.4.0-Beta2 (language/api version), KSP 2.3.7.
+-   **Jupyter integration:** Updated to new krig APIs; old `ControlsJupyterIntegration`
+    deleted.
 
 ### Removed
 
-### Fixed
-
-### Security
+-   **Deleted modules:** `controls-api`, `controls-core`, `controls-data`,
+    `controls-dsl-core`, `controls-connectivity`, `controls-feature-alarms`,
+    `controls-feature-analytics`, `controls-feature-automation`,
+    `controls-feature-connectivity`, `controls-feature-fsm`,
+    `controls-feature-telemetry`, `controls-ktor`, `controls-magix` (old),
+    `controls-metrics`, `controls-persistence`, `controls-persistence-log`,
+    `controls-ports`, `controls-protocol-api`, `controls-protocol-modbus`,
+    `controls-runtime`, `controls-service-api`, `controls-validation`,
+    `controls-exporter-prometheus`, `controls-simulation` (old), `magix-api`,
+    `magix-rsocket-core`, `magix-transport-rsocket-tcp`,
+    `magix-transport-rsocket-ws`, `krig-transport`.
+-   **Removed dependencies:** Arrow (`ArrowInterop.kt`), `ReadWriteMutex`,
+    `PipelineExecutors`, `LockFreeSpscRings`, `PrimitiveSamplers`,
+    `StoragePropertyHistory`, `StateValue`, `ValueWithTime`, polymorphic `Quality`.
+-   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-Beta2).
 
 ## 1.0.0-alpha-1 - 2025-08-15
 

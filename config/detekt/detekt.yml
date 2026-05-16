@@ -1,0 +1,78 @@
+﻿# krig detekt configuration
+# Based on detekt 2.0 defaults with project-specific adjustments.
+# Rationale for each override documented inline.
+
+style:
+  # KMP has long fully-qualified names; 120 too strict for inline generics
+  MaxLineLength:
+    maxLineLength: 140
+    excludeCommentStatements: true
+    excludeImportStatements: true
+    excludePackageStatements: true
+  # Framework code legitimately uses constants (ports, timeouts, register addresses)
+  MagicNumber:
+    active: false
+  # Kotlin style guide allows wildcard imports for DSL-heavy code
+  WildcardImport:
+    active: false
+  ForbiddenComment:
+    active: true
+    comments:
+      - reason: 'Forbidden TODO marker — use TODO(<tracker>): for committed work.'
+        value: 'TODO:'
+      - reason: 'Forbidden FIXME marker — use FIXME(<tracker>): for committed work.'
+        value: 'FIXME:'
+      - reason: 'Forbidden STOPSHIP marker — blocks release.'
+        value: 'STOPSHIP:'
+    allowedPatterns: 'TODO\([\w.\-]+\):|FIXME\([\w.\-]+\):'
+  # Files without trailing newline — project convention
+  NewLineAtEndOfFile:
+    active: false
+  # Bridge/interceptor code legitimately has 3+ throws per function
+  ThrowsCount:
+    max: 5
+  # Override default max=2 — interceptor chains have multiple return paths
+  ReturnCount:
+    max: 5
+  # Port chunking uses break/continue legitimately
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 2
+  # Kotlin 2.4 idiom: scope-function cleanup
+  UnnecessaryLet:
+    active: true
+  UnnecessaryApply:
+    active: true
+  UseCheckOrError:
+    active: true
+
+naming:
+  FunctionNaming:
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+  # Files with multiple related types (e.g. DeviceCore.kt with Device + extension helpers)
+  MatchingDeclarationName:
+    active: false
+  # Allow underscore prefix for @PublishedApi internal backing fields
+  VariableNaming:
+    variablePattern: '(_)?[a-z][A-Za-z0-9]*'
+    privateVariablePattern: '(_)?[a-z][A-Za-z0-9]*'
+
+exceptions:
+  # Bridge code catches Exception to convert to structured IngressException
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: true
+  TooGenericExceptionThrown:
+    active: true
+
+performance:
+  # Spread operator cost irrelevant for non-hot-path config code
+  SpreadOperator:
+    active: false
+
+empty-blocks:
+  EmptyFunctionBlock:
+    active: true
+    ignoreOverridden: true
+  EmptyCatchBlock:
+    active: true

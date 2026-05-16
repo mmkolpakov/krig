@@ -1,0 +1,115 @@
+package space.kscience.krig.core.contracts
+
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.withContext
+import space.kscience.dataforge.names.Name
+import space.kscience.krig.core.InternalKrigApi
+import kotlin.time.Duration
+
+/**
+ * Device-level graceful shutdown contract. Implementations stop accepting new
+ * operations, wait for in-flight work up to the requested timeout, then shut down.
+ */
+public interface GracefullyCloseable {
+    public suspend fun closeGracefully(drainTimeout: Duration)
+}
+
+/** Runs best-effort cleanup while preserving coroutine cancellation. */
+@InternalKrigApi
+public inline fun ignoreNonCancellationFailure(block: () -> Unit) {
+    try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        // Best-effort cleanup path: ordinary failures are intentionally ignored.
+    }
+}
+
+/** Suspended variant of [ignoreNonCancellationFailure]. */
+@InternalKrigApi
+public suspend inline fun ignoreNonCancellationFailureSuspending(block: suspend () -> Unit) {
+    try {
+        block()
+    } catch (e: CancellationException) {
+        throw e
+    } catch (_: Exception) {
+        // Best-effort cleanup path: ordinary failures are intentionally ignored.
+    }
+}
+
+/**
+ * Runs suspending cleanup in [NonCancellable] and suppresses every cleanup failure.
+ *
+ * Use only for shutdown/finally paths after ownership has already moved away from the
+ * caller. It guarantees best-effort resource release even when the parent scope is
+ * cancelling; normal operation paths should keep using [ignoreNonCancellationFailureSuspending].
+ */
+@InternalKrigApi
+public suspend inline fun ignoreCleanupFailureSuspending(crossinline block: suspend () -> Unit) {
+    try {
+        withContext(NonCancellable) {
+            block()
+        }
+    } catch (_: Exception) {
+        // Cleanup is best-effort; callers are already leaving the ownership scope.
+    }
+}
+
+/**
+ * Cancels [deviceScope] without joining it from one of its own children.
+ *
+ * A remote `shutdown` command may execute inside the device's operation scope. Joining the
+ * root job from that child waits for the child itself and deadlocks. In that case we cancel
+ * sibling branches now and cancel the root once the current operation completes.
+ */
+@InternalKrigApi
+public suspend fun cancelDeviceScopeSafely(deviceName: Name, deviceScope: CoroutineScope) {
+    val deviceJob = deviceScope.coroutineContext[Job]
+    val cause = CancellationException("Device '$deviceName' shutdown")
+    if (deviceJob == null) {
+        deviceScope.cancel(cause)
+        return
+    }
+
+    val currentJob = currentCoroutineContext()[Job]
+    if (currentJob != null && deviceJob.containsJob(currentJob)) {
+        if (currentJob === deviceJob) {
+            deviceJob.cancel(cause)
+            return
+        }
+        deviceJob.cancelChildrenExcept(currentJob, cause)
+        currentJob.invokeOnCompletion {
+            deviceJob.cancel(cause)
+        }
+    } else {
+        deviceJob.cancel(cause)
+        deviceJob.join()
+    }
+}
+
+private fun Job.containsJob(target: Job): Boolean =
+    this === target || children.any { child -> child.containsJob(target) }
+
+private suspend fun Job.cancelChildrenExcept(kept: Job, cause: CancellationException) {
+    val cancelled = mutableListOf<Job>()
+    for (child in children) {
+        when {
+            child === kept -> Unit
+            child.containsJob(kept) -> {
+                child.cancelChildrenExcept(kept, cause)
+            }
+            else -> {
+                child.cancel(cause)
+                cancelled += child
+            }
+        }
+    }
+    cancelled.joinAll()
+}

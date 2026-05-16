@@ -1,0 +1,181 @@
+@file:OptIn(
+    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.UnstableKrigForSubclassing::class,
+)
+
+package space.kscience.krig.core.contracts
+
+import kotlinx.coroutines.test.runTest
+import space.kscience.krig.api.descriptors.ActionDescriptor
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.faults.GenericDeviceFault
+import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.getOrThrow
+import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
+import kotlin.math.abs
+import kotlin.math.exp
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlin.time.DurationUnit
+import kotlin.time.Duration.Companion.milliseconds
+
+/** Minimal stub [Device] purely to satisfy the `context(device)` contract on backend calls. */
+private fun stubDevice(): Device = object : AbstractDevice(
+    "stub".asName(),
+    DeviceRuntime(Context("backend-builder-test-${kotlin.random.Random.nextInt()}")),
+) {
+    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
+    override suspend fun writeProperty(propertyName: Name, value: Meta) {}
+    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+}
+
+/**
+ * Tests for [deviceBackend] DSL -- the clean DX path for declaring
+ * a [DeviceBackend] without subclassing or hand-written read/write/execute
+ * dispatch.
+ *
+ * Each test below demonstrates a complete connection in 5-15 lines, replacing
+ * the ~60-line inheritance form. The DSL is the recommended authoring surface
+ * for new connections; the inheritance form remains supported for protocol
+ * adapters that already maintain custom byte-level dispatch.
+ */
+class DeviceBackendBuilderTest {
+
+    private fun pvDescriptor() = PropertyDescriptor(
+        "processVariable".asName(),
+        PropertyKind.PHYSICAL,
+        "kotlin.Double",
+    )
+
+    private fun inputDescriptor() = PropertyDescriptor(
+        "input".asName(),
+        PropertyKind.LOGICAL,
+        "kotlin.Double",
+    )
+
+    @Test
+    fun firstOrderPlantInTwelveLines() = runTest {
+        // The entire connection: 8 lines of physics + DSL.
+        val gain = 1.0
+        val tau = 0.5
+        val plant = steppedBackend {
+            val pv = readable("processVariable", initial = 0.0, converter = MetaConverter.double)
+            val input = writable("input", initial = 0.0, converter = MetaConverter.double)
+            onStep { dt ->
+                val steady = gain * input.value
+                pv.value = steady + (pv.value - steady) * exp(-dt.toDouble(DurationUnit.SECONDS) / tau)
+            }
+        }
+        val device = stubDevice()
+        with(device) { plant.write(inputDescriptor(), metaOf(10.0)) }.getOrThrow()
+        repeat(500) { plant.step(10.milliseconds) }
+
+        val finalPv = with(device) { plant.read(pvDescriptor()) }.getOrThrow().doubleValue ?: 0.0
+        assertTrue(abs(finalPv - 10.0) < 0.01, "PV should converge to steady state, got $finalPv")
+    }
+
+    @Test
+    fun statelessTransducerHasNoStepMethod() = runTest {
+        // No onStep block — the builder returns a plain DeviceBackend, not SteppedBackend.
+        val transducer = deviceBackend {
+            val a = writable("a", initial = 0.0, converter = MetaConverter.double)
+            val b = writable("b", initial = 0.0, converter = MetaConverter.double)
+            computed("sum") { a.value + b.value }
+        }
+        val device = stubDevice()
+        with(device) {
+            transducer.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(3.0)).getOrThrow()
+            transducer.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(4.0)).getOrThrow()
+        }
+        val sum = with(device) {
+            transducer.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, "kotlin.Double"))
+        }.getOrThrow().doubleValue ?: 0.0
+        assertEquals(7.0, sum, "Computed property should reflect current cell values")
+        // The builder returns DeviceBackend, not SteppedBackend, when `onStep` is omitted.
+        assertTrue(transducer !is SteppedBackend)
+    }
+
+    @Test
+    fun unknownPropertyReturnsFailureWithHelpfulMessage() = runTest {
+        val backend = deviceBackend {
+            readable("known", initial = 1.0, converter = MetaConverter.double)
+        }
+        val device = stubDevice()
+        val outcome = with(device) {
+            backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, "kotlin.Double"))
+        }
+        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
+        val fault = outcome.fault as GenericDeviceFault
+        assertTrue(
+            fault.message.contains("Unknown property"),
+            "Fault message should mention 'Unknown property': ${fault.message}",
+        )
+    }
+
+    @Test
+    fun writingToReadOnlyPropertyReturnsFailure() = runTest {
+        val backend = deviceBackend {
+            readable("readonly", initial = 1.0, converter = MetaConverter.double)
+        }
+        val device = stubDevice()
+        val outcome = with(device) {
+            backend.write(
+                PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
+                metaOf(2.0),
+            )
+        }
+        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
+    }
+
+    @Test
+    fun invalidWritePayloadReturnsValidationFault() = runTest {
+        val backend = deviceBackend {
+            writable("input", initial = 0.0, converter = MetaConverter.double)
+        }
+        val device = stubDevice()
+
+        val outcome = with(device) {
+            backend.write(
+                PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
+                Meta { "bad" put "payload" },
+            )
+        }
+
+        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
+        assertTrue(outcome.fault is ValidationFault, "expected ValidationFault, got ${outcome.fault}")
+    }
+
+    @Test
+    fun actionExecutesAndReturnsResult() = runTest {
+        val backend = deviceBackend {
+            val counter = writable("counter", initial = 0, converter = MetaConverter.int)
+            action("increment") {
+                counter.value += 1
+                metaOf(counter.value)
+            }
+        }
+        val device = stubDevice()
+        val result = with(device) {
+            backend.execute(ActionDescriptor("increment".asName()), null)
+        }.getOrThrow()
+        assertEquals(1, result?.intValue)
+    }
+
+    @Test
+    fun closeCallbackRunsOnClose() = runTest {
+        var closed = false
+        val device = deviceBackend {
+            readable("v", initial = 0.0, converter = MetaConverter.double)
+            onClose { closed = true }
+        }
+        device.close()
+        assertTrue(closed, "onClose callback should fire on close()")
+    }
+}

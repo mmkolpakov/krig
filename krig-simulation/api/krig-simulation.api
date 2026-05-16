@@ -1,0 +1,256 @@
+public final class space/kscience/krig/concurrency/Resource {
+	public fun <init> (Ljava/lang/String;I)V
+	public final fun getCapacity ()I
+	public final fun getName ()Ljava/lang/String;
+	public final fun getState ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun preemptWaitersBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
+	public final fun release (I)V
+	public static synthetic fun release$default (Lspace/kscience/krig/concurrency/Resource;IILjava/lang/Object;)V
+	public final fun seize (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun seize$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun use (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun use$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePreemptedException : java/util/concurrent/CancellationException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getResourceName ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/concurrency/ResourcePriority : java/lang/Comparable {
+	public static final field Companion Lspace/kscience/krig/concurrency/ResourcePriority$Companion;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public abstract fun getLevel ()I
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Companion {
+	public final fun getDEFAULT ()Lspace/kscience/krig/concurrency/ResourcePriority;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Critical : space/kscience/krig/concurrency/ResourcePriority {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Critical;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Custom : space/kscience/krig/concurrency/ResourcePriority {
+	public fun <init> (I)V
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public final fun component1 ()I
+	public final fun copy (I)Lspace/kscience/krig/concurrency/ResourcePriority$Custom;
+	public static synthetic fun copy$default (Lspace/kscience/krig/concurrency/ResourcePriority$Custom;IILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourcePriority$Custom;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$DefaultImpls {
+	public static fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;Lspace/kscience/krig/concurrency/ResourcePriority;)I
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$High : space/kscience/krig/concurrency/ResourcePriority {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$High;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Low : space/kscience/krig/concurrency/ResourcePriority {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Low;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Lowest : space/kscience/krig/concurrency/ResourcePriority {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Lowest;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority$Normal : space/kscience/krig/concurrency/ResourcePriority {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Normal;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getLevel ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourceState {
+	public fun <init> (III)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()I
+	public final fun copy (III)Lspace/kscience/krig/concurrency/ResourceState;
+	public static synthetic fun copy$default (Lspace/kscience/krig/concurrency/ResourceState;IIIILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourceState;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvailable ()I
+	public final fun getCapacity ()I
+	public final fun getUsed ()I
+	public final fun getWaiting ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/Signal {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun getFlow ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun getValue ()Ljava/lang/Object;
+	public final fun set (Ljava/lang/Object;)V
+	public final fun waitUntil (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public class space/kscience/krig/simulation/ClockManager : space/kscience/dataforge/context/AbstractPlugin {
+	public static final field Companion Lspace/kscience/krig/simulation/ClockManager$Companion;
+	public fun <init> (Lspace/kscience/dataforge/meta/Meta;)V
+	public fun getClock ()Lkotlin/time/Clock;
+	public final fun getClockMode ()Lspace/kscience/krig/simulation/ClockMode;
+	public fun getSimulationDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+	public fun getTimeSource ()Lkotlin/time/TimeSource;
+	public final fun scheduleWithFixedDelay-VtjQ1oo (JLkotlin/jvm/functions/Function1;)Lkotlinx/coroutines/Job;
+}
+
+public final class space/kscience/krig/simulation/ClockManager$Companion : space/kscience/dataforge/context/PluginFactory {
+	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
+	public fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/simulation/ClockManager;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+}
+
+public abstract interface class space/kscience/krig/simulation/ClockMode {
+}
+
+public final class space/kscience/krig/simulation/ClockMode$Compressed : space/kscience/krig/simulation/ClockMode {
+	public fun <init> (D)V
+	public final fun component1 ()D
+	public final fun copy (D)Lspace/kscience/krig/simulation/ClockMode$Compressed;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/ClockMode$Compressed;DILjava/lang/Object;)Lspace/kscience/krig/simulation/ClockMode$Compressed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCompression ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/ClockMode$Custom : space/kscience/krig/simulation/ClockMode {
+	public fun <init> (Lkotlin/time/Clock;)V
+	public final fun component1 ()Lkotlin/time/Clock;
+	public final fun copy (Lkotlin/time/Clock;)Lspace/kscience/krig/simulation/ClockMode$Custom;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/ClockMode$Custom;Lkotlin/time/Clock;ILjava/lang/Object;)Lspace/kscience/krig/simulation/ClockMode$Custom;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClock ()Lkotlin/time/Clock;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/ClockMode$System : space/kscience/krig/simulation/ClockMode {
+	public static final field INSTANCE Lspace/kscience/krig/simulation/ClockMode$System;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/ClockMode$Virtual : space/kscience/krig/simulation/ClockMode {
+	public fun <init> (Lspace/kscience/krig/simulation/SimulationScheduler;)V
+	public final fun component1 ()Lspace/kscience/krig/simulation/SimulationScheduler;
+	public final fun copy (Lspace/kscience/krig/simulation/SimulationScheduler;)Lspace/kscience/krig/simulation/ClockMode$Virtual;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/ClockMode$Virtual;Lspace/kscience/krig/simulation/SimulationScheduler;ILjava/lang/Object;)Lspace/kscience/krig/simulation/ClockMode$Virtual;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScheduler ()Lspace/kscience/krig/simulation/SimulationScheduler;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/DeterministicScheduler : space/kscience/krig/simulation/SimulationScheduler {
+	public static final field Companion Lspace/kscience/krig/simulation/DeterministicScheduler$Companion;
+	public fun <init> ()V
+	public fun <init> (J)V
+	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun advanceBy-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun asClock ()Lkotlin/time/Clock;
+	public fun asDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public fun asTimeSource ()Lkotlin/time/TimeSource;
+	public fun getCurrentTimeMs ()J
+	public final fun scheduleAt (JLjava/lang/Runnable;)V
+}
+
+public final class space/kscience/krig/simulation/DeterministicScheduler$Companion {
+	public final fun isVirtualDispatcher (Lkotlinx/coroutines/CoroutineDispatcher;)Z
+}
+
+public final class space/kscience/krig/simulation/ProcessDslKt {
+	public static final fun hold-8Mi8wO0 (Lspace/kscience/krig/simulation/ProcessScope;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun process (Lkotlinx/coroutines/CoroutineScope;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static synthetic fun process$default (Lkotlinx/coroutines/CoroutineScope;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+	public static final fun request (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun request$default (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun runProcess (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public static synthetic fun runProcess$default (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
+	public static final fun simulationScope (Lspace/kscience/krig/simulation/DeterministicScheduler;)Lkotlinx/coroutines/CoroutineScope;
+	public static final fun waitUntil (Lspace/kscience/krig/simulation/ProcessScope;Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun waitUntil (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Signal;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class space/kscience/krig/simulation/ProcessScope : kotlinx/coroutines/CoroutineScope {
+}
+
+public abstract interface class space/kscience/krig/simulation/SimulationScheduler {
+	public abstract fun advanceBy-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun asClock ()Lkotlin/time/Clock;
+	public abstract fun asDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public abstract fun asTimeSource ()Lkotlin/time/TimeSource;
+	public abstract fun getCurrentTimeMs ()J
+}
+
+public final class space/kscience/krig/simulation/SimulationSession {
+	public synthetic fun <init> (Lspace/kscience/krig/simulation/SimulationScheduler;Ljava/util/List;JLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/simulation/SimulationScheduler;Ljava/util/List;JLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCurrentTimeMs ()J
+	public final fun getDevices ()Ljava/util/List;
+	public final fun getStepDuration-UwyO8pc ()J
+	public final fun step (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/simulation/TimeDslKt {
+	public static final fun withTimeCompression (Lspace/kscience/dataforge/context/ContextBuilder;D)V
+	public static final fun withVirtualTime (Lspace/kscience/dataforge/context/Context;Lkotlin/time/Instant;)Lspace/kscience/krig/simulation/VirtualTimeScope;
+	public static final fun withVirtualTime (Lspace/kscience/dataforge/context/ContextBuilder;Lkotlin/time/Instant;)V
+	public static synthetic fun withVirtualTime$default (Lspace/kscience/dataforge/context/Context;Lkotlin/time/Instant;ILjava/lang/Object;)Lspace/kscience/krig/simulation/VirtualTimeScope;
+	public static synthetic fun withVirtualTime$default (Lspace/kscience/dataforge/context/ContextBuilder;Lkotlin/time/Instant;ILjava/lang/Object;)V
+}
+
+public final class space/kscience/krig/simulation/VirtualTimeScope {
+	public fun <init> (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/simulation/DeterministicScheduler;Lkotlinx/coroutines/CoroutineScope;)V
+	public final fun component1 ()Lspace/kscience/dataforge/context/Context;
+	public final fun component2 ()Lspace/kscience/krig/simulation/DeterministicScheduler;
+	public final fun component3 ()Lkotlinx/coroutines/CoroutineScope;
+	public final fun copy (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/simulation/DeterministicScheduler;Lkotlinx/coroutines/CoroutineScope;)Lspace/kscience/krig/simulation/VirtualTimeScope;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/VirtualTimeScope;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/simulation/DeterministicScheduler;Lkotlinx/coroutines/CoroutineScope;ILjava/lang/Object;)Lspace/kscience/krig/simulation/VirtualTimeScope;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContext ()Lspace/kscience/dataforge/context/Context;
+	public final fun getRuntime ()Lspace/kscience/krig/core/contracts/DeviceRuntime;
+	public final fun getScheduler ()Lspace/kscience/krig/simulation/DeterministicScheduler;
+	public final fun getScope ()Lkotlinx/coroutines/CoroutineScope;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

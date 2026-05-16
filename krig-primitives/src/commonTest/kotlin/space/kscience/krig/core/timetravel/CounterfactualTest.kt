@@ -1,0 +1,168 @@
+@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
+
+package space.kscience.krig.core.timetravel
+
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import space.kscience.krig.api.addressing.Address
+import space.kscience.krig.api.data.DeviceSnapshot
+import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.core.contracts.Device
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.asValue
+import space.kscience.dataforge.meta.int
+import space.kscience.dataforge.names.asName
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.time.Instant
+
+class CounterfactualTest {
+
+    private val source = Address(route = "lab".asName(), device = "counter".asName())
+
+    private class CounterReplay : DeviceReconstructible<Device> {
+        val applied: MutableList<Int> = mutableListOf()
+
+        var value: Int = 0
+            private set
+
+        override suspend fun applyEvent(event: DeviceMessage) {
+            val m = event as? PropertyChangedMessage ?: return
+            if (m.property == "value".asName()) {
+                value = m.value.int ?: value
+                applied += value
+            }
+        }
+
+        override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
+            DeviceSnapshot(at = at, state = Meta(value.asValue()))
+
+        override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
+            value = snapshot.state.int ?: error("malformed snapshot")
+        }
+    }
+
+    private fun event(t: Long, v: Int): PropertyChangedMessage = PropertyChangedMessage(
+        time = Instant.fromEpochMilliseconds(t),
+        property = "value".asName(),
+        value = Meta(v.asValue()),
+        sourceDevice = source,
+    )
+
+    @Test
+    fun replayUntilStopsAtPredicateMatch() = runTest {
+        val log = DeviceEventLog(flowOf(event(100, 1), event(200, 2), event(300, 5), event(400, 4)))
+        val replay = CounterReplay()
+        replay.replayUntil(log = log) { msg ->
+            msg is PropertyChangedMessage && (msg.value.int ?: 0) >= 5
+        }.let { }
+        // The matching event (value=5) IS applied; events after are not.
+        assertEquals(5, replay.value)
+    }
+
+    @Test
+    fun counterfactualMutatesEveryEvent() = runTest {
+        val log = DeviceEventLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val replay = CounterReplay()
+        replay.counterfactual(
+            log = log,
+            at = Instant.fromEpochMilliseconds(300),
+        ) { msg ->
+            // +10 to every value: the "what if every reading were higher" scenario.
+            val m = msg as PropertyChangedMessage
+            m.copy(value = Meta(((m.value.int ?: 0) + 10).asValue()))
+        }
+        assertEquals(13, replay.value)
+    }
+
+    @Test
+    fun branchAtAndWhatIfProducesDivergentFuture() = runTest {
+        val history = listOf(event(100, 1), event(200, 2))
+        val log = InMemoryEventLogStore()
+        history.forEach { log.record(it) }
+        val replay = CounterReplay()
+
+        val branch = replay.branchAt(log, at = Instant.fromEpochMilliseconds(200))
+        assertEquals(2, replay.value) // fold advanced through history
+        assertEquals(SequenceCursor(1), branch.cursor)
+
+        // Alternative timeline: instead of continuing 2 -> 3 -> 4, we go 2 -> 100 -> 200.
+        val alternative = flowOf(event(300, 100), event(400, 200))
+        replay.whatIf(branch, alternative)
+        assertEquals(200, replay.value)
+
+        // Re-applying whatIf with the original continuation restores the canonical path.
+        replay.whatIf(branch, flowOf(event(300, 3), event(400, 4)))
+        assertEquals(4, replay.value)
+    }
+
+    @Test
+    fun duplicatePropertyInjectionFailsFast() = runTest {
+        val log = DeviceEventLog(flowOf(event(100, 1)))
+        val replay = CounterReplay()
+
+        assertFailsWith<IllegalArgumentException> {
+            replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(100)) {
+                inject(event(100, 2))
+                inject(event(100, 3))
+            }
+        }
+    }
+
+    @Test
+    fun duplicateMutationFailsFast() {
+        assertFailsWith<IllegalArgumentException> {
+            CounterfactualScope().apply {
+                mutate(Instant.fromEpochMilliseconds(100), "value".asName()) { this }
+                mutate(Instant.fromEpochMilliseconds(100), "value".asName()) { this }
+            }
+        }
+    }
+
+    @Test
+    fun cursorMutationTargetsOneRecordWhenTimestampsCollide() = runTest {
+        val log = InMemoryEventLogStore()
+        log.record(event(100, 1))
+        log.record(event(100, 2))
+        val replay = CounterReplay()
+
+        replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(100)) {
+            mutate(SequenceCursor(1), "value".asName()) {
+                Meta(99.asValue())
+            }
+        }
+
+        assertEquals(listOf(1, 99), replay.applied)
+    }
+
+    @Test
+    fun timeWindowMutationSurvivesTimestampRounding() = runTest {
+        val log = DeviceEventLog(flowOf(event(100, 1), event(101, 2), event(200, 3)))
+        val replay = CounterReplay()
+
+        replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(200)) {
+            mutate(
+                Instant.fromEpochMilliseconds(99)..Instant.fromEpochMilliseconds(150),
+                "value".asName(),
+            ) {
+                Meta(99.asValue())
+            }
+        }
+
+        assertEquals(listOf(99, 99, 3), replay.applied)
+    }
+
+    @Test
+    fun cursorOperationsRequireCursorEventLog() = runTest {
+        val log = DeviceEventLog(flowOf(event(100, 1)))
+        val replay = CounterReplay()
+
+        assertFailsWith<IllegalArgumentException> {
+            replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(100)) {
+                replace(SequenceCursor(0), event(100, 99))
+            }
+        }
+    }
+}
