@@ -128,6 +128,8 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 
 ## Documentation
 
+Published API docs: <https://mmkolpakov.github.io/krig/>
+
 ```shell
 ./gradlew dokkaGenerate
 ```
