@@ -1,4 +1,6 @@
-﻿package space.kscience.krig.ksp
+@file:Suppress("UnusedSymbol", "UnusedReceiverParameter")
+
+package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -18,6 +20,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "SerializationAnnotations.kt",
                     """
+
                     package kotlinx.serialization
 
                     @Target(AnnotationTarget.CLASS)
@@ -33,6 +36,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "SerializersModule.kt",
                     """
+
                     package kotlinx.serialization.modules
 
                     import kotlin.reflect.KClass
@@ -61,6 +65,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "PolymorphicBase.kt",
                     """
+
                     package space.kscience.krig.api.annotations
 
                     @Target(AnnotationTarget.CLASS)
@@ -70,6 +75,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "MemberTag.kt",
                     """
+
                     package space.kscience.krig.api.meta
 
                     import kotlinx.serialization.Polymorphic
@@ -83,6 +89,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "IntegrationTag.kt",
                     """
+
                     package sample
 
                     import kotlinx.serialization.SerialName
@@ -97,6 +104,7 @@ class SerializersModuleGeneratorTest {
                 SourceFile.kotlin(
                     "UseGenerated.kt",
                     """
+
                     package sample
 
                     import space.kscience.krig.generated.member_tag_test.generatedKrigSerializersModule

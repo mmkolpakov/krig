@@ -30,38 +30,38 @@ import kotlin.properties.ReadOnlyProperty
 public abstract class DeviceSpecBuilder<D : Device> {
 
     @PublishedApi
-    internal val _propertySpecs: MutableList<DevicePropertySpec<D, *>> = mutableListOf()
+    internal val registeredPropertySpecs: MutableList<DevicePropertySpec<D, *>> = mutableListOf()
 
     @PublishedApi
-    internal val _actionSpecs: MutableList<DeviceActionSpec<D, *, *>> = mutableListOf()
+    internal val registeredActionSpecs: MutableList<DeviceActionSpec<D, *, *>> = mutableListOf()
 
     /** All registered property specifications. */
-    public val propertySpecs: List<DevicePropertySpec<D, *>> get() = _propertySpecs
+    public val propertySpecs: List<DevicePropertySpec<D, *>> get() = registeredPropertySpecs
 
     /** All registered action specifications. */
-    public val actionSpecs: List<DeviceActionSpec<D, *, *>> get() = _actionSpecs
+    public val actionSpecs: List<DeviceActionSpec<D, *, *>> get() = registeredActionSpecs
 
     /** Called when a device of type [D] is opened. Override to perform initialization. */
-    public open suspend fun onOpen(device: D) {}
+    public open suspend fun onOpen(device: D): Unit = Unit
 
     /** Called when a device of type [D] is closed. Override to perform cleanup. */
-    public open suspend fun onClose(device: D) {}
+    public open suspend fun onClose(device: D): Unit = Unit
 
     @PublishedApi
     internal fun <S : DevicePropertySpec<D, *>> registerPropertySpec(spec: S): S {
-        check(_propertySpecs.none { it.name == spec.name }) {
+        check(registeredPropertySpecs.none { it.name == spec.name }) {
             "Duplicate property spec '${spec.name}' in DeviceSpecBuilder"
         }
-        _propertySpecs.add(spec)
+        registeredPropertySpecs.add(spec)
         return spec
     }
 
     @PublishedApi
     internal fun <S : DeviceActionSpec<D, *, *>> registerActionSpec(spec: S): S {
-        check(_actionSpecs.none { it.name == spec.name }) {
+        check(registeredActionSpecs.none { it.name == spec.name }) {
             "Duplicate action spec '${spec.name}' in DeviceSpecBuilder"
         }
-        _actionSpecs.add(spec)
+        registeredActionSpecs.add(spec)
         return spec
     }
 
@@ -98,7 +98,7 @@ public abstract class DeviceSpecBuilder<D : Device> {
                 converter = converter,
                 kind = kind,
                 valueTypeId = typeId,
-                read = read,
+                readBlock = read,
             ))
             ReadOnlyProperty { _, _ -> spec }
         }
@@ -118,8 +118,8 @@ public abstract class DeviceSpecBuilder<D : Device> {
                 converter = converter,
                 kind = kind,
                 valueTypeId = typeId,
-                read = read,
-                write = write,
+                readBlock = read,
+                writeBlock = write,
             ))
             ReadOnlyProperty { _, _ -> spec }
         }
@@ -259,7 +259,7 @@ public abstract class DeviceSpecBuilder<D : Device> {
                 name = actionName,
                 inputConverter = inputConverter,
                 outputConverter = outputConverter,
-                execute = execute,
+                executeBlock = execute,
             ))
             ReadOnlyProperty { _, _ -> spec }
         }

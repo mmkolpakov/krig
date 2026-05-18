@@ -6,13 +6,13 @@
 
 package space.kscience.krig.demo
 
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -22,15 +22,15 @@ import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.runtime.MutableCompositeDevice
+import space.kscience.krig.core.runtime.awaitChildren
 import space.kscience.krig.core.runtime.reconcile
 
-//TO-DO - broken now - children after reconcile: [b]
 /**
  * Dynamic hub walkthrough: attach, detach, reconcile, hub events.
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
-public suspend fun dynamicHubDemo(): Unit = coroutineScope {
+suspend fun dynamicHubDemo(): Unit = coroutineScope {
     val hubCtx = Context("hub-demo")
     val hub = MutableCompositeDevice("hub".asName(), hubCtx)
 
@@ -40,11 +40,10 @@ public suspend fun dynamicHubDemo(): Unit = coroutineScope {
     val childB = trackingDevice("b", hubCtx)
 
     val attached = mutableListOf<HubEvent.Attached>()
-    val collector = launch {
+    val collector = launch(start = CoroutineStart.UNDISPATCHED) {
         hub.hubEvents.filterIsInstance<HubEvent.Attached>()
             .take(2).toList(attached)
     }
-    yield()
 
     hub.attach("a".asName(), childA)
     hub.attach("b".asName(), childB)
@@ -69,12 +68,11 @@ public suspend fun dynamicHubDemo(): Unit = coroutineScope {
         scope = this,
     )
 
-    // Let reconcile process one cycle, then change desired
-    yield()
+    hub.awaitChildren(setOf("c".asName(), "d".asName()))
     desired.value = setOf("c".asName())
-    yield()
+    val reconciled = hub.awaitChildren(setOf("c".asName()))
 
-    println("  children after reconcile: ${hub.children.keys}")
+    println("  children after reconcile: ${reconciled.keys}")
     loop.job.cancel()
 
     hub.close()
@@ -87,9 +85,11 @@ private class TrackingDevice(name: Name, context: Context) :
     var closed: Boolean = false
         private set
     override fun close() { closed = true; super.close() }
-    override suspend fun readProperty(propertyName: Name) = error("not used")
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?) = null
+    override suspend fun readProperty(propertyName: Name): Meta = error("not used: $propertyName")
+    override suspend fun writeProperty(propertyName: Name, value: Meta): Unit =
+        error("not used: $propertyName = $value")
+    override suspend fun execute(actionName: Name, argument: Meta?) =
+        error("not used: $actionName($argument)")
 }
 
 private fun trackingDevice(name: String, parentCtx: Context) =

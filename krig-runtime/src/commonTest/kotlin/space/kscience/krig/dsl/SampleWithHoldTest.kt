@@ -81,7 +81,7 @@ class SampleWithHoldTest {
     @Test
     fun sampleWithHoldPropagatesUpstreamFailure() = runTest {
         assertFailsWith<IllegalStateException> {
-            flow<Int> {
+            flow {
                 emit(1)
                 throw IllegalStateException("boom")
             }.sampleWithHold(10.milliseconds, SchedulerSamplingClock(testScheduler)).toList()
@@ -104,7 +104,8 @@ class SampleWithHoldTest {
         advanceTimeBy(10.milliseconds)
         runCurrent()
 
-        assertEquals(listOf<String?>(null, null), values)
+        val expected: List<String?> = listOf(null, null)
+        assertEquals(expected, values)
         job.cancel()
     }
 

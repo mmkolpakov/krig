@@ -2,7 +2,6 @@ package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -22,7 +21,7 @@ import kotlin.time.Instant
  */
 class TimeTravelTest {
 
-    private val source = Address(route = "lab".asName(), device = "counter".asName())
+    private val source = "lab.counter".asName()
 
     /** Minimal reconstructible stand-in: a single mutable counter. */
     private class CounterReplay : DeviceReconstructible<Device> {

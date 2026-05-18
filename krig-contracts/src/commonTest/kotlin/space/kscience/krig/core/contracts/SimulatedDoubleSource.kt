@@ -15,7 +15,8 @@ import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DevicePropertyContract
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -31,7 +32,7 @@ import space.kscience.krig.api.descriptors.PropertyKind
  * writer surface (zero-allocation [GenericTypedReader]<Double> / [GenericTypedWriter]<Double>) and the legacy
  * Meta-boxed path. Test-only; lives in `commonTest` and is not published.
  */
-public class SimulatedDoubleSource(
+class SimulatedDoubleSource(
     name: Name = "simulated-double-source".asName(),
     context: Context = Context(name.toString()),
 ) : AbstractDevice(name, DeviceRuntime(context)) {
@@ -46,7 +47,7 @@ public class SimulatedDoubleSource(
     private val valueSampler: RingDoubleSampler = doubleSampler(capacity = 256)
 
     /** The single [Double] property this fixture exposes. */
-    public val valueSpec: MutableDevicePropertySpec<SimulatedDoubleSource, Double> =
+    val valueSpec: MutableDevicePropertySpec<SimulatedDoubleSource, Double> =
         object : MutableDevicePropertySpec<SimulatedDoubleSource, Double> {
             override val name: Name = "value".asName()
             override val descriptor: PropertyDescriptor = PropertyDescriptor(
@@ -62,12 +63,12 @@ public class SimulatedDoubleSource(
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> reader(spec: DevicePropertySpec<*, T>): TypedReader<T> =
+    override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         if (spec === valueSpec) GenericTypedReader { cell.value } as TypedReader<T>
         else super.reader(spec)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> writer(spec: MutableDevicePropertySpec<*, T>): TypedWriter<T> =
+    override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
         if (spec === valueSpec) GenericTypedWriter<Double> { v ->
             cell.value = v
             valueSampler.publishDouble(v)
@@ -75,11 +76,11 @@ public class SimulatedDoubleSource(
         else super.writer(spec)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> sampler(spec: DevicePropertySpec<*, T>): TypedSampler<T>? =
+    override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         if (spec === valueSpec) valueSampler as TypedSampler<T>
         else super.sampler(spec)
 
-    override fun propertySpec(propertyName: Name): DevicePropertySpec<*, *>? =
+    override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
         if (propertyName == valueSpec.name) valueSpec else null
 
     override suspend fun readProperty(propertyName: Name): Meta =

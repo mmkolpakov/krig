@@ -17,7 +17,9 @@ import space.kscience.krig.core.timetravel.Timeline
 import space.kscience.dataforge.meta.Meta
 
 /**
- * `%use krig` — wires the Kotlin Jupyter kernel to the krig SDK.
+ * `%use @file[krig.json]` — wires the Kotlin Jupyter kernel to the krig SDK
+ * from a local checkout. After publishing the descriptor, the same integration
+ * is expected to be available as `%use krig`.
  *
  * Auto-imports the core DSL surface so notebooks start with zero manual imports.
  * Registers HTML renderers for [Device], [DeviceMessage], [DeviceFault],
@@ -33,8 +35,8 @@ public class KrigJupyterIntegration : JupyterIntegration() {
 
     private fun Builder.imports() {
         // Device / DSL.
-        import("space.kscience.krig.controls.dsl.*")
-        import("space.kscience.krig.controls.assembly.*")
+        import("space.kscience.krig.dsl.*")
+        import("space.kscience.krig.assembly.*")
         import("space.kscience.krig.core.contracts.*")
         import("space.kscience.krig.api.context.*")
         import("space.kscience.krig.api.addressing.*")
@@ -54,8 +56,8 @@ public class KrigJupyterIntegration : JupyterIntegration() {
         import("space.kscience.krig.core.runtime.*")
         import("space.kscience.krig.core.storage.*")
         import("space.kscience.krig.core.timetravel.*")
-        import("space.kscience.krig.dsl.*")
-
+        import("space.kscience.krig.simulation.*")
+        import("space.kscience.krig.concurrency.*")
         // Magix.
         import("space.kscience.magix.api.*")
 

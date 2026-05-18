@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
@@ -13,7 +13,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.descriptors.PropertyDescriptor
@@ -26,6 +25,7 @@ import space.kscience.krig.core.contracts.SubscribeOptions
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.typed.TypedSampler
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.DevicePropertySpec
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -57,13 +57,14 @@ private class SamplerOnlyDevice : AbstractDevice(
                 PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
             override val converter: MetaConverter<Double> = object : MetaConverter<Double> {
                 override fun convert(obj: Double): Meta = Meta(obj)
-                override fun readOrNull(source: Meta): Double = error("typedSamples must use sampler flow before Meta")
+                override fun readOrNull(source: Meta): Double =
+                    error("typedSamples must use sampler flow before Meta: $source")
             }
             override suspend fun read(device: SamplerOnlyDevice): Double = error("typedSamples must not call read")
         }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> sampler(spec: DevicePropertySpec<*, T>): TypedSampler<T>? =
+    override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         if (spec === valueSpec) sampler as TypedSampler<T> else null
 
     override suspend fun subscribe(principal: Principal): Flow<DeviceMessage> = messageFlow
@@ -78,7 +79,7 @@ private class SamplerOnlyDevice : AbstractDevice(
                 time = Clock.System.now(),
                 property = valueSpec.name,
                 value = Meta(value),
-                sourceDevice = Address(route = Name.EMPTY, device = name),
+                sourceDevice = name,
             ),
         )
     }

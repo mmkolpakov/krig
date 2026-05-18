@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.serialization
+package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.json.Json
 import space.kscience.krig.api.features.DeviceFeatureSpec
@@ -11,7 +11,6 @@ import space.kscience.krig.api.messages.DeviceOnlineMessage
 import space.kscience.krig.api.identifiers.toBlueprintId
 import space.kscience.krig.api.meta.MemberTag
 import space.kscience.krig.api.meta.ProfileTag
-import space.kscience.krig.api.addressing.Address
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -106,7 +105,7 @@ class ApiSerializationRoundTripTest {
             DeviceOnlineMessage(
                 time = Instant.fromEpochMilliseconds(1),
                 blueprintId = "com.example.sensor".toBlueprintId(),
-                sourceDevice = Address("lab".asName(), "sensor".asName()),
+                sourceDevice = "lab.sensor".asName(),
             ),
         )
     }
@@ -117,7 +116,7 @@ class ApiSerializationRoundTripTest {
             DeviceOfflineMessage(
                 time = Instant.fromEpochMilliseconds(2),
                 cause = DeviceDepartureReason.Graceful,
-                sourceDevice = Address("lab".asName(), "sensor".asName()),
+                sourceDevice = "lab.sensor".asName(),
             ),
         )
     }

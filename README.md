@@ -9,23 +9,21 @@ simulators, and distributed device systems.
 ```kotlin
 import kotlinx.coroutines.runBlocking
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.krig.core.contracts.blueprintOf
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.typed.typedBackend
 import space.kscience.krig.core.contracts.write
-import space.kscience.krig.core.meta.DeviceSpecBuilder
+import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.dsl.device
 
-object PumpSpec : DeviceSpecBuilder<Device>() {
-    val rpm by mutableDoubleProperty(
-        read = { error("Backend supplies rpm") },
-        write = { error("Backend writes rpm") },
-    )
-    val load by doubleProperty { error("Backend supplies load") }
+object PumpSpec : DeviceContractBuilder() {
+    val rpm by mutableDoubleProperty()
+    val load by doubleProperty()
 }
 
-val PumpBlueprint = blueprintOf("demo.pump", PumpSpec)
+val PumpBlueprint: DeviceBlueprint<Device> = blueprintOf("demo.pump", PumpSpec)
 
 fun pumpBackend() = typedBackend {
     var rpm = 0.0
@@ -60,13 +58,21 @@ val thermo = device("thermo") {
 
 1. **Blueprints are separate from execution.** `DeviceBlueprint` is data. `DeviceBackend`
    is hardware, simulation, or transport.
-2. **Typed access is the default path.** `read(spec)` / `write(spec, value)` avoid the
+2. **Contracts are pure.** `DeviceContractBuilder` describes typed properties and actions;
+   backends provide execution.
+3. **Typed access is the default path.** `read(spec)` / `write(spec, value)` avoid the
    `Meta` boundary for normal code. `readProperty(Name)` remains the control-plane adapter.
-3. **Faults are values.** `DeviceOutcome<T>` returns `Ok(value)` or `Fail(fault)` without
+4. **Faults are values.** `DeviceOutcome<T>` returns `Ok(value)` or `Fail(fault)` without
    forcing application code into `try/catch`.
-4. **State keeps time and quality.** `Timestamped<T>` and `ObservedValue<T>` carry time and
+5. **State keeps time and quality.** `Timestamped<T>` and `ObservedValue<T>` carry time and
    `DataQuality` through reactive views.
-5. **Real and virtual devices share one model.** The same contracts work with wall-clock
+6. **Acquisition mapping is protocol-neutral.** krig validates sources, timers, tags, and
+   device-property targets; concrete connectors live outside the SDK core.
+7. **Device identity is a `Name`.** Transport routes and physical addresses stay at the
+   connector/envelope boundary, outside core device messages.
+8. **Serialization is explicit.** KSP builds static indexes; REPL and integrations can add
+   runtime `SerializationContributor`s without classpath scanning.
+9. **Real and virtual devices share one model.** The same contracts work with wall-clock
    devices, deterministic simulation, event logs, and counterfactual replay.
 
 ## Modules
@@ -89,7 +95,7 @@ val thermo = device("thermo") {
 
 ## Stack
 
-Kotlin **2.4.0-Beta2**, kotlinx.coroutines **1.11.0**, KSP **2.3.7**,
+Kotlin **2.4.0-RC**, kotlinx.coroutines **1.11.0**, KSP **2.3.8**,
 Gradle **9.5.1**. Targets: JVM 21, JS browser, Wasm JS, Linux x64,
 Windows x64, macOS, and iOS.
 
@@ -99,6 +105,12 @@ Run all demos:
 
 ```shell
 ./gradlew :krig-demo:jvmRun
+```
+
+For the notebook demo from a local checkout, publish the JVM integration first:
+
+```shell
+./gradlew publishToMavenLocal
 ```
 
 | Demo | File | Shows |
@@ -112,7 +124,7 @@ Run all demos:
 | Dynamic hub | [`DynamicHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DynamicHubDemo.kt) | Attach, detach, hub events, reconcile loop |
 | Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Event log, replay, counterfactual DSL |
 | Expressions | [`ExpressionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExpressionDemo.kt) | Expression tree compiled into reactive device state |
-| Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | `%use krig`, device DSL, history, hub, timeline, simulation, storage |
+| Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | local `%use @file[krig.json]`, device DSL, history, hub, timeline, simulation, storage |
 
 ## Documentation
 

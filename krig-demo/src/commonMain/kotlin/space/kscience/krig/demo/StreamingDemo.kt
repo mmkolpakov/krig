@@ -19,7 +19,7 @@ import space.kscience.krig.dsl.typedSamples
 /**
  * Primitive sampler plus Flow/ZOH view for UI-rate streaming.
  */
-public suspend fun streamingDemo(): Unit = supervisorScope {
+suspend fun streamingDemo(): Unit = supervisorScope {
     val ctx = demoContext("streaming-demo")
     val pump = device("streamingPump", pumpBackend(), ctx) {
         blueprint(PumpBlueprint)

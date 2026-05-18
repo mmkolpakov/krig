@@ -2,7 +2,7 @@
 
 import space.kscience.krig.api.faults.DeviceFault
 import space.kscience.krig.core.contracts.typed.TypedSampler
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DevicePropertyContract
 
 /**
  * After-sample observer. Receives the spec and the sampled value (or null on completion).
@@ -12,7 +12,7 @@ import space.kscience.krig.core.meta.DevicePropertySpec
  */
 public fun interface SamplingObserver {
     public suspend fun onSample(
-        spec: DevicePropertySpec<*, *>,
+        spec: DevicePropertyContract<*>,
         value: Any?,
         fault: DeviceFault?,
     )

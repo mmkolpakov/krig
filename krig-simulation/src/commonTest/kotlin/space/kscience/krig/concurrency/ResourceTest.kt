@@ -82,7 +82,7 @@ class ResourceTest {
     fun preemptLowerPriorityWaiters() = runTest {
         val r = Resource("r", capacity = 1)
         r.seize()
-        val outcome = async<String> {
+        val outcome = async {
             try {
                 r.seize(priority = ResourcePriority.Low)
                 "acquired"

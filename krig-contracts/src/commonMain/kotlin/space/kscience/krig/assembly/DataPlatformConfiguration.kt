@@ -12,6 +12,10 @@ import space.kscience.dataforge.names.parseAsName
 /**
  * Declarative runtime topology: devices to instantiate, timers to attach, properties to sample.
  *
+ * This is an assembly descriptor for krig blueprints. External protocol acquisition
+ * plans use [DataAcquisitionConfiguration], which keeps connector-specific addressing
+ * outside the SDK core.
+ *
  * ```json
  * {
  *   "sources":    [{ "id": "motor.x", "blueprintId": "simulated.motor", "config": {} }],
@@ -64,7 +68,15 @@ public data class SourceSpec(
     val id: String,
     val blueprintId: String,
     val config: JsonObject = JsonObject(emptyMap()),
-)
+) {
+    init {
+        require(id.isNotBlank()) { "SourceSpec id must not be blank" }
+        require(blueprintId.isNotBlank()) { "SourceSpec '$id' blueprintId must not be blank" }
+        config.keys.forEach { key ->
+            require(key.isNotBlank()) { "SourceSpec '$id' config key must not be blank" }
+        }
+    }
+}
 
 /** Wall-clock timer that drives property sampling on every tick. */
 @Serializable
@@ -74,6 +86,7 @@ public data class TimerSpec(
     val properties: List<String> = emptyList(),
 ) {
     init {
+        require(id.isNotBlank()) { "TimerSpec id must not be blank" }
         require(intervalMs > 0) { "TimerSpec '$id' intervalMs must be positive, got $intervalMs" }
     }
 }
@@ -94,6 +107,10 @@ public data class PropertySpec(
     val bufferCapacity: Int = 1024,
 ) {
     init {
+        require(id.isNotBlank()) { "PropertySpec id must not be blank" }
+        require(sourceId.isNotBlank()) { "PropertySpec '$id' sourceId must not be blank" }
+        require(property.isNotBlank()) { "PropertySpec '$id' property must not be blank" }
+        require(reduce.isNotBlank()) { "PropertySpec '$id' reduce must not be blank" }
         require(bufferCapacity > 0) {
             "PropertySpec '$id' bufferCapacity must be positive, got $bufferCapacity"
         }

@@ -7,7 +7,7 @@ import space.kscience.krig.dsl.device
 /**
  * DeviceOutcome on the Meta/control-plane boundary: expected faults stay values.
  */
-public suspend fun faultsAsValuesDemo() {
+suspend fun faultsAsValuesDemo() {
     val ctx = demoContext("faults-demo")
     val pump = device("faultyPump", pumpBackend(), ctx) {
         blueprint(PumpBlueprint)

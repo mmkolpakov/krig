@@ -17,6 +17,9 @@ out/
 .kotlin
 kotlin-js-store/
 
+### Qodana ###
+.qodana/
+
 ### Eclipse ###
 .apt_generated
 .classpath

@@ -39,7 +39,7 @@ internal class GracefulOperationController(
             val current = state.load()
             val inflight = current.inflight
             check(inflight > 0) { "Unbalanced device operation accounting for '$name'." }
-            val next = current.flags or (inflight - 1)
+            val next = current.flags or inflight - 1
             if (state.compareAndSet(current, next)) {
                 if (current.isDraining && inflight == 1) completeDrainWaiter()
                 return

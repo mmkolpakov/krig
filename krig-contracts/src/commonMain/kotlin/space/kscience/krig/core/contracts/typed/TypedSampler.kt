@@ -6,7 +6,7 @@ import space.kscience.attributes.SafeType
 /**
  * Lock-free streaming view of a typed property — the data-plane analogue of TANGO's
  * polling buffer or DDS's reader cache. Drivers that natively publish into a slot
- * (Modbus polling loop, EPICS monitor callback, simulation tick) expose a sampler so
+ * expose a sampler so
  * subscribers can read the latest value or observe the stream without going through
  * the per-call read pipeline.
  *

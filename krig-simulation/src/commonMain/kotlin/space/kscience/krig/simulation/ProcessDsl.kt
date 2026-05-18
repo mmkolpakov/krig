@@ -43,8 +43,8 @@ internal class ProcessScopeImpl(parent: CoroutineScope) : ProcessScope, Coroutin
 public fun CoroutineScope.process(
     name: String = "process",
     block: suspend ProcessScope.() -> Unit,
-): Job = launch(kotlinx.coroutines.CoroutineName(name)) {
-    ProcessScopeImpl(this).block()
+): Job = launch(CoroutineName(name)) {
+    block(ProcessScopeImpl(this))
 }
 
 /** Suspends the process for exactly [duration] of simulation time. Alias for [delay].
@@ -64,6 +64,7 @@ public suspend fun ProcessScope.hold(duration: Duration) {
  * Observing the signal is conflated: intermediate values that match but are superseded
  * before collection may be missed. This mirrors `StateFlow` semantics.
  */
+@Suppress("UnusedReceiverParameter")
 public suspend fun <T> ProcessScope.waitUntil(
     signal: Signal<T>,
     predicate: (T) -> Boolean,
@@ -73,6 +74,7 @@ public suspend fun <T> ProcessScope.waitUntil(
  * Convenience overload: wait until an arbitrary `kotlinx.coroutines.flow.StateFlow` satisfies
  * a predicate. Useful with device state flows exposed by `DeviceState<T>`.
  */
+@Suppress("UnusedReceiverParameter")
 public suspend fun <T> ProcessScope.waitUntil(
     flow: kotlinx.coroutines.flow.StateFlow<T>,
     predicate: (T) -> Boolean,
@@ -83,6 +85,7 @@ public suspend fun <T> ProcessScope.waitUntil(
  * (even on exception). Wrapper over [Resource.use] — present so process bodies read
  * as a linear narrative.
  */
+@Suppress("UnusedReceiverParameter")
 public suspend fun <R> ProcessScope.request(
     resource: Resource,
     amount: Int = 1,
@@ -110,4 +113,4 @@ public fun Device.runProcess(
  * is consulted.
  */
 public fun simulationScope(scheduler: DeterministicScheduler): CoroutineScope =
-    CoroutineScope(scheduler.asDispatcher() + kotlinx.coroutines.SupervisorJob())
+    CoroutineScope(scheduler.asDispatcher() + SupervisorJob())

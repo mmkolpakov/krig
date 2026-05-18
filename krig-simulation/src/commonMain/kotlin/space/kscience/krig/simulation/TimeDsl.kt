@@ -1,14 +1,18 @@
 ﻿package space.kscience.krig.simulation
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.SupervisorJob
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.ContextBuilder
+import space.kscience.dataforge.context.PluginFactory
+import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.asName
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlin.time.TimeSource
 
 /**
  * Configures the context to use a virtual timeline, starting at the given [start] time.
@@ -82,12 +86,12 @@ public fun Context.withVirtualTime(start: Instant = Instant.fromEpochMillisecond
 /** Factory for a [ClockManager] already wired to [scheduler] — skips Meta-based mode resolution. */
 private class VirtualClockManagerFactory(
     private val scheduler: DeterministicScheduler,
-) : space.kscience.dataforge.context.PluginFactory<ClockManager> {
-    override val tag: space.kscience.dataforge.context.PluginTag get() = ClockManager.tag
+) : PluginFactory<ClockManager> {
+    override val tag: PluginTag get() = ClockManager.tag
     override fun build(context: Context, meta: Meta): ClockManager =
         object : ClockManager(meta) {
             override val clock: Clock get() = scheduler.asClock()
-            override val timeSource: kotlin.time.TimeSource get() = scheduler.asTimeSource()
-            override val simulationDispatcher: kotlinx.coroutines.CoroutineDispatcher get() = scheduler.asDispatcher()
+            override val timeSource: TimeSource get() = scheduler.asTimeSource()
+            override val simulationDispatcher: CoroutineDispatcher get() = scheduler.asDispatcher()
         }
 }

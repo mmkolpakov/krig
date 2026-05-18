@@ -90,7 +90,7 @@ kotlin {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 
-    // KGP 2.4.0-Beta2 enables ABI validation by the mere presence of the `abiValidation { }`
+    // KGP 2.4.0-RC enables ABI validation by the mere presence of the `abiValidation { }`
     // block; the explicit `enabled.set(true)` getter is gone. Filters still apply.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
@@ -102,6 +102,22 @@ kotlin {
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(rootProject.files("config/detekt/detekt.yml"))
+    source.setFrom(
+        files(
+            "src/commonMain/kotlin",
+            "src/commonTest/kotlin",
+            "src/jvmMain/kotlin",
+            "src/jvmTest/kotlin",
+            "src/jsMain/kotlin",
+            "src/jsTest/kotlin",
+            "src/linuxX64Main/kotlin",
+            "src/linuxX64Test/kotlin",
+            "src/mingwX64Main/kotlin",
+            "src/mingwX64Test/kotlin",
+            "src/wasmJsMain/kotlin",
+            "src/wasmJsTest/kotlin",
+        )
+    )
 }
 
 
@@ -109,7 +125,7 @@ detekt {
 publishing {
     publications.withType<MavenPublication>().configureEach {
         pom {
-            url.set("https://github.com/SciProgCentre/krig")
+            url.set("https://github.com/mmkolpakov/krig")
             licenses {
                 license {
                     name.set("The Apache Software License, Version 2.0")

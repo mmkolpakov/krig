@@ -10,7 +10,7 @@ internal fun <D : Device, I, O> buildDeviceActionSpec(
     name: Name,
     inputConverter: MetaConverter<I>,
     outputConverter: MetaConverter<O>,
-    execute: suspend D.(I) -> O?,
+    executeBlock: suspend D.(I) -> O?,
 ): DeviceActionSpec<D, I, O> {
     val descriptor = ActionDescriptor(name = name)
     return object : DeviceActionSpec<D, I, O> {
@@ -18,6 +18,6 @@ internal fun <D : Device, I, O> buildDeviceActionSpec(
         override val descriptor: ActionDescriptor = descriptor
         override val inputConverter: MetaConverter<I> = inputConverter
         override val outputConverter: MetaConverter<O> = outputConverter
-        override suspend fun execute(device: D, input: I): O? = device.execute(input)
+        override suspend fun execute(device: D, input: I): O? = executeBlock(device, input)
     }
 }

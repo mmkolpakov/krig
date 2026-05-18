@@ -47,10 +47,12 @@ public interface DeviceCapability<S : Any> {
 
     /** Called when attached to the ambient `device`. Subscribe to properties, start jobs here. */
     context(device: Device)
+    @Suppress("EmptyMethod")
     public suspend fun onAttach() {}
 
     /** Called on detach / device close. Implementations release resources here. */
     context(device: Device)
+    @Suppress("EmptyMethod")
     public suspend fun onDetach() {}
 }
 

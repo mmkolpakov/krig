@@ -9,21 +9,26 @@ package space.kscience.krig.core.pipeline
 
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
+import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.api.faults.DeviceFaultException
 import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.lifecycle.LifecycleState
+import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
@@ -31,7 +36,9 @@ import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.meta.DeviceActionSpec
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -56,7 +63,9 @@ private class CountingPipelineDevice : AbstractDevice(
             PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
         override val converter: MetaConverter<Double> = MetaConverter.double
         override suspend fun read(device: CountingPipelineDevice): Double = 1.0
-        override suspend fun write(device: CountingPipelineDevice, value: Double) = Unit
+        override suspend fun write(device: CountingPipelineDevice, value: Double) {
+            check(value.isFinite()) { "unexpected non-finite value for ${device.name}" }
+        }
     }
 
     val actionSpec = object : DeviceActionSpec<CountingPipelineDevice, Int, Int> {
@@ -64,11 +73,14 @@ private class CountingPipelineDevice : AbstractDevice(
         override val descriptor: ActionDescriptor = ActionDescriptor(name)
         override val inputConverter: MetaConverter<Int> = MetaConverter.int
         override val outputConverter: MetaConverter<Int> = MetaConverter.int
-        override suspend fun execute(device: CountingPipelineDevice, input: Int): Int = input + 1
+        override suspend fun execute(device: CountingPipelineDevice, input: Int): Int {
+            check(device.name.toString() == "counting")
+            return input + 1
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> reader(spec: DevicePropertySpec<*, T>): TypedReader<T> {
+    override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> {
         readerBuilds.incrementAndGet()
         return GenericTypedReader {
             readCalls.incrementAndGet()
@@ -77,7 +89,7 @@ private class CountingPipelineDevice : AbstractDevice(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> writer(spec: MutableDevicePropertySpec<*, T>): TypedWriter<T> {
+    override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> {
         writerBuilds.incrementAndGet()
         return GenericTypedWriter {
             writeCalls.incrementAndGet()
@@ -108,19 +120,50 @@ private class BadEncodeDevice : AbstractDevice(
         override val descriptor: PropertyDescriptor =
             PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
         override val converter: MetaConverter<Double> = object : MetaConverter<Double> {
-            override fun convert(obj: Double): Meta = throw ClassCastException("bad encode")
+            override fun convert(obj: Double): Meta = throw ClassCastException("bad encode: $obj")
             override fun readOrNull(source: Meta): Double? = MetaConverter.double.readOrNull(source)
         }
 
         override suspend fun read(device: BadEncodeDevice): Double = 1.0
     }
 
-    override fun propertySpec(propertyName: Name): DevicePropertySpec<*, *>? =
+    override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
         if (propertyName == badSpec.name) badSpec else null
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> reader(spec: DevicePropertySpec<*, T>): TypedReader<T> =
+    override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         GenericTypedReader { 1.0 as T }
+
+    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
+    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
+    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+}
+
+private class CancellableControlPlaneDevice : AbstractDevice(
+    name = "cancel-control-plane".asName(),
+    runtime = DeviceRuntime(Context("typed-pipeline-cancel-${contextSeq.incrementAndGet()}")),
+) {
+    val readStarted = CompletableDeferred<Unit>()
+    private val never = CompletableDeferred<Unit>()
+
+    val valueSpec = object : DevicePropertySpec<CancellableControlPlaneDevice, Double> {
+        override val name: Name = "value".asName()
+        override val descriptor: PropertyDescriptor =
+            PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
+        override val converter: MetaConverter<Double> = MetaConverter.double
+        override suspend fun read(device: CancellableControlPlaneDevice): Double = error("not used")
+    }
+
+    override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
+        if (propertyName == valueSpec.name) valueSpec else null
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
+        GenericTypedReader {
+            readStarted.complete(Unit)
+            never.await()
+            1.0 as T
+        }
 
     override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
     override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
@@ -179,6 +222,7 @@ class TypedPipelineDeviceCacheTest {
                 gates = listOf(ReadGate {
                     gateEntered.complete(Unit)
                     releaseGate.await()
+                    okUnit()
                 }),
             ),
         )
@@ -225,11 +269,26 @@ class TypedPipelineDeviceCacheTest {
         val delegate = BadEncodeDevice()
         val device = TypedPipelineDevice(delegate = delegate)
 
-        val failure = assertFailsWith<DeviceFaultException> {
-            device.readProperty(delegate.badSpec.name)
-        }
+        val failure = device.readPropertyOutcome(delegate.badSpec.name)
 
-        assertTrue(failure.fault is ValidationFault)
-        assertTrue(failure.cause is ClassCastException)
+        assertTrue(failure is DeviceOutcome.Fail)
+        val fault = failure.fault
+        assertTrue(fault is ValidationFault)
+        assertEquals("ClassCastException", fault.details["causeType"]?.string)
+    }
+
+    @Test
+    fun controlPlaneCancellationDoesNotMarkDeviceFailed() = runTest {
+        val delegate = CancellableControlPlaneDevice()
+        val device = TypedPipelineDevice(delegate = delegate)
+
+        val job = launch {
+            val outcome = device.readPropertyOutcome(delegate.valueSpec.name)
+            error("read completed unexpectedly: $outcome")
+        }
+        delegate.readStarted.await()
+        job.cancelAndJoin()
+
+        assertTrue(delegate.lifecycleState !is LifecycleState.Failed)
     }
 }

@@ -1,6 +1,6 @@
 ﻿package space.kscience.krig.core.contracts.typed
 
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DevicePropertyContract
 
 /**
  * Typed write handle for a device property — the write counterpart of [TypedReader].
@@ -19,6 +19,6 @@ public class GenericTypedWriter<T>(
     override suspend fun write(value: T): Unit = sink(value)
 }
 
-/** Read-only [DevicePropertySpec]s have no writer; helper to fail fast at call sites. */
-public fun <T> readOnlyTypedWriter(spec: DevicePropertySpec<*, T>): TypedWriter<T> =
+/** Read-only [DevicePropertyContract]s have no writer; helper to fail fast at call sites. */
+public fun <T> readOnlyTypedWriter(spec: DevicePropertyContract<T>): TypedWriter<T> =
     GenericTypedWriter { error("Property '${spec.name}' is read-only") }

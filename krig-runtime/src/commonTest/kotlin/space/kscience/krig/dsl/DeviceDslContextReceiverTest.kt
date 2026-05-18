@@ -3,7 +3,6 @@
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
-
 package space.kscience.krig.dsl
 
 import kotlinx.coroutines.CoroutineScope
@@ -154,7 +153,7 @@ class DeviceDslContextReceiverTest {
             override val name = "plain-env".asName()
         }
 
-        val outcome = with(env) {
+        val outcome = context(env) {
             backend.read(synthesizeProperty("value".asName(), mutable = false))
         }
 
@@ -169,7 +168,7 @@ class DeviceDslContextReceiverTest {
             override val descriptor: PropertyDescriptor = synthesizeProperty(name, mutable = true)
             override val converter: MetaConverter<String> = object : MetaConverter<String> {
                 override fun convert(obj: String): Meta = Meta(obj)
-                override fun readOrNull(source: Meta): String? = null
+                override fun readOrNull(source: Meta): String? = source["never"]?.string
             }
             override suspend fun read(device: Device): String? = null
             override suspend fun write(device: Device, value: String) = Unit

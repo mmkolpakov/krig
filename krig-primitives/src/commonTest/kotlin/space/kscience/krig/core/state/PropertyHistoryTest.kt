@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import kotlin.test.Test
@@ -36,7 +35,7 @@ class PropertyHistoryTest {
                 time = Clock.System.now(),
                 property = "temperature".asName(),
                 value = MetaConverter.double.convert(23.5),
-                sourceDevice = Address("", "thermo"),
+                sourceDevice = "thermo".asName(),
             ),
         )
         runCurrent()

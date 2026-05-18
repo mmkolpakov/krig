@@ -2,18 +2,19 @@
 
 import kotlin.time.Duration
 import space.kscience.krig.api.faults.DeviceFault
+import space.kscience.krig.api.result.DeviceOutcome
 import space.kscience.krig.api.spec.RetryPolicy
-import space.kscience.krig.core.meta.DeviceActionSpec
+import space.kscience.krig.core.meta.DeviceActionContract
 
 /** Fail-fast precondition for actions. See [ReadGate]. */
 public fun interface ActionGate {
-    public suspend fun check(spec: DeviceActionSpec<*, *, *>)
+    public suspend fun check(spec: DeviceActionContract<*, *>): DeviceOutcome<Unit>
 }
 
 /** After-call observer for actions. See [ReadObserver]. */
 public fun interface ActionObserver {
     public suspend fun onAction(
-        spec: DeviceActionSpec<*, *, *>,
+        spec: DeviceActionContract<*, *>,
         durationNanos: Long,
         fault: DeviceFault?,
     )

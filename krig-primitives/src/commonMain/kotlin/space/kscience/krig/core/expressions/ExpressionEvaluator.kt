@@ -142,7 +142,11 @@ private fun combineAll(
             cached = reducer(ds)
             ObservedValue(cached, time, quality)
         } else {
-            ObservedValue<Double?>(null, time, quality.combine(expressionQuality("krig.expression.missing", "One or more operands are missing")))
+            ObservedValue<Double?>(
+                null,
+                time,
+                quality.combine(expressionQuality("krig.expression.missing", "One or more operands are missing")),
+            )
         }
     }
     private var cached: Double = Double.NaN

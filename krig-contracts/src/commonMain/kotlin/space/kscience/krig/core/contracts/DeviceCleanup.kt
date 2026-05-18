@@ -1,5 +1,6 @@
 package space.kscience.krig.core.contracts
 
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -20,6 +21,29 @@ public interface GracefullyCloseable {
     public suspend fun closeGracefully(drainTimeout: Duration)
 }
 
+/** Receives best-effort cleanup failures that are intentionally suppressed. */
+@InternalKrigApi
+public fun interface CleanupFailureReporter {
+    public fun report(failure: Exception)
+}
+
+/**
+ * Process-local reporting hook for cleanup failures. Shutdown cleanup remains best-effort,
+ * but tests and hosts may install a reporter to keep diagnostics visible.
+ */
+@InternalKrigApi
+public object CleanupFailureReporting {
+    private val reporterRef = atomic<CleanupFailureReporter?>(null)
+
+    public fun install(reporter: CleanupFailureReporter?) {
+        reporterRef.value = reporter
+    }
+
+    public fun report(failure: Exception) {
+        reporterRef.value?.report(failure)
+    }
+}
+
 /** Runs best-effort cleanup while preserving coroutine cancellation. */
 @InternalKrigApi
 public inline fun ignoreNonCancellationFailure(block: () -> Unit) {
@@ -27,7 +51,8 @@ public inline fun ignoreNonCancellationFailure(block: () -> Unit) {
         block()
     } catch (e: CancellationException) {
         throw e
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        CleanupFailureReporting.report(e)
         // Best-effort cleanup path: ordinary failures are intentionally ignored.
     }
 }
@@ -39,7 +64,8 @@ public suspend inline fun ignoreNonCancellationFailureSuspending(block: suspend 
         block()
     } catch (e: CancellationException) {
         throw e
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        CleanupFailureReporting.report(e)
         // Best-effort cleanup path: ordinary failures are intentionally ignored.
     }
 }
@@ -57,7 +83,8 @@ public suspend inline fun ignoreCleanupFailureSuspending(crossinline block: susp
         withContext(NonCancellable) {
             block()
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        CleanupFailureReporting.report(e)
         // Cleanup is best-effort; callers are already leaving the ownership scope.
     }
 }

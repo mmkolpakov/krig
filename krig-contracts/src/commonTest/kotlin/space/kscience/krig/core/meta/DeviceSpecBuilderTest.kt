@@ -31,27 +31,27 @@ class DeviceSpecBuilderTest {
     @Test
     fun propertySpecsRegistered() {
         assertEquals(3, TestSpec.propertySpecs.size)
-        assertTrue(TestSpec.propertySpecs.any { it.name.toString() == "temperature" })
-        assertTrue(TestSpec.propertySpecs.any { it.name.toString() == "setpoint" })
-        assertTrue(TestSpec.propertySpecs.any { it.name.toString() == "raw" })
+        assertEquals("temperature", TestSpec.temperature.name.toString())
+        assertEquals("setpoint", TestSpec.setpoint.name.toString())
+        assertEquals("raw", TestSpec.raw.name.toString())
     }
 
     @Test
     fun actionSpecsRegistered() {
         assertEquals(1, TestSpec.actionSpecs.size)
-        assertEquals("reset", TestSpec.actionSpecs.first().name.toString())
+        assertEquals("reset", TestSpec.reset.name.toString())
     }
 
     @Test
     fun propertyKindDefaults() {
-        val tempSpec = TestSpec.propertySpecs.first { it.name.toString() == "temperature" }
+        val tempSpec = TestSpec.temperature
         assertEquals(PropertyKind.PHYSICAL, tempSpec.descriptor.kind)
     }
 
     @Test
     fun standardPropertyTypeIdsAreStable() {
-        val tempSpec = TestSpec.propertySpecs.first { it.name.toString() == "temperature" }
-        val rawSpec = TestSpec.propertySpecs.first { it.name.toString() == "raw" }
+        val tempSpec = TestSpec.temperature
+        val rawSpec = TestSpec.raw
 
         assertEquals(TypeIds.DOUBLE, tempSpec.descriptor.valueTypeId)
         assertEquals(TypeIds.META, rawSpec.descriptor.valueTypeId)
@@ -63,7 +63,7 @@ class DeviceSpecBuilderTest {
             val status by property(MetaConverter.string, "domain.Status") { "ok" }
         }
 
-        assertEquals("domain.Status", custom.propertySpecs.single().descriptor.valueTypeId)
+        assertEquals("domain.Status", custom.status.descriptor.valueTypeId)
     }
 
     @Test

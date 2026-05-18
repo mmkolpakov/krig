@@ -74,10 +74,10 @@ class DeviceBackendBuilderTest {
             }
         }
         val device = stubDevice()
-        with(device) { plant.write(inputDescriptor(), metaOf(10.0)) }.getOrThrow()
+        context(device) { plant.write(inputDescriptor(), metaOf(10.0)) }.getOrThrow()
         repeat(500) { plant.step(10.milliseconds) }
 
-        val finalPv = with(device) { plant.read(pvDescriptor()) }.getOrThrow().doubleValue ?: 0.0
+        val finalPv = context(device) { plant.read(pvDescriptor()) }.getOrThrow().doubleValue ?: 0.0
         assertTrue(abs(finalPv - 10.0) < 0.01, "PV should converge to steady state, got $finalPv")
     }
 
@@ -90,11 +90,11 @@ class DeviceBackendBuilderTest {
             computed("sum") { a.value + b.value }
         }
         val device = stubDevice()
-        with(device) {
+        context(device) {
             transducer.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(3.0)).getOrThrow()
             transducer.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(4.0)).getOrThrow()
         }
-        val sum = with(device) {
+        val sum = context(device) {
             transducer.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, "kotlin.Double"))
         }.getOrThrow().doubleValue ?: 0.0
         assertEquals(7.0, sum, "Computed property should reflect current cell values")
@@ -108,7 +108,7 @@ class DeviceBackendBuilderTest {
             readable("known", initial = 1.0, converter = MetaConverter.double)
         }
         val device = stubDevice()
-        val outcome = with(device) {
+        val outcome = context(device) {
             backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, "kotlin.Double"))
         }
         assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
@@ -125,7 +125,7 @@ class DeviceBackendBuilderTest {
             readable("readonly", initial = 1.0, converter = MetaConverter.double)
         }
         val device = stubDevice()
-        val outcome = with(device) {
+        val outcome = context(device) {
             backend.write(
                 PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
                 metaOf(2.0),
@@ -141,7 +141,7 @@ class DeviceBackendBuilderTest {
         }
         val device = stubDevice()
 
-        val outcome = with(device) {
+        val outcome = context(device) {
             backend.write(
                 PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
                 Meta { "bad" put "payload" },
@@ -162,7 +162,7 @@ class DeviceBackendBuilderTest {
             }
         }
         val device = stubDevice()
-        val result = with(device) {
+        val result = context(device) {
             backend.execute(ActionDescriptor("increment".asName()), null)
         }.getOrThrow()
         assertEquals(1, result?.intValue)

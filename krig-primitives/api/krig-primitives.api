@@ -114,16 +114,12 @@ public abstract interface class space/kscience/krig/core/operations/OverflowPoli
 public abstract interface class space/kscience/krig/core/runtime/BinaryPeerConnection : java/lang/AutoCloseable {
 	public fun close ()V
 	public abstract fun getPeerId ()Ljava/lang/String;
-	public abstract fun receive (Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun receive$default (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public abstract fun send (Ljava/lang/String;[BLspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun send$default (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;Ljava/lang/String;[BLspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public abstract fun receive (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun send (Ljava/lang/String;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/runtime/BinaryPeerConnection$DefaultImpls {
 	public static fun close (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;)V
-	public static synthetic fun receive$default (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static synthetic fun send$default (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;Ljava/lang/String;[BLspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/runtime/DefaultBinaryPeerConnection : space/kscience/krig/core/runtime/BinaryPeerConnection {
@@ -131,8 +127,8 @@ public final class space/kscience/krig/core/runtime/DefaultBinaryPeerConnection 
 	public synthetic fun <init> (Lspace/kscience/krig/core/runtime/PeerTransport;Lspace/kscience/krig/core/runtime/PeerRoutePrefix;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun close ()V
 	public fun getPeerId ()Ljava/lang/String;
-	public fun receive (Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun send (Ljava/lang/String;[BLspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun receive (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun send (Ljava/lang/String;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/runtime/HubClosedException : java/lang/IllegalStateException {
@@ -251,6 +247,8 @@ public final class space/kscience/krig/core/runtime/ReconcileEvent$Detached : sp
 }
 
 public final class space/kscience/krig/core/runtime/ReconcileKt {
+	public static final fun awaitChildren-exY8QGI (Lspace/kscience/krig/api/hub/DynamicHub;Ljava/util/Set;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun awaitChildren-exY8QGI$default (Lspace/kscience/krig/api/hub/DynamicHub;Ljava/util/Set;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun reconcile-BAu0izY (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/api/hub/DynamicHub;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
 	public static final fun reconcile-BAu0izY (Lspace/kscience/krig/api/hub/DynamicHub;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
 	public static synthetic fun reconcile-BAu0izY$default (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/api/hub/DynamicHub;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;ILjava/lang/Object;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
@@ -565,7 +563,6 @@ public final class space/kscience/krig/core/timetravel/TimeTravelKt {
 	public static final fun eventLog (Lspace/kscience/krig/core/contracts/Device;)Lspace/kscience/krig/core/timetravel/DeviceEventLog;
 	public static final fun merge-1gDmCUA (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun merge-1gDmCUA$default (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
-	public static final fun timeOf-u1uxhfc (Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/api/messages/DeviceMessage;)Lkotlin/time/Instant;
 	public static final fun timeTravel (Lspace/kscience/krig/core/timetravel/Reconstructible;Lkotlin/time/Instant;Lspace/kscience/krig/core/timetravel/DeviceEventLog;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/timetravel/SnapshotStore;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun timeTravel (Lspace/kscience/krig/core/timetravel/Reconstructible;Lkotlin/time/Instant;Lspace/kscience/krig/core/timetravel/DeviceEventLog;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun timeTravel$default (Lspace/kscience/krig/core/timetravel/Reconstructible;Lkotlin/time/Instant;Lspace/kscience/krig/core/timetravel/DeviceEventLog;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
@@ -582,6 +579,7 @@ public final class space/kscience/krig/core/timetravel/Timeline {
 	public final fun getEvents ()Lkotlinx/coroutines/flow/Flow;
 	public fun hashCode ()I
 	public static fun hashCode-impl (Lkotlinx/coroutines/flow/Flow;)I
+	public static final fun timeOf-impl (Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/api/messages/DeviceMessage;)Lkotlin/time/Instant;
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (Lkotlinx/coroutines/flow/Flow;)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()Lkotlinx/coroutines/flow/Flow;
@@ -595,13 +593,13 @@ public abstract interface class space/kscience/krig/transport/io/Framer {
 }
 
 public final class space/kscience/krig/transport/io/FramerKt {
-	public static final fun DelimitedFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
-	public static synthetic fun DelimitedFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
-	public static final fun FixedSizeFramer (I)Lspace/kscience/krig/transport/io/Framer;
-	public static final fun LengthPrefixedFramer (I)Lspace/kscience/krig/transport/io/Framer;
-	public static synthetic fun LengthPrefixedFramer$default (IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
-	public static final fun LineFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
-	public static synthetic fun LineFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun delimitedFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun delimitedFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun fixedSizeFramer (I)Lspace/kscience/krig/transport/io/Framer;
 	public static final fun framed (Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/transport/io/Framer;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun lengthPrefixedFramer (I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun lengthPrefixedFramer$default (IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun lineFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun lineFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
 }
 

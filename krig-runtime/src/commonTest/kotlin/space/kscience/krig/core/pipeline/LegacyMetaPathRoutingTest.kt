@@ -21,6 +21,7 @@ import space.kscience.krig.api.faults.DeviceFault
 import space.kscience.krig.api.faults.DeviceFaultException
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.DevicePropertySpec
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
@@ -53,7 +54,7 @@ class LegacyMetaPathRoutingTest {
             }
         }
 
-        override fun propertySpec(propertyName: Name): DevicePropertySpec<*, *>? =
+        override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
             if (propertyName == valueSpec.name) valueSpec else null
 
         override suspend fun readProperty(propertyName: Name): Meta {
@@ -74,7 +75,7 @@ class LegacyMetaPathRoutingTest {
         val device = DoubleCellDevice()
         val observed = mutableListOf<Pair<Name, DeviceFault?>>()
         val builder = TypedPipelineBuilder().apply {
-            addReadObserver(ReadObserver { spec, _, fault -> observed += spec.name to fault })
+            addReadObserver { spec, _, fault -> observed += spec.name to fault }
         }
         val wrapped = wrapWithTypedPipeline(device, builder, "cell", autoInstallDefaults = false)
 
@@ -95,7 +96,7 @@ class LegacyMetaPathRoutingTest {
         }
         var observerCalled = false
         val builder = TypedPipelineBuilder().apply {
-            addReadObserver(ReadObserver { _, _, _ -> observerCalled = true })
+            addReadObserver { _, _, _ -> observerCalled = true }
         }
         val wrapped = wrapWithTypedPipeline(device, builder, "plain", autoInstallDefaults = false)
 

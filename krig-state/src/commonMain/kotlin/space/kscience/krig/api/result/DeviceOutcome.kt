@@ -11,7 +11,10 @@ import space.kscience.krig.api.faults.*
 
 /**
  * Result of a device operation: [Ok] carries the value, [Fail] carries a [DeviceFault].
- * Exceptions are converted at pipeline chokepoints via [runCatchingDevice].
+ *
+ * Core control-plane code should pass predictable device failures as values. Use
+ * [runCatchingDevice] only at interop boundaries where user code, drivers, or legacy
+ * accessors may still throw.
  */
 @Serializable
 public sealed interface DeviceOutcome<out T> {
@@ -36,6 +39,15 @@ internal val outcomeFailureJson: Json = Json {
 
 /** Shorthand for [DeviceOutcome.Companion.OkUnit]. */
 public fun okUnit(): DeviceOutcome<Unit> = DeviceOutcome.OkUnit
+
+/** Shorthand for [DeviceOutcome.Ok]. */
+public fun <T> ok(value: T): DeviceOutcome<T> = DeviceOutcome.Ok(value)
+
+/** Shorthand for [DeviceOutcome.Fail]. */
+public fun fail(fault: DeviceFault): DeviceOutcome<Nothing> = DeviceOutcome.Fail(fault)
+
+/** Converts this fault into a typed [DeviceOutcome.Fail]. */
+public fun <T> DeviceFault.toOutcome(): DeviceOutcome<T> = DeviceOutcome.Fail(this)
 
 /** Folds an outcome into a single value. */
 public inline fun <T, R> DeviceOutcome<T>.fold(
@@ -93,6 +105,27 @@ public inline fun <T, R> DeviceOutcome<T>.flatMap(transform: (T) -> DeviceOutcom
     is DeviceOutcome.Fail -> this
 }
 
+public suspend inline fun <T, R> DeviceOutcome<T>.mapSuspend(
+    crossinline transform: suspend (T) -> R,
+): DeviceOutcome<R> = when (this) {
+    is DeviceOutcome.Ok -> DeviceOutcome.Ok(transform(value))
+    is DeviceOutcome.Fail -> this
+}
+
+public suspend inline fun <T, R> DeviceOutcome<T>.flatMapSuspend(
+    crossinline transform: suspend (T) -> DeviceOutcome<R>,
+): DeviceOutcome<R> = when (this) {
+    is DeviceOutcome.Ok -> transform(value)
+    is DeviceOutcome.Fail -> this
+}
+
+public suspend inline fun DeviceOutcome<Unit>.then(
+    crossinline next: suspend () -> DeviceOutcome<Unit>,
+): DeviceOutcome<Unit> = when (this) {
+    is DeviceOutcome.Ok -> next()
+    is DeviceOutcome.Fail -> this
+}
+
 public inline fun <T> DeviceOutcome<T>.mapFault(transform: (DeviceFault) -> DeviceFault): DeviceOutcome<T> =
     when (this) {
         is DeviceOutcome.Ok -> this
@@ -107,6 +140,9 @@ public fun DeviceOutcome<*>.isFail(): Boolean = this is DeviceOutcome.Fail
 
 /**
  * Runs [block], converting expected operation failures into [DeviceOutcome.Fail].
+ *
+ * This is an adapter for throwing driver/user code. Prefer constructing
+ * [DeviceOutcome.Fail] directly for predictable SDK-level faults.
  * Cancellation and programming errors propagate.
  */
 public inline fun <T> runCatchingDevice(block: () -> T): DeviceOutcome<T> = try {

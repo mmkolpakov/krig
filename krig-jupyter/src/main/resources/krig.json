@@ -1,0 +1,18 @@
+{
+  "description": "krig device SDK for Kotlin Notebook",
+  "link": "https://github.com/mmkolpakov/krig",
+  "properties": [
+    {
+      "name": "krig",
+      "value": "1.0.0-alpha-3"
+    }
+  ],
+  "repositories": [
+    "*mavenLocal",
+    "https://repo.kotlin.link",
+    "https://maven.sciprog.center"
+  ],
+  "dependencies": [
+    "space.kscience:krig-jupyter:$krig"
+  ]
+}

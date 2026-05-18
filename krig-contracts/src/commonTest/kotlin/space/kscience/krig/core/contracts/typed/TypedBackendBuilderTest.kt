@@ -72,9 +72,10 @@ class TypedBackendBuilderTest {
         }
         val device = stubDevice()
 
-        with(device) {
+        context(device) {
             backend.write(Spec.value.descriptor, metaOf(7.5)).getOrThrow()
-            assertEquals(7.5, backend.read(Spec.value.descriptor).getOrThrow().doubleValue)
+            val readMeta = backend.read(Spec.value.descriptor).getOrThrow()
+            assertEquals(7.5, readMeta.doubleValue)
             val result = backend.execute(Spec.command.descriptor, metaOf("run")).getOrThrow()
             assertEquals("ack:run", result?.stringValue)
         }
@@ -87,12 +88,31 @@ class TypedBackendBuilderTest {
         }
         val device = stubDevice()
 
-        val outcome = with(device) {
+        val outcome = context(device) {
             backend.write(Spec.value.descriptor, metaOf("bad"))
         }
 
         assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
         assertTrue(outcome.fault is ValidationFault, "expected ValidationFault, got ${outcome.fault}")
+    }
+
+    @Test
+    fun typedBackendCanExposeProtocolNeutralBatchReads() = runTest {
+        val backend = typedBackend {
+            batchReader { descriptors ->
+                descriptors.associate { descriptor ->
+                    descriptor.name to DeviceOutcome.Ok(metaOf(42.0))
+                }
+            }
+        } as BatchTypedDeviceBackend
+        val device = stubDevice()
+
+        val result = context(device) {
+            backend.readBatch(listOf(Spec.value.descriptor, Spec.load.descriptor))
+        }
+
+        assertEquals(2, result.size)
+        assertEquals(42.0, result.getValue(Spec.value.name).getOrThrow().doubleValue)
     }
 
     private fun stubDevice(): Device = object : AbstractDevice(

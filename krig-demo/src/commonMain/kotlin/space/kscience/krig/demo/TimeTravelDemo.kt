@@ -1,11 +1,10 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.ExperimentalKrigApi::class,
     ExperimentalTimeTravelApi::class,
 )
 
 package space.kscience.krig.demo
 
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -21,8 +20,8 @@ import kotlin.time.Instant
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
-public suspend fun timeTravelDemo() {
-    val addr = Address("lab".asName(), "counter".asName())
+suspend fun timeTravelDemo() {
+    val source = "lab.counter".asName()
 
     println("=== 1. Event log ===")
 
@@ -32,7 +31,7 @@ public suspend fun timeTravelDemo() {
             time = Instant.fromEpochMilliseconds((i + 1) * 1000L),
             property = "value".asName(),
             value = Meta(i.asValue()),
-            sourceDevice = addr,
+            sourceDevice = source,
         ))
     }
     println("  recorded ${log.size()} events: 0..4")

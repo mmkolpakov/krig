@@ -15,7 +15,7 @@ import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.typed.typedBackend
 import space.kscience.krig.core.contracts.write
-import space.kscience.krig.core.meta.DeviceSpecBuilder
+import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.pipeline.TypedPipelineBuilder
 import space.kscience.krig.dsl.device
 import space.kscience.dataforge.meta.MetaConverter
@@ -23,7 +23,7 @@ import space.kscience.dataforge.meta.MetaConverter
 /**
  * Spec-first industrial assembly: reusable blueprint, explicit backend, typed access.
  */
-public suspend fun industrialAssemblyDemo() {
+suspend fun industrialAssemblyDemo() {
     val ctx = demoContext("industrial-demo")
     val pump = device("mainPump", pumpBackend(), ctx) {
         blueprint(PumpBlueprint)
@@ -43,26 +43,19 @@ public suspend fun industrialAssemblyDemo() {
     println("\nDone - industrial assembly demo complete.")
 }
 
-public object PumpSpec : DeviceSpecBuilder<Device>() {
-    val rpm by mutableDoubleProperty(
-        read = { error("pumpBackend supplies the typed rpm reader") },
-        write = { error("pumpBackend supplies the typed rpm writer") },
-    )
-    val load by doubleProperty {
-        error("pumpBackend supplies the typed load reader")
-    }
-    val command by action(MetaConverter.string, MetaConverter.string) { input ->
-        input
-    }
+object PumpSpec : DeviceContractBuilder() {
+    val rpm by mutableDoubleProperty()
+    val load by doubleProperty()
+    val command by action(MetaConverter.string, MetaConverter.string)
 }
 
-public val PumpBlueprint: DeviceBlueprint<Device> = blueprintOf(
+val PumpBlueprint: DeviceBlueprint<Device> = blueprintOf(
     id = "space.kscience.krig.demo.pump",
-    spec = PumpSpec,
+    contract = PumpSpec,
     version = "1.0.0-alpha-3",
 )
 
-public fun pumpBackend() = typedBackend {
+fun pumpBackend() = typedBackend {
     var rpm = 0.0
     val rpmSampler = doubleSampler(capacity = 64)
 

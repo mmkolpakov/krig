@@ -7,6 +7,7 @@
  * single source for storage filters and protects the wire protocol from accidental
  * duplicate string literals.
  */
+@Suppress("ConstPropertyName")
 public object DeviceMessageType {
     public const val PropertyChanged: String = "property.changed"
     public const val DeviceError: String = "message.error"

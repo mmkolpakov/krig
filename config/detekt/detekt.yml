@@ -33,7 +33,7 @@ style:
     max: 5
   # Override default max=2 — interceptor chains have multiple return paths
   ReturnCount:
-    max: 5
+    max: 8
   # Port chunking uses break/continue legitimately
   LoopWithTooManyJumpStatements:
     maxJumpCount: 2
@@ -42,8 +42,56 @@ style:
     active: true
   UnnecessaryApply:
     active: true
+  UnnecessaryParentheses:
+    active: true
+    allowForUnclearPrecedence: true
+  UnnecessaryBracesAroundTrailingLambda:
+    active: true
+  UnnecessaryFilter:
+    active: true
+  UnnecessaryFullyQualifiedName:
+    active: true
+  UnnecessaryReversed:
+    active: true
+  RedundantExplicitType:
+    active: true
+  RedundantHigherOrderMapUsage:
+    active: true
   UseCheckOrError:
     active: true
+  UseCheckNotNull:
+    active: true
+  UseAnyOrNoneInsteadOfFind:
+    active: true
+  UnusedImport:
+    active: true
+  UnusedPrivateClass:
+    active: true
+  UnusedPrivateFunction:
+    active: true
+  UnusedPrivateProperty:
+    active: true
+  UnusedVariable:
+    active: true
+  FunctionOnlyReturningConstant:
+    active: true
+    excludedFunctions:
+      - 'okUnit'
+
+complexity:
+  # Public SDK DSL/builders are intentionally wide. Keep complexity checks useful
+  # for algorithmic code without punishing fluent API surfaces.
+  TooManyFunctions:
+    allowedFunctionsPerFile: 40
+    allowedFunctionsPerClass: 40
+    allowedFunctionsPerInterface: 25
+    ignoreOverridden: true
+  CyclomaticComplexMethod:
+    allowedComplexity: 20
+  ComplexCondition:
+    allowedConditions: 5
+  LongMethod:
+    allowedLines: 90
 
 naming:
   FunctionNaming:

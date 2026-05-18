@@ -7,6 +7,9 @@
 package space.kscience.krig.dsl
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
@@ -15,6 +18,7 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.DeviceOutcome
 import space.kscience.krig.api.result.okUnit
@@ -27,10 +31,13 @@ import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.contracts.typed.typedBackend
+import space.kscience.krig.core.meta.DevicePropertyContract
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class BackendDeviceTypedBackendTest {
     private val valueName: Name = "value".asName()
@@ -42,7 +49,8 @@ class BackendDeviceTypedBackendTest {
             PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
 
         override suspend fun read(device: BackendDevice): Double = error("not used")
-        override suspend fun write(device: BackendDevice, value: Double): Unit = error("not used")
+        override suspend fun write(device: BackendDevice, value: Double): Unit =
+            error("not used: ${device.name} = $value")
     }
 
     @Test
@@ -82,6 +90,47 @@ class BackendDeviceTypedBackendTest {
         assertIs<ValidationFault>(failure.fault)
     }
 
+    @Test
+    fun backendOutcomeCancellationDoesNotMarkDeviceFailed() = runTest {
+        val started = CompletableDeferred<Unit>()
+        val never = CompletableDeferred<Unit>()
+        val backend = object : DeviceBackend {
+            context(device: DeviceEnvironment)
+            override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> {
+                started.complete(Unit)
+                never.await()
+                return DeviceOutcome.Ok(Meta.EMPTY)
+            }
+
+            context(device: DeviceEnvironment)
+            override suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> =
+                okUnit()
+
+            context(device: DeviceEnvironment)
+            override suspend fun execute(
+                action: space.kscience.krig.api.descriptors.ActionDescriptor,
+                argument: Meta?,
+            ): DeviceOutcome<Meta?> = DeviceOutcome.Ok(null)
+
+            override fun close() = Unit
+        }
+        val device = BackendDevice(
+            backend = backend,
+            name = "typed-device-cancel".asName(),
+            context = Context("typed-backend-cancel-test"),
+            descriptorSource = DescriptorSource.of(mapOf(valueSpec.name to valueSpec.descriptor)),
+        )
+
+        val job = launch {
+            val outcome = device.readPropertyOutcome(valueSpec.name)
+            error("read completed unexpectedly: $outcome")
+        }
+        started.await()
+        job.cancelAndJoin()
+
+        assertTrue(device.lifecycleState !is LifecycleState.Failed)
+    }
+
     private inner class NativeTypedBackend : DeviceBackend, TypedBackend {
         var metaReads: Int = 0
             private set
@@ -91,11 +140,11 @@ class BackendDeviceTypedBackendTest {
             private set
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> reader(spec: space.kscience.krig.core.meta.DevicePropertySpec<*, T>): TypedReader<T>? =
+        override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>? =
             if (spec.name == valueName) GenericTypedReader { 7.0 } as TypedReader<T> else null
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T> writer(spec: MutableDevicePropertySpec<*, T>): TypedWriter<T>? =
+        override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T>? =
             if (spec.name == valueName) {
                 GenericTypedWriter<Double> { value -> lastWritten = value } as TypedWriter<T>
             } else {

@@ -38,9 +38,11 @@ private fun freshContext(prefix: String): Context =
 class MutableCompositeDeviceCloseRaceTest {
 
     private class LeafDevice(name: Name) : AbstractDevice(name, DeviceRuntime(freshContext(name.toString()))) {
-        override suspend fun readProperty(propertyName: Name) = error("not used")
-        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) = null
+        override suspend fun readProperty(propertyName: Name) = error("not used: $propertyName")
+        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta): Unit =
+            error("not used: $propertyName = $value")
+        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) =
+            error("not used: $actionName($argument)")
     }
 
     @Test

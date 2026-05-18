@@ -906,8 +906,10 @@ public final class space/kscience/krig/api/result/DeviceOutcome$Ok$Companion {
 }
 
 public final class space/kscience/krig/api/result/DeviceOutcomeKt {
+	public static final fun fail (Lspace/kscience/krig/api/faults/DeviceFault;)Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun faultOrNull (Lspace/kscience/krig/api/result/DeviceOutcome;)Lspace/kscience/krig/api/faults/DeviceFault;
 	public static final fun flatMap (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/DeviceOutcome;
+	public static final fun flatMapSuspend (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun fold (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun getOrElse (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun getOrNull (Lspace/kscience/krig/api/result/DeviceOutcome;)Ljava/lang/Object;
@@ -917,11 +919,15 @@ public final class space/kscience/krig/api/result/DeviceOutcomeKt {
 	public static final fun isOk (Lspace/kscience/krig/api/result/DeviceOutcome;)Z
 	public static final fun map (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun mapFault (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/DeviceOutcome;
+	public static final fun mapSuspend (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun ok (Ljava/lang/Object;)Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun okUnit ()Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun onFailure (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun onSuccess (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/DeviceOutcome;
 	public static final fun recover (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun runCatchingDevice (Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/api/result/DeviceOutcome;
+	public static final fun then (Lspace/kscience/krig/api/result/DeviceOutcome;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun toOutcome (Lspace/kscience/krig/api/faults/DeviceFault;)Lspace/kscience/krig/api/result/DeviceOutcome;
 }
 
 public final class space/kscience/krig/api/utils/ValueConvertersKt {

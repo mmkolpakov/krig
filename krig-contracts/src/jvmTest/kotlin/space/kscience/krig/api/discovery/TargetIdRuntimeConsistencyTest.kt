@@ -25,7 +25,7 @@ class TargetIdRuntimeConsistencyTest {
     }
 
     @Test
-    fun FeatureInstallerContributions() =
+    fun featureInstallerContributions() =
         assertAnchor(FeatureInstallerContributions::class, FeatureInstallerContributions.Target.id)
 
     @Test

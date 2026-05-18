@@ -1,7 +1,9 @@
 ﻿package space.kscience.krig.api.serialization
 
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 /**
  * Source of polymorphic subclass registrations for [krigJson].
@@ -25,6 +27,21 @@ public fun interface SerializationContributor {
 /** Wraps an already-built [SerializersModule] as a contributor. */
 public fun SerializationContributor(module: SerializersModule): SerializationContributor =
     SerializationContributor { module }
+
+/**
+ * Runtime polymorphic registration for REPL/Jupyter and integration modules that do not
+ * use krig's KSP index. The serializer is still supplied explicitly, so the helper works
+ * on all Kotlin targets without reflection or classpath scanning.
+ */
+public inline fun <reified B : Any, reified S : B> polymorphicSerializationContributor(
+    serializer: KSerializer<S>,
+): SerializationContributor = SerializationContributor(
+    SerializersModule {
+        polymorphic(B::class) {
+            subclass(S::class, serializer)
+        }
+    },
+)
 
 /**
  * Aggregates [krigApiSerializersModule] with [contributors] into a single

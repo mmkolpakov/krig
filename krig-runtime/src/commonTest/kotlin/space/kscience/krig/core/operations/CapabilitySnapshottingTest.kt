@@ -85,7 +85,7 @@ class CapabilitySnapshottingTest {
     fun captureSnapshotSkipsNonSnapshottingCapabilities() = runTest {
         // A capability that does NOT implement Snapshotting must be silently absent.
         val nonSnapshotting = object : MetadataCapability {
-            override val description: String? = "no-snap"
+            override val description: String = "no-snap"
             override val tags: Set<MemberTag> = emptySet()
         }
         val caps: Attributes = AttributesBuilder<DeviceCapability<*>>().apply {

@@ -2,8 +2,8 @@ package space.kscience.krig.core.contracts
 
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.core.meta.DeviceActionSpec
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DeviceActionContract
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.dataforge.meta.*
 
 /**
@@ -22,7 +22,7 @@ import space.kscience.dataforge.meta.*
  */
 context(device: DeviceEnvironment)
 public suspend fun DeviceBackend.readBinary(property: PropertyDescriptor): ByteArray {
-    val meta = read(property).getOrThrow()
+    val meta = this.read(property).getOrThrow()
     return MetaConverter.byteArray.readOrNull(meta) ?: ByteArray(0)
 }
 
@@ -32,7 +32,7 @@ public suspend fun DeviceBackend.readBinary(property: PropertyDescriptor): ByteA
  */
 context(device: DeviceEnvironment)
 public suspend fun DeviceBackend.writeBinary(property: PropertyDescriptor, data: ByteArray) {
-    write(property, MetaConverter.byteArray.convert(data)).getOrThrow()
+    this.write(property, MetaConverter.byteArray.convert(data)).getOrThrow()
 }
 
 // Scalar Meta wrappers. Root-value form (`Meta(x.asValue())`) matches
@@ -73,8 +73,8 @@ public val Meta.stringValue: String? get() = string
  * own [MetaConverter].
  */
 context(device: DeviceEnvironment)
-public suspend fun <T> DeviceBackend.read(spec: DevicePropertySpec<*, T>): T {
-    val meta = read(spec.descriptor).getOrThrow()
+public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
+    val meta = this.read(spec.descriptor).getOrThrow()
     return spec.converter.read(meta)
 }
 
@@ -83,20 +83,20 @@ public suspend fun <T> DeviceBackend.read(spec: DevicePropertySpec<*, T>): T {
  * own [MetaConverter].
  */
 context(device: DeviceEnvironment)
-public suspend fun <T> DeviceBackend.write(spec: DevicePropertySpec<*, T>, value: T) {
-    write(spec.descriptor, spec.converter.convert(value)).getOrThrow()
+public suspend fun <T> DeviceBackend.write(spec: DevicePropertyContract<T>, value: T) {
+    this.write(spec.descriptor, spec.converter.convert(value)).getOrThrow()
 }
 
 /**
  * Executes [spec] with the typed [input], encoding/decoding through the spec's converters.
  */
 context(device: DeviceEnvironment)
-public suspend fun <I, O> DeviceBackend.execute(spec: DeviceActionSpec<*, I, O>, input: I): O {
-    val resultMeta = execute(spec.descriptor, spec.inputConverter.convert(input)).getOrThrow()
+public suspend fun <I, O> DeviceBackend.execute(spec: DeviceActionContract<I, O>, input: I): O {
+    val resultMeta = this.execute(spec.descriptor, spec.inputConverter.convert(input)).getOrThrow()
     return spec.outputConverter.read(resultMeta ?: Meta.EMPTY)
 }
 
 /** Convenience overload for unit-input actions. */
 context(device: DeviceEnvironment)
-public suspend fun <O> DeviceBackend.execute(spec: DeviceActionSpec<*, Unit, O>): O =
+public suspend fun <O> DeviceBackend.execute(spec: DeviceActionContract<Unit, O>): O =
     execute(spec, Unit)

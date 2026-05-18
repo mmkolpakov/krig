@@ -13,7 +13,8 @@ import space.kscience.dataforge.names.Name
  * Serializable, self-contained descriptor document for a device.
  *
  * Contains names, types, units, constraints, and DeviceFeatureSpec configurations -- no
- * executable code. Behavioral bindings live in `DevicePropertySpec`/`DeviceActionSpec`.
+ * executable code. Typed conversion metadata lives in `DevicePropertyContract` /
+ * `DeviceActionContract`; executable bindings live in backends.
  *
  * @param D Phantom type for type-safe wiring at the factory/builder level.
  */
@@ -26,6 +27,7 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val id: BlueprintId
 
     /** Semantic version of this blueprint; used for state migration and compatibility checks. */
+    @Suppress("SameReturnValue")
     public val version: String get() = "0.1.0"
 
     /** Map of features supported by this device, keyed by the DeviceFeatureSpec ID string. */
@@ -49,6 +51,7 @@ public interface DeviceBlueprint<D : Device> : MetaRepr {
     public val meta: Meta
 
     /** The fully qualified name of the device contract interface `D`. */
+    @Suppress("SameReturnValue")
     public val deviceContractFqName: String
 
     public companion object {

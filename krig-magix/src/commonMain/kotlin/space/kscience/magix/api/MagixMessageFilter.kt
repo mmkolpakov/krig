@@ -33,11 +33,15 @@ public data class MagixMessageFilter(
      * @param message The message to check.
      * @return `true` if the message passes all filter criteria, `false` otherwise.
      */
-    public fun accepts(message: MagixMessage): Boolean =
-        (format?.contains(message.format) ?: true)
-                && (source?.contains(message.sourceEndpoint) ?: true)
-                && (target?.contains(message.targetEndpoint) ?: true)
-                && (compiledTopicPattern?.let { pattern -> message.topic?.let(pattern::matches) ?: false } ?: true)
+    public fun accepts(message: MagixMessage): Boolean {
+        val formatMatches = format?.contains(message.format) ?: true
+        val sourceMatches = source?.contains(message.sourceEndpoint) ?: true
+        val targetMatches = target?.contains(message.targetEndpoint) ?: true
+        val topicMatches = compiledTopicPattern?.let { pattern ->
+            message.topic?.let(pattern::matches) ?: false
+        } ?: true
+        return formatMatches && sourceMatches && targetMatches && topicMatches
+    }
 
     public companion object {
         /**

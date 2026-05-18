@@ -40,11 +40,11 @@ public open class CompositeDevice(
     }
 
     protected open suspend fun writeOwnProperty(propertyName: Name, value: Meta) {
-        error("Property '$propertyName' not writable on CompositeDevice '$name'.")
+        error("Property '$propertyName' not writable on CompositeDevice '$name' for value $value.")
     }
 
     protected open suspend fun executeOwn(actionName: Name, argument: Meta?): Meta? {
-        error("Action '$actionName' not found on CompositeDevice '$name'.")
+        error("Action '$actionName' not found on CompositeDevice '$name' for argument $argument.")
     }
 
     override suspend fun readProperty(propertyName: Name): Meta {

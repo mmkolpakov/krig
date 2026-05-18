@@ -12,6 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.atomicfu.atomic
@@ -20,6 +21,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import space.kscience.krig.api.faults.DeviceFaultException
+import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -42,7 +44,7 @@ private open class DrainTestDevice : AbstractDevice(
     override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
     override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
 
-    override open suspend fun shutdown() {
+    override suspend fun shutdown() {
         shutdownCalls++
     }
 }
@@ -183,5 +185,27 @@ class AbstractDeviceCloseGracefullyTest {
         withTimeout(1.seconds) {
             completed.await()
         }
+    }
+
+    @Test
+    fun defaultOutcomeCancellationDoesNotMarkDeviceFailed() = runTest {
+        val started = CompletableDeferred<Unit>()
+        val never = CompletableDeferred<Unit>()
+        val device = object : DrainTestDevice() {
+            override suspend fun readProperty(propertyName: Name): Meta {
+                started.complete(Unit)
+                never.await()
+                return Meta.EMPTY
+            }
+        }
+
+        val job = launch {
+            val outcome = device.readPropertyOutcome("value".asName())
+            error("read completed unexpectedly: $outcome")
+        }
+        started.await()
+        job.cancelAndJoin()
+
+        assertTrue(device.lifecycleState !is LifecycleState.Failed)
     }
 }

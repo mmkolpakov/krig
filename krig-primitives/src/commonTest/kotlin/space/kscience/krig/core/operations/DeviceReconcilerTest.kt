@@ -13,6 +13,7 @@ import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.runtime.MutableCompositeDevice
+import space.kscience.krig.core.runtime.awaitChildren
 import space.kscience.krig.core.runtime.reconcile
 import space.kscience.krig.core.runtime.reconcileScoped
 import space.kscience.dataforge.context.Context
@@ -37,17 +38,15 @@ class DeviceReconcilerTest {
         val hub = MutableCompositeDevice("hub".asName(), context)
         val desired = MutableStateFlow(setOf("motorA".asName()))
 
-        val loop = with(context) {
+        val loop = context(context) {
             hub.reconcile(desired, produce = { name -> TestDevice(name) }, scope = this@runTest)
         }
-        advanceUntilIdle()
 
-        assertEquals(setOf("motorA".asName()), hub.children.keys)
+        assertEquals(setOf("motorA".asName()), hub.awaitChildren(setOf("motorA".asName())).keys)
 
         desired.value = setOf("motorB".asName())
-        advanceUntilIdle()
 
-        assertEquals(setOf("motorB".asName()), hub.children.keys)
+        assertEquals(setOf("motorB".asName()), hub.awaitChildren(setOf("motorB".asName())).keys)
         assertTrue("motorB".asName() in hub.children.keys)
 
         loop.job.cancel()
@@ -60,7 +59,7 @@ class DeviceReconcilerTest {
         val desired = MutableStateFlow(setOf("motorA".asName()))
         var rollbackCount = 0
 
-        val loop = with(context) {
+        val loop = context(context) {
             hub.reconcileScoped(
                 desired = desired,
                 produce = {

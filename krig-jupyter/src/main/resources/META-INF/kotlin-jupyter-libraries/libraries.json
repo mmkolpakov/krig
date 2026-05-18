@@ -1,0 +1,12 @@
+{
+  "definitions": [],
+  "producers": [
+    {
+      "fqn": "space.kscience.krig.jupyter.KrigJupyterIntegration"
+    },
+    {
+      "fqn": "space.kscience.krig.jupyter.KrigSimulationJupyterIntegration"
+    }
+  ],
+  "descriptors": []
+}

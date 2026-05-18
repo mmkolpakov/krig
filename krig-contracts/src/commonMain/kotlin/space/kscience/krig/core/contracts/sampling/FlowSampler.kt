@@ -32,6 +32,7 @@ public class FlowSampler<T>(
     override fun latest(): T? = flow.replayCache.lastOrNull()
     override fun snapshot(): List<T> = flow.replayCache.toList()
     override fun flow(): Flow<T> = flow.asSharedFlow()
+    override fun toString(): String = "FlowSampler(type=$type, capacity=$capacity)"
 }
 
 /** Reified factory — single public entry point replacing the primitive-specialised factories. */

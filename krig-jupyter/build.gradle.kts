@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -12,16 +14,69 @@ description = "Kotlin Jupyter integration for krig — auto-imports, HTML render
 dependencies {
     compileOnly(libs.kotlin.jupyter.api)
 
-    api(projects.krigContracts)
-    api(projects.krigPrimitives)
-    api(projects.krigRuntime)
-    api(projects.krigSimulation)
-    api(projects.krigMagix)
+    api(project(":krig-contracts"))
+    api(project(":krig-primitives"))
+    api(project(":krig-runtime"))
+    api(project(":krig-simulation"))
+    api(project(":krig-magix"))
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            pom {
+                name.set("krig-jupyter")
+                description.set(project.description)
+            }
+        }
+    }
 }
 
 kotlin {
     jvmToolchain(21)
     explicitApi()
+}
+
+val verifyNotebookResources by tasks.registering {
+    val descriptor = layout.projectDirectory.file("src/main/resources/krig.json")
+    val notebook = layout.projectDirectory.file("src/main/resources/krig-intro.ipynb")
+    val projectVersion = version.toString()
+
+    inputs.file(descriptor)
+    inputs.file(notebook)
+
+    doLast {
+        val descriptorText = descriptor.asFile.readText()
+        val notebookText = notebook.asFile.readText()
+        val parsedNotebook = JsonSlurper().parse(notebook.asFile) as Map<*, *>
+        val codeSources = (parsedNotebook["cells"] as List<*>)
+            .filterIsInstance<Map<*, *>>()
+            .filter { it["cell_type"] == "code" }
+            .joinToString("\n") { cell ->
+                (cell["source"] as List<*>).joinToString("")
+            }
+
+        check("\"value\": \"$projectVersion\"" in descriptorText) {
+            "krig.json must expose project version $projectVersion"
+        }
+        check("\"space.kscience:krig-jupyter:\$krig\"" in descriptorText) {
+            "krig.json must point at the krig-jupyter JVM integration artifact"
+        }
+        check(Regex("""(?m)^\s*%use\s+@file\[krig\.json]\s*$""").containsMatchIn(codeSources)) {
+            "krig-intro.ipynb must use the local descriptor while krig is not published"
+        }
+        check("Unknown library" !in notebookText) {
+            "krig-intro.ipynb must not keep stale Kotlin Notebook error output"
+        }
+        check(!Regex("""(?m)^\s*%use\s+krig(-simulation)?\s*$""").containsMatchIn(codeSources)) {
+            "krig-intro.ipynb must not use unpublished descriptor names"
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(verifyNotebookResources)
 }
 
 tasks.withType<Test>().configureEach { useJUnitPlatform() }

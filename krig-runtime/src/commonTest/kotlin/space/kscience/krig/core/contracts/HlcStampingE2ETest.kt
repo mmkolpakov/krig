@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
@@ -13,7 +13,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.operations.HlcTimestamp
@@ -66,7 +65,7 @@ private class StampedTestDevice(
                 time = clock.now(),
                 property = propertyName,
                 value = value,
-                sourceDevice = Address(route = Name.EMPTY, device = name),
+                sourceDevice = name,
             ),
         )
     }

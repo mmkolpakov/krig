@@ -170,7 +170,7 @@ class VirtualTimeTest {
 
             contextJob.cancel("Manual cancellation for test")
 
-            advanceTimeBy(100)
+            advanceTimeBy(100.milliseconds)
             runCurrent()
 
             assertFalse(contextJob.isActive, "Context's job should be inactive after manual cancellation.")

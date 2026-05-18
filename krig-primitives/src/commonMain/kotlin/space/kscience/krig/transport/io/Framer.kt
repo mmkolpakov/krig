@@ -20,20 +20,20 @@ public fun interface Framer<T> {
 }
 
 /** Line-delimited frames (text-based protocols). */
-public fun LineFramer(
+public fun lineFramer(
     delimiter: ByteString = "\n".encodeToByteString(),
     maxLength: Int = 4096,
-): Framer<String> = DelimitedFramer(delimiter, maxLength).let { inner ->
+): Framer<String> = delimitedFramer(delimiter, maxLength).let { inner ->
     Framer { buffer -> inner.decode(buffer)?.decodeToString() }
 }
 
 /** Fixed-size binary frames (e.g. SPI-over-TCP). */
-public fun FixedSizeFramer(size: Int): Framer<ByteArray> = Framer { buffer ->
+public fun fixedSizeFramer(size: Int): Framer<ByteArray> = Framer { buffer ->
     if (buffer.size < size) null else buffer.readByteArray(size)
 }
 
 /** Delimited by arbitrary byte sequence (e.g. `\r\n`, `<EOT>`). */
-public fun DelimitedFramer(
+public fun delimitedFramer(
     delimiter: ByteString,
     maxLength: Int = 4096,
 ): Framer<ByteArray> = Framer { buffer ->
@@ -52,7 +52,7 @@ public fun DelimitedFramer(
 }
 
 /** Length-prefixed frames (`uint32 little-endian size` + payload). */
-public fun LengthPrefixedFramer(maxPayload: Int = 1 shl 20): Framer<ByteArray> = Framer { buffer ->
+public fun lengthPrefixedFramer(maxPayload: Int = 1 shl 20): Framer<ByteArray> = Framer { buffer ->
     if (buffer.size < 4) return@Framer null
     val peek = buffer.peek()
     val b0 = peek.readByte().toInt() and 0xFF

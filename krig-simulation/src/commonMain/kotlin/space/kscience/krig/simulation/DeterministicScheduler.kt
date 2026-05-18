@@ -82,7 +82,7 @@ public class DeterministicScheduler(
         val last = scheduledEvents.removeAt(scheduledEvents.lastIndex)
         if (scheduledEvents.isNotEmpty()) {
             scheduledEvents[0] = last
-            siftDown(0)
+            siftDown()
         }
         return first
     }
@@ -90,15 +90,15 @@ public class DeterministicScheduler(
     private fun siftUp(startIndex: Int) {
         var index = startIndex
         while (index > 0) {
-            val parent = (index - 1) ushr 1
+            val parent = index.dec() ushr 1
             if (scheduledEvents[parent] <= scheduledEvents[index]) break
             scheduledEvents.swap(parent, index)
             index = parent
         }
     }
 
-    private fun siftDown(startIndex: Int) {
-        var index = startIndex
+    private fun siftDown() {
+        var index = 0
         while (true) {
             val left = index * 2 + 1
             if (left >= scheduledEvents.size) return

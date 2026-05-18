@@ -48,7 +48,7 @@ internal class BufferedHookRegistry : HookRegistry {
         while (true) {
             val prev = state.load()
             val prior = prev[hook].orEmpty()
-            val next = prev + (hook to (prior + handler))
+            val next = prev + (hook to prior + handler)
             if (state.compareAndSet(prev, next)) return
         }
     }

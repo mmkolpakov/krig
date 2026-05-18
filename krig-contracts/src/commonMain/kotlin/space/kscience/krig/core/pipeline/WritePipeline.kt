@@ -2,18 +2,19 @@
 
 import kotlin.time.Duration
 import space.kscience.krig.api.faults.DeviceFault
+import space.kscience.krig.api.result.DeviceOutcome
 import space.kscience.krig.api.spec.RetryPolicy
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 
 /** Fail-fast precondition for typed writes. See [ReadGate]. */
 public fun interface WriteGate {
-    public suspend fun check(spec: MutableDevicePropertySpec<*, *>)
+    public suspend fun check(spec: MutableDevicePropertyContract<*>): DeviceOutcome<Unit>
 }
 
 /** After-call observer for typed writes. See [ReadObserver]. */
 public fun interface WriteObserver {
     public suspend fun onWrite(
-        spec: MutableDevicePropertySpec<*, *>,
+        spec: MutableDevicePropertyContract<*>,
         durationNanos: Long,
         fault: DeviceFault?,
     )

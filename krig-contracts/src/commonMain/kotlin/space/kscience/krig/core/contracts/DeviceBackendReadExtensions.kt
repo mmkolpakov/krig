@@ -17,7 +17,7 @@ public suspend fun DeviceBackend.readWithResult(
     clock: Clock = Clock.System,
 ): ObservedValue<Meta> {
     val readAt = clock.now() // Timestamp BEFORE I/O — closest to physical measurement time
-    val value = read(property).getOrThrow()
+    val value = this.read(property).getOrThrow()
     return ObservedValue(
         value = value,
         time = readAt,

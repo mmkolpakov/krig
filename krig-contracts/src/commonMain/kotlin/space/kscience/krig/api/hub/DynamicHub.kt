@@ -64,6 +64,7 @@ public interface DynamicHub : Device {
 }
 
 /** Thrown by [DynamicHub.attach] when the target name is already taken. */
+@Suppress("CanBeParameter")
 public class HubConflictException(
     public val conflictName: Name,
     public val reason: String,

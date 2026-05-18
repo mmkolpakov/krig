@@ -34,8 +34,7 @@ public interface AuditService : Plugin {
 private class NoOpAuditService(meta: Meta) : AbstractPlugin(meta), AuditService {
     override val tag: PluginTag get() = AuditService.tag
     override val isActive: Boolean get() = false
-    override suspend fun record(principal: Principal, action: AuditAction, details: Meta) {}
-
+    override suspend fun record(principal: Principal, action: AuditAction, details: Meta): Unit = Unit
 }
 
 /** Gets the [AuditService] from a context. Falls back to a no-op if no service is installed. */

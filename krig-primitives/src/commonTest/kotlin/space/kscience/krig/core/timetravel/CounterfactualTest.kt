@@ -1,10 +1,12 @@
-@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
+@file:OptIn(
+    space.kscience.krig.core.ExperimentalKrigApi::class,
+    ExperimentalTimeTravelApi::class,
+)
 
 package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -20,7 +22,7 @@ import kotlin.time.Instant
 
 class CounterfactualTest {
 
-    private val source = Address(route = "lab".asName(), device = "counter".asName())
+    private val source = "lab.counter".asName()
 
     private class CounterReplay : DeviceReconstructible<Device> {
         val applied: MutableList<Int> = mutableListOf()

@@ -1,6 +1,6 @@
-rootProject.name = "krig"
+@file:Suppress("UnstableApiUsage")
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+rootProject.name = "krig"
 
 pluginManagement {
     val kotlinVersion: String by extra

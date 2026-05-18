@@ -38,7 +38,7 @@ context(clock: kotlin.time.Clock)
 public fun <T> observed(
     value: T,
     quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<T> = ObservedValue(value, clock.now(), quality)
+): ObservedValue<T> = ObservedValue(value = value, time = clock.now(), quality = quality)
 
 /** `true` when the value has [DataQuality.GOOD] severity. */
 public val ObservedValue<*>.isGood: Boolean

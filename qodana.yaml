@@ -4,19 +4,51 @@
 #-------------------------------------------------------------------------------#
 version: "1.0"
 
-#Specify inspection profile for code analysis
 profile:
-  name: qodana.recommended
+  name: Default
 
 include:
   - name: UnusedSymbol
+
+exclude:
+  - name: UnnecessaryModuleDependencyInspection
   - name: unused
+  - name: UnusedReceiverParameter
+  - name: UnusedSymbol
+    paths:
+      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/DeviceFeatureSpecContractValidatorTest.kt
+      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/KspIncrementalRegressionTest.kt
+      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/SerializersModuleGeneratorTest.kt
+  - name: All
+    paths:
+      - build
+      - buildSrc/build
+      - krig-contracts/build
+      - krig-demo/build
+      - krig-identity/build
+      - krig-jupyter/build
+      - krig-ksp-processor/build
+      - krig-magix/build
+      - krig-messaging/build
+      - krig-model/build
+      - krig-primitives/build
+      - krig-runtime/build
+      - krig-simulation/build
+      - krig-state/build
+      - .gradle
+      - .kotlin
+      - .qodana
+      - generated
+      - cache
 
 projectJDK: "21"
+
+rootJavaProjects:
+  - "."
 
 failureConditions:
   severityThresholds:
     critical: 0
     high: 0
 
-linter: jetbrains/qodana-jvm-community:2025.2
+linter: qodana-jvm-community

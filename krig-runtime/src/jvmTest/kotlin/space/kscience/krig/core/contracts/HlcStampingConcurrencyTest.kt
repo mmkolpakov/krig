@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
@@ -16,7 +16,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
@@ -34,9 +33,11 @@ private class ConcurrentStampedDevice(
     name: String,
     runtime: DeviceRuntime,
 ) : AbstractDevice(name.asName(), runtime) {
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {}
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun readProperty(propertyName: Name): Meta = error("not used: $propertyName")
+    override suspend fun writeProperty(propertyName: Name, value: Meta): Unit =
+        error("not used: $propertyName = $value")
+    override suspend fun execute(actionName: Name, argument: Meta?) =
+        error("not used: $actionName($argument)")
 
     suspend fun publish(seq: Int) {
         emit(
@@ -44,7 +45,7 @@ private class ConcurrentStampedDevice(
                 time = clock.now(),
                 property = "p".asName(),
                 value = Meta { set("value", seq) },
-                sourceDevice = Address(route = Name.EMPTY, device = name),
+                sourceDevice = name,
             ),
         )
     }

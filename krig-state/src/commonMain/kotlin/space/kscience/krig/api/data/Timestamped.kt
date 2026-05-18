@@ -32,4 +32,4 @@ public fun <T> timestamped(value: T, clock: Clock = Clock.System): Timestamped<T
 /** [timestamped] using the ambient `context(Clock)` — picks up virtual / compressed time. */
 context(clock: Clock)
 public fun <T> timestamped(value: T): Timestamped<T> =
-    Timestamped(value, clock.now())
+    Timestamped(value = value, time = clock.now())

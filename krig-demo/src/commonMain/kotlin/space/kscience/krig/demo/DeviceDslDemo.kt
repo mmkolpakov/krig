@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.yield
 import kotlin.time.Instant
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
@@ -25,7 +24,7 @@ import space.kscience.dataforge.names.asName
  * Run: `./gradlew :krig-demo:jvmRun`
  */
 @OptIn(PerformancePitfall::class)
-public suspend fun deviceDslDemo(): Unit = coroutineScope {
+suspend fun deviceDslDemo(): Unit = coroutineScope {
     val ctx = demoContext("demo")
 
     println("=== Device DSL ===")
@@ -53,13 +52,13 @@ public suspend fun deviceDslDemo(): Unit = coroutineScope {
                 time = Instant.fromEpochMilliseconds(1_000),
                 property = "setpoint".asName(),
                 value = metaOf(26.0),
-                sourceDevice = Address("demo".asName(), thermo.name),
+                sourceDevice = thermo.name,
             ),
             PropertyChangedMessage(
                 time = Instant.fromEpochMilliseconds(2_000),
                 property = "setpoint".asName(),
                 value = metaOf(27.0),
-                sourceDevice = Address("demo".asName(), thermo.name),
+                sourceDevice = thermo.name,
             ),
         ),
         deviceName = thermo.name,

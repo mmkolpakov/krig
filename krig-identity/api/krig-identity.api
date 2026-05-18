@@ -1,41 +1,3 @@
-public final class space/kscience/krig/api/addressing/Address {
-	public static final field Companion Lspace/kscience/krig/api/addressing/Address$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/addressing/Address;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/addressing/Address;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/addressing/Address;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDevice ()Lspace/kscience/dataforge/names/Name;
-	public final fun getRoute ()Lspace/kscience/dataforge/names/Name;
-	public fun hashCode ()I
-	public final fun resolveChild (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/addressing/Address;
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/addressing/Address$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/addressing/Address$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/addressing/Address;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/addressing/Address;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/addressing/Address$Companion {
-	public final fun parse (Ljava/lang/String;)Lspace/kscience/krig/api/addressing/Address;
-	public final fun parseOrNull (Ljava/lang/String;)Lspace/kscience/krig/api/addressing/Address;
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/addressing/AddressKt {
-	public static final fun toAddress (Ljava/lang/String;)Lspace/kscience/krig/api/addressing/Address;
-	public static final fun toAddressOrNull (Ljava/lang/String;)Lspace/kscience/krig/api/addressing/Address;
-}
-
 public abstract interface class space/kscience/krig/api/addressing/TransportAddress {
 }
 
@@ -52,19 +14,19 @@ public final class space/kscience/krig/api/context/AnonymousPrincipal : space/ks
 
 public final class space/kscience/krig/api/context/ExecutionContext {
 	public static final field Companion Lspace/kscience/krig/api/context/ExecutionContext$Companion;
-	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/krig/api/addressing/Address;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/krig/api/addressing/Address;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/krig/api/context/Principal;
 	public final fun component2-VDH_JW0 ()Ljava/lang/String;
-	public final fun component3 ()Lspace/kscience/krig/api/addressing/Address;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component4 ()Lspace/kscience/dataforge/meta/Meta;
 	public final fun component5 ()Lspace/kscience/attributes/Attributes;
-	public final fun copy-JkYp4CU (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/krig/api/addressing/Address;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/context/ExecutionContext;
-	public static synthetic fun copy-JkYp4CU$default (Lspace/kscience/krig/api/context/ExecutionContext;Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/krig/api/addressing/Address;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/context/ExecutionContext;
+	public final fun copy-JkYp4CU (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/context/ExecutionContext;
+	public static synthetic fun copy-JkYp4CU$default (Lspace/kscience/krig/api/context/ExecutionContext;Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/context/ExecutionContext;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public final fun getCorrelationId-VDH_JW0 ()Ljava/lang/String;
-	public final fun getOriginAddress ()Lspace/kscience/krig/api/addressing/Address;
+	public final fun getOriginDevice ()Lspace/kscience/dataforge/names/Name;
 	public final fun getPrincipal ()Lspace/kscience/krig/api/context/Principal;
 	public final fun getProperties ()Lspace/kscience/dataforge/meta/Meta;
 	public fun hashCode ()I

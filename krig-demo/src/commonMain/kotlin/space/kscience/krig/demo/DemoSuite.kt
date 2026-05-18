@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * Runs the curated alpha-3 demo set.
  */
-public fun main(): Unit = runBlocking {
+fun main(): Unit = runBlocking {
     deviceDslDemo()
     industrialAssemblyDemo()
     flakyNetworkDemo()

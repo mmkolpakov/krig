@@ -25,7 +25,7 @@ import space.kscience.dataforge.names.asName
  * Run: `./gradlew :krig-demo:jvmRun`
  */
 @OptIn(PerformancePitfall::class)
-public suspend fun expressionDemo() {
+suspend fun expressionDemo() {
     val ctx = demoContext("expr-demo")
 
     println("=== Expression tree ===")

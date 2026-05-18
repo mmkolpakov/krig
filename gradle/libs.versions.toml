@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.0-Beta2"
+kotlin = "2.4.0-RC"
 
 # Core runtime
 atomicfu = "0.32.1"
@@ -8,6 +8,7 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.10.0"
 kotlinx-io-core = "0.9.0"
 attributes-kt = "0.4.0"
+slf4j = "2.0.18"
 
 # Arrow (typed errors)
 arrow = "2.2.2.1"
@@ -23,11 +24,11 @@ kotest = "6.1.11"
 lincheck = "2.39"
 
 # Code Generation (used by krig-ksp-processor + buildSrc convention plugin)
-ksp = "2.3.7"
+ksp = "2.3.8"
 kctfork = "0.13.0-alpha01"
 
 # Static Analysis
-detekt = "2.0.0-alpha.2"
+detekt = "2.0.0-alpha.3"
 
 # Documentation
 dokka = "2.2.0"
@@ -54,6 +55,7 @@ tables-kt = { module = "space.kscience:tables-kt", version.ref = "dataforge" }
 # kscience
 attributes-kt = { module = "space.kscience:attributes-kt", version.ref = "attributes-kt" }
 attributes-kt-serialization = { module = "space.kscience:attributes-kt-serialization", version.ref = "attributes-kt" }
+slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
 
 # Kotlin compiler plugins for buildSrc
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }

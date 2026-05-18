@@ -1,4 +1,6 @@
-﻿package space.kscience.krig.ksp
+@file:Suppress("UnusedSymbol")
+
+package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -88,6 +90,7 @@ class DeviceFeatureSpecContractValidatorTest {
                 SourceFile.kotlin(
                     "KrigFeatureSpec.kt",
                     """
+
                     package space.kscience.krig.api.annotations
 
                     @Target(AnnotationTarget.CLASS)
@@ -97,6 +100,7 @@ class DeviceFeatureSpecContractValidatorTest {
                 SourceFile.kotlin(
                     "SerialName.kt",
                     """
+
                     package kotlinx.serialization
 
                     @Target(AnnotationTarget.CLASS)
@@ -106,6 +110,7 @@ class DeviceFeatureSpecContractValidatorTest {
                 SourceFile.kotlin(
                     "SampleFeature.kt",
                     """
+
                     package sample
 
                     import kotlinx.serialization.SerialName

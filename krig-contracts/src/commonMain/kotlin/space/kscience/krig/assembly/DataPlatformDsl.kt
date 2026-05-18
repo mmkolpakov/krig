@@ -19,6 +19,7 @@ public class DataPlatformBuilder internal constructor() {
     public fun source(id: String): SourceHandle = SourceHandle(id)
 
     /** Declares a wall-clock timer driving property sampling. */
+    @Suppress("SameParameterValue")
     public fun timer(
         id: String,
         interval: Duration,

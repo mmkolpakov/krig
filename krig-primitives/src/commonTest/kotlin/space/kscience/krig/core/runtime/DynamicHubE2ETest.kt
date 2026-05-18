@@ -95,7 +95,7 @@ class DynamicHubE2ETest {
         }
 
         val desired = MutableStateFlow(setOf("a".asName()))
-        val loop = with(hubCtx) {
+        val loop = context(hubCtx) {
             hub.reconcile(
                 desired,
                 produce = { trackingDevice(it.toString(), hubCtx) },

@@ -9,10 +9,10 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.krigState)
-                api(projects.krigIdentity)
-                api(projects.krigModel)
-                api(projects.krigMessaging)
+                api(project(":krig-state"))
+                api(project(":krig-identity"))
+                api(project(":krig-model"))
+                api(project(":krig-messaging"))
 
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)

@@ -12,7 +12,7 @@ import space.kscience.krig.dsl.device
 /**
  * Transient driver failures handled by the typed pipeline retry policy.
  */
-public suspend fun flakyNetworkDemo() {
+suspend fun flakyNetworkDemo() {
     val ctx = demoContext("flaky-network-demo")
     val driver = FlakyPumpDriver()
     val pump = device("flakyPump", driver.backend(), ctx) {

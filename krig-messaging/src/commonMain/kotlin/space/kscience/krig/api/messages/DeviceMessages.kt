@@ -2,7 +2,6 @@
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
@@ -25,8 +24,10 @@ public data class PropertyChangedMessage(
     @Serializable(with = NameSerializer::class)
     public val property: Name,
     public val value: Meta,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -35,7 +36,7 @@ public data class PropertyChangedMessage(
     override val messageType: String get() = DeviceMessageType.PropertyChanged
 
     override fun changeSource(block: (Name) -> Name): PropertyChangedMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyChangedMessage = copy(hlcTimestamp = stamp)
 }
@@ -48,8 +49,10 @@ public data class PropertyChangedMessage(
 public data class DeviceErrorMessage(
     override val time: Instant,
     public val failure: SerializableDeviceFailure,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String?,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -57,7 +60,7 @@ public data class DeviceErrorMessage(
     override val messageType: String get() = DeviceMessageType.DeviceError
 
     override fun changeSource(block: (Name) -> Name): DeviceErrorMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): DeviceErrorMessage = copy(hlcTimestamp = stamp)
 }
@@ -67,8 +70,10 @@ public data class DeviceErrorMessage(
 public data class ActionFaultMessage(
     override val time: Instant,
     public val fault: DeviceFault,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -76,7 +81,7 @@ public data class ActionFaultMessage(
     override val messageType: String get() = DeviceMessageType.ActionFault
 
     override fun changeSource(block: (Name) -> Name): ActionFaultMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): ActionFaultMessage = copy(hlcTimestamp = stamp)
 }
@@ -91,8 +96,10 @@ public data class DeviceAttachedMessage(
     override val time: Instant,
     public val deviceName: Name,
     public val blueprintId: BlueprintId,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -100,7 +107,7 @@ public data class DeviceAttachedMessage(
     override val messageType: String get() = DeviceMessageType.DeviceAttached
 
     override fun changeSource(block: (Name) -> Name): DeviceAttachedMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): DeviceAttachedMessage = copy(hlcTimestamp = stamp)
 }
@@ -113,8 +120,10 @@ public data class DeviceAttachedMessage(
 public data class DeviceDetachedMessage(
     override val time: Instant,
     public val deviceName: Name,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -122,7 +131,7 @@ public data class DeviceDetachedMessage(
     override val messageType: String get() = DeviceMessageType.DeviceDetached
 
     override fun changeSource(block: (Name) -> Name): DeviceDetachedMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): DeviceDetachedMessage = copy(hlcTimestamp = stamp)
 }
@@ -138,8 +147,10 @@ public data class PropertyReadRequest(
     override val time: Instant,
     public val property: String,
     public val callerIdentity: String? = null,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -147,7 +158,7 @@ public data class PropertyReadRequest(
     override val messageType: String get() = DeviceMessageType.PropertyReadRequest
 
     override fun changeSource(block: (Name) -> Name): PropertyReadRequest =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyReadRequest = copy(hlcTimestamp = stamp)
 }
@@ -162,8 +173,10 @@ public data class PropertyReadResponse(
     override val time: Instant,
     public val property: String,
     public val value: Meta,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -171,7 +184,7 @@ public data class PropertyReadResponse(
     override val messageType: String get() = DeviceMessageType.PropertyReadResponse
 
     override fun changeSource(block: (Name) -> Name): PropertyReadResponse =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyReadResponse = copy(hlcTimestamp = stamp)
 }
@@ -184,8 +197,10 @@ public data class PropertyWriteRequest(
     public val property: String,
     public val value: Meta,
     public val callerIdentity: String? = null,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -193,7 +208,7 @@ public data class PropertyWriteRequest(
     override val messageType: String get() = DeviceMessageType.PropertyWriteRequest
 
     override fun changeSource(block: (Name) -> Name): PropertyWriteRequest =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyWriteRequest = copy(hlcTimestamp = stamp)
 }
@@ -208,8 +223,10 @@ public data class PropertyWriteResponse(
     override val time: Instant,
     public val property: String,
     public val observedValue: Meta? = null,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -217,7 +234,7 @@ public data class PropertyWriteResponse(
     override val messageType: String get() = DeviceMessageType.PropertyWriteResponse
 
     override fun changeSource(block: (Name) -> Name): PropertyWriteResponse =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyWriteResponse = copy(hlcTimestamp = stamp)
 }
@@ -229,8 +246,10 @@ public data class PropertyFaultMessage(
     override val time: Instant,
     public val property: String,
     public val fault: DeviceFault,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -238,7 +257,7 @@ public data class PropertyFaultMessage(
     override val messageType: String get() = DeviceMessageType.PropertyFault
 
     override fun changeSource(block: (Name) -> Name): PropertyFaultMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): PropertyFaultMessage = copy(hlcTimestamp = stamp)
 }
@@ -258,8 +277,10 @@ public data class ActionRequestMessage(
     public val actionName: String,
     public val argument: Meta? = null,
     public val callerIdentity: String? = null,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -267,7 +288,7 @@ public data class ActionRequestMessage(
     override val messageType: String get() = DeviceMessageType.ActionExecuteRequest
 
     override fun changeSource(block: (Name) -> Name): ActionRequestMessage =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): ActionRequestMessage = copy(hlcTimestamp = stamp)
 }
@@ -282,8 +303,10 @@ public data class ActionRequestMessage(
 public data class ActionResponseMessage(
     override val time: Instant,
     public val result: Meta?,
-    override val sourceDevice: Address?,
-    override val targetDevice: Address?,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name?,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -291,7 +314,7 @@ public data class ActionResponseMessage(
     override val messageType: String get() = DeviceMessageType.ActionExecuteResponse
 
     override fun changeSource(block: (Name) -> Name): ActionResponseMessage =
-        copy(sourceDevice = sourceDevice?.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = sourceDevice?.let(block))
 
     override fun withHlcStamp(stamp: HlcTimestamp): ActionResponseMessage = copy(hlcTimestamp = stamp)
 }
@@ -323,8 +346,10 @@ public data class DeviceOnlineMessage(
     public val blueprintId: BlueprintId,
     public val descriptorSnapshot: DeviceDescriptorSnapshot? = null,
     public val initialValues: Map<String, Meta> = emptyMap(),
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -332,7 +357,7 @@ public data class DeviceOnlineMessage(
     override val messageType: String get() = DeviceMessageType.DeviceOnline
 
     override fun changeSource(block: (Name) -> Name): DeviceOnlineMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): DeviceOnlineMessage = copy(hlcTimestamp = stamp)
 }
@@ -347,8 +372,10 @@ public data class DeviceOnlineMessage(
 public data class DeviceOfflineMessage(
     override val time: Instant,
     public val cause: DeviceDepartureReason,
-    override val sourceDevice: Address,
-    override val targetDevice: Address? = null,
+    @Serializable(with = NameSerializer::class)
+    override val sourceDevice: Name,
+    @Serializable(with = NameSerializer::class)
+    override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
     override val hlcTimestamp: HlcTimestamp? = null,
@@ -356,7 +383,7 @@ public data class DeviceOfflineMessage(
     override val messageType: String get() = DeviceMessageType.DeviceOffline
 
     override fun changeSource(block: (Name) -> Name): DeviceOfflineMessage =
-        copy(sourceDevice = sourceDevice.copy(device = block(sourceDevice.device)))
+        copy(sourceDevice = block(sourceDevice))
 
     override fun withHlcStamp(stamp: HlcTimestamp): DeviceOfflineMessage = copy(hlcTimestamp = stamp)
 }

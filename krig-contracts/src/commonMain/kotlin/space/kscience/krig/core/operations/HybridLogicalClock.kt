@@ -35,11 +35,14 @@ public class HybridLogicalClock(
             return tickAt(physicalMs)
         }
         val mergedPhysical = maxOf(physicalMs, current.physicalMilliseconds, remoteTimestamp.physicalMilliseconds)
-        val mergedLogical = when {
-            mergedPhysical == current.physicalMilliseconds && mergedPhysical == remoteTimestamp.physicalMilliseconds ->
-                maxOf(current.logicalCounter, remoteTimestamp.logicalCounter) + 1
-            mergedPhysical == current.physicalMilliseconds -> current.logicalCounter + 1
-            mergedPhysical == remoteTimestamp.physicalMilliseconds -> remoteTimestamp.logicalCounter + 1
+        val mergedLogical = when (mergedPhysical) {
+            current.physicalMilliseconds ->
+                if (mergedPhysical == remoteTimestamp.physicalMilliseconds) {
+                    maxOf(current.logicalCounter, remoteTimestamp.logicalCounter) + 1
+                } else {
+                    current.logicalCounter + 1
+                }
+            remoteTimestamp.physicalMilliseconds -> remoteTimestamp.logicalCounter + 1
             else -> 0
         }
         lastPhysicalMs = mergedPhysical

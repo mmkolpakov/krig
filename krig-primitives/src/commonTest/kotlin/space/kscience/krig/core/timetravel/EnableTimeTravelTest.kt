@@ -9,14 +9,12 @@
 package space.kscience.krig.core.timetravel
 
 import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -45,7 +43,7 @@ import kotlin.time.Instant
  */
 class EnableTimeTravelTest {
 
-    private val deviceAddr = Address(route = "lab".asName(), device = "counter".asName())
+    private val deviceAddr = "lab.counter".asName()
 
     @OptIn(space.kscience.krig.core.InternalKrigApi::class)
     private class ReplayingDevice(name: Name, context: Context) :

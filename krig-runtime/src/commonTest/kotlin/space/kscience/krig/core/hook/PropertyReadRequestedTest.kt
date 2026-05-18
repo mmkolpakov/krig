@@ -26,6 +26,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private val contextSeq: AtomicInt = AtomicInt(0)
+@Suppress("SameParameterValue")
 private fun freshContext(prefix: String): Context =
     Context("$prefix-${contextSeq.addAndFetch(1)}")
 

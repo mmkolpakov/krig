@@ -2,14 +2,14 @@
 
 import kotlin.time.Duration
 import space.kscience.krig.api.faults.DeviceFault
+import space.kscience.krig.api.result.DeviceOutcome
 import space.kscience.krig.api.spec.RetryPolicy
 import space.kscience.krig.core.contracts.typed.TypedReader
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DevicePropertyContract
 
 /**
- * Fail-fast precondition for typed reads. Throws
- * [DeviceFaultException][space.kscience.krig.api.faults.DeviceFaultException] to deny;
- * returns normally to allow.
+ * Fail-fast precondition for typed reads. Returns [DeviceOutcome.Fail] to deny
+ * and [DeviceOutcome.Ok] to allow.
  *
  * Examples: principal-aware RBAC, lifecycle gate, connection-state gate.
  *
@@ -17,7 +17,7 @@ import space.kscience.krig.core.meta.DevicePropertySpec
  * or I/O — kept side-effect-free where possible to make denial cheap.
  */
 public fun interface ReadGate {
-    public suspend fun check(spec: DevicePropertySpec<*, *>)
+    public suspend fun check(spec: DevicePropertyContract<*>): DeviceOutcome<Unit>
 }
 
 /**
@@ -30,7 +30,7 @@ public fun interface ReadGate {
  */
 public fun interface ReadObserver {
     public suspend fun onRead(
-        spec: DevicePropertySpec<*, *>,
+        spec: DevicePropertyContract<*>,
         durationNanos: Long,
         fault: DeviceFault?,
     )
@@ -49,7 +49,7 @@ public fun interface ReadObserver {
  */
 public interface ReadDecorator {
     public fun <T> decorate(
-        spec: DevicePropertySpec<*, T>,
+        spec: DevicePropertyContract<T>,
         original: TypedReader<T>,
     ): TypedReader<T>
 }

@@ -2,14 +2,13 @@ package space.kscience.krig.core.contracts
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.DeviceFaultException
 import space.kscience.krig.api.faults.GenericDeviceFault
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.DeviceOutcome
 import space.kscience.krig.api.result.runCatchingDevice
 import space.kscience.krig.core.UnstableKrigForSubclassing
-import space.kscience.krig.core.meta.DeviceActionSpec
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DeviceActionContract
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
@@ -64,7 +63,7 @@ public class ConnectionProperty<T> internal constructor(
 public class DeviceBackendBuilder internal constructor() {
 
     private val readers: MutableMap<Name, Pair<() -> Any?, MetaConverter<*>>> = mutableMapOf()
-    private val writers: MutableMap<Name, (Meta) -> Unit> = mutableMapOf()
+    private val writers: MutableMap<Name, (Meta) -> DeviceOutcome<Unit>> = mutableMapOf()
     private val actions: MutableMap<Name, suspend (Meta?) -> Meta?> = mutableMapOf()
     private var stepBlock: ((Duration) -> Unit)? = null
     private var closeBlock: (() -> Unit)? = null
@@ -100,8 +99,13 @@ public class DeviceBackendBuilder internal constructor() {
         var cell = initial
         readers[key] = Pair({ cell }, converter)
         writers[key] = { meta ->
-            cell = converter.readOrNull(meta)
-                ?: validationFault("Property '$key': cannot decode Meta to ${converter::class.simpleName}")
+            val decoded = converter.readOrNull(meta)
+            if (decoded == null) {
+                validationFault("Property '$key': cannot decode Meta to ${converter::class.simpleName}")
+            } else {
+                cell = decoded
+                DeviceOutcome.OkUnit
+            }
         }
         return ConnectionProperty(key, { cell }, { newValue -> cell = newValue })
     }
@@ -128,26 +132,26 @@ public class DeviceBackendBuilder internal constructor() {
         actions[name.asName()] = body
     }
 
-    /** Read-only property keyed by a typed [DevicePropertySpec]. */
+    /** Read-only property keyed by a typed [DevicePropertyContract]. */
     @IgnorableReturnValue
-    public fun <T : Any> readable(spec: DevicePropertySpec<*, T>, initial: T): ConnectionProperty<T> =
+    public fun <T : Any> readable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
         readable(spec.name.toString(), initial, spec.converter)
 
-    /** Writable property keyed by a typed [DevicePropertySpec]. */
+    /** Writable property keyed by a typed [DevicePropertyContract]. */
     @IgnorableReturnValue
-    public fun <T : Any> writable(spec: DevicePropertySpec<*, T>, initial: T): ConnectionProperty<T> =
+    public fun <T : Any> writable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
         writable(spec.name.toString(), initial, spec.converter)
 
-    /** Computed property keyed by a typed [DevicePropertySpec]. */
+    /** Computed property keyed by a typed [DevicePropertyContract]. */
     @IgnorableReturnValue
     public fun computed(
-        spec: DevicePropertySpec<*, Double>,
+        spec: DevicePropertyContract<Double>,
         compute: () -> Double,
     ): ConnectionProperty<Double> =
         computed(spec.name.toString(), compute)
 
-    /** Action keyed by a typed [DeviceActionSpec]. */
-    public fun action(spec: DeviceActionSpec<*, *, *>, body: suspend (argument: Meta?) -> Meta?) {
+    /** Action keyed by a typed [DeviceActionContract]. */
+    public fun action(spec: DeviceActionContract<*, *>, body: suspend (argument: Meta?) -> Meta?) {
         actions[spec.name] = body
     }
 
@@ -190,7 +194,7 @@ public class DeviceBackendBuilder internal constructor() {
  */
 public fun deviceBackend(block: DeviceBackendBuilder.() -> Unit): DeviceBackend {
     val builder = DeviceBackendBuilder()
-    builder.block()
+    block(builder)
     return builder.build()
 }
 
@@ -209,41 +213,43 @@ public fun steppedBackend(block: DeviceBackendBuilder.() -> Unit): SteppedBacken
 /** Shared read / write / execute / close state for both built backends. */
 private class BuiltCommon(
     val readers: Map<Name, Pair<() -> Any?, MetaConverter<*>>>,
-    val writers: Map<Name, (Meta) -> Unit>,
+    val writers: Map<Name, (Meta) -> DeviceOutcome<Unit>>,
     val actions: Map<Name, suspend (Meta?) -> Meta?>,
     val closeBody: (() -> Unit)?,
 ) {
-    suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> = runCatchingDevice {
+    fun read(property: PropertyDescriptor): DeviceOutcome<Meta> {
         val (reader, converter) = readers[property.name]
-            ?: backendFault("UNKNOWN_PROPERTY", "Unknown property '${property.name}' on device backend")
-        @Suppress("UNCHECKED_CAST")
-        (converter as MetaConverter<Any?>).convert(reader())
+            ?: return backendFault("UNKNOWN_PROPERTY", "Unknown property '${property.name}' on device backend")
+        return runCatchingDevice {
+            @Suppress("UNCHECKED_CAST")
+            (converter as MetaConverter<Any?>).convert(reader())
+        }
     }
 
-    suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> =
-        runCatchingDevice {
-            val writer = writers[property.name]
-                ?: backendFault("PROPERTY_NOT_WRITABLE", "Property '${property.name}' is not writable on device backend")
-            writer(value)
-        }
+    fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> {
+        val writer = writers[property.name]
+            ?: return backendFault("PROPERTY_NOT_WRITABLE", "Property '${property.name}' is not writable on device backend")
+        return writer(value)
+    }
 
-    suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> =
-        runCatchingDevice {
-            val body = actions[action.name]
-                ?: backendFault("UNKNOWN_ACTION", "Unknown action '${action.name}' on device backend")
+    suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> {
+        val body = actions[action.name]
+            ?: return backendFault("UNKNOWN_ACTION", "Unknown action '${action.name}' on device backend")
+        return runCatchingDevice {
             body(argument)
         }
+    }
 
     fun close() {
         closeBody?.invoke()
     }
 }
 
-private fun backendFault(code: String, message: String): Nothing =
-    throw DeviceFaultException(GenericDeviceFault(code = code, message = message))
+private fun backendFault(code: String, message: String): DeviceOutcome.Fail =
+    DeviceOutcome.Fail(GenericDeviceFault(code = code, message = message))
 
-private fun validationFault(message: String): Nothing =
-    throw DeviceFaultException(
+private fun validationFault(message: String): DeviceOutcome.Fail =
+    DeviceOutcome.Fail(
         ValidationFault(
             details = Meta { "message" put message },
         ),

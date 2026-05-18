@@ -1,10 +1,9 @@
-﻿@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
+@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
 
 package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.identifiers.BlueprintId
 import space.kscience.krig.api.messages.DeviceAttachedMessage
 import space.kscience.krig.api.messages.DeviceMessage
@@ -19,7 +18,7 @@ class EventLogStoreTest {
         time = Instant.fromEpochMilliseconds(atMs),
         deviceName = "child".asName(),
         blueprintId = BlueprintId("bp.test"),
-        sourceDevice = Address(route = "lab".asName(), device = "hub".asName()),
+        sourceDevice = "lab.hub".asName(),
     )
 
     @Test

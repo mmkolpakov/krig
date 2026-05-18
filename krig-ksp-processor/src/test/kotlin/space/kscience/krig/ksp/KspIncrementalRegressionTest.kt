@@ -1,3 +1,5 @@
+@file:Suppress("UnusedSymbol", "UnusedReceiverParameter")
+
 package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -12,10 +14,10 @@ import kotlin.test.assertEquals
  * Verifies the serializers registry processor compiles correctly with
  * multiple `@PolymorphicBase` subclasses across separate files.
  *
- * ## Incremental build regression (manual, Gradle only)
- * KSP 2.3.7: `getAllFiles()` and `getSymbolsWithAnnotation()` both limited
- * to dirty files in incremental mode. `aggregating = true` with all containing
- * files in Dependencies should propagate dirty-set.
+ * ## Incremental build sanity (manual, Gradle only)
+ * On the Kotlin 2.4 / KSP 2.x stack the generated registry is split into isolating
+ * per-subclass contributors and one aggregating index. The index records all source
+ * files that contributed registrations in `Dependencies(aggregating = true, ...)`.
  *
  * Manual Gradle test:
  * ```
@@ -24,8 +26,8 @@ import kotlin.test.assertEquals
  * ./gradlew :module:compileKotlinJvm -Pksp.incremental=true
  * cat build/kotlin/kspJvmKotlin/kspDirtySetByDeps.log
  * ```
- * Remove `getAllFiles()` workaround only after unused subclasses survive
- * incremental rebuild in the generated registry.
+ * Keep this manual check around until the compile-testing harness can exercise a
+ * real multi-invocation incremental Gradle build.
  */
 @OptIn(ExperimentalCompilerApi::class)
 class KspIncrementalRegressionTest {

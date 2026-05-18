@@ -2,7 +2,6 @@ package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -26,7 +25,7 @@ import kotlin.time.Instant
  */
 class ReplayablePidLoopTest {
 
-    private val source = Address(route = "lab".asName(), device = "pid".asName())
+    private val source = "lab.pid".asName()
 
     private class PidReplay : DeviceReconstructible<Device> {
         var setpoint: Double = 0.0 ; private set

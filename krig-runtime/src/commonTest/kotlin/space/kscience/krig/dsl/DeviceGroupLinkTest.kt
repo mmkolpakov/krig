@@ -7,7 +7,6 @@ package space.kscience.krig.dsl
 
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job

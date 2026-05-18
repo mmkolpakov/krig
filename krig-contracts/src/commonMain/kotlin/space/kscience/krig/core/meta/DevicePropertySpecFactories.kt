@@ -13,7 +13,7 @@ internal fun <D : Device, T> buildDevicePropertySpec(
     converter: MetaConverter<T>,
     kind: PropertyKind,
     valueTypeId: String,
-    read: suspend D.() -> T?,
+    readBlock: suspend D.() -> T?,
 ): DevicePropertySpec<D, T> {
     val descriptor = PropertyDescriptor(
         name = name,
@@ -25,7 +25,7 @@ internal fun <D : Device, T> buildDevicePropertySpec(
         override val name: Name = name
         override val descriptor: PropertyDescriptor = descriptor
         override val converter: MetaConverter<T> = converter
-        override suspend fun read(device: D): T? = device.read()
+        override suspend fun read(device: D): T? = readBlock(device)
     }
 }
 
@@ -35,8 +35,8 @@ internal fun <D : Device, T> buildMutableDevicePropertySpec(
     converter: MetaConverter<T>,
     kind: PropertyKind,
     valueTypeId: String,
-    read: suspend D.() -> T?,
-    write: suspend D.(T) -> Unit,
+    readBlock: suspend D.() -> T?,
+    writeBlock: suspend D.(T) -> Unit,
 ): MutableDevicePropertySpec<D, T> {
     val descriptor = PropertyDescriptor(
         name = name,
@@ -48,7 +48,7 @@ internal fun <D : Device, T> buildMutableDevicePropertySpec(
         override val name: Name = name
         override val descriptor: PropertyDescriptor = descriptor
         override val converter: MetaConverter<T> = converter
-        override suspend fun read(device: D): T? = device.read()
-        override suspend fun write(device: D, value: T) = device.write(value)
+        override suspend fun read(device: D): T? = readBlock(device)
+        override suspend fun write(device: D, value: T) = writeBlock(device, value)
     }
 }

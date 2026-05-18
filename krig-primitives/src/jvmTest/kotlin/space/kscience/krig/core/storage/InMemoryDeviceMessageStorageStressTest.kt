@@ -1,4 +1,4 @@
-﻿@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
+@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
 
 package space.kscience.krig.core.storage
 
@@ -8,9 +8,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.meta.set
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import kotlin.test.Test
@@ -31,11 +29,11 @@ class InMemoryDeviceMessageStorageStressTest {
         time = Clock.System.now(),
         property = "p".asName(),
         value = Meta { set("seq", seq) },
-        sourceDevice = Address(route = Name.EMPTY, device = "d".asName()),
+        sourceDevice = "d".asName(),
     )
 
     private fun seqOf(m: DeviceMessage): Int =
-        ((m as PropertyChangedMessage).value["seq"]?.int) ?: error("missing seq")
+        (m as PropertyChangedMessage).value["seq"]?.int ?: error("missing seq")
 
     @Test
     fun replayRetainsEveryConcurrentWriteWhenCapacityAllows() = runBlocking(Dispatchers.Default) {

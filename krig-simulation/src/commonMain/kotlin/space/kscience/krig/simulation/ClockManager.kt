@@ -19,13 +19,13 @@ private class CompressedTimeDispatcher(
     val coroutineContext: CoroutineContext,
     val compression: Double,
 ) : CoroutineDispatcher(), Delay {
-    private val dispatcher = (coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher) ?: Dispatchers.Default
+    private val dispatcher = coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher ?: Dispatchers.Default
 
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         dispatcher.dispatch(context, block)
     }
 
-    private val parentDelay = ((dispatcher as? Delay) ?: (Dispatchers.Default as Delay))
+    private val parentDelay = dispatcher as? Delay ?: Dispatchers.Default as Delay
 
     /**
      * Compresses delays by [compression] but **clamps to 1 ms** to avoid scheduling
@@ -107,7 +107,7 @@ public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
     public open val simulationDispatcher: CoroutineDispatcher by lazy {
         when (val mode = clockMode) {
             is ClockMode.System, is ClockMode.Custom ->
-                (context.coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher) ?: Dispatchers.Default
+                context.coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher ?: Dispatchers.Default
             is ClockMode.Compressed -> CompressedTimeDispatcher(
                 coroutineContext = context.coroutineContext,
                 compression = mode.compression

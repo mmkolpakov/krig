@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -26,7 +25,7 @@ class DeviceMessageStorageTest {
             time = Clock.System.now(),
             property = "temperature".asName(),
             value = Meta { "value" put 42 },
-            sourceDevice = Address("", "thermo"),
+            sourceDevice = "thermo".asName(),
         )
 
         storage.write(message)
@@ -49,7 +48,7 @@ class DeviceMessageStorageTest {
                 time = Clock.System.now(),
                 property = "temperature".asName(),
                 value = Meta { "value" put index },
-                sourceDevice = Address("", "thermo"),
+                sourceDevice = "thermo".asName(),
             )
         }
         val observed = async(start = CoroutineStart.UNDISPATCHED) {

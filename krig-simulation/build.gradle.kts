@@ -9,9 +9,9 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.krigContracts)
-                api(projects.krigPrimitives)
-                api(projects.krigRuntime)
+                api(project(":krig-contracts"))
+                api(project(":krig-primitives"))
+                api(project(":krig-runtime"))
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)
                 implementation(libs.kotlinx.atomicfu)

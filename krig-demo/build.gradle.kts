@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
@@ -16,7 +18,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.krigRuntime)
+                implementation(project(":krig-runtime"))
+            }
+        }
+        jvmMain {
+            dependencies {
+                runtimeOnly(libs.slf4j.nop)
             }
         }
     }

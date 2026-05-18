@@ -10,8 +10,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(projects.krigContracts)
-                api(projects.krigPrimitives)
+                api(project(":krig-contracts"))
+                api(project(":krig-primitives"))
                 implementation(libs.arrow.core)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.atomicfu)

@@ -1,5 +1,6 @@
 package space.kscience.krig.core.contracts
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
@@ -26,16 +27,15 @@ import space.kscience.krig.core.contracts.typed.TypedDevice
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
-import space.kscience.krig.core.meta.DeviceActionSpec
-import space.kscience.krig.core.meta.DevicePropertySpec
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
+import space.kscience.krig.core.meta.DeviceActionContract
+import space.kscience.krig.core.meta.DevicePropertyContract
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.provider.Provider
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Clock
 
 /**
@@ -131,25 +131,25 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     // --- Typed contract bridge ---
 
     /**
-     * Fallback [TypedReader] derived from [readProperty] + [DevicePropertySpec.converter].
+     * Fallback [TypedReader] derived from [readProperty] + [DevicePropertyContract.converter].
      * This crosses the `Meta` boundary and may allocate; drivers override it, or expose
      * [space.kscience.krig.core.contracts.typed.TypedBackend], for native typed access.
      */
     @OptIn(PerformancePitfall::class)
-    override fun <T> reader(spec: DevicePropertySpec<*, T>): TypedReader<T> =
+    override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
 
     /** Fallback [TypedWriter] — bridges through [writeProperty] + converter and may allocate. */
     @OptIn(PerformancePitfall::class)
-    override fun <T> writer(spec: MutableDevicePropertySpec<*, T>): TypedWriter<T> =
+    override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
         GenericTypedWriter { value -> writeProperty(spec.name, spec.converter.convert(value)) }
 
     /** Default returns `null`; drivers opt-in by overriding to expose lock-free streaming. */
-    override fun <T> sampler(spec: DevicePropertySpec<*, T>): TypedSampler<T>? = null
+    override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? = null
 
     /** Fallback [TypedAction] — bridges through [execute] + converters and may allocate. */
     @OptIn(PerformancePitfall::class)
-    override fun <I, O> action(spec: DeviceActionSpec<*, I, O>): TypedAction<I, O> =
+    override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
         GenericTypedAction { input ->
             val resultMeta = execute(spec.name, spec.inputConverter.convert(input))
             resultMeta?.let(spec.outputConverter::read)
@@ -158,19 +158,19 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     // --- Spec lookup (control-plane Meta boundary) ---
 
     /**
-     * Returns a known [DevicePropertySpec] by name. Drivers backed by a
+     * Returns a known [DevicePropertyContract] by name. Drivers backed by a
      * [DeviceBlueprint][space.kscience.krig.core.contracts.DeviceBlueprint] expose
      * registered specs so `readProperty(Name): Meta` callers can cross the serialization
      * boundary through the full typed pipeline (gates -> locks -> timeout -> retry ->
      * observers -> reader). Default returns `null`; `TypedPipelineDevice` then applies
      * only generic gates before delegating to the underlying Meta operation.
      */
-    public fun propertySpec(propertyName: Name): DevicePropertySpec<*, *>? = null
+    public fun propertySpec(propertyName: Name): DevicePropertyContract<*>? = null
 
     /** Action analogue of [propertySpec]. */
     public fun actionSpec(
         actionName: Name,
-    ): DeviceActionSpec<*, *, *>? = null
+    ): DeviceActionContract<*, *>? = null
 
     // --- Outcome-based API (errors as values) ---
 
@@ -234,6 +234,8 @@ private fun Device.markProgrammingFailure(cause: Throwable) {
 private suspend inline fun <T> Device.captureOutcome(block: suspend () -> T): DeviceOutcome<T> =
     try {
         runCatchingDevice { block() }
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: RuntimeException) {
         markProgrammingFailure(e)
         throw e

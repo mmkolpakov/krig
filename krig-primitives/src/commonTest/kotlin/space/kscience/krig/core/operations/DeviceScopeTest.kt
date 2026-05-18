@@ -3,7 +3,7 @@ package space.kscience.krig.core.operations
 import kotlinx.coroutines.Job
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
 class DeviceScopeTest {
     @Test
@@ -13,6 +13,6 @@ class DeviceScopeTest {
 
         parent.cancel()
 
-        assertTrue(scope.coroutineContext[Job]?.isCancelled == true)
+        assertEquals(true, scope.coroutineContext[Job]?.isCancelled)
     }
 }

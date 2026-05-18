@@ -1,7 +1,6 @@
 ﻿package space.kscience.krig.api.messages
 
 import kotlinx.serialization.Polymorphic
-import space.kscience.krig.api.addressing.Address
 import space.kscience.krig.api.annotations.PolymorphicBase
 import space.kscience.krig.api.identifiers.CorrelationId
 import space.kscience.krig.core.operations.HlcTimestamp
@@ -19,6 +18,9 @@ import kotlin.time.Instant
  * `null` when the emitter has no HLC configured. See
  * [HybridLogicalClock][space.kscience.krig.core.operations.HybridLogicalClock].
  *
+ * Device endpoints are domain [Name]s. Transport routes, sessions, and physical
+ * addresses belong to the surrounding envelope/context rather than this core DTO.
+ *
  * @property requestId Non-null for request/response pairs; null for notifications.
  * @property correlationId Traces a single logical operation across multiple messages and devices.
  */
@@ -28,15 +30,17 @@ public interface DeviceMessage {
     /** Stable domain type used by storage and routing. Must match the DTO `@SerialName`. */
     public val messageType: String
 
-    public val sourceDevice: Address?
-    public val targetDevice: Address?
+    public val sourceDevice: Name?
+    public val targetDevice: Name?
     public val time: Instant
+    @get:Suppress("EmptyMethod", "SameReturnValue")
     public val requestId: String?
     public val correlationId: String?
+    @get:Suppress("SameReturnValue")
     public val hlcTimestamp: HlcTimestamp? get() = null
 
     /**
-     * Creates a copy of this message with the source device's local name transformed by [block].
+     * Creates a copy of this message with the source device name transformed by [block].
      * Used by composite devices to correctly namespace messages from their children.
      */
     public fun changeSource(block: (Name) -> Name): DeviceMessage

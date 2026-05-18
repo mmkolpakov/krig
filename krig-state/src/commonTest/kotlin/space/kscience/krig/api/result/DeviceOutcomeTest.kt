@@ -65,7 +65,7 @@ class DeviceOutcomeTest {
         val chained = s.flatMap { DeviceOutcome.Ok(it.toString()) }
         assertEquals(DeviceOutcome.Ok("5"), chained)
         val f: DeviceOutcome<Int> = DeviceOutcome.Fail(sampleFault)
-        val fChained = f.flatMap<Int, String> { DeviceOutcome.Ok(it.toString()) }
+        val fChained: DeviceOutcome<String> = f.flatMap { DeviceOutcome.Ok(it.toString()) }
         assertTrue(fChained is DeviceOutcome.Fail)
         assertEquals(sampleFault, fChained.fault)
     }
