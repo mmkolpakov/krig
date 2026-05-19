@@ -43,13 +43,7 @@ exclude:
 
 projectJDK: "21"
 
-rootJavaProjects:
-  - "."
-
 failureConditions:
   severityThresholds:
     critical: 0
     high: 0
-
-linter: qodana-jvm-community
-withinDocker: "false"
