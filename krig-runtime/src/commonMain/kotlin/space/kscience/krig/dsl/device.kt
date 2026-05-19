@@ -205,15 +205,15 @@ internal class InlineBackendCore(
         }
         val writer = writers[name]
             ?: return unknownInlineMember("PROPERTY_NOT_WRITABLE", "Property '$name' is not writable on inline device backend")
+        val meta = try {
+            toMeta(value)
+        } catch (e: ClassCastException) {
+            return inlineWriteTypeError(name, value, e)
+        } catch (e: IllegalArgumentException) {
+            return inlineWriteTypeError(name, value, e)
+        }
         return runCatchingDevice {
             val scope = scope()
-            val meta = try {
-                toMeta(value)
-            } catch (e: ClassCastException) {
-                throw inlineWriteTypeErrorAsException(name, value, e)
-            } catch (e: IllegalArgumentException) {
-                throw inlineWriteTypeErrorAsException(name, value, e)
-            }
             with(writer) { scope.write(meta) }
         }
     }
@@ -463,12 +463,6 @@ private fun inlineTypeError(property: Name, expected: String, got: Any): Nothing
 
 private fun inlineWriteTypeError(property: Name, value: Any?, cause: Exception): DeviceOutcome.Fail =
     DeviceOutcome.Fail(inlineWriteFault(property, value, cause))
-
-private fun inlineWriteTypeErrorAsException(property: Name, value: Any?, cause: Exception): DeviceFaultException =
-    DeviceFaultException(
-        inlineWriteFault(property, value, cause),
-        cause,
-    )
 
 private fun inlineWriteFault(property: Name, value: Any?, cause: Exception): ValidationFault =
     ValidationFault(

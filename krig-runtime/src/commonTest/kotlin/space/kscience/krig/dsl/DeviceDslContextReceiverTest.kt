@@ -13,7 +13,6 @@ import space.kscience.dataforge.context.PluginFactory
 import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.double
-import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.long
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.asName
@@ -77,7 +76,7 @@ class DeviceDslContextReceiverTest {
         assertTrue(sawClock.load(), "property lambda must observe clock as a context member")
         assertTrue(seenMillis.load() > 0L, "clock.now() must return non-zero millis")
         // The reader returned a Long — wraps as a root-value Meta whose .value is the Long.
-        assertNotNull(meta.value?.long ?: meta["value"]?.long)
+        assertNotNull(meta.value?.long ?: meta["value".asName()]?.long)
     }
 
     @Test
@@ -121,7 +120,7 @@ class DeviceDslContextReceiverTest {
         }
 
         val read = device.readProperty("doubleBase".asName())
-        assertEquals(42.0, read.value?.double ?: read["value"]?.double)
+        assertEquals(42.0, read.value?.double ?: read["value".asName()]?.double)
     }
 
     @Test
@@ -133,7 +132,7 @@ class DeviceDslContextReceiverTest {
         }
         device.writeProperty("setpoint".asName(), metaOf(42.5))
         val read = device.readProperty("setpoint".asName())
-        val v = read.value?.double ?: read["value"]?.double ?: 0.0
+        val v = read.value?.double ?: read["value".asName()]?.double ?: 0.0
         assertEquals(42.5, v)
     }
 
@@ -158,7 +157,7 @@ class DeviceDslContextReceiverTest {
         }
 
         val ok = assertIs<DeviceOutcome.Ok<Meta>>(outcome)
-        assertEquals(1.0, ok.value.value?.double ?: ok.value["value"]?.double)
+        assertEquals(1.0, ok.value.value?.double ?: ok.value["value".asName()]?.double)
     }
 
     @Test
@@ -168,7 +167,7 @@ class DeviceDslContextReceiverTest {
             override val descriptor: PropertyDescriptor = synthesizeProperty(name, mutable = true)
             override val converter: MetaConverter<String> = object : MetaConverter<String> {
                 override fun convert(obj: String): Meta = Meta(obj)
-                override fun readOrNull(source: Meta): String? = source["never"]?.string
+                override fun readOrNull(source: Meta): String? = source["never".asName()]?.string
             }
             override suspend fun read(device: Device): String? = null
             override suspend fun write(device: Device, value: String) = Unit
@@ -186,6 +185,6 @@ class DeviceDslContextReceiverTest {
         }
 
         val fault = assertIs<ValidationFault>(failure.fault)
-        assertEquals("setpoint", fault.details["property"]?.string)
+        assertEquals("setpoint", fault.details["property".asName()]?.string)
     }
 }

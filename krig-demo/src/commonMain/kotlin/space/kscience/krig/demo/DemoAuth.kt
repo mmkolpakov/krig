@@ -10,11 +10,11 @@ import space.kscience.dataforge.meta.Meta
 /** INSECURE - demo and test only. Permits every permission check. */
 class PermitAllAuthorizationService private constructor(meta: Meta) :
     AbstractPlugin(meta), AuthorizationService {
-    override val tag get() = AuthorizationService.tag
+    override val tag: PluginTag get() = AuthorizationService.tag
     override suspend fun checkPermission(principal: Principal, permission: Permission): Unit = Unit
 
     companion object : PluginFactory<PermitAllAuthorizationService> {
-        override val tag = AuthorizationService.tag
+        override val tag: PluginTag = AuthorizationService.tag
         override fun build(context: Context, meta: Meta) = PermitAllAuthorizationService(meta)
     }
 }

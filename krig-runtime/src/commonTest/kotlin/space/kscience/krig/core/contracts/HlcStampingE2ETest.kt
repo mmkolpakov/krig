@@ -19,7 +19,6 @@ import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.set
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
@@ -55,7 +54,7 @@ private class StampedTestDevice(
     name: String,
     runtime: DeviceRuntime,
 ) : AbstractDevice(name.asName(), runtime) {
-    override suspend fun readProperty(propertyName: Name): Meta = Meta { set("value", 0) }
+    override suspend fun readProperty(propertyName: Name): Meta = Meta { "value".asName() put 0 }
     override suspend fun writeProperty(propertyName: Name, value: Meta) {}
     override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
 
@@ -87,7 +86,7 @@ class HlcStampingE2ETest {
             val awaited = async(start = CoroutineStart.UNDISPATCHED) {
                 device.dataFlow.first()
             }
-            device.publishChange("p".asName(), Meta { set("value", 1.0) })
+            device.publishChange("p".asName(), Meta { "value".asName() put 1.0 })
             awaited.await()
         }
 

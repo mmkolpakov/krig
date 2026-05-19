@@ -5,9 +5,7 @@ package space.kscience.krig.core.storage
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.toList
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
-import space.kscience.dataforge.meta.set
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
@@ -28,12 +26,12 @@ class InMemoryDeviceMessageStorageStressTest {
     private fun makeMsg(seq: Int): DeviceMessage = PropertyChangedMessage(
         time = Clock.System.now(),
         property = "p".asName(),
-        value = Meta { set("seq", seq) },
+        value = Meta { "seq".asName() put seq },
         sourceDevice = "d".asName(),
     )
 
     private fun seqOf(m: DeviceMessage): Int =
-        (m as PropertyChangedMessage).value["seq"]?.int ?: error("missing seq")
+        (m as PropertyChangedMessage).value["seq".asName()]?.int ?: error("missing seq")
 
     @Test
     fun replayRetainsEveryConcurrentWriteWhenCapacityAllows() = runBlocking(Dispatchers.Default) {

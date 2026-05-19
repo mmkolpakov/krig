@@ -70,15 +70,18 @@ private fun encodeSnapshot(cap: Snapshotting<*>, json: Json): Meta {
 @Suppress("UNCHECKED_CAST")
 private suspend fun decodeAndRestore(cap: Snapshotting<*>, raw: Meta, json: Json) {
     val typed = cap as Snapshotting<Any>
-    val decoded = try {
-        serializableMetaConverter(typed.snapshotSerializer, json).read(raw)
+    val decoded = decodeSnapshotOrNull(typed, raw, json) ?: return
+    typed.restoreSnapshot(decoded)
+}
+
+private fun decodeSnapshotOrNull(cap: Snapshotting<Any>, raw: Meta, json: Json): Any? =
+    try {
+        serializableMetaConverter(cap.snapshotSerializer, json).read(raw)
     } catch (e: CancellationException) {
         throw e
     } catch (_: Exception) {
-        return
+        null
     }
-    typed.restoreSnapshot(decoded)
-}
 
 /**
  * Walks the device's runtime capability registry to find every installed capability.

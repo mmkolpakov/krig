@@ -21,7 +21,6 @@ import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.set
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
@@ -44,7 +43,7 @@ private class ConcurrentStampedDevice(
             PropertyChangedMessage(
                 time = clock.now(),
                 property = "p".asName(),
-                value = Meta { set("value", seq) },
+                value = Meta { "value".asName() put seq },
                 sourceDevice = name,
             ),
         )

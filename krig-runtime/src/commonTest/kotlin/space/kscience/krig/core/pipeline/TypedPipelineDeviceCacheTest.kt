@@ -16,7 +16,6 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
@@ -274,7 +273,7 @@ class TypedPipelineDeviceCacheTest {
         assertTrue(failure is DeviceOutcome.Fail)
         val fault = failure.fault
         assertTrue(fault is ValidationFault)
-        assertEquals("ClassCastException", fault.details["causeType"]?.string)
+        assertEquals("ClassCastException", fault.details["causeType".asName()]?.string)
     }
 
     @Test

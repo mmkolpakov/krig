@@ -9,8 +9,6 @@ import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.double
-import space.kscience.dataforge.meta.get
-import space.kscience.dataforge.meta.set
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,16 +43,16 @@ class ReplayablePidLoopTest {
         override suspend fun captureSnapshot(at: Instant): DeviceSnapshot = DeviceSnapshot(
             at = at,
             state = Meta {
-                set("output", output)
-                set("pv", processVariable)
-                set("sp", setpoint)
+                "output".asName() put output
+                "pv".asName() put processVariable
+                "sp".asName() put setpoint
             },
         )
 
         override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
-            output = snapshot.state["output"].double ?: 0.0
-            processVariable = snapshot.state["pv"].double ?: 0.0
-            setpoint = snapshot.state["sp"].double ?: 0.0
+            output = snapshot.state["output".asName()].double ?: 0.0
+            processVariable = snapshot.state["pv".asName()].double ?: 0.0
+            setpoint = snapshot.state["sp".asName()].double ?: 0.0
         }
     }
 
