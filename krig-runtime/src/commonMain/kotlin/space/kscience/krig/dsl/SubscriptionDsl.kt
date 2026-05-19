@@ -221,6 +221,44 @@ public fun monotonicSamplingClock(): SamplingClock = object : SamplingClock {
 }
 
 /**
+ * Cold fixed-rate tick stream. Every collector owns its timer. Use [sharedTicks]
+ * when several streams must sample from one timing source.
+ */
+public fun fixedRateTicks(
+    tick: Duration,
+    clock: SamplingClock = monotonicSamplingClock(),
+): Flow<Unit> = flow {
+    require(tick > Duration.ZERO) { "tick must be positive, got $tick" }
+    val origin = clock.markNow()
+    var nextTick = tick
+    while (currentCoroutineContext().isActive) {
+        val remaining = nextTick - origin.elapsedNow()
+        if (remaining > Duration.ZERO) {
+            clock.delay(remaining)
+        }
+        emit(Unit)
+
+        val elapsed = origin.elapsedNow()
+        do {
+            nextTick += tick
+        } while (nextTick <= elapsed)
+    }
+}
+
+/**
+ * Shared fixed-rate tick stream for multiple samplers or polling loops. Ticks are
+ * live, non-replayed, conflated, and bound to [scope].
+ */
+public fun sharedTicks(
+    scope: CoroutineScope,
+    tick: Duration,
+    clock: SamplingClock = monotonicSamplingClock(),
+    started: SharingStarted = SharingStarted.WhileSubscribed(),
+): SharedFlow<Unit> = fixedRateTicks(tick, clock)
+    .buffer(Channel.CONFLATED)
+    .shareIn(scope, started = started, replay = 0)
+
+/**
  * Emits the last known value at every [tick], holding the previous value when no
  * new events arrive. Mirrors the ZOH (Zero-Order Hold) behaviour of industrial
  * control systems — unlike [kotlinx.coroutines.flow.sample] which skips empty

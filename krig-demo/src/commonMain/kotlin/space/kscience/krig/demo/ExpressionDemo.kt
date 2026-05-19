@@ -1,14 +1,19 @@
 package space.kscience.krig.demo
 
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.yield
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.expressions.Expression
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.expressions.ExpressionContext
 import space.kscience.krig.core.expressions.compile
 import space.kscience.krig.core.state.DeviceState
@@ -30,8 +35,8 @@ suspend fun expressionDemo() {
 
     println("=== Expression tree ===")
 
-    val sensorA: Device = device("sensorA", ctx) { property("value") { 10.0 } }
-    val sensorB: Device = device("sensorB", ctx) { property("value") { 20.0 } }
+    val sensorA: Device = device("sensorA", ctx) { mutableProperty("value", initial = 10.0) }
+    val sensorB: Device = device("sensorB", ctx) { mutableProperty("value", initial = 20.0) }
 
     val a: Expression<Double> = ref("sensorA", "value")
     val b: Expression<Double> = ref("sensorB", "value")
@@ -48,6 +53,12 @@ suspend fun expressionDemo() {
         val computed: DeviceState<Double> = formula.compile(exprCtx)
         val init = computed.stateFlow.first()
         println("  compiled = 10*2 + 20 + 1 = ${init.value}")
+        val updated = expressionScope.async(start = CoroutineStart.UNDISPATCHED) {
+            computed.stateFlow.drop(1).first()
+        }
+        yield()
+        sensorA.writeProperty("value".asName(), metaOf(12.0))
+        println("  after sensorA=12: ${updated.await().value}")
     } finally {
         expressionScope.cancel()
         sensorA.close()

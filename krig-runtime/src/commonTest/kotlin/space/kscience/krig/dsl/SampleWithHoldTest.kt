@@ -70,6 +70,52 @@ class SampleWithHoldTest {
     }
 
     @Test
+    fun fixedRateTicksUseProvidedClock() = runTest {
+        val emittedAt = mutableListOf<Long>()
+
+        val job = launch(start = CoroutineStart.UNDISPATCHED) {
+            fixedRateTicks(10.milliseconds, SchedulerSamplingClock(testScheduler))
+                .take(3)
+                .collect { emittedAt += testScheduler.currentTime }
+        }
+        advanceTimeBy(30.milliseconds)
+        runCurrent()
+
+        assertEquals(listOf(10L, 20L, 30L), emittedAt)
+        job.cancel()
+    }
+
+    @Test
+    fun sharedTicksDriveMultipleSampleWithHoldStreams() = runTest {
+        val first = MutableSharedFlow<Int>(replay = 1)
+        val second = MutableSharedFlow<Int>(replay = 1)
+        first.emit(1)
+        second.emit(10)
+        val ticks = sharedTicks(backgroundScope, 10.milliseconds, SchedulerSamplingClock(testScheduler))
+        val firstValues = mutableListOf<Int>()
+        val secondValues = mutableListOf<Int>()
+
+        val firstJob = launch(start = CoroutineStart.UNDISPATCHED) {
+            first.sampleWithHold(ticks).take(2).toList(firstValues)
+        }
+        val secondJob = launch(start = CoroutineStart.UNDISPATCHED) {
+            second.sampleWithHold(ticks).take(2).toList(secondValues)
+        }
+        runCurrent()
+        advanceTimeBy(10.milliseconds)
+        runCurrent()
+        first.emit(2)
+        second.emit(20)
+        advanceTimeBy(10.milliseconds)
+        runCurrent()
+
+        assertEquals(listOf(1, 2), firstValues)
+        assertEquals(listOf(10, 20), secondValues)
+        firstJob.cancel()
+        secondJob.cancel()
+    }
+
+    @Test
     fun sampleWithHoldCompletesWhenFiniteUpstreamCompletes() = runTest {
         val values = flowOf(1)
             .sampleWithHold(10.milliseconds, SchedulerSamplingClock(testScheduler))

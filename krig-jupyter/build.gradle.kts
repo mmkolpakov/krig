@@ -39,9 +39,12 @@ kotlin {
 }
 
 val verifyNotebookResources by tasks.registering {
+    description = "Verifies Kotlin Notebook descriptor and intro notebook resources."
+
     val descriptor = layout.projectDirectory.file("src/main/resources/krig.json")
     val notebook = layout.projectDirectory.file("src/main/resources/krig-intro.ipynb")
     val projectVersion = version.toString()
+    val krigVersionPlaceholder = "$" + "krig"
 
     inputs.file(descriptor)
     inputs.file(notebook)
@@ -60,7 +63,7 @@ val verifyNotebookResources by tasks.registering {
         check("\"value\": \"$projectVersion\"" in descriptorText) {
             "krig.json must expose project version $projectVersion"
         }
-        check("\"space.kscience:krig-jupyter:\$krig\"" in descriptorText) {
+        check("\"space.kscience:krig-jupyter:$krigVersionPlaceholder\"" in descriptorText) {
             "krig.json must point at the krig-jupyter JVM integration artifact"
         }
         check(Regex("""(?m)^\s*%use\s+@file\[krig\.json]\s*$""").containsMatchIn(codeSources)) {

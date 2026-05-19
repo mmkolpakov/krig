@@ -1,3 +1,30 @@
+public final class space/kscience/krig/assembly/AcquisitionObservation {
+	public fun <init> (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/DeviceFault;)V
+	public synthetic fun <init> (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/DeviceFault;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public final fun component2 ()Lspace/kscience/krig/api/data/ObservedValue;
+	public final fun component3 ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun copy (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/DeviceFault;)Lspace/kscience/krig/assembly/AcquisitionObservation;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquisitionObservation;Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/DeviceFault;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionObservation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFault ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun getObserved ()Lspace/kscience/krig/api/data/ObservedValue;
+	public final fun getTag ()Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public fun hashCode ()I
+	public final fun isOk ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/AcquisitionPollingKt {
+	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun tagsForTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;)Ljava/util/List;
+}
+
+public abstract interface class space/kscience/krig/assembly/AcquisitionTagReader {
+	public abstract fun read (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class space/kscience/krig/assembly/BlueprintValidationPolicy : java/lang/Enum {
 	public static final field FailOnError Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
 	public static final field Skip Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
@@ -624,6 +651,8 @@ public final class space/kscience/krig/dsl/ScriptContextKt {
 public final class space/kscience/krig/dsl/SubscriptionDslKt {
 	public static final fun ensureAuthorized (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun faultFlow (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun fixedRateTicks-VtjQ1oo (JLspace/kscience/krig/dsl/SamplingClock;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun fixedRateTicks-VtjQ1oo$default (JLspace/kscience/krig/dsl/SamplingClock;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun lifecycleFlow (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun monotonicSamplingClock ()Lspace/kscience/krig/dsl/SamplingClock;
 	public static final fun onFault (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
@@ -651,6 +680,8 @@ public final class space/kscience/krig/dsl/SubscriptionDslKt {
 	public static final fun sampleWithHold (Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun sampleWithHold-8Mi8wO0 (Lkotlinx/coroutines/flow/Flow;JLspace/kscience/krig/dsl/SamplingClock;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun sampleWithHold-8Mi8wO0$default (Lkotlinx/coroutines/flow/Flow;JLspace/kscience/krig/dsl/SamplingClock;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun sharedTicks-dWUq8MI (Lkotlinx/coroutines/CoroutineScope;JLspace/kscience/krig/dsl/SamplingClock;Lkotlinx/coroutines/flow/SharingStarted;)Lkotlinx/coroutines/flow/SharedFlow;
+	public static synthetic fun sharedTicks-dWUq8MI$default (Lkotlinx/coroutines/CoroutineScope;JLspace/kscience/krig/dsl/SamplingClock;Lkotlinx/coroutines/flow/SharingStarted;ILjava/lang/Object;)Lkotlinx/coroutines/flow/SharedFlow;
 	public static final fun typedPropertyFlow (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lspace/kscience/krig/core/contracts/SubscribeOptions;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun typedPropertyFlow$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lspace/kscience/krig/core/contracts/SubscribeOptions;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun typedSamples (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

@@ -54,7 +54,7 @@ suspend fun dynamicHubDemo(): Unit = coroutineScope {
 
     println("\n=== 2. Detach child ===")
 
-    hub.detach("a".asName(), DeviceDepartureReason.Evicted).let { }
+    hub.detach("a".asName(), DeviceDepartureReason.Evicted)
     println("  children after detach: ${hub.children.keys}")
     println("  detached child remains caller-owned: ${!childA.closed}")
 

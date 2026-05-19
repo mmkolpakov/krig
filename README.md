@@ -116,14 +116,20 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 | Demo | File | Shows |
 |---|---|---|
 | Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the curated alpha-3 demo set |
-| Core inline DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Inline properties, computed same-device reads, property history |
 | Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `blueprintOf`, `typedBackend`, typed `read`/`write`/action, retry installation |
+| Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
+| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed against a live typed device |
+| External polling | [`ExternalPollingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExternalPollingDemo.kt) | Protocol-neutral acquisition mapping driven by one shared timer |
+| Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, shared ticks, zero-order hold for UI-rate streams |
+| Shared timer control | [`SharedTimerControlDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SharedTimerControlDemo.kt) | One timer shared by control loop and UI-rate sampling |
 | Flaky network | [`FlakyNetworkDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/FlakyNetworkDemo.kt) | Transient driver faults recovered by typed pipeline retry |
-| Faults as values | [`FaultsAsValuesDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/FaultsAsValuesDemo.kt) | `DeviceOutcome` on the Meta/control-plane boundary |
-| Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, zero-order hold for UI-rate streams |
+| Policy and faults | [`PolicyFaultsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/PolicyFaultsDemo.kt) | Write gate, validation fault, timeout default, observer fault capture |
+| Auth and audit | [`AuthAuditDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/AuthAuditDemo.kt) | Principal-aware write authorization with recorded audit events |
+| Simulation process | [`SimulationProcessDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SimulationProcessDemo.kt) | Virtual-time process driving a typed device |
 | Dynamic hub | [`DynamicHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DynamicHubDemo.kt) | Attach, detach, hub events, reconcile loop |
 | Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Event log, replay, counterfactual DSL |
 | Expressions | [`ExpressionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExpressionDemo.kt) | Expression tree compiled into reactive device state |
+| Inline scripting DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Inline properties, computed same-device reads, property history |
 | Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | local `%use @file[krig.json]`, device DSL, history, hub, timeline, simulation, storage |
 
 ## Documentation

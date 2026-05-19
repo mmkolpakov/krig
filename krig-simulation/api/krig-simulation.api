@@ -213,6 +213,13 @@ public final class space/kscience/krig/simulation/ProcessDslKt {
 public abstract interface class space/kscience/krig/simulation/ProcessScope : kotlinx/coroutines/CoroutineScope {
 }
 
+public final class space/kscience/krig/simulation/SimulationSamplingClockKt {
+	public static final fun asSamplingClock (Lspace/kscience/krig/simulation/ClockManager;)Lspace/kscience/krig/dsl/SamplingClock;
+	public static final fun fixedRateTicks-HG0u8IE (Lspace/kscience/krig/simulation/ClockManager;J)Lkotlinx/coroutines/flow/Flow;
+	public static final fun sharedTicks-exY8QGI (Lspace/kscience/krig/simulation/ClockManager;Lkotlinx/coroutines/CoroutineScope;JLkotlinx/coroutines/flow/SharingStarted;)Lkotlinx/coroutines/flow/SharedFlow;
+	public static synthetic fun sharedTicks-exY8QGI$default (Lspace/kscience/krig/simulation/ClockManager;Lkotlinx/coroutines/CoroutineScope;JLkotlinx/coroutines/flow/SharingStarted;ILjava/lang/Object;)Lkotlinx/coroutines/flow/SharedFlow;
+}
+
 public abstract interface class space/kscience/krig/simulation/SimulationScheduler {
 	public abstract fun advanceBy-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun asClock ()Lkotlin/time/Clock;

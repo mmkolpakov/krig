@@ -6,12 +6,18 @@ import kotlinx.coroutines.runBlocking
  * Runs the curated alpha-3 demo set.
  */
 fun main(): Unit = runBlocking {
-    deviceDslDemo()
     industrialAssemblyDemo()
-    flakyNetworkDemo()
-    faultsAsValuesDemo()
+    metaInteropDemo()
+    dataPlatformDemo()
+    externalPollingDemo()
     streamingDemo()
+    sharedTimerControlDemo()
+    flakyNetworkDemo()
+    policyFaultsDemo()
+    authAuditDemo()
+    simulationProcessDemo()
     dynamicHubDemo()
     timeTravelDemo()
     expressionDemo()
+    deviceDslDemo()
 }

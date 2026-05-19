@@ -53,10 +53,12 @@ public class DataPlatformBuilder internal constructor() {
     @DFBuilder
     public inner class SourceHandle internal constructor(private val id: String) {
         /** Binds [blueprintId] to this source. */
+        @IgnorableReturnValue
         public infix fun from(blueprintId: String): SourceSpec =
             this@DataPlatformBuilder.appendSource(SourceSpec(id = id, blueprintId = blueprintId))
 
         /** Attaches opaque [config]. Typically chained after `from`. */
+        @IgnorableReturnValue
         public infix fun SourceSpec.with(config: JsonObject): SourceSpec {
             val replacement = copy(config = config)
             this@DataPlatformBuilder.replaceSource(this, replacement)
@@ -71,6 +73,7 @@ public class DataPlatformBuilder internal constructor() {
          * Binds the source and property to this collector. Appends a [PropertySpec];
          * reduce defaults to `LastValue`.
          */
+        @IgnorableReturnValue
         public fun from(sourceId: String, property: String, reduce: String = "LastValue", bufferCapacity: Int = 1024): PropertySpec =
             this@DataPlatformBuilder.appendProperty(
                 PropertySpec(

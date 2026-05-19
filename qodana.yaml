@@ -52,3 +52,4 @@ failureConditions:
     high: 0
 
 linter: qodana-jvm-community
+withinDocker: "false"

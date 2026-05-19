@@ -1,6 +1,7 @@
 ﻿package space.kscience.krig.simulation
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.*
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.*
@@ -204,5 +205,31 @@ class VirtualTimeTest {
             ),
             events,
         )
+    }
+
+    @Test
+    fun clockManagerTicksUseVirtualScheduler() = runTest {
+        val virtual = Global.withVirtualTime(Instant.fromEpochMilliseconds(0))
+        val manager = virtual.context.plugins.get<ClockManager>() ?: fail("ClockManager plugin is not loaded.")
+        val ticks = mutableListOf<Instant>()
+
+        val job = virtual.scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            manager.fixedRateTicks(10.milliseconds)
+                .take(3)
+                .collect { ticks += manager.clock.now() }
+        }
+        virtual.scheduler.advanceBy(30.milliseconds)
+
+        assertTrue(job.isCompleted)
+        assertEquals(
+            listOf(
+                Instant.fromEpochMilliseconds(10),
+                Instant.fromEpochMilliseconds(20),
+                Instant.fromEpochMilliseconds(30),
+            ),
+            ticks,
+        )
+        virtual.scope.cancel()
+        virtual.context.close()
     }
 }

@@ -16,6 +16,7 @@ public class DataAcquisitionBuilder internal constructor() {
     private val tags = mutableListOf<AcquisitionTagSpec>()
 
     /** Declares an external acquisition source. [connector] is resolved outside krig. */
+    @IgnorableReturnValue
     public fun source(
         id: String,
         connector: String,
@@ -51,6 +52,7 @@ public class DataAcquisitionBuilder internal constructor() {
     @DFBuilder
     public inner class AcquisitionTagHandle internal constructor(private val id: String) {
         @Suppress("SameParameterValue")
+        @IgnorableReturnValue
         public fun from(
             sourceId: String,
             address: String,
@@ -78,6 +80,7 @@ public class DataAcquisitionBuilder internal constructor() {
     ) {
         public val spec: AcquisitionTagSpec get() = current
 
+        @IgnorableReturnValue
         public fun toTarget(deviceId: String, property: String): AcquisitionTagSpec {
             val replacement = current.copy(target = AcquisitionTargetSpec(deviceId, property))
             this@DataAcquisitionBuilder.replaceTag(current, replacement)
@@ -85,6 +88,7 @@ public class DataAcquisitionBuilder internal constructor() {
             return replacement
         }
 
+        @IgnorableReturnValue
         public fun withoutTarget(): AcquisitionTagSpec = current
     }
 }
