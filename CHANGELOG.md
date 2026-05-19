@@ -75,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.0.0-alpha-1 - 2025-08-15
 
-Initial release of the `controls-ng` framework. This version represents an architectural redesign and a paradigm shift from the previous `controls-kt` project, moving towards a more formal, declarative, and resilient model for building control systems.
+Initial release of the `krig` framework. This version represents an architectural redesign and a paradigm shift from the previous `controls-kt` project, moving towards a more formal, declarative, and resilient model for building control systems.
 
 ### Added
 
