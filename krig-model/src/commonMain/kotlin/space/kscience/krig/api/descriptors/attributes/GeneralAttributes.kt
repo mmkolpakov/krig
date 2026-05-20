@@ -1,25 +1,23 @@
-﻿package space.kscience.krig.api.descriptors.attributes
+package space.kscience.krig.api.descriptors.attributes
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.krig.api.identifiers.Permission
-import space.kscience.krig.api.descriptors.MemberAttribute
-import space.kscience.krig.api.descriptors.MemberDescriptor
+import space.kscience.krig.api.descriptors.OperationAttribute
+import space.kscience.krig.api.descriptors.OperationDescriptor
 import space.kscience.krig.api.descriptors.attr
 import space.kscience.krig.api.descriptors.attribute
 import space.kscience.krig.api.meta.AdapterBinding
-import space.kscience.krig.api.meta.MemberTag
-import space.kscience.krig.api.spec.ResourceLockSpec
-import space.kscience.krig.api.spec.RetryPolicy
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.names.Name
 import kotlin.time.Duration
 
 /**
- * Attributes related to human-readable metadata, UI generation, and categorization.
+ * Human-readable operation metadata.
  *
  * Engineering units intentionally not declared here. Integrations that need typed units
- * (KotUniL, Measured, …) contribute their own `MemberAttribute` subtype carrying
+ * (KotUniL, Measured, …) contribute their own `OperationAttribute` subtype carrying
  * library-specific quantities — the SDK does not hardcode a unit ontology.
  */
 @Serializable
@@ -27,31 +25,26 @@ import kotlin.time.Duration
 public data class MetadataAttribute(
     val description: String? = null,
     val help: String? = null,
-    val group: String? = null,
-    val icon: String? = null,
-    val widgetHint: String? = null,
-    val tags: Set<MemberTag> = emptySet()
-) : MemberAttribute {
+) : OperationAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /**
  * Quick access to the [MetadataAttribute] of a descriptor.
  */
-public val MemberDescriptor.metadata: MetadataAttribute?
+public val OperationDescriptor.metadata: MetadataAttribute?
     get() = attribute()
-public val MemberDescriptor.description: String? by attr(MetadataAttribute::description)
-public val MemberDescriptor.tags: Set<MemberTag>
-    get() = metadata?.tags ?: emptySet()
+public val OperationDescriptor.description: String? by attr(MetadataAttribute::description)
 
 /**
- * Cross-cutting runtime hints honoured by core [PipelineExecutors][space.kscience.krig.core.pipeline.executeRead].
- * Every field has a paired executor: [timeout] → `withTimeout` wrapper, [latencyBudget] →
- * `LatencyBudgetObserver`, [retryPolicy] → `withResilience`, [requiredLocks] →
- * [acquireAllLocks][space.kscience.krig.core.pipeline.acquireAllLocks].
+ * Cross-cutting runtime hints honoured by the operation pipeline.
+ * Every field has a paired runtime hook: [timeout] → timeout wrapper, [latencyBudget] →
+ * `LatencyBudgetObserver`, [retryPolicy] → retry wrapper, [requiredLocks] →
+ * [acquireAllLocks][space.kscience.krig.core.pipeline.acquireAllLocks],
+ * [requiredCapabilities] → capability toggle gates.
  *
  * Specialised behavior (caching, persistence, telemetry, streaming) lives in dedicated
- * `MemberAttribute` subtypes contributed by their DeviceFeatureSpec integration — keeping this
+ * `OperationAttribute` subtypes contributed by their FeatureSpec integration — keeping this
  * attribute focused on what the core pipeline actually enforces.
  */
 @Serializable
@@ -59,28 +52,31 @@ public val MemberDescriptor.tags: Set<MemberTag>
 public data class BehaviorAttribute(
     val timeout: Duration? = null,
     val latencyBudget: Duration? = null,
-    val requiredLocks: List<ResourceLockSpec> = emptyList(),
+    val requiredLocks: List<ResourceLock> = emptyList(),
+    val requiredCapabilities: Set<Name> = emptySet(),
     val retryPolicy: RetryPolicy? = null,
     val tolerance: Double? = null,
-) : MemberAttribute {
+) : OperationAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
-public val MemberDescriptor.behavior: BehaviorAttribute?
+public val OperationDescriptor.behavior: BehaviorAttribute?
     get() = attribute()
-public val MemberDescriptor.timeout: Duration? by attr(BehaviorAttribute::timeout)
-public val MemberDescriptor.latencyBudget: Duration? by attr(BehaviorAttribute::latencyBudget)
-public val MemberDescriptor.requiredLocks: List<ResourceLockSpec>
+public val OperationDescriptor.timeout: Duration? by attr(BehaviorAttribute::timeout)
+public val OperationDescriptor.latencyBudget: Duration? by attr(BehaviorAttribute::latencyBudget)
+public val OperationDescriptor.requiredLocks: List<ResourceLock>
     get() = behavior?.requiredLocks ?: emptyList()
-public val MemberDescriptor.retryPolicy: RetryPolicy?
+public val OperationDescriptor.requiredCapabilities: Set<Name>
+    get() = behavior?.requiredCapabilities ?: emptySet()
+public val OperationDescriptor.retryPolicy: RetryPolicy?
     get() = behavior?.retryPolicy
-public val MemberDescriptor.tolerance: Double? by attr(BehaviorAttribute::tolerance)
+public val OperationDescriptor.tolerance: Double? by attr(BehaviorAttribute::tolerance)
 
 /**
  * Attributes defining security and access control.
  *
  * [readPermissions] and [writePermissions] are metadata for introspection.
- * Current RBAC gates use per-device defaults via
+ * Current RBAC gates use device-backed defaults via
  * [ControlsPermissions][space.kscience.krig.api.identifiers.ControlsPermissions].
  * Descriptor-level enforcement is planned for a future release.
  */
@@ -91,18 +87,18 @@ public data class AccessAttribute(
     val mutable: Boolean = false,
     val readPermissions: Set<Permission> = emptySet(),
     val writePermissions: Set<Permission> = emptySet()
-) : MemberAttribute {
+) : OperationAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
-public val MemberDescriptor.access: AccessAttribute?
+public val OperationDescriptor.access: AccessAttribute?
     get() = attribute()
 
-public val MemberDescriptor.readable: Boolean by attr(true, AccessAttribute::readable)
-public val MemberDescriptor.mutable: Boolean by attr(false, AccessAttribute::mutable)
-public val MemberDescriptor.readPermissions: Set<Permission>
+public val OperationDescriptor.readable: Boolean by attr(true, AccessAttribute::readable)
+public val OperationDescriptor.mutable: Boolean by attr(false, AccessAttribute::mutable)
+public val OperationDescriptor.readPermissions: Set<Permission>
     get() = access?.readPermissions ?: emptySet()
-public val MemberDescriptor.writePermissions: Set<Permission>
+public val OperationDescriptor.writePermissions: Set<Permission>
     get() = access?.writePermissions ?: emptySet()
 
 /**
@@ -113,9 +109,9 @@ public val MemberDescriptor.writePermissions: Set<Permission>
 @SerialName("attr.bindings")
 public data class BindingsAttribute(
     val bindings: Map<String, AdapterBinding> = emptyMap()
-) : MemberAttribute {
+) : OperationAttribute {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
-public val MemberDescriptor.bindings: Map<String, AdapterBinding>
+public val OperationDescriptor.bindings: Map<String, AdapterBinding>
     get() = attribute<BindingsAttribute>()?.bindings ?: emptyMap()

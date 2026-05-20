@@ -46,6 +46,7 @@ include(
     ":krig-state",
     ":krig-identity",
     ":krig-model",
+    ":krig-operation",
     ":krig-messaging",
     ":krig-contracts",
     // Runtime

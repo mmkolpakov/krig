@@ -10,7 +10,7 @@ import kotlin.jvm.JvmInline
  * `Value` / `Meta` overhead on that dynamic path.
  *
  * This is not a replacement for the strongly typed `TypedReader` / `TypedWriter` path:
- * SDK code that knows `T` should keep using typed pipeline specs.
+ * SDK code that knows `T` should keep using contract specs.
  */
 @Serializable
 public sealed interface RawValue {

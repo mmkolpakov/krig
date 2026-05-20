@@ -20,7 +20,7 @@ import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
-import space.kscience.krig.api.faults.DeviceFaultException
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -80,7 +80,7 @@ class AbstractDeviceCloseGracefullyTest {
         val closeJob = launch { device.closeGracefully(1.seconds) }
         runCurrent()
 
-        assertFailsWith<DeviceFaultException> {
+        assertFailsWith<OperationFaultException> {
             device.enterOperation()
         }
 
@@ -116,7 +116,7 @@ class AbstractDeviceCloseGracefullyTest {
         runCurrent()
 
         assertTrue(closeJob.isActive)
-        assertFailsWith<DeviceFaultException> {
+        assertFailsWith<OperationFaultException> {
             child.enterOperation()
         }
 

@@ -1,4 +1,4 @@
-﻿@file:OptIn(space.kscience.krig.core.InternalKrigApi::class)
+@file:OptIn(space.kscience.krig.core.InternalKrigApi::class)
 
 package space.kscience.krig.core.operations
 
@@ -8,9 +8,8 @@ import space.kscience.krig.api.data.Snapshotting
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigJson
-import space.kscience.krig.core.capabilities.DeviceCapability
-import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.RuntimeCapabilityHost
+import space.kscience.krig.core.capabilities.Capability
+import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.dataforge.meta.Meta
 
 private val defaultCapabilitySnapshotJson: Json = krigJson()
@@ -24,13 +23,13 @@ private val defaultCapabilitySnapshotJson: Json = krigJson()
  * runtime reflection. Industrial precedent: Decompose `StateKeeper`, Android
  * `onSaveInstanceState(Bundle)`, Spring Boot `/actuator` aggregator.
  */
-public fun Device.captureCapabilitySnapshots(json: Json = defaultCapabilitySnapshotJson): Map<String, Meta> {
+public fun CapabilityHost.captureCapabilitySnapshots(json: Json = defaultCapabilitySnapshotJson): Map<String, Meta> {
     val caps = enumerateInstalledCapabilities()
     if (caps.isEmpty()) return emptyMap()
     val out = LinkedHashMap<String, Meta>(caps.size)
     for (cap in caps) {
         if (cap !is Snapshotting<*>) continue
-        out[cap.key.id] = encodeSnapshot(cap, json)
+        out[cap.key.id.toString()] = encodeSnapshot(cap, json)
     }
     return out
 }
@@ -43,14 +42,14 @@ public fun Device.captureCapabilitySnapshots(json: Json = defaultCapabilitySnaps
  * silently rather than aborting the whole restore — backward compatibility for evolving
  * `Snap` shapes.
  */
-public suspend fun Device.restoreCapabilitySnapshots(
+public suspend fun CapabilityHost.restoreCapabilitySnapshots(
     snapshots: Map<String, Meta>,
     json: Json = defaultCapabilitySnapshotJson,
 ) {
     if (snapshots.isEmpty()) return
     for (cap in enumerateInstalledCapabilities()) {
         if (cap !is Snapshotting<*>) continue
-        val raw = snapshots[cap.key.id] ?: continue
+        val raw = snapshots[cap.key.id.toString()] ?: continue
         decodeAndRestore(cap, raw, json)
     }
 }
@@ -86,5 +85,5 @@ private fun decodeSnapshotOrNull(cap: Snapshotting<Any>, raw: Meta, json: Json):
 /**
  * Walks the device's runtime capability registry to find every installed capability.
  */
-private fun Device.enumerateInstalledCapabilities(): List<DeviceCapability<*>> =
-    (this as? RuntimeCapabilityHost)?.installedCapabilities.orEmpty().distinctBy { it.key.id }
+private fun CapabilityHost.enumerateInstalledCapabilities(): List<Capability<*>> =
+    installedCapabilities.distinctBy { it.key.id }

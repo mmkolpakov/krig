@@ -1,9 +1,9 @@
-﻿package space.kscience.krig.api.discovery
+package space.kscience.krig.api.discovery
 
-/** `DeviceFeatureInstaller<*, *>` installers — target of `ContributesFeatureInstaller`. */
-@TargetId("krig.device-feature-installer")
-public object FeatureInstallerContributions {
-    public val Target: ContributionTarget<Any> = ContributionTarget("krig.device-feature-installer")
+/** `Feature<*, *>` objects — target of `ContributesFeature`. */
+@TargetId("krig.feature")
+public object FeatureContributions {
+    public val Target: ContributionTarget<Any> = ContributionTarget("krig.feature")
 }
 
 /** `ProtocolEngineFactory<*, *>` — target of `ContributesProtocol`. */
@@ -16,10 +16,4 @@ public object ProtocolContributions {
 @TargetId("krig.action-handler")
 public object ActionHandlerContributions {
     public val Target: ContributionTarget<Any> = ContributionTarget("krig.action-handler")
-}
-
-/** `FaultRecoveryPolicy.Contribution` — target of `ContributesFaultRecovery`. */
-@TargetId("krig.fault-recovery")
-public object FaultRecoveryContributions {
-    public val Target: ContributionTarget<Any> = ContributionTarget("krig.fault-recovery")
 }

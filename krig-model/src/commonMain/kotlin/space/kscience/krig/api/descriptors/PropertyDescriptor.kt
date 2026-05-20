@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.descriptors
+package space.kscience.krig.api.descriptors
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -18,11 +18,11 @@ public data class PropertyDescriptor(
     public val kind: PropertyKind,
     public val valueTypeId: String,
     public val metaDescriptor: MetaDescriptor = MetaDescriptor(),
-    override val attributes: Set<MemberAttribute> = emptySet()
-) : MemberDescriptor {
+    override val attributes: Set<OperationAttribute> = emptySet()
+) : OperationDescriptor {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 
-    public inline fun <reified A : MemberAttribute> findAttribute(): A? {
+    public inline fun <reified A : OperationAttribute> findAttribute(): A? {
         return attributes.filterIsInstance<A>().firstOrNull()
     }
 

@@ -12,13 +12,13 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.result.DeviceOutcome
-import space.kscience.krig.api.result.runCatchingDevice
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.capabilities.CapabilityKey
-import space.kscience.krig.core.capabilities.DeviceCapability
+import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.contracts.typed.GenericTypedAction
 import space.kscience.krig.core.contracts.typed.GenericTypedWriter
@@ -98,7 +98,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     /**
      * Opens a principal-scoped subscription. Authorization is checked once at subscribe time;
      * subsequent elements flow without per-element overhead. Throws
-     * [space.kscience.krig.api.faults.DeviceSecurityException] on missing permission.
+     * [space.kscience.krig.api.services.AuthorizationException] on missing permission.
      */
     public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<DeviceMessage>
 
@@ -114,7 +114,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     public val childrenFlow: StateFlow<Map<Name, Device>>
         get() = EmptyChildrenFlow
 
-    public fun <C : DeviceCapability<*>> capability(key: CapabilityKey<C, *>): C?
+    public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C?
 
     /**
      * Suspends until owned child devices are shut down and this device scope has completed.
@@ -161,8 +161,8 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      * Returns a known [DevicePropertyContract] by name. Drivers backed by a
      * [DeviceBlueprint][space.kscience.krig.core.contracts.DeviceBlueprint] expose
      * registered specs so `readProperty(Name): Meta` callers can cross the serialization
-     * boundary through the full typed pipeline (gates -> locks -> timeout -> retry ->
-     * observers -> reader). Default returns `null`; `TypedPipelineDevice` then applies
+     * boundary through the full operation pipeline (gates -> locks -> timeout -> retry ->
+     * observers -> reader). Default returns `null`; `PipelineDevice` then applies
      * only generic gates before delegating to the underlying Meta operation.
      */
     public fun propertySpec(propertyName: Name): DevicePropertyContract<*>? = null
@@ -175,25 +175,25 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     // --- Outcome-based API (errors as values) ---
 
     /**
-     * Outcome wrapper of [readProperty]. Default routes through [runCatchingDevice]
-     * (getOrThrow → re-wrap). Drivers that can produce [DeviceOutcome] directly
+     * Outcome wrapper of [readProperty]. Default routes through [runCatchingOperation]
+     * (getOrThrow → re-wrap). Drivers that can produce [OperationOutcome] directly
      * (e.g. [DeviceBackend]-based) override this to avoid the double-wrap overhead;
      * override [readProperty] is NOT sufficient — callers using the outcome API
      * go through this method.
      */
     @OptIn(PerformancePitfall::class)
-    public suspend fun readPropertyOutcome(propertyName: Name): DeviceOutcome<Meta> =
+    public suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         captureOutcome { readProperty(propertyName) }
 
     /** Write-plane analogue of [readPropertyOutcome]. */
     @OptIn(PerformancePitfall::class)
-    public suspend fun writePropertyOutcome(propertyName: Name, value: Meta): DeviceOutcome<Unit> =
+    public suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         captureOutcome { writeProperty(propertyName, value) }
 
-    /** Action-plane analogue of [readPropertyOutcome]. Drivers that can produce [DeviceOutcome]
+    /** Action-plane analogue of [readPropertyOutcome]. Drivers that can produce [OperationOutcome]
      * directly should override this to avoid the double-wrap overhead through [execute]. */
     @OptIn(PerformancePitfall::class)
-    public suspend fun executeOutcome(actionName: Name, argument: Meta? = null): DeviceOutcome<Meta?> =
+    public suspend fun executeOutcome(actionName: Name, argument: Meta? = null): OperationOutcome<Meta?> =
         captureOutcome { execute(actionName, argument) }
 
     override fun content(target: String): Map<Name, Any> = emptyMap()
@@ -231,9 +231,9 @@ private fun Device.markProgrammingFailure(cause: Throwable) {
     (this as? LifecycleStateHolder)?.updateLifecycleState(LifecycleState.Failed(cause))
 }
 
-private suspend inline fun <T> Device.captureOutcome(block: suspend () -> T): DeviceOutcome<T> =
+private suspend inline fun <T> Device.captureOutcome(block: suspend () -> T): OperationOutcome<T> =
     try {
-        runCatchingDevice { block() }
+        runCatchingOperation { block() }
     } catch (e: CancellationException) {
         throw e
     } catch (e: RuntimeException) {

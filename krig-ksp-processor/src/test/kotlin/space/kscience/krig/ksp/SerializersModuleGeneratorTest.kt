@@ -73,32 +73,32 @@ class SerializersModuleGeneratorTest {
                     """.trimIndent(),
                 ),
                 SourceFile.kotlin(
-                    "MemberTag.kt",
+                    "ExtensionPoint.kt",
                     """
 
-                    package space.kscience.krig.api.meta
+                    package sample.api
 
                     import kotlinx.serialization.Polymorphic
                     import space.kscience.krig.api.annotations.PolymorphicBase
 
                     @Polymorphic
                     @PolymorphicBase
-                    interface MemberTag
+                    interface ExtensionPoint
                     """.trimIndent(),
                 ),
                 SourceFile.kotlin(
-                    "IntegrationTag.kt",
+                    "IntegrationExtension.kt",
                     """
 
                     package sample
 
                     import kotlinx.serialization.SerialName
                     import kotlinx.serialization.Serializable
-                    import space.kscience.krig.api.meta.MemberTag
+                    import sample.api.ExtensionPoint
 
                     @Serializable
-                    @SerialName("tag.integration")
-                    data class IntegrationTag(val id: String) : MemberTag
+                    @SerialName("extension.integration")
+                    data class IntegrationExtension(val id: String) : ExtensionPoint
                     """.trimIndent(),
                 ),
                 SourceFile.kotlin(
@@ -107,7 +107,7 @@ class SerializersModuleGeneratorTest {
 
                     package sample
 
-                    import space.kscience.krig.generated.member_tag_test.generatedKrigSerializersModule
+                    import space.kscience.krig.generated.extension_test.generatedKrigSerializersModule
 
                     val module = generatedKrigSerializersModule
                     """.trimIndent(),
@@ -115,7 +115,7 @@ class SerializersModuleGeneratorTest {
             )
             inheritClassPath = false
             configureKsp {
-                processorOptions["krig.generated.module"] = "member_tag_test"
+                processorOptions["krig.generated.module"] = "extension_test"
                 withCompilation = true
                 symbolProcessorProviders += KrigSymbolProcessorProvider()
             }

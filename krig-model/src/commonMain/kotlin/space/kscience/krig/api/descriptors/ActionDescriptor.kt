@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.descriptors
+package space.kscience.krig.api.descriptors
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,7 +14,7 @@ import space.kscience.dataforge.names.Name
  * @property name The unique, potentially hierarchical name of the action. Uses [space.kscience.dataforge.names.Name] for consistency.
  * @property inputMetaDescriptor A descriptor for the action's input [space.kscience.dataforge.meta.Meta].
  * @property outputDescriptor A descriptor for the action's output [space.kscience.dataforge.meta.Meta].
- * @property attributes Composable set of [MemberAttribute] policies for this action.
+ * @property attributes Composable set of [OperationAttribute] policies for this action.
  */
 @Serializable
 @SerialName("descriptor.action")
@@ -22,8 +22,8 @@ public data class ActionDescriptor(
     public override val name: Name,
     public val inputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
     public val outputDescriptor: MetaDescriptor = MetaDescriptor(),
-    override val attributes: Set<MemberAttribute> = emptySet()
-) : MemberDescriptor {
+    override val attributes: Set<OperationAttribute> = emptySet()
+) : OperationDescriptor {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 
     public companion object {

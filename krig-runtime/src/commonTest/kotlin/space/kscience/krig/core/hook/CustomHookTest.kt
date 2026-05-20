@@ -1,8 +1,8 @@
-﻿package space.kscience.krig.core.hook
+package space.kscience.krig.core.hook
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.core.pipeline.TypedPipelineBuilder
+import space.kscience.krig.core.pipeline.PipelineBuilder
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
@@ -20,7 +20,7 @@ class CustomHookTest {
 
     @Test
     fun userDefinedHookRoundtripsThroughPipelineBuilder() = runTest {
-        val pipeline = TypedPipelineBuilder()
+        val pipeline = PipelineBuilder()
         val recorded = mutableListOf<Name>()
         pipeline.on(MetricsPulseHook) { name -> recorded += name }
 
@@ -33,7 +33,7 @@ class CustomHookTest {
 
     @Test
     fun multipleHandlersPerHookFireInRegistrationOrder() = runTest {
-        val pipeline = TypedPipelineBuilder()
+        val pipeline = PipelineBuilder()
         val seen = mutableListOf<String>()
         pipeline.on(MetricsPulseHook) { _ -> seen += "first" }
         pipeline.on(MetricsPulseHook) { _ -> seen += "second" }
@@ -46,7 +46,7 @@ class CustomHookTest {
 
     @Test
     fun emptyRegistryReturnsEmptyHandlerList() = runTest {
-        val pipeline = TypedPipelineBuilder()
+        val pipeline = PipelineBuilder()
         assertEquals(emptyList(), pipeline.handlersOf(MetricsPulseHook))
     }
 }

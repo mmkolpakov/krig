@@ -9,7 +9,7 @@ plugins {
 }
 
 description = "Kotlin Jupyter integration for krig — auto-imports, HTML renderers for Device," +
-        " DeviceMessage, Timeline, Timestamped, DeviceOutcome, and lifecycle states."
+        " DeviceMessage, Timeline, Timestamped, OperationOutcome, and lifecycle states."
 
 dependencies {
     compileOnly(libs.kotlin.jupyter.api)

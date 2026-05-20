@@ -1,8 +1,8 @@
-﻿package space.kscience.krig.api.identifiers
+package space.kscience.krig.api.identifiers
 
 /**
  * Permission required by [AuthorizationService][space.kscience.krig.api.services.AuthorizationService].
- * Open interface: DeviceFeatureSpec modules add their own types and back-ends handle them via a
+ * Open interface: FeatureSpec modules add their own types and back-ends handle them via a
  * terminal `else` branch.
  */
 public interface Permission {

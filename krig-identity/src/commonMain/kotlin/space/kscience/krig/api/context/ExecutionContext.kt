@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.context
+package space.kscience.krig.api.context
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -6,7 +6,6 @@ import space.kscience.attributes.Attributes
 import space.kscience.krig.api.identifiers.CorrelationId
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.NameSerializer
 
 /**
  * A context for a single execution flow (a command plan, a query, or an action execution),
@@ -22,7 +21,6 @@ import space.kscience.dataforge.names.NameSerializer
 public data class ExecutionContext(
     val principal: Principal = AnonymousPrincipal,
     val correlationId: CorrelationId = CorrelationId.Unspecified,
-    @Serializable(with = NameSerializer::class)
     val originDevice: Name? = null,
     val properties: Meta = Meta.EMPTY,
     @Transient

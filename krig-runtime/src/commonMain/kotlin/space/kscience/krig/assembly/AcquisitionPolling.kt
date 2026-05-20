@@ -11,11 +11,11 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualityCode
 import space.kscience.krig.api.data.QualitySeverity
-import space.kscience.krig.api.faults.DeviceFault
-import space.kscience.krig.api.faults.DeviceFaultException
-import space.kscience.krig.api.faults.GenericDeviceFault
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.TimeoutFault
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.faults.TransportFault
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.fail
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
@@ -25,14 +25,14 @@ import kotlin.time.Duration.Companion.milliseconds
  * scheduling and mapping; the integration owns connector state and address syntax.
  */
 public fun interface AcquisitionTagReader {
-    public suspend fun read(tag: AcquisitionTagSpec): DeviceOutcome<Meta>
+    public suspend fun read(tag: AcquisitionTagSpec): OperationOutcome<Meta>
 }
 
 /** One polling result for a configured acquisition tag. */
 public data class AcquisitionObservation(
     public val tag: AcquisitionTagSpec,
     public val observed: ObservedValue<Meta?>,
-    public val fault: DeviceFault? = null,
+    public val fault: OperationFault? = null,
 ) {
     public val isOk: Boolean get() = fault == null
 }
@@ -70,18 +70,18 @@ private suspend fun AcquisitionTagReader.observe(
     tag: AcquisitionTagSpec,
     clock: Clock,
 ): AcquisitionObservation = when (val outcome = readWithTimeout(tag)) {
-    is DeviceOutcome.Ok -> AcquisitionObservation(
+    is OperationOutcome.Ok -> AcquisitionObservation(
         tag = tag,
         observed = ObservedValue(value = outcome.value, time = clock.now(), quality = DataQuality.GOOD),
     )
-    is DeviceOutcome.Fail -> AcquisitionObservation(
+    is OperationOutcome.Fail -> AcquisitionObservation(
         tag = tag,
         observed = ObservedValue(value = null, time = clock.now(), quality = outcome.fault.toAcquisitionQuality()),
         fault = outcome.fault,
     )
 }
 
-private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec): DeviceOutcome<Meta> = try {
+private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec): OperationOutcome<Meta> = try {
     val timeoutMs = tag.timeoutMs
     if (timeoutMs == null) {
         read(tag)
@@ -89,22 +89,22 @@ private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec
         withTimeout(timeoutMs.milliseconds) { read(tag) }
     }
 } catch (_: TimeoutCancellationException) {
-    fail(TimeoutFault("ACQUISITION_TIMEOUT"))
+    fail(TimeoutFault())
 } catch (e: CancellationException) {
     throw e
-} catch (e: DeviceFaultException) {
+} catch (e: OperationFaultException) {
     fail(e.fault)
 } catch (e: IOException) {
     fail(
-        GenericDeviceFault(
-            code = e::class.simpleName ?: "IO_ERROR",
+        TransportFault(
+            causeType = e::class.simpleName ?: "IOException",
             message = e.message ?: "I/O failure while reading acquisition tag '${tag.id}'.",
         )
     )
 }
 
-private fun DeviceFault.toAcquisitionQuality(): DataQuality {
-    val qualityCode = code.takeIf { it.isNotBlank() } ?: "ACQUISITION_FAULT"
+private fun OperationFault.toAcquisitionQuality(): DataQuality {
+    val qualityCode = faultType.toString().replace('.', '-')
     return DataQuality(
         severity = QualitySeverity.BAD,
         code = QualityCode("krig.acquisition.${qualityCode.lowercase()}"),

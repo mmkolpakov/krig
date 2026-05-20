@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.ksp
+package space.kscience.krig.ksp
 
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -16,7 +16,7 @@ public class KrigSymbolProcessor(
 
     private val generators: List<Generator> by lazy {
         listOf(
-            DeviceFeatureSpecContractValidator(environment),
+            FeatureSpecContractValidator(environment),
             ContributesAggregator(environment),
             SerializersModuleGenerator(environment),
         )

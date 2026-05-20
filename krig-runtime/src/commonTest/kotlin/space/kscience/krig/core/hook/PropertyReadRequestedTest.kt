@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.PerformancePitfall::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
@@ -19,8 +19,8 @@ import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.meta.DevicePropertySpec
-import space.kscience.krig.core.pipeline.TypedPipelineBuilder
-import space.kscience.krig.core.pipeline.wrapWithTypedPipeline
+import space.kscience.krig.core.pipeline.PipelineBuilder
+import space.kscience.krig.core.pipeline.wrapWithPipeline
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -52,10 +52,10 @@ class PropertyReadRequestedTest {
     @Test
     fun propertyReadRequestedFiresOnEveryTypedRead() = runTest {
         val observed = mutableListOf<Name>()
-        val builder = TypedPipelineBuilder()
+        val builder = PipelineBuilder()
         builder.on(PropertyReadRequested) { name -> observed += name }
 
-        val device = wrapWithTypedPipeline(StubDevice(), builder, "stub", autoInstallDefaults = false)
+        val device = wrapWithPipeline(StubDevice(), builder, "stub", autoInstallDefaults = false)
         device.reader(specOf("a".asName())).read().let { }
         device.reader(specOf("b".asName())).read().let { }
         device.reader(specOf("c".asName())).read().let { }
@@ -65,8 +65,8 @@ class PropertyReadRequestedTest {
 
     @Test
     fun noHandlersMeansNoBehaviouralDifference() = runTest {
-        val builder = TypedPipelineBuilder()
-        val device = wrapWithTypedPipeline(StubDevice(), builder, "stub", autoInstallDefaults = false)
+        val builder = PipelineBuilder()
+        val device = wrapWithPipeline(StubDevice(), builder, "stub", autoInstallDefaults = false)
         val result = device.reader(specOf("x".asName())).read()
         assertEquals(1, result)
     }

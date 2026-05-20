@@ -2,10 +2,11 @@ package space.kscience.krig.core.contracts
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.GenericDeviceFault
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.result.DeviceOutcome
-import space.kscience.krig.api.result.runCatchingDevice
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
@@ -63,7 +64,7 @@ public class ConnectionProperty<T> internal constructor(
 public class DeviceBackendBuilder internal constructor() {
 
     private val readers: MutableMap<Name, Pair<() -> Any?, MetaConverter<*>>> = mutableMapOf()
-    private val writers: MutableMap<Name, (Meta) -> DeviceOutcome<Unit>> = mutableMapOf()
+    private val writers: MutableMap<Name, (Meta) -> OperationOutcome<Unit>> = mutableMapOf()
     private val actions: MutableMap<Name, suspend (Meta?) -> Meta?> = mutableMapOf()
     private var stepBlock: ((Duration) -> Unit)? = null
     private var closeBlock: (() -> Unit)? = null
@@ -104,7 +105,7 @@ public class DeviceBackendBuilder internal constructor() {
                 validationFault("Property '$key': cannot decode Meta to ${converter::class.simpleName}")
             } else {
                 cell = decoded
-                DeviceOutcome.OkUnit
+                OperationOutcome.OkUnit
             }
         }
         return ConnectionProperty(key, { cell }, { newValue -> cell = newValue })
@@ -213,29 +214,29 @@ public fun steppedBackend(block: DeviceBackendBuilder.() -> Unit): SteppedBacken
 /** Shared read / write / execute / close state for both built backends. */
 private class BuiltCommon(
     val readers: Map<Name, Pair<() -> Any?, MetaConverter<*>>>,
-    val writers: Map<Name, (Meta) -> DeviceOutcome<Unit>>,
+    val writers: Map<Name, (Meta) -> OperationOutcome<Unit>>,
     val actions: Map<Name, suspend (Meta?) -> Meta?>,
     val closeBody: (() -> Unit)?,
 ) {
-    fun read(property: PropertyDescriptor): DeviceOutcome<Meta> {
+    fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
         val (reader, converter) = readers[property.name]
-            ?: return backendFault("UNKNOWN_PROPERTY", "Unknown property '${property.name}' on device backend")
-        return runCatchingDevice {
+            ?: return backendFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}' on device backend")
+        return runCatchingOperation {
             @Suppress("UNCHECKED_CAST")
             (converter as MetaConverter<Any?>).convert(reader())
         }
     }
 
-    fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> {
+    fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
         val writer = writers[property.name]
-            ?: return backendFault("PROPERTY_NOT_WRITABLE", "Property '${property.name}' is not writable on device backend")
+            ?: return validationFault("Property '${property.name}' is not writable on device backend")
         return writer(value)
     }
 
-    suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> {
+    suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
         val body = actions[action.name]
-            ?: return backendFault("UNKNOWN_ACTION", "Unknown action '${action.name}' on device backend")
-        return runCatchingDevice {
+            ?: return backendFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}' on device backend")
+        return runCatchingOperation {
             body(argument)
         }
     }
@@ -245,11 +246,11 @@ private class BuiltCommon(
     }
 }
 
-private fun backendFault(code: String, message: String): DeviceOutcome.Fail =
-    DeviceOutcome.Fail(GenericDeviceFault(code = code, message = message))
+private fun backendFault(type: Name, message: String): OperationOutcome.Fail =
+    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
 
-private fun validationFault(message: String): DeviceOutcome.Fail =
-    DeviceOutcome.Fail(
+private fun validationFault(message: String): OperationOutcome.Fail =
+    OperationOutcome.Fail(
         ValidationFault(
             details = Meta { "message" put message },
         ),
@@ -258,11 +259,11 @@ private fun validationFault(message: String): DeviceOutcome.Fail =
 @OptIn(UnstableKrigForSubclassing::class)
 private class BuiltDeviceBackend(private val c: BuiltCommon) : DeviceBackend {
     context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> = c.read(property)
+    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
     context(device: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> = c.write(property, value)
+    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> = c.write(property, value)
     context(device: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> = c.execute(action, argument)
+    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> = c.execute(action, argument)
     override fun close() = c.close()
 }
 
@@ -273,10 +274,10 @@ private class BuiltSteppedBackend(
 ) : SteppedBackend {
     override fun step(dt: Duration) { stepBody(dt) }
     context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> = c.read(property)
+    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
     context(device: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> = c.write(property, value)
+    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> = c.write(property, value)
     context(device: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> = c.execute(action, argument)
+    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> = c.execute(action, argument)
     override fun close() = c.close()
 }

@@ -12,7 +12,7 @@ import kotlin.concurrent.atomics.AtomicReference
 public fun interface HookRegistration : AutoCloseable
 
 /**
- * Carries [Hook] handlers. Implemented by typed pipeline builders (operation-scope) and
+ * Carries [Hook] handlers. Implemented by operation pipeline builders and
  * `DynamicHub` (topology-scope). Third-party consumers that own their own firing sites
  * implement it too.
  */

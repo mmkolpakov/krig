@@ -14,7 +14,7 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualityCode
 import space.kscience.krig.api.data.QualitySeverity
-import space.kscience.krig.api.faults.DeviceFault
+import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.ActionFaultMessage
 import space.kscience.krig.api.messages.DeviceErrorMessage
@@ -118,9 +118,9 @@ private fun <T> Flow<T>.applyRateLimit(options: SubscribeOptions): Flow<T> {
 // --- fault & lifecycle flows --------------------------------------------
 
 /** All faults from the control plane: [DeviceErrorMessage], [ActionFaultMessage], [PropertyFaultMessage]. */
-public fun Device.faultFlow(principal: Principal): Flow<DeviceFault> = flow {
+public fun Device.faultFlow(principal: Principal): Flow<OperationFault> = flow {
     subscribe(principal).collect { msg ->
-        val fault: DeviceFault? = when (msg) {
+        val fault: OperationFault? = when (msg) {
             is DeviceErrorMessage -> msg.failure.fault
             is ActionFaultMessage -> msg.fault
             is PropertyFaultMessage -> msg.fault
@@ -159,11 +159,11 @@ public fun <T : Any> Device.onPropertyChange(
     action: suspend (T) -> Unit,
 ): Job = typedPropertyFlow(principal, spec).onEach(action).launchIn(scope)
 
-/** Runs [action] on every [DeviceFault] surfaced by the control plane. */
+/** Runs [action] on every [OperationFault] surfaced by the control plane. */
 public fun Device.onFault(
     principal: Principal,
     scope: CoroutineScope = deviceScope,
-    action: suspend (DeviceFault) -> Unit,
+    action: suspend (OperationFault) -> Unit,
 ): Job = faultFlow(principal).onEach(action).launchIn(scope)
 
 /** Runs [action] on every [LifecycleState] transition. */
@@ -195,7 +195,7 @@ public suspend fun <T : Any> Device.onPropertyChangeFromContext(
 /** Runs [action] on faults using the principal stored in the current coroutine context. */
 public suspend fun Device.onFaultFromContext(
     scope: CoroutineScope = deviceScope,
-    action: suspend (DeviceFault) -> Unit,
+    action: suspend (OperationFault) -> Unit,
 ): Job = onFault(currentPrincipal(), scope, action)
 
 /** Runs [action] on lifecycle changes using the principal stored in the current coroutine context. */

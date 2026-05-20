@@ -5,11 +5,9 @@ import kotlinx.serialization.serializer
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
-import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
 import space.kscience.krig.api.descriptors.typeIdOf
 import space.kscience.krig.api.meta.serializableMetaConverter
-import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -21,7 +19,7 @@ import kotlin.properties.ReadOnlyProperty
  *
  * Unlike [DeviceSpecBuilder], this builder records only contracts: descriptors and typed
  * converters. Hardware/simulation logic is supplied by a backend such as
- * [typedBackend][space.kscience.krig.core.contracts.typed.typedBackend].
+ * [backend][space.kscience.krig.core.contracts.typed.backend].
  */
 public abstract class DeviceContractBuilder {
     @PublishedApi
@@ -111,66 +109,6 @@ public abstract class DeviceContractBuilder {
         kind: PropertyKind = PropertyKind.PHYSICAL,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<T>>> =
         serializableMutableProperty(serializer<T>(), kind)
-
-    public fun doubleProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Double>>> =
-        property(MetaConverter.double, TypeIds.DOUBLE, kind)
-
-    public fun intProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Int>>> =
-        property(MetaConverter.int, TypeIds.INT, kind)
-
-    public fun longProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Long>>> =
-        property(MetaConverter.long, TypeIds.LONG, kind)
-
-    public fun booleanProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Boolean>>> =
-        property(MetaConverter.boolean, TypeIds.BOOLEAN, kind)
-
-    public fun stringProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<String>>> =
-        property(MetaConverter.string, TypeIds.STRING, kind)
-
-    public fun metaProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Meta>>> =
-        property(MetaConverter.meta, TypeIds.META, kind)
-
-    public fun mutableDoubleProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Double>>> =
-        mutableProperty(MetaConverter.double, TypeIds.DOUBLE, kind)
-
-    public fun mutableIntProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Int>>> =
-        mutableProperty(MetaConverter.int, TypeIds.INT, kind)
-
-    public fun mutableLongProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Long>>> =
-        mutableProperty(MetaConverter.long, TypeIds.LONG, kind)
-
-    public fun mutableBooleanProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Boolean>>> =
-        mutableProperty(MetaConverter.boolean, TypeIds.BOOLEAN, kind)
-
-    public fun mutableStringProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<String>>> =
-        mutableProperty(MetaConverter.string, TypeIds.STRING, kind)
-
-    public fun mutableMetaProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Meta>>> =
-        mutableProperty(MetaConverter.meta, TypeIds.META, kind)
 
     public fun <I, O> action(
         inputConverter: MetaConverter<I>,

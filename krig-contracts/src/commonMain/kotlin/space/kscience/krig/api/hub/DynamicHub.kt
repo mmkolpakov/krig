@@ -58,7 +58,7 @@ public interface DynamicHub : Device {
     /**
      * Topology-scope [HookRegistry] — carries handlers for [space.kscience.krig.core.hook.DeviceAttached]
      * and [space.kscience.krig.core.hook.DeviceDetached]. Operation-pipeline hooks live on
-     * the device's typed pipeline builder instead. Registering such hooks here is a no-op.
+     * the device's operation pipeline builder instead. Registering such hooks here is a no-op.
      */
     public val hubHooks: HookRegistry
 }

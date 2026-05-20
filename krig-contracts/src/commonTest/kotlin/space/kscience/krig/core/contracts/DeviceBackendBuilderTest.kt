@@ -10,8 +10,8 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.faults.GenericDeviceFault
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -111,8 +111,8 @@ class DeviceBackendBuilderTest {
         val outcome = context(device) {
             backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, "kotlin.Double"))
         }
-        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
-        val fault = outcome.fault as GenericDeviceFault
+        assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
+        val fault = outcome.fault as GenericOperationFault
         assertTrue(
             fault.message.contains("Unknown property"),
             "Fault message should mention 'Unknown property': ${fault.message}",
@@ -131,7 +131,7 @@ class DeviceBackendBuilderTest {
                 metaOf(2.0),
             )
         }
-        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
+        assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
     }
 
     @Test
@@ -148,7 +148,7 @@ class DeviceBackendBuilderTest {
             )
         }
 
-        assertTrue(outcome is DeviceOutcome.Fail, "expected Fail, got $outcome")
+        assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
         assertTrue(outcome.fault is ValidationFault, "expected ValidationFault, got ${outcome.fault}")
     }
 

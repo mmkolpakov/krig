@@ -1,17 +1,15 @@
-﻿package space.kscience.krig.api.messages
+package space.kscience.krig.api.messages
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.DeviceFault
-import space.kscience.krig.api.faults.SerializableDeviceFailure
-import space.kscience.krig.api.identifiers.BlueprintId
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.SerializableOperationFailure
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.NameSerializer
 import kotlin.time.Instant
 
 /**
@@ -21,12 +19,9 @@ import kotlin.time.Instant
 @SerialName(DeviceMessageType.PropertyChanged)
 public data class PropertyChangedMessage(
     override val time: Instant,
-    @Serializable(with = NameSerializer::class)
     public val property: Name,
     public val value: Meta,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
@@ -48,10 +43,8 @@ public data class PropertyChangedMessage(
 @SerialName(DeviceMessageType.DeviceError)
 public data class DeviceErrorMessage(
     override val time: Instant,
-    public val failure: SerializableDeviceFailure,
-    @Serializable(with = NameSerializer::class)
+    public val failure: SerializableOperationFailure,
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String?,
     override val correlationId: String? = null,
@@ -69,10 +62,8 @@ public data class DeviceErrorMessage(
 @SerialName(DeviceMessageType.ActionFault)
 public data class ActionFaultMessage(
     override val time: Instant,
-    public val fault: DeviceFault,
-    @Serializable(with = NameSerializer::class)
+    public val fault: OperationFault,
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -95,10 +86,8 @@ public data class ActionFaultMessage(
 public data class DeviceAttachedMessage(
     override val time: Instant,
     public val deviceName: Name,
-    public val blueprintId: BlueprintId,
-    @Serializable(with = NameSerializer::class)
+    public val blueprintId: Name,
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
@@ -120,9 +109,7 @@ public data class DeviceAttachedMessage(
 public data class DeviceDetachedMessage(
     override val time: Instant,
     public val deviceName: Name,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
@@ -147,9 +134,7 @@ public data class PropertyReadRequest(
     override val time: Instant,
     public val property: String,
     public val callerIdentity: String? = null,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -173,9 +158,7 @@ public data class PropertyReadResponse(
     override val time: Instant,
     public val property: String,
     public val value: Meta,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -197,9 +180,7 @@ public data class PropertyWriteRequest(
     public val property: String,
     public val value: Meta,
     public val callerIdentity: String? = null,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -223,9 +204,7 @@ public data class PropertyWriteResponse(
     override val time: Instant,
     public val property: String,
     public val observedValue: Meta? = null,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -245,10 +224,8 @@ public data class PropertyWriteResponse(
 public data class PropertyFaultMessage(
     override val time: Instant,
     public val property: String,
-    public val fault: DeviceFault,
-    @Serializable(with = NameSerializer::class)
+    public val fault: OperationFault,
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -277,9 +254,7 @@ public data class ActionRequestMessage(
     public val actionName: String,
     public val argument: Meta? = null,
     public val callerIdentity: String? = null,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -303,9 +278,7 @@ public data class ActionRequestMessage(
 public data class ActionResponseMessage(
     override val time: Instant,
     public val result: Meta?,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name?,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name?,
     override val requestId: String,
     override val correlationId: String? = null,
@@ -343,12 +316,10 @@ public data class DeviceDescriptorSnapshot(
 @SerialName(DeviceMessageType.DeviceOnline)
 public data class DeviceOnlineMessage(
     override val time: Instant,
-    public val blueprintId: BlueprintId,
+    public val blueprintId: Name,
     public val descriptorSnapshot: DeviceDescriptorSnapshot? = null,
     public val initialValues: Map<String, Meta> = emptyMap(),
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,
@@ -372,9 +343,7 @@ public data class DeviceOnlineMessage(
 public data class DeviceOfflineMessage(
     override val time: Instant,
     public val cause: DeviceDepartureReason,
-    @Serializable(with = NameSerializer::class)
     override val sourceDevice: Name,
-    @Serializable(with = NameSerializer::class)
     override val targetDevice: Name? = null,
     override val requestId: String? = null,
     override val correlationId: String? = null,

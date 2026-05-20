@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.jupyter
+package space.kscience.krig.jupyter
 
 import org.jetbrains.kotlinx.jupyter.api.HTML
 import org.jetbrains.kotlinx.jupyter.api.libraries.JupyterIntegration
@@ -6,12 +6,12 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.data.Timestamped
-import space.kscience.krig.api.faults.DeviceFault
-import space.kscience.krig.api.faults.SerializableDeviceFailure
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.SerializableOperationFailure
 import space.kscience.krig.api.lifecycle.ConnectionState
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.timetravel.Timeline
 import space.kscience.dataforge.meta.Meta
@@ -22,8 +22,8 @@ import space.kscience.dataforge.meta.Meta
  * is expected to be available as `%use krig`.
  *
  * Auto-imports the core DSL surface so notebooks start with zero manual imports.
- * Registers HTML renderers for [Device], [DeviceMessage], [DeviceFault],
- * [LifecycleState], [ConnectionState], [Timestamped], [ObservedValue], [DeviceOutcome], [Timeline],
+ * Registers HTML renderers for [Device], [DeviceMessage], [OperationFault],
+ * [LifecycleState], [ConnectionState], [Timestamped], [ObservedValue], [OperationOutcome], [Timeline],
  * and [Meta].
  */
 public class KrigJupyterIntegration : JupyterIntegration() {
@@ -98,18 +98,18 @@ public class KrigJupyterIntegration : JupyterIntegration() {
             )
         }
 
-        render<DeviceFault> { fault ->
+        render<OperationFault> { fault ->
             HTML(
                 """
                 <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #e24a4a; background: #fff5f5;">
-                  <b>Fault</b> <code>${fault.code.escape()}</code>
+                  <b>Fault</b> <code>${fault.faultType.toString().escape()}</code>
                   <div>${fault.message.escape()}</div>
                 </div>
                 """.trimIndent()
             )
         }
 
-        render<SerializableDeviceFailure> { failure ->
+        render<SerializableOperationFailure> { failure ->
             HTML(
                 """
                 <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #e2a04a;">
@@ -120,19 +120,19 @@ public class KrigJupyterIntegration : JupyterIntegration() {
             )
         }
 
-        render<DeviceOutcome<*>> { outcome ->
+        render<OperationOutcome<*>> { outcome ->
             when (outcome) {
-                is DeviceOutcome.Ok -> HTML(
+                is OperationOutcome.Ok -> HTML(
                     """
                     <div style="font-family: system-ui; padding: 6px; border-left: 3px solid #2e8b57; background: #f0fff0;">
                       <b>Ok</b> <span style="color: #666;">${outcome.value.escape()}</span>
                     </div>
                     """.trimIndent()
                 )
-                is DeviceOutcome.Fail -> HTML(
+                is OperationOutcome.Fail -> HTML(
                     """
                     <div style="font-family: system-ui; padding: 6px; border-left: 3px solid #e24a4a; background: #fff5f5;">
-                      <b>Fail</b> <code>${outcome.fault.code.escape()}</code>
+                      <b>Fail</b> <code>${outcome.fault.faultType.toString().escape()}</code>
                       <div>${outcome.fault.message.escape()}</div>
                     </div>
                     """.trimIndent()

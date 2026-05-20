@@ -13,9 +13,9 @@ import space.kscience.krig.api.context.ExecutionContext
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.context.executionContextOf
-import space.kscience.krig.api.faults.DeviceSecurityException
 import space.kscience.krig.api.identifiers.Permission
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.services.AuthorizationException
 import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.api.services.AuthorizationService
@@ -64,7 +64,7 @@ private class OperatorOnlyAuthorizationService private constructor(meta: Meta) :
 
     override suspend fun checkPermission(principal: Principal, permission: Permission) {
         if ("operator" !in principal.roles) {
-            throw DeviceSecurityException("Permission '${permission.id}' denied for '${principal.name}'.")
+            throw AuthorizationException("Permission '${permission.id}' denied for '${principal.name}'.")
         }
     }
 
@@ -96,7 +96,7 @@ private class RecordingAuditService private constructor(meta: Meta) :
     }
 }
 
-private fun DeviceOutcome<*>.outcomeLabel(): String = when (this) {
-    is DeviceOutcome.Ok -> "ok"
-    is DeviceOutcome.Fail -> "fail:${fault.code}"
+private fun OperationOutcome<*>.outcomeLabel(): String = when (this) {
+    is OperationOutcome.Ok -> "ok"
+    is OperationOutcome.Fail -> "fail:${fault.faultType}"
 }

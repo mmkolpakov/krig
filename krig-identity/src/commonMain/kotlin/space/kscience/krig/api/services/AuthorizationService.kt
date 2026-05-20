@@ -1,10 +1,12 @@
-﻿package space.kscience.krig.api.services
+package space.kscience.krig.api.services
 
 import space.kscience.krig.api.context.Principal
-import space.kscience.krig.api.faults.DeviceSecurityException
 import space.kscience.krig.api.identifiers.Permission
 import space.kscience.dataforge.context.*
 import space.kscience.dataforge.meta.Meta
+
+/** Thrown when an authorization service rejects a permission check. */
+public class AuthorizationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 /**
  * Authorization check service. If no implementation is provided, all actions are denied by default.
@@ -12,9 +14,9 @@ import space.kscience.dataforge.meta.Meta
 public interface AuthorizationService : Plugin {
     override val tag: PluginTag get() = Companion.tag
 
-    /**
+     /**
      * Checks if [principal] has the required [permission].
-     * @throws DeviceSecurityException if the check fails.
+     * @throws AuthorizationException if the check fails.
      */
     public suspend fun checkPermission(principal: Principal, permission: Permission)
 
@@ -30,7 +32,7 @@ private class DenyAllAuthorizationService(meta: Meta) : AbstractPlugin(meta), Au
     override val tag: PluginTag get() = AuthorizationService.tag
 
     override suspend fun checkPermission(principal: Principal, permission: Permission) {
-        throw DeviceSecurityException(
+        throw AuthorizationException(
             "Permission '${permission.id}' denied for principal '${principal.name}'. " +
                     "No specific AuthorizationService is configured; all actions are denied by default."
         )

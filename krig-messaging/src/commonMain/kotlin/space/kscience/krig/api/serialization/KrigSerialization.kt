@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.serialization
+package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -8,7 +8,7 @@ import kotlinx.serialization.modules.polymorphic
 /**
  * Source of polymorphic subclass registrations for [krigJson].
  *
- * DeviceFeatureSpec and protocol modules expose their registrations as `object` / `val`
+ * FeatureSpec and protocol modules expose their registrations as `object` / `val`
  * contributors. The application wires them explicitly at startup — no
  * DataForge-plugin auto-discovery, no classpath scanning, no reflection. Explicit
  * composition is transparent to the reader and works on every KMP target.

@@ -25,8 +25,8 @@ class TargetIdRuntimeConsistencyTest {
     }
 
     @Test
-    fun featureInstallerContributions() =
-        assertAnchor(FeatureInstallerContributions::class, FeatureInstallerContributions.Target.id)
+    fun featureContributions() =
+        assertAnchor(FeatureContributions::class, FeatureContributions.Target.id)
 
     @Test
     fun protocolContributions() =
@@ -35,10 +35,6 @@ class TargetIdRuntimeConsistencyTest {
     @Test
     fun actionHandlerContributions() =
         assertAnchor(ActionHandlerContributions::class, ActionHandlerContributions.Target.id)
-
-    @Test
-    fun faultRecoveryContributions() =
-        assertAnchor(FaultRecoveryContributions::class, FaultRecoveryContributions.Target.id)
 
     @Test
     fun blueprintPluginCompanion() =

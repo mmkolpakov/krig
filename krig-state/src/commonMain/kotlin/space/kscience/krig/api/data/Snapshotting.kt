@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.data
+package space.kscience.krig.api.data
 
 import kotlinx.serialization.KSerializer
 
@@ -6,7 +6,7 @@ import kotlinx.serialization.KSerializer
  * Optional capability for taking a serialisable snapshot of a runtime object.
  *
  * The split between *runtime state* (what a
- * [DeviceCapability][space.kscience.krig.core.capabilities.DeviceCapability] holds for
+ * [Capability][space.kscience.krig.core.capabilities.Capability] holds for
  * local execution: `MutableStateFlow`s, `Mutex`es, `Job`s) and a *snapshot view* is a
  * deliberate design choice. Implementing this interface signals: «my mutable runtime state
  * can be projected onto a `@Serializable Snap` and reconstructed from one». Capabilities

@@ -1,4 +1,4 @@
-﻿@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
+@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
 
 package space.kscience.krig.dsl
 
@@ -33,7 +33,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @KrigDsl
 public class DeviceGroupBuilder {
     private val devices = mutableMapOf<Name, Device>()
-    private val deferredDevices = mutableMapOf<Name, InlineDeviceBuilder.() -> Unit>()
+    private val deferredDevices = mutableMapOf<Name, DeclarativeDeviceBuilder.() -> Unit>()
     private val subGroups = mutableMapOf<Name, DeviceGroupBuilder>()
     private val bindings = mutableListOf<CoroutineScope.() -> Job>()
 
@@ -43,7 +43,7 @@ public class DeviceGroupBuilder {
     }
 
     /**
-     * Declare a device using the [InlineDeviceBuilder] DSL.
+     * Declare a device using the [DeclarativeDeviceBuilder] DSL.
      * The device is materialized when the group is started via [start].
      *
      * ```kotlin
@@ -60,7 +60,7 @@ public class DeviceGroupBuilder {
      * physics models), pass the already-materialised [Device] via the
      * `device(name, device)` overload of [DeviceGroupBuilder].
      */
-    public fun device(name: String, builder: InlineDeviceBuilder.() -> Unit) {
+    public fun device(name: String, builder: DeclarativeDeviceBuilder.() -> Unit) {
         deferredDevices[name.asName()] = builder
     }
 
@@ -94,7 +94,7 @@ public class DeviceGroupBuilder {
     }
 
     /**
-     * Declarative reactive link between two typed device states with a pure [transform].
+     * Declarative reactive link between two device states with a pure [transform].
      * `source` collects and pushes transformed values to `target`. Nozik's `bindState`/
      * `mapState` DX on typed Data Plane states.
      */
@@ -202,7 +202,7 @@ public class DeviceGroupBuilder {
      */
     public suspend fun start(name: String, context: Context, scope: CoroutineScope): CompositeDevice {
         // Build deferred devices via the public `device(name, context, builder)` entry
-        // point — keeps DeviceGroupBuilder above the InlineDeviceBuilder visibility fence.
+        // point — keeps DeviceGroupBuilder above the DeclarativeDeviceBuilder visibility fence.
         for ((devName, builder) in deferredDevices) {
             val childContext = context.buildContext(devName)
             devices[devName] = device(devName, childContext, builder)

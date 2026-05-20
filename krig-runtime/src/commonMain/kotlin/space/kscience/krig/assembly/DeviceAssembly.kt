@@ -1,15 +1,16 @@
-﻿package space.kscience.krig.assembly
+package space.kscience.krig.assembly
 
 import space.kscience.krig.api.factory.DeviceFactory
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBlueprint
-import space.kscience.krig.core.contracts.DeviceFeatureInstaller
+import space.kscience.krig.core.contracts.FeatureCatalog
+import space.kscience.krig.core.contracts.UnknownFeaturePolicy
 import space.kscience.krig.core.operations.BlueprintValidationFailedException
 import space.kscience.krig.core.operations.BlueprintValidationMessage
 import space.kscience.krig.core.operations.validateBlueprint
-import space.kscience.krig.core.pipeline.TypedPipelineBuilder
-import space.kscience.krig.core.pipeline.materializeTypedPipeline
-import space.kscience.krig.core.pipeline.wrapWithTypedPipeline
+import space.kscience.krig.core.pipeline.PipelineBuilder
+import space.kscience.krig.core.pipeline.materializePipeline
+import space.kscience.krig.core.pipeline.wrapWithPipeline
 import space.kscience.dataforge.context.Context
 
 /**
@@ -27,56 +28,58 @@ public enum class BlueprintValidationPolicy {
 }
 
 /**
- * Creates a [Device] from [DeviceFactory] and wraps it in a typed pipeline configured by
+ * Creates a [Device] from [DeviceFactory] and wraps it in an operation pipeline configured by
  * [configure]. Uses the runtime [context] as DataForge context root.
  *
  * ```kotlin
  * val device = ThermoFactory.assembleDevice(context, thermoConfig) {
- *     addReadObserver(CachedReadObserver(cache, ttl))
+ *     observeRead(CachedObserver(cache, ttl))
  * }
  * ```
  */
 public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDevice(
     context: Context,
     config: C,
-    configure: TypedPipelineBuilder.() -> Unit = {},
+    configure: PipelineBuilder.() -> Unit = {},
 ): Device {
     val device = create(context, config)
-    val builder = TypedPipelineBuilder().apply(configure)
-    return wrapWithTypedPipeline(device, builder, id.value)
+    val builder = PipelineBuilder().apply(configure)
+    return wrapWithPipeline(device, builder, id.toString())
 }
 
 /**
  * End-to-end materialization: [DeviceFactory] → validated blueprint → running [Device].
- * Features from the blueprint are matched by id against [installers]; unknown ids are
- * silently skipped. Validation runs via [BlueprintValidationHook][space.kscience.krig.core.operations.BlueprintValidationHook]s
- * registered in [context] per [validationPolicy]; absence of a validation DeviceFeatureSpec module
+ * Features from the blueprint are matched by id against [features]. Unknown ids fail by
+ * default. Validation runs via [BlueprintValidationHook][space.kscience.krig.core.operations.BlueprintValidationHook]s
+ * registered in [context] per [validationPolicy]; absence of a validation FeatureSpec module
  * on the classpath is equivalent to [BlueprintValidationPolicy.Skip].
  */
 public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDeviceFromBlueprint(
     context: Context,
     config: C,
-    installers: Iterable<DeviceFeatureInstaller<*, *>> = emptyList(),
+    features: FeatureCatalog = FeatureCatalog.Empty,
+    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
     validationPolicy: BlueprintValidationPolicy = BlueprintValidationPolicy.FailOnError,
-    configure: TypedPipelineBuilder.() -> Unit = {},
+    configure: PipelineBuilder.() -> Unit = {},
 ): Device {
     this.validateOrThrow(context, validationPolicy)
-    val builder = materializeTypedPipeline(this, installers).apply(configure)
+    val builder = materializePipeline(this, features, unknownFeaturePolicy).apply(configure)
     val device = create(context, config)
-    return wrapWithTypedPipeline(device, builder, id.value)
+    return wrapWithPipeline(device, builder, id.toString())
 }
 
-/** Validates [this] and wraps an externally-constructed [device] with its typed pipeline. */
+/** Validates [this] and wraps an externally-constructed [device] with its operation pipeline. */
 public suspend fun DeviceBlueprint<*>.assemblePipeline(
     device: Device,
     context: Context,
-    installers: Iterable<DeviceFeatureInstaller<*, *>> = emptyList(),
+    features: FeatureCatalog = FeatureCatalog.Empty,
+    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
     validationPolicy: BlueprintValidationPolicy = BlueprintValidationPolicy.FailOnError,
-    configure: TypedPipelineBuilder.() -> Unit = {},
+    configure: PipelineBuilder.() -> Unit = {},
 ): Device {
     validateOrThrow(context, validationPolicy)
-    val builder = materializeTypedPipeline(this, installers).apply(configure)
-    return wrapWithTypedPipeline(device, builder, id.value)
+    val builder = materializePipeline(this, features, unknownFeaturePolicy).apply(configure)
+    return wrapWithPipeline(device, builder, id.toString())
 }
 
 private fun DeviceBlueprint<*>.validateOrThrow(

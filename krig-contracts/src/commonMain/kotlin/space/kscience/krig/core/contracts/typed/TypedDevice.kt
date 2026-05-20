@@ -13,9 +13,8 @@ import space.kscience.krig.core.meta.MutableDevicePropertyContract
  * the driver. Each call must produce a handle whose contract matches the property descriptor;
  * primitive-specialised paths are exposed through [sampler] for streaming workloads.
  *
- * **Cross-cutting**: gates, locks, timeout, retry and observers live on the device's
- * `ReadPipelineSpec` / `WritePipelineSpec` (declarative QoS, not interceptor chains —
- * see DDS-style policy model in `krig-contracts.../pipeline`).
+ * **Cross-cutting**: gates, locks, timeout, retry and observers live on operation
+ * pipeline specs keyed by open `OperationKind` names.
  *
  * **Sampling**: [sampler] is opt-in. Drivers that natively publish into a slot
  * implement it for zero-allocation streaming;
@@ -36,5 +35,5 @@ public interface TypedDevice {
 
     /** Returns a typed action handle for the given action spec. */
     public fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
-        GenericTypedAction { error("Action '${spec.name}' is not supported by this typed device") }
+        GenericTypedAction { error("Action '${spec.name}' is not supported by this device") }
 }

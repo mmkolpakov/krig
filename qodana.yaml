@@ -16,7 +16,7 @@ exclude:
   - name: UnusedReceiverParameter
   - name: UnusedSymbol
     paths:
-      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/DeviceFeatureSpecContractValidatorTest.kt
+      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/FeatureSpecContractValidatorTest.kt
       - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/KspIncrementalRegressionTest.kt
       - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/SerializersModuleGeneratorTest.kt
   - name: All

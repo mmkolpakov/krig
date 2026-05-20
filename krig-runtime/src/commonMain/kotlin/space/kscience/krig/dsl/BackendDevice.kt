@@ -12,7 +12,7 @@ import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import kotlinx.coroutines.CancellationException
 import space.kscience.krig.core.InternalKrigApi
@@ -99,7 +99,7 @@ public class BackendDevice @InternalKrigApi constructor(
         descriptorSource: DescriptorSource = DescriptorSource.Empty,
     ) : this(backend, name, DeviceRuntime(context), descriptorSource)
 
-    private val typedBackend: TypedBackend? = backend as? TypedBackend
+    private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
 
     override suspend fun readProperty(propertyName: Name): Meta =
@@ -114,42 +114,42 @@ public class BackendDevice @InternalKrigApi constructor(
         backend.execute(descriptorSource.action(actionName) ?: syntheticAction(actionName), argument).getOrThrow()
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        typedBackend?.reader(spec) ?: GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
+        contractBackend?.reader(spec) ?: GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
 
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
-        typedBackend?.writer(spec) ?: GenericTypedWriter { value ->
+        contractBackend?.writer(spec) ?: GenericTypedWriter { value ->
             writeProperty(spec.name, spec.converter.convert(value))
         }
 
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
-        typedBackend?.sampler(spec)
+        contractBackend?.sampler(spec)
 
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
-        typedBackend?.action(spec) ?: GenericTypedAction { input ->
+        contractBackend?.action(spec) ?: GenericTypedAction { input ->
             val resultMeta = execute(spec.name, spec.inputConverter.convert(input))
             resultMeta?.let(spec.outputConverter::read)
         }
 
     /**
      * Delegates directly to [DeviceBackend.read] without the getOrThrow/re-wrap overhead.
-     * The backend already returns [DeviceOutcome], so we pass it through unchanged.
+     * The backend already returns [OperationOutcome], so we pass it through unchanged.
      */
-    override suspend fun readPropertyOutcome(propertyName: Name): DeviceOutcome<Meta> =
+    override suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         backendOutcome { backend.read(descriptorSource.property(propertyName) ?: syntheticProperty(propertyName)) }
 
     /**
      * Delegates to [DeviceBackend.write] and emits [PropertyChangedMessage] on success.
      */
-    override suspend fun writePropertyOutcome(propertyName: Name, value: Meta): DeviceOutcome<Unit> =
+    override suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         when (val outcome = backendOutcome { writeToBackend(propertyName, value) }) {
-            is DeviceOutcome.Ok -> {
+            is OperationOutcome.Ok -> {
                 emitPropertyChanged(propertyName, value)
                 outcome
             }
-            is DeviceOutcome.Fail -> outcome
+            is OperationOutcome.Fail -> outcome
         }
 
-    private suspend fun writeToBackend(propertyName: Name, value: Meta): DeviceOutcome<Unit> =
+    private suspend fun writeToBackend(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         backend.write(
             descriptorSource.property(propertyName) ?: syntheticProperty(propertyName),
             value,
@@ -169,7 +169,7 @@ public class BackendDevice @InternalKrigApi constructor(
     /**
      * Delegates directly to [DeviceBackend.execute] without the getOrThrow/re-wrap overhead.
      */
-    override suspend fun executeOutcome(actionName: Name, argument: Meta?): DeviceOutcome<Meta?> =
+    override suspend fun executeOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
         backendOutcome { backend.execute(descriptorSource.action(actionName) ?: syntheticAction(actionName), argument) }
 
     @OptIn(InternalKrigApi::class)
@@ -207,7 +207,7 @@ public class BackendDevice @InternalKrigApi constructor(
 
     private fun syntheticAction(name: Name): ActionDescriptor = ActionDescriptor(name = name)
 
-    private suspend inline fun <T> backendOutcome(block: suspend () -> DeviceOutcome<T>): DeviceOutcome<T> =
+    private suspend inline fun <T> backendOutcome(block: suspend () -> OperationOutcome<T>): OperationOutcome<T> =
         try {
             block()
         } catch (e: CancellationException) {

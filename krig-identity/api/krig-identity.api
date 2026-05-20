@@ -105,38 +105,6 @@ public final class space/kscience/krig/api/context/SimplePrincipal$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/identifiers/BlueprintId {
-	public static final field Companion Lspace/kscience/krig/api/identifiers/BlueprintId$Companion;
-	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/BlueprintId;
-	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
-	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
-	public final fun getValue ()Ljava/lang/String;
-	public fun hashCode ()I
-	public static fun hashCode-impl (Ljava/lang/String;)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/api/identifiers/BlueprintId$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/identifiers/BlueprintId$Serializer : kotlinx/serialization/KSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/identifiers/BlueprintId$Serializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public fun deserialize-TJYKzkE (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
-	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun serialize-fHxI2-8 (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/String;)V
-}
-
-public final class space/kscience/krig/api/identifiers/BlueprintIdKt {
-	public static final fun toBlueprintId (Ljava/lang/String;)Ljava/lang/String;
-}
-
 public abstract interface class space/kscience/krig/api/identifiers/ControlsPermission : space/kscience/krig/api/identifiers/Permission {
 }
 
@@ -293,6 +261,11 @@ public final class space/kscience/krig/api/services/AuditService$DefaultImpls {
 
 public final class space/kscience/krig/api/services/AuditServiceKt {
 	public static final fun getAuditService (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/api/services/AuditService;
+}
+
+public final class space/kscience/krig/api/services/AuthorizationException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
 public abstract interface class space/kscience/krig/api/services/AuthorizationService : space/kscience/dataforge/context/Plugin {

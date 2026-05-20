@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.serialization
+package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -8,12 +8,12 @@ import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.descriptors.ActionDescriptor
-import space.kscience.krig.api.descriptors.MemberAttribute
-import space.kscience.krig.api.descriptors.MemberDescriptor
+import space.kscience.krig.api.descriptors.OperationAttribute
+import space.kscience.krig.api.descriptors.OperationDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.attributes.*
 import space.kscience.krig.api.faults.*
-import space.kscience.krig.api.features.DeviceFeatureSpec
+import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.api.features.MetadataFeature
 import space.kscience.krig.api.messages.ActionFaultMessage
 import space.kscience.krig.api.messages.ActionRequestMessage
@@ -31,29 +31,26 @@ import space.kscience.krig.api.messages.PropertyReadResponse
 import space.kscience.krig.api.messages.PropertyWriteRequest
 import space.kscience.krig.api.messages.PropertyWriteResponse
 import space.kscience.krig.api.meta.AdapterBinding
-import space.kscience.krig.api.meta.MemberTag
-import space.kscience.krig.api.meta.ProfileTag
 
 /**
- * Polymorphic registrations for open hierarchies. Sealed hierarchies
- * (DeviceDepartureReason, HubEvent) use the auto-generated sealed polymorphic
- * serializer and are not listed here.
+ * Polymorphic registrations for open hierarchies.
  */
 public val krigApiSerializersModule: SerializersModule = SerializersModule {
     polymorphic(TransportAddress::class)
 
-    polymorphic(MemberAttribute::class) {
+    polymorphic(OperationAttribute::class) {
         subclass(MetadataAttribute::class)
         subclass(BehaviorAttribute::class)
         subclass(AccessAttribute::class)
         subclass(BindingsAttribute::class)
     }
 
-    polymorphic(DeviceFault::class) {
+    polymorphic(OperationFault::class) {
         subclass(AuthorizationFault::class)
-        subclass(GenericDeviceFault::class)
+        subclass(GenericOperationFault::class)
         subclass(InvalidStateFault::class)
         subclass(TimeoutFault::class)
+        subclass(TransportFault::class)
         subclass(ValidationFault::class)
     }
 
@@ -74,28 +71,19 @@ public val krigApiSerializersModule: SerializersModule = SerializersModule {
         subclass(ActionResponseMessage::class)
     }
 
-    polymorphic(DeviceFeatureSpec::class) {
+    polymorphic(FeatureSpec::class) {
         subclass(MetadataFeature::class)
     }
 
     polymorphic(AdapterBinding::class)
-
-    polymorphic(MemberTag::class) {
-        subclass(ProfileTag::class)
-        defaultDeserializer { UnknownMemberTag.serializer() }
-    }
 
     polymorphic(Principal::class) {
         subclass(AnonymousPrincipal::class)
         subclass(SimplePrincipal::class)
     }
 
-    polymorphic(MemberDescriptor::class) {
+    polymorphic(OperationDescriptor::class) {
         subclass(ActionDescriptor::class)
         subclass(PropertyDescriptor::class)
     }
 }
-
-@kotlinx.serialization.Serializable
-@kotlinx.serialization.SerialName("tag.unknown")
-public data class UnknownMemberTag(val type: String) : MemberTag

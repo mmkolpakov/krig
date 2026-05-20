@@ -1,17 +1,15 @@
 package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.json.Json
-import space.kscience.krig.api.features.DeviceFeatureSpec
+import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.api.features.MetadataFeature
 import space.kscience.krig.api.hub.HubEvent
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceOfflineMessage
 import space.kscience.krig.api.messages.DeviceOnlineMessage
-import space.kscience.krig.api.identifiers.toBlueprintId
-import space.kscience.krig.api.meta.MemberTag
-import space.kscience.krig.api.meta.ProfileTag
 import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
@@ -39,17 +37,11 @@ class ApiSerializationRoundTripTest {
 
     @Test
     fun metadataFeatureRoundTrip() {
-        roundTrip<DeviceFeatureSpec>(
+        roundTrip<FeatureSpec>(
             MetadataFeature(
-                tags = setOf(ProfileTag(name = "lab", version = "1.0")),
                 description = "Cryostat #3",
             ),
         )
-    }
-
-    @Test
-    fun profileTagRoundTrip() {
-        roundTrip<MemberTag>(ProfileTag(name = "cryogenic", version = "1.0"))
     }
 
     @Test
@@ -104,7 +96,7 @@ class ApiSerializationRoundTripTest {
         roundTrip<DeviceMessage>(
             DeviceOnlineMessage(
                 time = Instant.fromEpochMilliseconds(1),
-                blueprintId = "com.example.sensor".toBlueprintId(),
+                blueprintId = "com.example.sensor".parseAsName(),
                 sourceDevice = "lab.sensor".asName(),
             ),
         )

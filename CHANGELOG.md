@@ -11,18 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   **New telemetry model:** `Timestamped<T>`, `ObservedValue<T>`, and flat
     `DataQuality` (Good/Uncertain/Bad) replace the old polymorphic hierarchy.
--   **New typed access layer:** `TypedAction<I,O>`, `TypedBackend`,
-    `TypedBackendBuilder`, `FlowSampler` for zero-allocation typed read/write/sample/action.
+-   **New typed access layer:** `TypedAction<I,O>`, `backend`,
+    `backendBuilder`, `FlowSampler` for zero-allocation typed read/write/sample/action.
 -   **New pipeline core:** `Pipeline.kt` replaces `PipelineExecutors.kt` — compiles
     gate/lock/timeout/retry/observer chain once and reuses on hot path via `foldRight`.
 -   **New simulation engine:** `SimulationScheduler`, `ProcessDsl` (`hold`,
     `waitUntil`, `request`), `Resource<T>`, `Signal<T>` — virtual-time DES.
 -   **New capability snapshotting:** `CapabilitySnapshotting` for stateful device
-    checkpointing via the typed pipeline.
+    checkpointing via the operation pipeline.
 -   **New KSP generators:** `KrigSymbolProcessor` with three independent passes —
-    `DeviceFeatureSpecContractValidator`, `ContributesAggregator`,
+    `FeatureSpecContractValidator`, `ContributesAggregator`,
     `SerializersModuleGenerator`. Fine-grained incremental processing.
--   **New devices DSL:** `KrigDsl.kt`, `ExpressionDsl.kt`, inline device builder
+-   **New devices DSL:** `KrigDsl.kt`, `ExpressionDsl.kt`, Device DSL builder
     (`propertyDouble`, `mutableProperty`, etc.), `DemoSuite.kt` with curated demos.
 -   **New transport primitives:** Framer merged into `krig-primitives`.
 -   **New compiler flag:** `-Xreturn-value-checker=full` across all modules.
@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `DeviceGroupBuilder` uses context receivers instead of explicit scope passing.
 -   **Pipeline simplified:** `PipelineExecutors.kt`, `ReadWriteMutex` removed.
     Pipeline interceptors composed via `foldRight` in the new `Pipeline.kt`.
-    Resource locks use `ResourceLockRegistry` backed by `ResourceLockSpec`.
+    Resource locks use `ResourceLockRegistry` backed by operation-level `ResourceLock`.
 -   **KSP processor redesigned:** Old monolithic `ControlsSymbolProcessor` split into
     three independent generators. Processor service provider renamed to
     `KrigSymbolProcessorProvider`.
@@ -51,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `ProcessDsl`, `Resource`, `Signal`.
 -   **ABI exclusion:** Changed from `@InternalControlsApi` to `@InternalKrigApi`.
     ABI validation runs on all modules.
--   **Gradle:** 9.5.0 → 9.5.1, Kotlin 2.4.0-Beta2 (language/api version), KSP 2.3.7.
+-   **Gradle:** 9.5.0 → 9.5.1, Kotlin 2.4.0-RC (language/api version), KSP 2.3.8.
 -   **Jupyter integration:** Updated to new krig APIs; old `ControlsJupyterIntegration`
     deleted.
 
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   **Removed dependencies:** Arrow (`ArrowInterop.kt`), `ReadWriteMutex`,
     `PipelineExecutors`, `LockFreeSpscRings`, `PrimitiveSamplers`,
     `StoragePropertyHistory`, `StateValue`, `ValueWithTime`, polymorphic `Quality`.
--   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-Beta2).
+-   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-RC).
 
 ## 1.0.0-alpha-1 - 2025-08-15
 
@@ -128,10 +128,10 @@ Initial release of the `krig` framework. This version represents an architectura
     -   Introduced `StreamPort` and `DeviceStreamSpec` to model continuous, bidirectional data streams as device members, complementing the message-based `Port`.
 -   **API Formalization and Introspection**:
     -   Added `ActionOutputSpec` to formally declare the structure of an action's result `Meta`, enabling type-safe data flow in plans.
-    -   Introduced extensible `MemberTag`s (e.g., `ProfileTag`, `AliasTag`) and `AdapterBinding` to attach semantic and protocol-specific metadata to device members.
+    -   Introduced `AdapterBinding` to attach protocol-specific metadata to device members without hardcoding adapter concepts in core.
     -   Added declarative validation rules for mutable properties via a `validation { ... }` block.
 -   **Non-Functional Requirements in Model**:
-    -   Added declarative resource locking (`ResourceLockSpec`) and caching policies (`CachePolicy`) to property and action descriptors.
+    -   Added declarative resource locking and caching policies to property and action descriptors.
 -   **New Modules**:
     -   `controls-protocol-api`: Defines the `ProtocolAdapter` contract to separate protocol logic from transport.
     -   `controls-ktor`: Provides Ktor-based implementations for `Port` and `PeerConnection`.

@@ -5,6 +5,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
@@ -23,23 +25,11 @@ import space.kscience.krig.api.services.authorizationService
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.capabilities.CapabilityKey
-import space.kscience.krig.core.capabilities.DeviceCapability
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.TimeSource
-
-/**
- * Devices that own a runtime capability registry. [AbstractDevice] implements it directly;
- * wrappers may implement it to expose their installed capabilities without forcing callers to
- * know where the registry lives.
- */
-@InternalKrigApi
-public interface RuntimeCapabilityHost {
-    public val installedCapabilities: Collection<DeviceCapability<*>>
-
-    public fun installCapability(capability: DeviceCapability<*>)
-}
 
 /**
  * Base [Device] implementation. Owns the two-plane message flows and the lifecycle state;
@@ -51,9 +41,9 @@ public interface RuntimeCapabilityHost {
 public abstract class AbstractDevice(
     override val name: Name,
     public val runtime: DeviceRuntime,
-) : Device, LifecycleStateHolder, RuntimeCapabilityHost, HasCapabilityToggler, OperationTracker, GracefullyCloseable {
+) : Device, LifecycleStateHolder, CapabilityHost, OperationTracker, GracefullyCloseable {
 
-    private val operationController = GracefulOperationController(name)
+    private val operationController = OperationDrainController(name)
 
     override val context: Context = runtime.context
 
@@ -72,23 +62,21 @@ public abstract class AbstractDevice(
     override val propertyDescriptors: Map<Name, PropertyDescriptor> = emptyMap()
     override val actionDescriptors: Map<Name, ActionDescriptor> = emptyMap()
 
-    @InternalKrigApi
-    override val toggler: CapabilityToggler = CapabilityToggler()
+    override val capabilityToggles: CapabilityToggles = CapabilityToggles()
 
-    private val runtimeCapabilities: MutableMap<CapabilityKey<*, *>, DeviceCapability<*>> = mutableMapOf()
+    private val capabilityRegistry: CapabilityRegistry = CapabilityRegistry()
+    private val capabilityDetachLock = SynchronizedObject()
+    private var capabilitiesDetached = false
 
-    @InternalKrigApi
-    final override val installedCapabilities: Collection<DeviceCapability<*>>
-        get() = runtimeCapabilities.values
+    final override val installedCapabilities: Collection<Capability<*>>
+        get() = capabilityRegistry.installedCapabilities
 
-    @InternalKrigApi
-    final override fun installCapability(capability: DeviceCapability<*>) {
-        runtimeCapabilities[capability.key] = capability
+    final override fun registerCapability(capability: Capability<*>) {
+        capabilityRegistry.registerCapability(capability)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <C : DeviceCapability<*>> capability(key: CapabilityKey<C, *>): C? =
-        runtimeCapabilities[key] as? C
+    override fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
+        capabilityRegistry.capability(key)
 
     // --- Two-plane message flows ---
 
@@ -222,7 +210,26 @@ public abstract class AbstractDevice(
     }
 
     protected suspend fun shutdownSelf() {
+        detachCapabilitiesOnce()
         cancelDeviceScopeSafely(name, deviceScope)
+    }
+
+    private fun claimCapabilityDetach(): Boolean = synchronized(capabilityDetachLock) {
+        if (capabilitiesDetached) {
+            false
+        } else {
+            capabilitiesDetached = true
+            true
+        }
+    }
+
+    private suspend fun detachCapabilitiesOnce() {
+        if (!claimCapabilityDetach()) return
+        for (capability in installedCapabilities.toList().asReversed()) {
+            ignoreCleanupFailureSuspending {
+                context(this@AbstractDevice as CapabilityHost) { capability.onDetach() }
+            }
+        }
     }
 
     @InternalKrigApi

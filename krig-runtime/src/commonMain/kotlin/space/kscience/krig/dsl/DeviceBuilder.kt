@@ -7,6 +7,7 @@ import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.Feature
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.TransportBackend
 import space.kscience.krig.core.contracts.booleanValue
@@ -17,8 +18,8 @@ import space.kscience.krig.core.contracts.stringValue
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.krig.core.pipeline.TypedPipelineBuilder
-import space.kscience.krig.core.pipeline.wrapWithTypedPipeline
+import space.kscience.krig.core.pipeline.PipelineBuilder
+import space.kscience.krig.core.pipeline.wrapWithPipeline
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.misc.DFBuilder
@@ -30,7 +31,7 @@ import kotlin.time.Duration
 
 /**
  * Shared surface for `device { … }` in both forms. Concrete builders are
- * [InlineDeviceBuilder] (declarative properties / actions) and [ExplicitDeviceBuilder]
+ * [DeclarativeDeviceBuilder] (declarative properties / actions) and [ExplicitDeviceBuilder]
  * (pre-built backend). State lives in [DeviceBuilderCore]; concrete builders compose it
  * via `by core`.
  */
@@ -44,14 +45,14 @@ public sealed interface DeviceBuilder {
     public fun blueprint(blueprint: DeviceBlueprint<*>)
 
     /**
-     * Installs a DeviceFeatureSpec and configures its runtime block.
+     * Installs a FeatureSpec and configures its runtime block.
      * ```
      * install(Caching) { defaultTtl = 1.seconds }
      * install(Retry)   { maxAttempts = 5 }
      * ```
-     */
+    */
     public fun <C : Any> install(
-        installer: space.kscience.krig.core.contracts.DeviceFeatureInstaller<C, *>,
+        feature: Feature<C, *>,
         configure: C.() -> Unit = {},
     )
 }
@@ -60,7 +61,7 @@ internal interface DescriptorSourceOwner {
     fun descriptors(source: DescriptorSource)
 }
 
-/** Read scope for inline DSL blocks. Exposes safe self-device reads without leaking lifecycle controls. */
+/** Read scope for device DSL blocks. Exposes safe self-device reads without leaking lifecycle controls. */
 public interface DeviceReadScope : DeviceEnvironment {
     public suspend fun readProperty(name: Name): Meta
     public suspend fun readProperty(name: String): Meta = readProperty(name.asName())
@@ -78,7 +79,7 @@ public interface DeviceReadScope : DeviceEnvironment {
     public suspend fun readString(name: String): String = readString(name.asName())
 }
 
-/** Write scope for inline DSL blocks. */
+/** Write scope for device DSL blocks. */
 public interface DeviceWriteScope : DeviceReadScope {
     public suspend fun writeProperty(name: Name, value: Meta)
     public suspend fun writeProperty(name: String, value: Meta): Unit = writeProperty(name.asName(), value)
@@ -96,7 +97,7 @@ public interface DeviceWriteScope : DeviceReadScope {
     public suspend fun writeString(name: String, value: String): Unit = writeString(name.asName(), value)
 }
 
-/** Action scope for inline DSL blocks. */
+/** Action scope for device DSL blocks. */
 public interface DeviceActionScope : DeviceWriteScope {
     public suspend fun execute(action: Name, argument: Meta? = null): Meta?
     public suspend fun execute(action: String, argument: Meta? = null): Meta? = execute(action.asName(), argument)
@@ -104,17 +105,17 @@ public interface DeviceActionScope : DeviceWriteScope {
     public suspend fun <I, O> execute(spec: DeviceActionContract<I, O>, input: I): O?
 }
 
-/** Inline read block with a narrow self-device receiver. */
+/** Read block with a narrow self-device receiver. */
 public fun interface DeviceReadBlock<out T> {
     public suspend fun DeviceReadScope.read(): T
 }
 
-/** Inline write block with a narrow self-device receiver. */
+/** Write block with a narrow self-device receiver. */
 public fun interface DeviceWriteBlock {
     public suspend fun DeviceWriteScope.write(value: Meta)
 }
 
-/** Inline action block with a narrow self-device receiver. */
+/** Action block with a narrow self-device receiver. */
 public fun interface DeviceActionBlock {
     public suspend fun DeviceActionScope.execute(argument: Meta?): Meta?
 }
@@ -127,7 +128,7 @@ internal class DeviceBuilderCore internal constructor(
 ) : DeviceBuilder, DescriptorSourceOwner {
     override val deviceContext: Context get() = runtime.context
 
-    @PublishedApi internal val pipeline: TypedPipelineBuilder = TypedPipelineBuilder()
+    @PublishedApi internal val pipeline: PipelineBuilder = PipelineBuilder()
 
     @PublishedApi
     internal var descriptorSource: DescriptorSource = DescriptorSource.Empty
@@ -142,11 +143,11 @@ internal class DeviceBuilderCore internal constructor(
     }
 
     override fun <C : Any> install(
-        installer: space.kscience.krig.core.contracts.DeviceFeatureInstaller<C, *>,
+        feature: Feature<C, *>,
         configure: C.() -> Unit,
     ) {
-        val config = installer.createConfig().apply(configure)
-        installer.install(config, pipeline)
+        val config = feature.createConfig().apply(configure)
+        feature.install(config, pipeline)
     }
 
     @PublishedApi
@@ -155,13 +156,13 @@ internal class DeviceBuilderCore internal constructor(
             pipeline.useConnectionState { backend.connectionState.value }
         }
         val baseDevice = BackendDevice(backend, deviceName, runtime, descriptorSource)
-        return wrapWithTypedPipeline(baseDevice, pipeline, deviceName.toString())
+        return wrapWithPipeline(baseDevice, pipeline, deviceName.toString())
     }
 }
 
 /**
  * Declarative builder. `property` / `mutableProperty` / `action` / `onStep` / `onClose`
- * describe the device inline; the builder synthesises a [DeviceBackend] automatically.
+ * describe the device in-place; the builder synthesises a [DeviceBackend] automatically.
  *
  * Reader / writer / action lambdas receive narrow self-device scopes. The scopes expose
  * `clock`, `deviceScope`, `name`, and same-device `readProperty`/`writeProperty`/`execute`
@@ -176,7 +177,7 @@ internal class DeviceBuilderCore internal constructor(
 @DFBuilder
 @KrigDsl
 @OptIn(InternalKrigApi::class)
-public class InlineDeviceBuilder @PublishedApi internal constructor(
+public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
     @PublishedApi internal val core: DeviceBuilderCore,
 ) : DeviceBuilder by core {
 
@@ -351,10 +352,10 @@ public class InlineDeviceBuilder @PublishedApi internal constructor(
 
     internal suspend fun build(): Device {
         check(readers.isNotEmpty() || actions.isNotEmpty() || stepBody != null) {
-            "Inline device '$deviceName' has no property / action / onStep — declare at least one, " +
+            "Device DSL '$deviceName' has no property / action / onStep — declare at least one, " +
                     "or pass an explicit backend via device(name, backend)."
         }
-        val backend: DeviceBackend = inlineBackend(
+        val backend: DeviceBackend = declarativeBackend(
             readers = readers.toMap(),
             writers = writers.toMap(),
             valueWriters = valueWriters.toMap(),
@@ -372,18 +373,18 @@ public class InlineDeviceBuilder @PublishedApi internal constructor(
 
 private fun checkCellValue(name: String, initial: Any, value: Any?): Any =
     when (initial) {
-        is Double -> value as? Double ?: inlineCellTypeMismatch(name, "Double", value)
-        is Int -> value as? Int ?: inlineCellTypeMismatch(name, "Int", value)
-        is Long -> value as? Long ?: inlineCellTypeMismatch(name, "Long", value)
-        is Boolean -> value as? Boolean ?: inlineCellTypeMismatch(name, "Boolean", value)
-        is String -> value as? String ?: inlineCellTypeMismatch(name, "String", value)
-        else -> value ?: inlineCellTypeMismatch(name, initial::class.simpleName ?: "non-null value", null)
+        is Double -> value as? Double ?: cellTypeMismatch(name, "Double", value)
+        is Int -> value as? Int ?: cellTypeMismatch(name, "Int", value)
+        is Long -> value as? Long ?: cellTypeMismatch(name, "Long", value)
+        is Boolean -> value as? Boolean ?: cellTypeMismatch(name, "Boolean", value)
+        is String -> value as? String ?: cellTypeMismatch(name, "String", value)
+        else -> value ?: cellTypeMismatch(name, initial::class.simpleName ?: "non-null value", null)
     }
 
-private fun inlineCellTypeMismatch(name: String, expected: String, value: Any?): Nothing =
-    throw IllegalArgumentException(
-        "Property '$name' expected $expected but got ${value?.let { it::class.simpleName ?: it.toString() } ?: "null"}.",
-    )
+private fun cellTypeMismatch(name: String, expected: String, value: Any?): Nothing {
+    val actual = value?.let { it::class.simpleName ?: it.toString() } ?: "null"
+    throw IllegalArgumentException("Property '$name' expected $expected but got $actual.")
+}
 
 /**
  * Builder used when a pre-constructed [DeviceBackend] is supplied. Only features and

@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.core.operations
+package space.kscience.krig.core.operations
 
 import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.dataforge.context.Context
@@ -18,7 +18,7 @@ public data class BlueprintValidationMessage(
 
 /**
  * Pre-materialization blueprint check. Discovered via DataForge `content()` on [TARGET];
- * canonical implementation lives in a dedicated validation DeviceFeatureSpec module.
+ * canonical implementation lives in a dedicated validation FeatureSpec module.
  */
 public fun interface BlueprintValidationHook {
     public fun validate(blueprint: DeviceBlueprint<*>): List<BlueprintValidationMessage>

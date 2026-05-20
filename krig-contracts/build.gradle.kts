@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Core contracts: Device, DeviceBackend, DeviceBlueprint, deviceFeatureInstaller, DeviceCapability"
+description = "Core contracts: Device, DeviceBackend, DeviceBlueprint, feature, Capability"
 
 kotlin {
     sourceSets {
@@ -12,6 +12,7 @@ kotlin {
                 api(project(":krig-state"))
                 api(project(":krig-identity"))
                 api(project(":krig-model"))
+                api(project(":krig-operation"))
                 api(project(":krig-messaging"))
 
                 api(libs.dataforge.context)

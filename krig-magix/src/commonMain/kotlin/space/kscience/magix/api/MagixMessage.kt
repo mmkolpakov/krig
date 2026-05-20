@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.NameSerializer
 
 /**
  * Serializable Magix message, RFC1-compatible on the wire.
@@ -20,11 +19,8 @@ import space.kscience.dataforge.names.NameSerializer
 public data class MagixMessage(
     val format: String,
     val payload: JsonElement,
-    @Serializable(with = NameSerializer::class)
     val sourceEndpoint: Name,
-    @Serializable(with = NameSerializer::class)
     val targetEndpoint: Name? = null,
-    @Serializable(with = NameSerializer::class)
     val topic: Name? = null,
     val id: String? = null,
     val parentId: String? = null,

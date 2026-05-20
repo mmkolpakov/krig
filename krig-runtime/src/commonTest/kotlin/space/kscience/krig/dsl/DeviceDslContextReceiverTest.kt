@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.PerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
@@ -18,10 +18,10 @@ import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.DeviceFaultException
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.identifiers.Permission
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.DeviceEnvironment
@@ -41,7 +41,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 
 /**
- * Inline DSL lambdas receive narrow device scopes: enough for computed properties,
+ * Device DSL lambdas receive narrow device scopes: enough for computed properties,
  * without exposing the full device lifecycle surface.
  */
 class DeviceDslContextReceiverTest {
@@ -83,7 +83,7 @@ class DeviceDslContextReceiverTest {
     fun actionLambdaSeesNameWithoutPrefix() = runTest {
         val seenName = AtomicReference<String?>(null)
         val device = device("named-thing", permissiveContext("dsl-ctx-receiver-2")) {
-            // a no-op property so the inline-builder has at least one element
+            // a no-op property so the device builder has at least one element
             property("dummy") { 0.0 }
             action("identify") { _ ->
                 seenName.store(name.toString())
@@ -137,8 +137,8 @@ class DeviceDslContextReceiverTest {
     }
 
     @Test
-    fun inlineBackendUsesProvidedEnvironmentDirectly() = runTest {
-        val backend = inlineBackend(
+    fun declarativeBackendUsesProvidedEnvironmentDirectly() = runTest {
+        val backend = declarativeBackend(
             readers = mapOf("value".asName() to DeviceReadBlock { 1.0 }),
             writers = emptyMap(),
             valueWriters = emptyMap(),
@@ -156,12 +156,12 @@ class DeviceDslContextReceiverTest {
             backend.read(synthesizeProperty("value".asName(), mutable = false))
         }
 
-        val ok = assertIs<DeviceOutcome.Ok<Meta>>(outcome)
+        val ok = assertIs<OperationOutcome.Ok<Meta>>(outcome)
         assertEquals(1.0, ok.value.value?.double ?: ok.value["value".asName()]?.double)
     }
 
     @Test
-    fun inlineTypedWriteMismatchBecomesValidationFault() = runTest {
+    fun declarativeTypedWriteMismatchBecomesValidationFault() = runTest {
         val forgedSpec = object : MutableDevicePropertySpec<Device, String> {
             override val name = "setpoint".asName()
             override val descriptor: PropertyDescriptor = synthesizeProperty(name, mutable = true)
@@ -180,7 +180,7 @@ class DeviceDslContextReceiverTest {
             }
         }
 
-        val failure = assertFailsWith<DeviceFaultException> {
+        val failure = assertFailsWith<OperationFaultException> {
             device.execute("badWrite".asName(), null)
         }
 

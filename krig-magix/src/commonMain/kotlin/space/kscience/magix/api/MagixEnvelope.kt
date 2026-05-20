@@ -10,7 +10,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.NameSerializer
 
 /**
  * Interop-safe wrapper around a Magix payload.
@@ -35,7 +34,6 @@ import space.kscience.dataforge.names.NameSerializer
 @SerialName("krig.envelope")
 public data class MagixEnvelope<T>(
     val data: T,
-    @Serializable(with = NameSerializer::class)
     val topic: Name? = null,
     val headers: JsonObject = JsonObject(emptyMap()),
 )

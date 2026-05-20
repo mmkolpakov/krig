@@ -5,12 +5,13 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
-import space.kscience.krig.api.faults.DeviceFaultException
-import space.kscience.krig.api.faults.GenericDeviceFault
+import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.api.result.runCatchingDevice
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -37,7 +38,7 @@ import kotlinx.atomicfu.locks.synchronized
 import kotlin.time.Duration
 
 /**
- * Builds a device inline via declarative `property` / `action` / `onStep` helpers.
+ * Builds a device via declarative `property` / `action` / `onStep` helpers.
  *
  * ```kotlin
  * val thermo = device("thermo") {
@@ -50,34 +51,34 @@ import kotlin.time.Duration
 public suspend fun device(
     name: Name,
     context: Context = scriptContext(),
-    builder: InlineDeviceBuilder.() -> Unit,
-): Device = InlineDeviceBuilder(name, context).apply(builder).build()
+    builder: DeclarativeDeviceBuilder.() -> Unit,
+): Device = DeclarativeDeviceBuilder(name, context).apply(builder).build()
 
-/** Inline [device] form with an explicit [DeviceRuntime] (for virtual clocks/time sources). */
+/** [device] form with an explicit [DeviceRuntime] (for virtual clocks/time sources). */
 public suspend fun device(
     name: Name,
     runtime: DeviceRuntime,
-    builder: InlineDeviceBuilder.() -> Unit,
-): Device = InlineDeviceBuilder(name, runtime).apply(builder).build()
+    builder: DeclarativeDeviceBuilder.() -> Unit,
+): Device = DeclarativeDeviceBuilder(name, runtime).apply(builder).build()
 
-/** String-name overload of the inline [device] form. */
+/** String-name overload of the [device] form. */
 public suspend fun device(
     name: String,
     context: Context = scriptContext(),
-    builder: InlineDeviceBuilder.() -> Unit,
+    builder: DeclarativeDeviceBuilder.() -> Unit,
 ): Device = device(name.asName(), context, builder)
 
-/** String-name overload of the explicit-runtime inline [device] form. */
+/** String-name overload of the explicit-runtime [device] form. */
 public suspend fun device(
     name: String,
     runtime: DeviceRuntime,
-    builder: InlineDeviceBuilder.() -> Unit,
+    builder: DeclarativeDeviceBuilder.() -> Unit,
 ): Device = device(name.asName(), runtime, builder)
 
 /**
  * Builds a device from a pre-constructed [DeviceBackend] (protocol adapter, physics
- * simulation, Wasm/FMI slave). Inside [builder] only DeviceFeatureSpec installation and
- * descriptor sources are available — inline `property` / `action` declarations are
+ * simulation, Wasm/FMI slave). Inside [builder] only FeatureSpec installation and
+ * descriptor sources are available — `property` / `action` declarations are
  * a compile-time error, which is the whole point of the split form.
  *
  * ```kotlin
@@ -119,7 +120,7 @@ public suspend fun device(
 ): Device = device(name.asName(), backend, runtime, builder)
 
 /**
- * Session-aware inline [device] form — the Context comes from the ambient [DeviceRuntime]
+ * Session-aware [device] form — the Context comes from the ambient [DeviceRuntime]
  * context parameter so nested DSL blocks don't repeat the context argument. Kotlin 2.4
  * `context(...)` semantics: works with any call site that already binds a DeviceRuntime
  * (e.g. inside `deviceGroup { ... }`).
@@ -127,7 +128,7 @@ public suspend fun device(
 context(session: DeviceRuntime)
 public suspend fun device(
     name: Name,
-    builder: InlineDeviceBuilder.() -> Unit,
+    builder: DeclarativeDeviceBuilder.() -> Unit,
 ): Device = device(name, session.context, builder)
 
 /** Session-aware explicit-backend [device] form. */
@@ -138,12 +139,12 @@ public suspend fun device(
     builder: ExplicitDeviceBuilder.() -> Unit = {},
 ): Device = device(name, backend, session.context, builder)
 
-// ── Private impl: synthesised backend for InlineDeviceBuilder ──
+// ── Private impl: synthesised backend for DeclarativeDeviceBuilder ──
 
 /**
- * Shared read / write / execute / close state for the inline-DSL backends.
+ * Shared read / write / execute / close state for the device DSL backends.
  */
-internal class InlineBackendCore(
+internal class DeclarativeBackendCore(
     val readers: Map<Name, DeviceReadBlock<Any>>,
     val writers: Map<Name, DeviceWriteBlock>,
     val valueWriters: Map<Name, (Any?) -> Unit>,
@@ -151,32 +152,32 @@ internal class InlineBackendCore(
     val closeBody: (() -> Unit)?,
 ) {
     private val scopeLock = SynchronizedObject()
-    private var cachedScope: InlineScope? = null
+    private var cachedScope: DeclarativeScope? = null
 
     context(device: DeviceEnvironment)
-    private fun scope(): InlineScope {
+    private fun scope(): DeclarativeScope {
         cachedScope?.takeIf { it.environment === device }?.let { return it }
         return synchronized(scopeLock) {
             cachedScope?.takeIf { it.environment === device }
-                ?: InlineScope(this@InlineBackendCore, device).also { cachedScope = it }
+                ?: DeclarativeScope(this@DeclarativeBackendCore, device).also { cachedScope = it }
         }
     }
 
     context(device: DeviceEnvironment)
-    suspend fun readValue(name: Name): DeviceOutcome<Any> {
+    suspend fun readValue(name: Name): OperationOutcome<Any> {
         val reader = readers[name]
-            ?: return unknownInlineMember("UNKNOWN_PROPERTY", "Unknown property '$name' on inline device backend")
-        return runCatchingDevice {
+            ?: return unknownDeclarativeOperation(OperationFaultTypes.UnknownProperty, "Unknown property '$name' on Device DSL backend")
+        return runCatchingOperation {
             val scope = scope()
             with(reader) { scope.read() }
         }
     }
 
     context(device: DeviceEnvironment)
-    suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> =
+    suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         when (val outcome = readValue(property.name)) {
-            is DeviceOutcome.Fail -> outcome
-            is DeviceOutcome.Ok -> runCatchingDevice {
+            is OperationOutcome.Fail -> outcome
+            is OperationOutcome.Ok -> runCatchingOperation {
                 when (val value = outcome.value) {
                     is Meta -> value
                     is Double -> metaOf(value)
@@ -185,54 +186,57 @@ internal class InlineBackendCore(
                     is Boolean -> metaOf(value)
                     is String -> metaOf(value)
                     is MetaRepr -> value.toMeta()
-                    else -> unsupportedInlineValue(property.name, value)
+                    else -> unsupportedDeclarativeValue(property.name, value)
                 }
             }
         }
 
     context(device: DeviceEnvironment)
-    suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta): DeviceOutcome<Unit> {
+    suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta): OperationOutcome<Unit> {
         val directWriter = valueWriters[name]
         if (directWriter != null) {
             return try {
                 directWriter(value)
-                DeviceOutcome.OkUnit
+                OperationOutcome.OkUnit
             } catch (e: ClassCastException) {
-                inlineWriteTypeError(name, value, e)
+                writeTypeError(name, value, e)
             } catch (e: IllegalArgumentException) {
-                inlineWriteTypeError(name, value, e)
+                writeTypeError(name, value, e)
             }
         }
         val writer = writers[name]
-            ?: return unknownInlineMember("PROPERTY_NOT_WRITABLE", "Property '$name' is not writable on inline device backend")
+            ?: return validationFault(name, "Property '$name' is not writable on Device DSL backend")
         val meta = try {
             toMeta(value)
         } catch (e: ClassCastException) {
-            return inlineWriteTypeError(name, value, e)
+            return writeTypeError(name, value, e)
         } catch (e: IllegalArgumentException) {
-            return inlineWriteTypeError(name, value, e)
+            return writeTypeError(name, value, e)
         }
-        return runCatchingDevice {
+        return runCatchingOperation {
             val scope = scope()
             with(writer) { scope.write(meta) }
         }
     }
 
     context(device: DeviceEnvironment)
-    suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> {
+    suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
         val writer = writers[property.name]
-            ?: return unknownInlineMember("PROPERTY_NOT_WRITABLE", "Property '${property.name}' is not writable on inline device backend")
-        return runCatchingDevice {
+            ?: return validationFault(property.name, "Property '${property.name}' is not writable on Device DSL backend")
+        return runCatchingOperation {
             val scope = scope()
             with(writer) { scope.write(value) }
         }
     }
 
     context(device: DeviceEnvironment)
-    suspend fun execute(action: ActionDescriptor, argument: Meta?): DeviceOutcome<Meta?> {
+    suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
         val body = actions[action.name]
-            ?: return unknownInlineMember("UNKNOWN_ACTION", "Unknown action '${action.name}' on inline device backend")
-        return runCatchingDevice {
+            ?: return unknownDeclarativeOperation(
+                OperationFaultTypes.UnknownAction,
+                "Unknown action '${action.name}' on Device DSL backend",
+            )
+        return runCatchingOperation {
             val scope = scope()
             with(body) { scope.execute(argument) }
         }
@@ -241,8 +245,8 @@ internal class InlineBackendCore(
     fun close() { closeBody?.invoke() }
 }
 
-private class InlineScope(
-    private val core: InlineBackendCore,
+private class DeclarativeScope(
+    private val core: DeclarativeBackendCore,
     val environment: DeviceEnvironment,
 ) : DeviceActionScope {
     override val clock get() = environment.clock
@@ -265,7 +269,7 @@ private class InlineScope(
         }
 
     override suspend fun readDouble(name: Name): Double =
-        readInlineValue(name, "Double") { value ->
+        readDeclarativeValue(name, "Double") { value ->
             when (value) {
                 is Double -> value
                 is Meta -> value.doubleValue
@@ -274,7 +278,7 @@ private class InlineScope(
         }
 
     override suspend fun readInt(name: Name): Int =
-        readInlineValue(name, "Int") { value ->
+        readDeclarativeValue(name, "Int") { value ->
             when (value) {
                 is Int -> value
                 is Meta -> value.intValue
@@ -283,7 +287,7 @@ private class InlineScope(
         }
 
     override suspend fun readLong(name: Name): Long =
-        readInlineValue(name, "Long") { value ->
+        readDeclarativeValue(name, "Long") { value ->
             when (value) {
                 is Long -> value
                 is Meta -> value.longValue
@@ -292,7 +296,7 @@ private class InlineScope(
         }
 
     override suspend fun readBoolean(name: Name): Boolean =
-        readInlineValue(name, "Boolean") { value ->
+        readDeclarativeValue(name, "Boolean") { value ->
             when (value) {
                 is Boolean -> value
                 is Meta -> value.booleanValue
@@ -301,7 +305,7 @@ private class InlineScope(
         }
 
     override suspend fun readString(name: Name): String =
-        readInlineValue(name, "String") { value ->
+        readDeclarativeValue(name, "String") { value ->
             when (value) {
                 is String -> value
                 is Meta -> value.stringValue
@@ -325,19 +329,19 @@ private class InlineScope(
     }
 
     override suspend fun writeDouble(name: Name, value: Double): Unit =
-        writeInlineValue(name, value) { metaOf(value) }
+        writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun writeInt(name: Name, value: Int): Unit =
-        writeInlineValue(name, value) { metaOf(value) }
+        writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun writeLong(name: Name, value: Long): Unit =
-        writeInlineValue(name, value) { metaOf(value) }
+        writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun writeBoolean(name: Name, value: Boolean): Unit =
-        writeInlineValue(name, value) { metaOf(value) }
+        writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun writeString(name: Name, value: String): Unit =
-        writeInlineValue(name, value) { metaOf(value) }
+        writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun execute(action: Name, argument: Meta?): Meta? =
         context(environment) {
@@ -349,61 +353,61 @@ private class InlineScope(
         return result?.let(spec.outputConverter::read)
     }
 
-    private suspend fun <T : Any> readInlineValue(name: Name, expected: String, decode: (Any) -> T?): T =
+    private suspend fun <T : Any> readDeclarativeValue(name: Name, expected: String, decode: (Any) -> T?): T =
         context(environment) {
             val value = core.readValue(name).getOrThrow()
-            decode(value) ?: inlineTypeError(name, expected, value)
+            decode(value) ?: readTypeError(name, expected, value)
         }
 
-    private suspend fun writeInlineValue(name: Name, value: Any, toMeta: () -> Meta) {
+    private suspend fun writeDeclarativeValue(name: Name, value: Any, toMeta: () -> Meta) {
         context(environment) {
             core.writeValue(name, value) { toMeta() }.getOrThrow()
         }
     }
 }
 
-/** Inline builder's default backend class (no time-advancement). */
+/** Device DSL backend without time-advancement. */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
-internal class InlineDeviceBackend(private val c: InlineBackendCore) : DeviceBackend {
+internal class DeclarativeDeviceBackend(private val c: DeclarativeBackendCore) : DeviceBackend {
     context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> = c.read(property)
+    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
     context(device: DeviceEnvironment)
     override suspend fun write(
         property: PropertyDescriptor,
         value: Meta,
-    ): DeviceOutcome<Unit> = c.write(property, value)
+    ): OperationOutcome<Unit> = c.write(property, value)
     context(device: DeviceEnvironment)
     override suspend fun execute(
         action: ActionDescriptor,
         argument: Meta?,
-    ): DeviceOutcome<Meta?> = c.execute(action, argument)
+    ): OperationOutcome<Meta?> = c.execute(action, argument)
     override fun close() = c.close()
 }
 
-/** Inline builder's backend when `onStep` was declared — implements [SteppedBackend]. */
+/** Device DSL backend used when `onStep` was declared. */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
-internal class InlineSteppedBackend(
-    private val c: InlineBackendCore,
+internal class DeclarativeSteppedBackend(
+    private val c: DeclarativeBackendCore,
     private val stepBody: (Duration) -> Unit,
 ) : SteppedBackend {
     override fun step(dt: Duration) { stepBody(dt) }
     context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> = c.read(property)
+    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
     context(device: DeviceEnvironment)
     override suspend fun write(
         property: PropertyDescriptor,
         value: Meta,
-    ): DeviceOutcome<Unit> = c.write(property, value)
+    ): OperationOutcome<Unit> = c.write(property, value)
     context(device: DeviceEnvironment)
     override suspend fun execute(
         action: ActionDescriptor,
         argument: Meta?,
-    ): DeviceOutcome<Meta?> = c.execute(action, argument)
+    ): OperationOutcome<Meta?> = c.execute(action, argument)
     override fun close() = c.close()
 }
 
 /** Picks the concrete class based on whether `onStep` was declared. */
-internal fun inlineBackend(
+internal fun declarativeBackend(
     readers: Map<Name, DeviceReadBlock<Any>>,
     writers: Map<Name, DeviceWriteBlock>,
     valueWriters: Map<Name, (Any?) -> Unit>,
@@ -411,8 +415,8 @@ internal fun inlineBackend(
     stepBody: ((Duration) -> Unit)?,
     closeBody: (() -> Unit)?,
 ): DeviceBackend {
-    val core = InlineBackendCore(readers, writers, valueWriters, actions, closeBody)
-    return if (stepBody != null) InlineSteppedBackend(core, stepBody) else InlineDeviceBackend(core)
+    val core = DeclarativeBackendCore(readers, writers, valueWriters, actions, closeBody)
+    return if (stepBody != null) DeclarativeSteppedBackend(core, stepBody) else DeclarativeDeviceBackend(core)
 }
 
 internal fun synthesizeProperty(name: Name, mutable: Boolean): PropertyDescriptor = PropertyDescriptor(
@@ -424,7 +428,7 @@ internal fun synthesizeProperty(name: Name, mutable: Boolean): PropertyDescripto
 )
 
 internal fun writeTypeError(property: String, expected: String, got: Meta): Nothing =
-    throw DeviceFaultException(
+    throw OperationFaultException(
         ValidationFault(
             details = Meta {
                 "property" put property
@@ -435,13 +439,23 @@ internal fun writeTypeError(property: String, expected: String, got: Meta): Noth
         ),
     )
 
-private fun unknownInlineMember(code: String, message: String): DeviceOutcome.Fail =
-    DeviceOutcome.Fail(GenericDeviceFault(code = code, message = message))
+private fun unknownDeclarativeOperation(type: Name, message: String): OperationOutcome.Fail =
+    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
 
-private fun unsupportedInlineValue(property: Name, value: Any): Nothing =
-    throw DeviceFaultException(
-        GenericDeviceFault(
-            code = "UNSUPPORTED_PROPERTY_VALUE",
+private fun validationFault(property: Name, message: String): OperationOutcome.Fail =
+    OperationOutcome.Fail(
+        ValidationFault(
+            details = Meta {
+                "property" put property.toString()
+                "message" put message
+            },
+        ),
+    )
+
+private fun unsupportedDeclarativeValue(property: Name, value: Any): Nothing =
+    throw OperationFaultException(
+        GenericOperationFault(
+            faultType = OperationFaultTypes.UnsupportedValue,
             message =
             "Unsupported property value type ${value::class.simpleName} for '$property' — " +
                     "expected Meta, Double, Int, Long, Boolean, String, or MetaRepr. " +
@@ -449,8 +463,8 @@ private fun unsupportedInlineValue(property: Name, value: Any): Nothing =
         ),
     )
 
-private fun inlineTypeError(property: Name, expected: String, got: Any): Nothing =
-    throw DeviceFaultException(
+private fun readTypeError(property: Name, expected: String, got: Any): Nothing =
+    throw OperationFaultException(
         ValidationFault(
             details = Meta {
                 "property" put property.toString()
@@ -461,10 +475,10 @@ private fun inlineTypeError(property: Name, expected: String, got: Any): Nothing
         ),
     )
 
-private fun inlineWriteTypeError(property: Name, value: Any?, cause: Exception): DeviceOutcome.Fail =
-    DeviceOutcome.Fail(inlineWriteFault(property, value, cause))
+private fun writeTypeError(property: Name, value: Any?, cause: Exception): OperationOutcome.Fail =
+    OperationOutcome.Fail(writeFault(property, value, cause))
 
-private fun inlineWriteFault(property: Name, value: Any?, cause: Exception): ValidationFault =
+private fun writeFault(property: Name, value: Any?, cause: Exception): ValidationFault =
     ValidationFault(
         details = Meta {
             "property" put property.toString()

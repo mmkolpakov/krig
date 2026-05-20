@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "State & Faults: data types, lifecycle states, outcomes, and fault taxonomy"
+description = "State data: lifecycle states, timestamps, quality, snapshots, and timelines"
 
 kotlin {
     sourceSets {

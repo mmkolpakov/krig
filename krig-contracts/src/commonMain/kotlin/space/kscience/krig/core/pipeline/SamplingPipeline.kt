@@ -1,6 +1,6 @@
-﻿package space.kscience.krig.core.pipeline
+package space.kscience.krig.core.pipeline
 
-import space.kscience.krig.api.faults.DeviceFault
+import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.meta.DevicePropertyContract
 
@@ -14,14 +14,13 @@ public fun interface SamplingObserver {
     public suspend fun onSample(
         spec: DevicePropertyContract<*>,
         value: Any?,
-        fault: DeviceFault?,
+        fault: OperationFault?,
     )
 }
 
 /**
  * Declarative QoS-style configuration for the sampling (subscription / streaming)
- * pipeline. Parallel to [ReadPipelineSpec] for one-shot reads; this spec controls
- * the continuous sampling path exposed by [TypedSampler].
+ * pipeline. This spec controls the continuous sampling path exposed by [TypedSampler].
  *
  * Evolution policy: additive fields with safe defaults — non-breaking.
  */

@@ -13,7 +13,7 @@ import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.krig.core.contracts.blueprintOf
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.typed.typedBackend
+import space.kscience.krig.core.contracts.typed.backend
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.dsl.device
@@ -25,7 +25,7 @@ object PumpSpec : DeviceContractBuilder() {
 
 val PumpBlueprint: DeviceBlueprint<Device> = blueprintOf("demo.pump", PumpSpec)
 
-fun pumpBackend() = typedBackend {
+fun pumpBackend() = backend {
     var rpm = 0.0
     val samples = doubleSampler()
 
@@ -45,7 +45,7 @@ fun main() = runBlocking {
 }
 ```
 
-Inline devices are useful for notebooks and scripts:
+The device DSL is useful for notebooks and scripts:
 
 ```kotlin
 val thermo = device("thermo") {
@@ -62,8 +62,8 @@ val thermo = device("thermo") {
    backends provide execution.
 3. **Typed access is the default path.** `read(spec)` / `write(spec, value)` avoid the
    `Meta` boundary for normal code. `readProperty(Name)` remains the control-plane adapter.
-4. **Faults are values.** `DeviceOutcome<T>` returns `Ok(value)` or `Fail(fault)` without
-   forcing application code into `try/catch`.
+4. **Faults are values.** `OperationOutcome<T>` returns `Ok(value)` or `Fail(fault)`;
+   fault types are open `Name` keys, not string switches.
 5. **State keeps time and quality.** `Timestamped<T>` and `ObservedValue<T>` carry time and
    `DataQuality` through reactive views.
 6. **Acquisition mapping is protocol-neutral.** krig validates sources, timers, tags, and
@@ -74,17 +74,20 @@ val thermo = device("thermo") {
    runtime `SerializationContributor`s without classpath scanning.
 9. **Real and virtual devices share one model.** The same contracts work with wall-clock
    devices, deterministic simulation, event logs, and counterfactual replay.
+10. **Features assemble policies; capabilities hold local state.** Feature ids are `Name`s;
+    global services stay in DataForge `Context` plugins.
 
 ## Modules
 
 | Layer | Module | Purpose |
 |---|---|---|
-| Data | `krig-state` | Outcomes, faults, lifecycle, `Timestamped`, `ObservedValue`, `DataQuality` |
+| Data | `krig-state` | Lifecycle, `Timestamped`, `ObservedValue`, `DataQuality`, snapshots |
 | Data | `krig-identity` | Principals, permissions, audit, authorization |
 | Model | `krig-model` | Descriptors, feature specs, expressions, retry policy |
+| Operation | `krig-operation` | `OperationOutcome`, faults, QoS pipeline, gates, observers, locks |
 | Messaging | `krig-messaging` | Device messages and serialization |
 | Contracts | `krig-contracts` | Device, backend, blueprint, typed access, samplers, HLC |
-| Runtime | `krig-runtime` | DSL, typed pipeline, gates, observers, dynamic groups |
+| Runtime | `krig-runtime` | DSL, operation pipeline assembly, gates, observers, dynamic groups |
 | Primitives | `krig-primitives` | State, storage, event log, time travel, expressions, peer transport |
 | Transport | `krig-magix` | Magix endpoint and envelope support |
 | Simulation | `krig-simulation` | Deterministic scheduler, resources, signals, process DSL |
@@ -116,20 +119,20 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 | Demo | File | Shows |
 |---|---|---|
 | Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the curated alpha-3 demo set |
-| Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `blueprintOf`, `typedBackend`, typed `read`/`write`/action, retry installation |
+| Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `blueprintOf`, `backend`, typed `read`/`write`/action, retry installation |
 | Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
-| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed against a live typed device |
+| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed against a live device |
 | External polling | [`ExternalPollingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExternalPollingDemo.kt) | Protocol-neutral acquisition mapping driven by one shared timer |
 | Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, shared ticks, zero-order hold for UI-rate streams |
 | Shared timer control | [`SharedTimerControlDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SharedTimerControlDemo.kt) | One timer shared by control loop and UI-rate sampling |
-| Flaky network | [`FlakyNetworkDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/FlakyNetworkDemo.kt) | Transient driver faults recovered by typed pipeline retry |
-| Policy and faults | [`PolicyFaultsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/PolicyFaultsDemo.kt) | Write gate, validation fault, timeout default, observer fault capture |
-| Auth and audit | [`AuthAuditDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/AuthAuditDemo.kt) | Principal-aware write authorization with recorded audit events |
-| Simulation process | [`SimulationProcessDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SimulationProcessDemo.kt) | Virtual-time process driving a typed device |
+| Flaky network | [`FlakyNetworkDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/FlakyNetworkDemo.kt) | Transient driver faults recovered by operation retry |
+| Policy and faults | [`PolicyFaultsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/PolicyFaultsDemo.kt) | Feature-installed capability, write gate, validation fault, observer fault capture |
+| Auth and audit | [`AuthAuditDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/AuthAuditDemo.kt) | DataForge `Context` plugins for global auth/audit, operation faults as values |
+| Simulation process | [`SimulationProcessDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SimulationProcessDemo.kt) | Virtual-time process driving a device |
 | Dynamic hub | [`DynamicHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DynamicHubDemo.kt) | Attach, detach, hub events, reconcile loop |
 | Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Event log, replay, counterfactual DSL |
 | Expressions | [`ExpressionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExpressionDemo.kt) | Expression tree compiled into reactive device state |
-| Inline scripting DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Inline properties, computed same-device reads, property history |
+| Device scripting DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Declarative properties, computed same-device reads, property history |
 | Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | local `%use @file[krig.json]`, device DSL, history, hub, timeline, simulation, storage |
 
 ## Documentation

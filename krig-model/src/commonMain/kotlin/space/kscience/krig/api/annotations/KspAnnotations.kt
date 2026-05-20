@@ -1,10 +1,10 @@
-﻿package space.kscience.krig.api.annotations
+package space.kscience.krig.api.annotations
 
 /**
- * Marks a DeviceFeatureSpec DTO with its stable runtime [id].
+ * Marks a FeatureSpec DTO with its stable runtime [id].
  *
- * KSP `DeviceFeatureSpecContractValidator` enforces that [id] matches `@SerialName`
- * and that the DTO exposes a companion `ID` constant for installer code to reference.
+ * KSP `FeatureSpecContractValidator` enforces that [id] matches `@SerialName`
+ * and that the DTO exposes a companion `ID` constant for runtime Feature code to reference.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

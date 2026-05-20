@@ -1,12 +1,10 @@
 ﻿package space.kscience.krig.core.meta
 
 import space.kscience.krig.api.descriptors.PropertyKind
-import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.typeIdOf
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.contracts.Device
-import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import kotlinx.serialization.KSerializer
@@ -166,84 +164,6 @@ public abstract class DeviceSpecBuilder<D : Device> {
         noinline write: suspend D.(T) -> Unit,
     ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, T>>> =
         serializableMutableProperty(serializer<T>(), kind, read, write)
-
-    public fun doubleProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Double?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, Double>>> =
-        property(MetaConverter.double, TypeIds.DOUBLE, kind, read)
-
-    public fun intProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Int?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, Int>>> =
-        property(MetaConverter.int, TypeIds.INT, kind, read)
-
-    public fun longProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Long?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, Long>>> =
-        property(MetaConverter.long, TypeIds.LONG, kind, read)
-
-    public fun booleanProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Boolean?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, Boolean>>> =
-        property(MetaConverter.boolean, TypeIds.BOOLEAN, kind, read)
-
-    public fun stringProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> String?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, String>>> =
-        property(MetaConverter.string, TypeIds.STRING, kind, read)
-
-    public fun metaProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Meta?,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, DevicePropertySpec<D, Meta>>> =
-        property(MetaConverter.meta, TypeIds.META, kind, read)
-
-    public fun mutableDoubleProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Double?,
-        write: suspend D.(Double) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, Double>>> =
-        mutableProperty(MetaConverter.double, TypeIds.DOUBLE, kind, read, write)
-
-    public fun mutableIntProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Int?,
-        write: suspend D.(Int) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, Int>>> =
-        mutableProperty(MetaConverter.int, TypeIds.INT, kind, read, write)
-
-    public fun mutableLongProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Long?,
-        write: suspend D.(Long) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, Long>>> =
-        mutableProperty(MetaConverter.long, TypeIds.LONG, kind, read, write)
-
-    public fun mutableBooleanProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Boolean?,
-        write: suspend D.(Boolean) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, Boolean>>> =
-        mutableProperty(MetaConverter.boolean, TypeIds.BOOLEAN, kind, read, write)
-
-    public fun mutableStringProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> String?,
-        write: suspend D.(String) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, String>>> =
-        mutableProperty(MetaConverter.string, TypeIds.STRING, kind, read, write)
-
-    public fun mutableMetaProperty(
-        kind: PropertyKind = PropertyKind.PHYSICAL,
-        read: suspend D.() -> Meta?,
-        write: suspend D.(Meta) -> Unit,
-    ): PropertyDelegateProvider<DeviceSpecBuilder<D>, ReadOnlyProperty<DeviceSpecBuilder<D>, MutableDevicePropertySpec<D, Meta>>> =
-        mutableProperty(MetaConverter.meta, TypeIds.META, kind, read, write)
 
     /**
      * Defines an action specification.

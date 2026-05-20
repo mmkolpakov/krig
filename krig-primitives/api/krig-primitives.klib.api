@@ -269,32 +269,26 @@ final class <#A: kotlin/Any?> space.kscience.krig.core.state/VirtualMutableDevic
 }
 
 final class space.kscience.krig.core.capabilities/InMemoryMetadataCapability : space.kscience.krig.api.data/Snapshotting<space.kscience.krig.core.capabilities/MetadataSnapshot>, space.kscience.krig.core.capabilities/MetadataCapability { // space.kscience.krig.core.capabilities/InMemoryMetadataCapability|null[0]
-    constructor <init>(kotlin/String? = ..., kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag> = ...) // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.<init>|<init>(kotlin.String?;kotlin.collections.Set<space.kscience.krig.api.meta.MemberTag>){}[0]
+    constructor <init>(kotlin/String? = ...) // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.<init>|<init>(kotlin.String?){}[0]
 
     final val description // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.description|{}description[0]
         final fun <get-description>(): kotlin/String? // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.description.<get-description>|<get-description>(){}[0]
     final val snapshotSerializer // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.snapshotSerializer|{}snapshotSerializer[0]
         final fun <get-snapshotSerializer>(): kotlinx.serialization/KSerializer<space.kscience.krig.core.capabilities/MetadataSnapshot> // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.snapshotSerializer.<get-snapshotSerializer>|<get-snapshotSerializer>(){}[0]
-    final val tags // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.tags|{}tags[0]
-        final fun <get-tags>(): kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag> // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.tags.<get-tags>|<get-tags>(){}[0]
 
     final fun captureSnapshot(): space.kscience.krig.core.capabilities/MetadataSnapshot // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.captureSnapshot|captureSnapshot(){}[0]
     final fun updateDescription(kotlin/String?) // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.updateDescription|updateDescription(kotlin.String?){}[0]
-    final fun updateTags(kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag>) // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.updateTags|updateTags(kotlin.collections.Set<space.kscience.krig.api.meta.MemberTag>){}[0]
     final suspend fun restoreSnapshot(space.kscience.krig.core.capabilities/MetadataSnapshot) // space.kscience.krig.core.capabilities/InMemoryMetadataCapability.restoreSnapshot|restoreSnapshot(space.kscience.krig.core.capabilities.MetadataSnapshot){}[0]
 }
 
 final class space.kscience.krig.core.capabilities/MetadataSnapshot { // space.kscience.krig.core.capabilities/MetadataSnapshot|null[0]
-    constructor <init>(kotlin/String?, kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag>) // space.kscience.krig.core.capabilities/MetadataSnapshot.<init>|<init>(kotlin.String?;kotlin.collections.Set<space.kscience.krig.api.meta.MemberTag>){}[0]
+    constructor <init>(kotlin/String?) // space.kscience.krig.core.capabilities/MetadataSnapshot.<init>|<init>(kotlin.String?){}[0]
 
     final val description // space.kscience.krig.core.capabilities/MetadataSnapshot.description|{}description[0]
         final fun <get-description>(): kotlin/String? // space.kscience.krig.core.capabilities/MetadataSnapshot.description.<get-description>|<get-description>(){}[0]
-    final val tags // space.kscience.krig.core.capabilities/MetadataSnapshot.tags|{}tags[0]
-        final fun <get-tags>(): kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag> // space.kscience.krig.core.capabilities/MetadataSnapshot.tags.<get-tags>|<get-tags>(){}[0]
 
     final fun component1(): kotlin/String? // space.kscience.krig.core.capabilities/MetadataSnapshot.component1|component1(){}[0]
-    final fun component2(): kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag> // space.kscience.krig.core.capabilities/MetadataSnapshot.component2|component2(){}[0]
-    final fun copy(kotlin/String? = ..., kotlin.collections/Set<space.kscience.krig.api.meta/MemberTag> = ...): space.kscience.krig.core.capabilities/MetadataSnapshot // space.kscience.krig.core.capabilities/MetadataSnapshot.copy|copy(kotlin.String?;kotlin.collections.Set<space.kscience.krig.api.meta.MemberTag>){}[0]
+    final fun copy(kotlin/String? = ...): space.kscience.krig.core.capabilities/MetadataSnapshot // space.kscience.krig.core.capabilities/MetadataSnapshot.copy|copy(kotlin.String?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.capabilities/MetadataSnapshot.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.core.capabilities/MetadataSnapshot.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.capabilities/MetadataSnapshot.toString|toString(){}[0]
@@ -309,8 +303,6 @@ final class space.kscience.krig.core.capabilities/MetadataSnapshot { // space.ks
     }
 
     final object Companion { // space.kscience.krig.core.capabilities/MetadataSnapshot.Companion|null[0]
-        final val $childSerializers // space.kscience.krig.core.capabilities/MetadataSnapshot.Companion.$childSerializers|{}$childSerializers[0]
-
         final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.core.capabilities/MetadataSnapshot> // space.kscience.krig.core.capabilities/MetadataSnapshot.Companion.serializer|serializer(){}[0]
     }
 }

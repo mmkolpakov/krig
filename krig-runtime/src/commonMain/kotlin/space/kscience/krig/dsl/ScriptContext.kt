@@ -6,7 +6,7 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.ContextBuilder
 
 /**
- * Minimal [Context] for inline SDK examples. It installs fail-closed authorization
+ * Minimal [Context] for script examples. It installs fail-closed authorization
  * and no-op audit so the runtime pipeline can be assembled without bringing in test
  * fixtures or production RBAC infrastructure.
  */

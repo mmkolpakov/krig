@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.core.contracts
+package space.kscience.krig.core.contracts
 
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
@@ -7,7 +7,7 @@ import space.kscience.krig.core.meta.MutableDevicePropertyContract
 // Type-safe extensions for interacting with devices using specifications.
 
 /**
- * Reads [spec] through the typed data-plane surface. A `TypedPipelineDevice`
+ * Reads [spec] through the typed data-plane surface. A `PipelineDevice`
  * decorates this path with gates / locks / retry / timeout / observers without forcing a
  * `Meta` allocation on the hot path.
  */

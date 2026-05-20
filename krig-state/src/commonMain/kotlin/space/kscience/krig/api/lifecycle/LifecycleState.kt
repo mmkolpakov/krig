@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.lifecycle
+package space.kscience.krig.api.lifecycle
 
 /**
  * Vocabulary for device / port lifecycle. The FSM transition table is keyed on
@@ -8,7 +8,7 @@
  * re-emits on every distinct [Throwable], and conflates consecutive [Failed.NoCause] writes.
  *
  * LifecycleState is a runtime-only FSM. [Failed] states are not wire-serializable —
- * wrap the cause in a [DeviceFault][space.kscience.krig.api.faults.DeviceFault] or
+ * wrap the cause in a [OperationFault][space.kscience.krig.api.faults.OperationFault] or
  * transport-native error envelope when crossing the wire. A serializable LifecycleState
  * DTO is planned for a future release.
  */

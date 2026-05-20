@@ -19,7 +19,7 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 
 /**
- * Inline scripting DSL for notebooks and compact local experiments.
+ * Device scripting DSL for notebooks and compact local experiments.
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
@@ -27,7 +27,7 @@ import space.kscience.dataforge.names.asName
 suspend fun deviceDslDemo(): Unit = coroutineScope {
     val ctx = demoContext("demo")
 
-    println("=== Inline scripting DSL ===")
+    println("=== Device scripting DSL ===")
     val thermo: Device = device("thermo", ctx) {
         propertyDouble("sensor") { 23.5 }
         propertyDouble("compensated") {
@@ -74,5 +74,5 @@ suspend fun deviceDslDemo(): Unit = coroutineScope {
 
     thermo.close()
     ctx.close()
-    println("\nDone - inline scripting DSL demo complete.")
+    println("\nDone - Device scripting DSL demo complete.")
 }

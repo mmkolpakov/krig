@@ -12,3 +12,5 @@
 *.wasm -text
 *.woff -text
 *.woff2 -text
+
+*.api whitespace=-blank-at-eof

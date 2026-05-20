@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.PerformancePitfall::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
@@ -17,8 +17,8 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.api.faults.DeviceFault
-import space.kscience.krig.api.faults.DeviceFaultException
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.meta.DevicePropertyContract
@@ -34,7 +34,7 @@ private fun freshContext(): Context = Context("legacy-meta-${seq.addAndFetch(1)}
 
 /**
  * Proves that `device.readProperty(Name): Meta` and `writeProperty(Name, Meta)` route
- * through the full typed pipeline (gates → executor → observers) when the delegate
+ * through the full operation pipeline (gates → executor → observers) when the delegate
  * exposes a registered [DevicePropertySpec] via [Device.propertySpec].
  */
 class LegacyMetaPathRoutingTest {
@@ -73,11 +73,11 @@ class LegacyMetaPathRoutingTest {
     @Test
     fun metaReadFiresObserversWhenSpecIsKnown() = runTest {
         val device = DoubleCellDevice()
-        val observed = mutableListOf<Pair<Name, DeviceFault?>>()
-        val builder = TypedPipelineBuilder().apply {
-            addReadObserver { spec, _, fault -> observed += spec.name to fault }
+        val observed = mutableListOf<Pair<Name, OperationFault?>>()
+        val builder = PipelineBuilder().apply {
+            observeRead { operation, _, fault -> observed += operation.name to fault }
         }
-        val wrapped = wrapWithTypedPipeline(device, builder, "cell", autoInstallDefaults = false)
+        val wrapped = wrapWithPipeline(device, builder, "cell", autoInstallDefaults = false)
 
         wrapped.writeProperty(device.valueSpec.name, MetaConverter.double.convert(42.0))
         val result = wrapped.readProperty(device.valueSpec.name)
@@ -95,14 +95,14 @@ class LegacyMetaPathRoutingTest {
             override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
         }
         var observerCalled = false
-        val builder = TypedPipelineBuilder().apply {
-            addReadObserver { _, _, _ -> observerCalled = true }
+        val builder = PipelineBuilder().apply {
+            observeRead { _, _, _ -> observerCalled = true }
         }
-        val wrapped = wrapWithTypedPipeline(device, builder, "plain", autoInstallDefaults = false)
+        val wrapped = wrapWithPipeline(device, builder, "plain", autoInstallDefaults = false)
 
         // No declared spec for "x" -> fail fast. The runtime no longer fabricates
         // synthetic legacy specs for arbitrary Meta calls.
-        assertFailsWith<DeviceFaultException> {
+        assertFailsWith<OperationFaultException> {
             wrapped.readProperty("x".asName())
         }
         assertEquals(false, observerCalled, "no spec → no executor → no observer")

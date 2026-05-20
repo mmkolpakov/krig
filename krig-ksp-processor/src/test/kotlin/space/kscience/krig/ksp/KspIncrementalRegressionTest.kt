@@ -34,15 +34,15 @@ class KspIncrementalRegressionTest {
 
     @Test
     fun singleSubclassCompiles() {
-        val r = run(SourceFile.kotlin("TagA.kt", subclass("TagA", "tag.a")))
+        val r = run(SourceFile.kotlin("ExtensionA.kt", subclass("ExtensionA", "extension.a")))
         assertEquals(KotlinCompilation.ExitCode.OK, r.exitCode, r.messages)
     }
 
     @Test
     fun twoSubclassesCompile() {
         val r = run(
-            SourceFile.kotlin("TagA.kt", subclass("TagA", "tag.a")),
-            SourceFile.kotlin("TagB.kt", subclass("TagB", "tag.b")),
+            SourceFile.kotlin("ExtensionA.kt", subclass("ExtensionA", "extension.a")),
+            SourceFile.kotlin("ExtensionB.kt", subclass("ExtensionB", "extension.b")),
         )
         assertEquals(KotlinCompilation.ExitCode.OK, r.exitCode, r.messages)
     }
@@ -50,9 +50,9 @@ class KspIncrementalRegressionTest {
     @Test
     fun threeSubclassesCompile() {
         val r = run(
-            SourceFile.kotlin("TagA.kt", subclass("TagA", "tag.a")),
-            SourceFile.kotlin("TagB.kt", subclass("TagB", "tag.b")),
-            SourceFile.kotlin("TagC.kt", subclass("TagC", "tag.c")),
+            SourceFile.kotlin("ExtensionA.kt", subclass("ExtensionA", "extension.a")),
+            SourceFile.kotlin("ExtensionB.kt", subclass("ExtensionB", "extension.b")),
+            SourceFile.kotlin("ExtensionC.kt", subclass("ExtensionC", "extension.c")),
         )
         assertEquals(KotlinCompilation.ExitCode.OK, r.exitCode, r.messages)
     }
@@ -64,7 +64,7 @@ private fun run(vararg extra: SourceFile) = KotlinCompilation().apply {
         SourceFile.kotlin("KotlinxSerialStubs.kt", KOTLINX_SERIALIZATION_STUBS),
         SourceFile.kotlin("ModuleStubs.kt", MODULE_STUBS),
         SourceFile.kotlin("PolymorphicBaseStub.kt", POLYMORPHIC_BASE_STUB),
-        SourceFile.kotlin("MemberTag.kt", MEMBER_TAG),
+        SourceFile.kotlin("ExtensionPoint.kt", EXTENSION_POINT),
         SourceFile.kotlin("Use.kt", USE),
     ) + extra.toList()
     inheritClassPath = false
@@ -79,8 +79,8 @@ private fun subclass(name: String, serialName: String) = """
     package sample
     import kotlinx.serialization.SerialName
     import kotlinx.serialization.Serializable
-    import space.kscience.krig.api.meta.MemberTag
-    @Serializable @SerialName("$serialName") data class $name(val id: String) : MemberTag
+    import sample.api.ExtensionPoint
+    @Serializable @SerialName("$serialName") data class $name(val id: String) : ExtensionPoint
 """.trimIndent()
 
 private val KOTLINX_SERIALIZATION_STUBS = """
@@ -109,11 +109,11 @@ private val POLYMORPHIC_BASE_STUB = """
     @Target(AnnotationTarget.CLASS) annotation class PolymorphicBase
 """.trimIndent()
 
-private val MEMBER_TAG = """
-    package space.kscience.krig.api.meta
+private val EXTENSION_POINT = """
+    package sample.api
     import kotlinx.serialization.Polymorphic
     import space.kscience.krig.api.annotations.PolymorphicBase
-    @Polymorphic @PolymorphicBase interface MemberTag
+    @Polymorphic @PolymorphicBase interface ExtensionPoint
 """.trimIndent()
 
 private val USE = """

@@ -2,14 +2,13 @@ package space.kscience.krig.core.contracts
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.features.DeviceFeatureSpec
-import space.kscience.krig.api.identifiers.BlueprintId
-import space.kscience.krig.api.identifiers.toBlueprintId
+import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.DeviceSpecBuilder
 import space.kscience.krig.core.meta.descriptorMap
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.parseAsName
 
 /**
  * Builds a portable [DeviceBlueprint] from a typed [DeviceSpecBuilder].
@@ -18,10 +17,10 @@ import space.kscience.dataforge.names.Name
  * descriptor-map plumbing from driver samples and production assembly code.
  */
 public fun <D : Device> blueprintOf(
-    id: BlueprintId,
+    id: Name,
     spec: DeviceSpecBuilder<D>,
     version: String = "0.1.0",
-    features: Map<String, DeviceFeatureSpec> = emptyMap(),
+    features: Map<Name, FeatureSpec> = emptyMap(),
     meta: Meta = Meta.EMPTY,
     deviceContractFqName: String = "space.kscience.krig.core.contracts.Device",
 ): DeviceBlueprint<D> = blueprintOf(
@@ -39,11 +38,11 @@ public fun <D : Device> blueprintOf(
     id: String,
     spec: DeviceSpecBuilder<D>,
     version: String = "0.1.0",
-    features: Map<String, DeviceFeatureSpec> = emptyMap(),
+    features: Map<Name, FeatureSpec> = emptyMap(),
     meta: Meta = Meta.EMPTY,
     deviceContractFqName: String = "space.kscience.krig.core.contracts.Device",
 ): DeviceBlueprint<D> = blueprintOf(
-    id = id.toBlueprintId(),
+    id = id.parseAsName(),
     spec = spec,
     version = version,
     features = features,
@@ -58,10 +57,10 @@ public fun <D : Device> blueprintOf(
  * lambdas, while typed backends provide execution.
  */
 public fun <D : Device> blueprintOf(
-    id: BlueprintId,
+    id: Name,
     contract: DeviceContractBuilder,
     version: String = "0.1.0",
-    features: Map<String, DeviceFeatureSpec> = emptyMap(),
+    features: Map<Name, FeatureSpec> = emptyMap(),
     meta: Meta = Meta.EMPTY,
     deviceContractFqName: String = "space.kscience.krig.core.contracts.Device",
 ): DeviceBlueprint<D> = blueprintOf(
@@ -79,11 +78,11 @@ public fun <D : Device> blueprintOf(
     id: String,
     contract: DeviceContractBuilder,
     version: String = "0.1.0",
-    features: Map<String, DeviceFeatureSpec> = emptyMap(),
+    features: Map<Name, FeatureSpec> = emptyMap(),
     meta: Meta = Meta.EMPTY,
     deviceContractFqName: String = "space.kscience.krig.core.contracts.Device",
 ): DeviceBlueprint<D> = blueprintOf(
-    id = id.toBlueprintId(),
+    id = id.parseAsName(),
     contract = contract,
     version = version,
     features = features,
@@ -92,11 +91,11 @@ public fun <D : Device> blueprintOf(
 )
 
 private fun <D : Device> blueprintOf(
-    id: BlueprintId,
+    id: Name,
     properties: Map<Name, PropertyDescriptor>,
     actions: Map<Name, ActionDescriptor>,
     version: String,
-    features: Map<String, DeviceFeatureSpec>,
+    features: Map<Name, FeatureSpec>,
     meta: Meta,
     deviceContractFqName: String,
 ): DeviceBlueprint<D> = SimpleDeviceBlueprint(
@@ -110,9 +109,9 @@ private fun <D : Device> blueprintOf(
 )
 
 private data class SimpleDeviceBlueprint<D : Device>(
-    override val id: BlueprintId,
+    override val id: Name,
     override val version: String,
-    override val features: Map<String, DeviceFeatureSpec>,
+    override val features: Map<Name, FeatureSpec>,
     override val properties: Map<Name, PropertyDescriptor>,
     override val actions: Map<Name, ActionDescriptor>,
     override val meta: Meta,

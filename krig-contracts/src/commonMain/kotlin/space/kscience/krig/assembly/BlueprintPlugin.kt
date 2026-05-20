@@ -9,7 +9,6 @@ import space.kscience.krig.api.discovery.ContributionTarget
 import space.kscience.krig.api.discovery.TargetId
 import space.kscience.krig.api.discovery.gather
 import space.kscience.krig.api.discovery.requirePlugin
-import space.kscience.krig.api.identifiers.BlueprintId
 import space.kscience.krig.api.serialization.krigApiSerializersModule
 import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.dataforge.context.AbstractPlugin
@@ -18,7 +17,6 @@ import space.kscience.dataforge.context.PluginFactory
 import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.asName
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
 
@@ -32,7 +30,7 @@ import kotlin.concurrent.atomics.update
  * CAS on a persistent map keeps concurrent `register` calls safe without suspending.
  */
 public class BlueprintPlugin(
-    initial: Map<BlueprintId, DeviceBlueprint<*>> = emptyMap(),
+    initial: Map<Name, DeviceBlueprint<*>> = emptyMap(),
     meta: Meta = Meta.EMPTY,
 ) : AbstractPlugin(meta) {
 
@@ -45,7 +43,7 @@ public class BlueprintPlugin(
      */
     override val serializerModule: SerializersModule = krigApiSerializersModule
 
-    private val blueprints: AtomicReference<PersistentMap<BlueprintId, DeviceBlueprint<*>>> =
+    private val blueprints: AtomicReference<PersistentMap<Name, DeviceBlueprint<*>>> =
         AtomicReference(initial.toPersistentMap())
 
     /** Registers [blueprint]; replaces any prior entry with the same `id`. */
@@ -54,7 +52,7 @@ public class BlueprintPlugin(
     }
 
     /** Removes the blueprint with [id]; returns `true` if it was present. */
-    public fun remove(id: BlueprintId): Boolean {
+    public fun remove(id: Name): Boolean {
         while (true) {
             val current = blueprints.load()
             if (!current.containsKey(id)) return false
@@ -63,13 +61,13 @@ public class BlueprintPlugin(
     }
 
     /** Direct typed lookup. Prefer [Context.findBlueprint] when cross-plugin composition matters. */
-    public operator fun get(id: BlueprintId): DeviceBlueprint<*>? = blueprints.load()[id]
+    public operator fun get(id: Name): DeviceBlueprint<*>? = blueprints.load()[id]
 
     /** Snapshot of currently registered blueprint IDs. */
-    public fun ids(): Set<BlueprintId> = blueprints.load().keys
+    public fun ids(): Set<Name> = blueprints.load().keys
 
     override fun content(target: String): Map<Name, Any> = when (target) {
-        Target.id -> blueprints.load().entries.associate { (id, bp) -> id.value.asName() to bp }
+        Target.id -> blueprints.load().entries.associate { (id, bp) -> id to bp }
         else -> emptyMap()
     }
 
@@ -95,7 +93,7 @@ public fun Context.blueprints(): BlueprintPlugin = requirePlugin(BlueprintPlugin
  * Discovers a blueprint across every plugin contributing to [BlueprintPlugin.Target].
  * Match by [DeviceBlueprint.id] (stable regardless of contributor plugin).
  */
-public fun Context.findBlueprint(id: BlueprintId): DeviceBlueprint<*>? =
+public fun Context.findBlueprint(id: Name): DeviceBlueprint<*>? =
     gather(BlueprintPlugin.Target).values.firstOrNull { it.id == id }
 
 /** Installs all [items] into the [BlueprintPlugin] of this context. */

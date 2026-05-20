@@ -11,6 +11,7 @@ kotlin {
             dependencies {
                 api(project(":krig-model"))
                 api(project(":krig-identity"))
+                api(project(":krig-operation"))
                 api(project(":krig-state"))
                 api(libs.dataforge.meta)
             }

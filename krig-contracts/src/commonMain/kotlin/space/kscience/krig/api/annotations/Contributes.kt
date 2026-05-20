@@ -9,7 +9,7 @@ public enum class EmissionStrategy {
 
     /**
      * Invoke the contributor object as a factory function: `"id".asName() to MyObject()`.
-     * Used for blueprint installers whose `object` implements `() -> DeviceBlueprint<*>`.
+     * Used for blueprint factories whose `object` implements `() -> DeviceBlueprint<*>`.
      */
     INVOKE_AS_FACTORY,
 }

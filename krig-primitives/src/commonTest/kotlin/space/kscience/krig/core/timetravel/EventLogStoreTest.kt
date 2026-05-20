@@ -4,7 +4,6 @@ package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.identifiers.BlueprintId
 import space.kscience.krig.api.messages.DeviceAttachedMessage
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.dataforge.names.asName
@@ -17,7 +16,7 @@ class EventLogStoreTest {
     private fun attached(atMs: Long): DeviceMessage = DeviceAttachedMessage(
         time = Instant.fromEpochMilliseconds(atMs),
         deviceName = "child".asName(),
-        blueprintId = BlueprintId("bp.test"),
+        blueprintId = "bp.test".asName(),
         sourceDevice = "lab.hub".asName(),
     )
 

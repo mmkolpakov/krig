@@ -1,10 +1,9 @@
-﻿package space.kscience.krig.assembly
+package space.kscience.krig.assembly
 
 import space.kscience.krig.api.annotations.Contributes
 import space.kscience.krig.api.annotations.EmissionStrategy
 import space.kscience.krig.api.discovery.ActionHandlerContributions
-import space.kscience.krig.api.discovery.FaultRecoveryContributions
-import space.kscience.krig.api.discovery.FeatureInstallerContributions
+import space.kscience.krig.api.discovery.FeatureContributions
 import space.kscience.krig.api.discovery.ProtocolContributions
 
 /**
@@ -23,11 +22,11 @@ public annotation class ContributesBlueprint(public val blueprintId: String)
 @Contributes(DeviceFactoryPlugin::class)
 public annotation class ContributesFactory
 
-/** Marks a `DeviceFeatureInstaller` installer object for discovery via [FeatureInstallerContributions]. */
+/** Marks a `Feature` object for discovery via [FeatureContributions]. */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@Contributes(FeatureInstallerContributions::class)
-public annotation class ContributesFeatureInstaller
+@Contributes(FeatureContributions::class)
+public annotation class ContributesFeature
 
 /** Marks a `ProtocolEngineFactory` object for discovery via [ProtocolContributions]. */
 @Target(AnnotationTarget.CLASS)
@@ -40,9 +39,3 @@ public annotation class ContributesProtocol
 @Retention(AnnotationRetention.BINARY)
 @Contributes(ActionHandlerContributions::class)
 public annotation class ContributesActionHandler
-
-/** Marks a `FaultRecoveryPolicy.Contribution` object for discovery via [FaultRecoveryContributions]. */
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.BINARY)
-@Contributes(FaultRecoveryContributions::class)
-public annotation class ContributesFaultRecovery

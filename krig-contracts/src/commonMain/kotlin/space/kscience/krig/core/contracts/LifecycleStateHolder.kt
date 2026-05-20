@@ -6,7 +6,7 @@ import space.kscience.krig.core.InternalKrigApi
 
 /**
  * Framework-internal mutator for `Device.lifecycleState`. Implemented by [AbstractDevice];
- * typed pipeline wrappers forward it through interface delegation.
+ * operation pipeline wrappers forward it through interface delegation.
  */
 @InternalKrigApi
 public interface LifecycleStateHolder {

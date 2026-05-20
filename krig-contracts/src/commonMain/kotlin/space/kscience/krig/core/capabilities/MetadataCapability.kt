@@ -1,23 +1,20 @@
-﻿package space.kscience.krig.core.capabilities
+package space.kscience.krig.core.capabilities
 
-import space.kscience.krig.api.meta.MemberTag
+import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
 
 /**
- * A runtime capability wrapper for metadata. Exposing metadata as a capability allows uniform
- * access via `device.capability(MetadataCapability)` and leaves room for future dynamic metadata updates.
- *
- * Capability state is `Unit` — metadata is presented through [description] and [tags] directly,
- * not through a separate runtime-state object.
+ * Runtime description capability. Domain-specific metadata belongs in dedicated
+ * capabilities or operation attributes.
  */
-public interface MetadataCapability : DeviceCapability<Unit> {
+public interface MetadataCapability : Capability<Unit> {
     public val description: String?
-    public val tags: Set<MemberTag>
 
     override val state: Unit get() = Unit
 
-    public companion object Key : CapabilityKey<MetadataCapability, Unit> {
-        override val id: String = "capability.metadata"
+    public companion object Key : CapabilityKey<MetadataCapability> {
+        override val id: Name = "capability.metadata".asName()
     }
 
-    override val key: CapabilityKey<*, Unit> get() = Key
+    override val key: CapabilityKey<*> get() = Key
 }

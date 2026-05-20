@@ -1,7 +1,7 @@
 package space.kscience.krig.core.contracts.typed
 
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.UnstableKrigForSubclassing
@@ -32,7 +32,7 @@ public interface TypedBackend {
     public fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O>? = null
 }
 
-/** Backend type returned by [typedBackend][space.kscience.krig.core.contracts.typed.typedBackend]. */
+/** Backend type returned by [backend][space.kscience.krig.core.contracts.typed.backend]. */
 @OptIn(UnstableKrigForSubclassing::class)
 public interface TypedDeviceBackend : DeviceBackend, TypedBackend {
     /** Registered typed property spec by name, used to keep the Meta boundary converter-aware. */
@@ -53,9 +53,9 @@ public interface BatchTypedDeviceBackend : TypedDeviceBackend {
     /**
      * Reads [properties] as one acquisition unit when possible.
      *
-     * Implementations should return one [DeviceOutcome] per requested property. Partial failures are
+     * Implementations should return one [OperationOutcome] per requested property. Partial failures are
      * values, not exceptions; cancellation must still propagate normally.
      */
     context(device: DeviceEnvironment)
-    public suspend fun readBatch(properties: Collection<PropertyDescriptor>): Map<Name, DeviceOutcome<Meta>>
+    public suspend fun readBatch(properties: Collection<PropertyDescriptor>): Map<Name, OperationOutcome<Meta>>
 }

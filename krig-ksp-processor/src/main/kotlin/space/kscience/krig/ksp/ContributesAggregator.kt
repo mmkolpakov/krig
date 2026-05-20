@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.ksp
+package space.kscience.krig.ksp
 
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -198,7 +198,7 @@ internal class ContributesAggregator(
      * in control-domain vocabulary without trying to be a full morphology library:
      *  - already plural (ends in `s`)          — keep
      *  - consonant + `y`                        — `y` → `ies`   (Factory, Policy, Proxy)
-     *  - otherwise                              — + `s`         (DeviceFeatureSpec, Handler, Recovery in kebab → "Recovery" + "s")
+     *  - otherwise                              — + `s`         (FeatureSpec, Handler, Recovery in kebab → "Recovery" + "s")
      */
     private fun pluralize(word: String): String = when {
         word.endsWith("s") -> word
@@ -238,7 +238,7 @@ internal class ContributesAggregator(
             appendLine("import space.kscience.dataforge.context.PluginTag")
             appendLine("import space.kscience.dataforge.meta.Meta")
             appendLine("import space.kscience.dataforge.names.Name")
-            appendLine("import space.kscience.dataforge.names.asName")
+            appendLine("import space.kscience.dataforge.names.parseAsName")
             appendLine()
             appendLine("/**")
             appendLine(" * KSP-generated DataForge plugin for target `$targetId`.")
@@ -264,7 +264,7 @@ internal class ContributesAggregator(
                 val fqn = entry.decl.qualifiedName?.asString() ?: continue
                 val keyLiteral = entry.blueprintId ?: entry.decl.simpleName.asString()
                 val emit = if (entry.invokeAsFactory) "$fqn()" else fqn
-                appendLine("            \"$keyLiteral\".asName() to $emit,")
+                appendLine("            \"$keyLiteral\".parseAsName() to $emit,")
             }
             appendLine("        )")
             appendLine("    }")

@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.milliseconds
 private val demoPlatformJson = Json { encodeDefaults = false }
 
 /**
- * Declarative platform map executed against a live typed device.
+ * Declarative platform map executed against a live device.
  */
 @OptIn(PerformancePitfall::class)
 suspend fun dataPlatformDemo() {
@@ -30,7 +30,7 @@ suspend fun dataPlatformDemo() {
         blueprint(PumpBlueprint)
     }
     val platform = dataPlatform {
-        source("mainPump") from PumpBlueprint.id.value
+        source("mainPump") from PumpBlueprint.id.toString()
         property("mainPump.rpm")
             .from("mainPump", PumpSpec.rpm.name.toString(), reduce = "LastValue")
         timer("fast", 50.milliseconds) {

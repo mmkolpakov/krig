@@ -81,14 +81,14 @@ class CheckpointingTest {
     private class RecordingSnapshotStore : SnapshotStore {
         val saved = mutableListOf<DeviceSnapshot>()
 
-        override suspend fun save(deviceName: Name, snapshot: DeviceSnapshot) {
+        override suspend fun save(subject: Name, snapshot: DeviceSnapshot) {
             saved += snapshot
         }
 
-        override suspend fun latestBefore(deviceName: Name, threshold: Instant): DeviceSnapshot? =
+        override suspend fun latestBefore(subject: Name, threshold: Instant): DeviceSnapshot? =
             saved.lastOrNull { it.at <= threshold }
 
-        override suspend fun delete(deviceName: Name, olderThan: Instant?) {
+        override suspend fun delete(subject: Name, olderThan: Instant?) {
             saved.removeAll { olderThan == null || it.at < olderThan }
         }
     }

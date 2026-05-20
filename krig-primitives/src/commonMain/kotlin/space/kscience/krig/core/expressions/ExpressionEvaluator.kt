@@ -10,8 +10,8 @@ import space.kscience.krig.api.data.QualityCode
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.data.combineAll
 import space.kscience.krig.api.expressions.*
-import space.kscience.krig.api.faults.DeviceFaultException
-import space.kscience.krig.api.faults.DeviceSecurityException
+import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.services.AuthorizationException
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
@@ -74,9 +74,9 @@ private suspend fun bindingState(
         device.readProperty(propertyName).double
     } catch (e: CancellationException) {
         throw e
-    } catch (_: DeviceFaultException) {
+    } catch (_: OperationFaultException) {
         null
-    } catch (_: DeviceSecurityException) {
+    } catch (_: AuthorizationException) {
         null
     }
 
@@ -84,9 +84,9 @@ private suspend fun bindingState(
         device.subscribe(ctx.auth())
     } catch (e: CancellationException) {
         throw e
-    } catch (_: DeviceFaultException) {
+    } catch (_: OperationFaultException) {
         return unavailableBindingState(device, unavailableQuality)
-    } catch (_: DeviceSecurityException) {
+    } catch (_: AuthorizationException) {
         return unavailableBindingState(device, unavailableQuality)
     }
 
@@ -101,7 +101,7 @@ private suspend fun bindingState(
         .catch { e ->
             when (e) {
                 is CancellationException -> throw e
-                is DeviceFaultException, is DeviceSecurityException ->
+                is OperationFaultException, is AuthorizationException ->
                     emit(ObservedValue(null, device.clock.now(), unavailableQuality))
                 else -> throw e
             }

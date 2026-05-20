@@ -3,6 +3,7 @@
 package space.kscience.krig.core.contracts
 
 import space.kscience.krig.core.meta.DeviceSpecBuilder
+import space.kscience.krig.core.meta.mutableDoubleProperty
 import space.kscience.dataforge.meta.MetaConverter
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,7 +28,7 @@ class BlueprintOfTest {
             version = "test",
         )
 
-        assertEquals("space.kscience.krig.test.blueprint", blueprint.id.value)
+        assertEquals("space.kscience.krig.test.blueprint", blueprint.id.toString())
         assertEquals("test", blueprint.version)
         assertTrue(Spec.value.name in blueprint.properties)
         assertTrue(Spec.command.name in blueprint.actions)

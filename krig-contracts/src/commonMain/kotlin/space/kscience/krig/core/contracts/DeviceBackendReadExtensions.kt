@@ -9,7 +9,7 @@ import kotlin.time.Clock
 /**
  * Reads [property] and wraps the value into an [ObservedValue] timestamped before I/O.
  * Protocol backends with native timestamps or quality should override instead of using this helper.
- * @throws space.kscience.krig.api.faults.DeviceFaultException on read failure.
+ * @throws space.kscience.krig.api.faults.OperationFaultException on read failure.
  */
 context(device: DeviceEnvironment)
 public suspend fun DeviceBackend.readWithResult(

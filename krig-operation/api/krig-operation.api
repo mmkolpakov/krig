@@ -1,0 +1,473 @@
+public final class space/kscience/krig/api/faults/AuthorizationFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/AuthorizationFault$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/AuthorizationFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/AuthorizationFault;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/AuthorizationFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public final fun getPrincipalName ()Ljava/lang/String;
+	public final fun getRequiredPermission ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/AuthorizationFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/AuthorizationFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/AuthorizationFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/AuthorizationFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/AuthorizationFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/DevicePropertyException : space/kscience/krig/api/faults/OperationException {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public final fun getProperty ()Lspace/kscience/dataforge/names/Name;
+}
+
+public abstract interface class space/kscience/krig/api/faults/FaultRetryClassifier {
+	public static final field Companion Lspace/kscience/krig/api/faults/FaultRetryClassifier$Companion;
+	public abstract fun shouldRetry (Lspace/kscience/krig/api/faults/OperationFault;)Z
+}
+
+public final class space/kscience/krig/api/faults/FaultRetryClassifier$Companion {
+	public final fun getDefault ()Lspace/kscience/krig/api/faults/FaultRetryClassifier;
+}
+
+public final class space/kscience/krig/api/faults/GenericOperationFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/GenericOperationFault$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/api/faults/GenericOperationFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/GenericOperationFault;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/GenericOperationFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDetails ()Lspace/kscience/dataforge/meta/Meta;
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/GenericOperationFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/GenericOperationFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/GenericOperationFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/GenericOperationFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/GenericOperationFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/InvalidStateFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/InvalidStateFault$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/InvalidStateFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/InvalidStateFault;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/InvalidStateFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCurrentState ()Ljava/lang/String;
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public final fun getOperation ()Ljava/lang/String;
+	public final fun getRequiredState ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/InvalidStateFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/InvalidStateFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/InvalidStateFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/InvalidStateFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/InvalidStateFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public class space/kscience/krig/api/faults/OperationException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+}
+
+public final class space/kscience/krig/api/faults/OperationFailureMappingKt {
+	public static final fun toSerializableOperationFailure (Ljava/lang/Throwable;Z)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public static synthetic fun toSerializableOperationFailure$default (Ljava/lang/Throwable;ZILjava/lang/Object;)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+}
+
+public abstract interface class space/kscience/krig/api/faults/OperationFault : space/kscience/dataforge/meta/MetaRepr {
+	public abstract fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/faults/OperationFault$DefaultImpls {
+	public static fun getMessage (Lspace/kscience/krig/api/faults/OperationFault;)Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/faults/OperationFaultException : space/kscience/krig/api/faults/OperationException {
+	public fun <init> (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+}
+
+public final class space/kscience/krig/api/faults/OperationFaultTypes {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/OperationFaultTypes;
+	public final fun getAuthorization ()Lspace/kscience/dataforge/names/Name;
+	public final fun getFatalSystem ()Lspace/kscience/dataforge/names/Name;
+	public final fun getGeneric ()Lspace/kscience/dataforge/names/Name;
+	public final fun getInvalidState ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSystem ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTimeout ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTransport ()Lspace/kscience/dataforge/names/Name;
+	public final fun getUnknownAction ()Lspace/kscience/dataforge/names/Name;
+	public final fun getUnknownProperty ()Lspace/kscience/dataforge/names/Name;
+	public final fun getUnsupportedValue ()Lspace/kscience/dataforge/names/Name;
+	public final fun getValidation ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/api/faults/SerializableOperationFailure {
+	public static final field Companion Lspace/kscience/krig/api/faults/SerializableOperationFailure$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ZLspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/krig/api/faults/SerializableOperationFailure;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ZLspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/krig/api/faults/SerializableOperationFailure;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component5 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component6 ()Z
+	public final fun component7 ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun component8 ()Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ZLspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/krig/api/faults/SerializableOperationFailure;)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/SerializableOperationFailure;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ZLspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/krig/api/faults/SerializableOperationFailure;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCause ()Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public final fun getDetails ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public final fun getMessage ()Ljava/lang/String;
+	public final fun getRetryable ()Z
+	public final fun getStackTrace ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/SerializableOperationFailure$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/SerializableOperationFailure$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/SerializableOperationFailure;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/SerializableOperationFailure$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/TimeoutFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/TimeoutFault$Companion;
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/TimeoutFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/TimeoutFault;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/TimeoutFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/TimeoutFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/TimeoutFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/TimeoutFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/TimeoutFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/TimeoutFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/TransportFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/TransportFault$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/TransportFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/TransportFault;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/TransportFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCauseType ()Ljava/lang/String;
+	public final fun getDetails ()Lspace/kscience/dataforge/meta/Meta;
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/TransportFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/TransportFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/TransportFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/TransportFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/TransportFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/ValidationFault : space/kscience/krig/api/faults/OperationFault {
+	public static final field Companion Lspace/kscience/krig/api/faults/ValidationFault$Companion;
+	public fun <init> (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/ValidationFault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/ValidationFault;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/ValidationFault;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDetails ()Lspace/kscience/dataforge/meta/Meta;
+	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
+	public fun getMessage ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/faults/ValidationFault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/ValidationFault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/faults/ValidationFault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/faults/ValidationFault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/faults/ValidationFault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/api/result/OperationOutcome {
+	public static final field Companion Lspace/kscience/krig/api/result/OperationOutcome$Companion;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcome$Companion {
+	public final fun getOkUnit ()Lspace/kscience/krig/api/result/OperationOutcome$Ok;
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcome$Fail : space/kscience/krig/api/result/OperationOutcome {
+	public static final field Companion Lspace/kscience/krig/api/result/OperationOutcome$Fail$Companion;
+	public fun <init> (Lspace/kscience/krig/api/faults/OperationFault;)V
+	public final fun component1 ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun copy (Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/result/OperationOutcome$Fail;Lspace/kscience/krig/api/faults/OperationFault;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/result/OperationOutcome$Fail$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/result/OperationOutcome$Fail$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/result/OperationOutcome$Fail;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcome$Fail$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcome$Ok : space/kscience/krig/api/result/OperationOutcome {
+	public static final field Companion Lspace/kscience/krig/api/result/OperationOutcome$Ok$Companion;
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome$Ok;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/result/OperationOutcome$Ok;Ljava/lang/Object;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome$Ok;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/result/OperationOutcome$Ok$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/result/OperationOutcome$Ok;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/result/OperationOutcome$Ok;)V
+	public final fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcome$Ok$Companion {
+	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/result/OperationOutcomeKt {
+	public static final fun fail (Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun faultOrNull (Lspace/kscience/krig/api/result/OperationOutcome;)Lspace/kscience/krig/api/faults/OperationFault;
+	public static final fun flatMap (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun flatMapSuspend (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun fold (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun getOrElse (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun getOrNull (Lspace/kscience/krig/api/result/OperationOutcome;)Ljava/lang/Object;
+	public static final fun getOrThrow (Lspace/kscience/krig/api/result/OperationOutcome;)Ljava/lang/Object;
+	public static final fun getOutcomeFailureJson ()Lkotlinx/serialization/json/Json;
+	public static final fun isFail (Lspace/kscience/krig/api/result/OperationOutcome;)Z
+	public static final fun isOk (Lspace/kscience/krig/api/result/OperationOutcome;)Z
+	public static final fun map (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun mapFault (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun mapSuspend (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun ok (Ljava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun okUnit ()Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun onFailure (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun onSuccess (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun recover (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public static final fun runCatchingOperation (Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun then (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun toOutcome (Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/api/result/OperationOutcome;
+}
+
+public final class space/kscience/krig/core/operations/ResourceLockRegistry {
+	public fun <init> ()V
+}
+
+public final class space/kscience/krig/core/pipeline/OperationContext {
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/OperationDescriptor;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/OperationDescriptor;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/OperationDescriptor;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy-nDrW_40 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/OperationDescriptor;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/pipeline/OperationContext;
+	public static synthetic fun copy-nDrW_40$default (Lspace/kscience/krig/core/pipeline/OperationContext;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/OperationDescriptor;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDescriptor ()Lspace/kscience/krig/api/descriptors/OperationDescriptor;
+	public final fun getHostName ()Lspace/kscience/dataforge/names/Name;
+	public final fun getKind-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/OperationGate {
+	public abstract fun check (Lspace/kscience/krig/core/pipeline/OperationContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationKind {
+	public static final synthetic fun box-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/pipeline/OperationKind;
+	public static fun constructor-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Z
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lspace/kscience/dataforge/names/Name;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lspace/kscience/dataforge/names/Name;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationKinds {
+	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/OperationKinds;
+	public final fun getAction-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+	public final fun getPoll-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+	public final fun getRead-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+	public final fun getWrite-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/OperationObserver {
+	public abstract fun observe (Lspace/kscience/krig/core/pipeline/OperationContext;JLspace/kscience/krig/api/faults/OperationFault;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
+	public static final field Companion Lspace/kscience/krig/core/pipeline/OperationPipelineSpec$Companion;
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3-FghU774 ()Lkotlin/time/Duration;
+	public final fun component4 ()Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
+	public final fun component5-FghU774 ()Lkotlin/time/Duration;
+	public final fun copy-DlrPkwI (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public static synthetic fun copy-DlrPkwI$default (Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDefaultLatencyBudget-FghU774 ()Lkotlin/time/Duration;
+	public final fun getDefaultRetry ()Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
+	public final fun getDefaultTimeout-FghU774 ()Lkotlin/time/Duration;
+	public final fun getGates ()Ljava/util/List;
+	public final fun getObservers ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationPipelineSpec$Companion {
+	public final fun getEmpty ()Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+}
+
+public final class space/kscience/krig/core/pipeline/Pipeline {
+	public fun <init> ()V
+	public final fun build (Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
+	public final fun prepend (Lkotlin/jvm/functions/Function3;)V
+}
+

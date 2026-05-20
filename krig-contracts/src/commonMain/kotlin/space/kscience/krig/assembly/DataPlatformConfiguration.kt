@@ -3,7 +3,6 @@
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import space.kscience.krig.api.identifiers.BlueprintId
 import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
@@ -159,7 +158,7 @@ public fun Context.resolveBlueprints(
     val missing = mutableListOf<String>()
     val resolved = buildMap {
         config.sources.forEach { spec ->
-            val bp = plugin[BlueprintId(spec.blueprintId)]
+            val bp = plugin[spec.blueprintId.parseAsName()]
             if (bp == null) missing += spec.blueprintId else put(spec.id, bp)
         }
     }

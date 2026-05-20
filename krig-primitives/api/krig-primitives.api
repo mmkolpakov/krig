@@ -1,7 +1,7 @@
 public final class space/kscience/krig/core/capabilities/InMemoryMetadataCapability : space/kscience/krig/api/data/Snapshotting, space/kscience/krig/core/capabilities/MetadataCapability {
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;Ljava/util/Set;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun captureSnapshot ()Ljava/lang/Object;
 	public fun captureSnapshot ()Lspace/kscience/krig/core/capabilities/MetadataSnapshot;
 	public fun getDescription ()Ljava/lang/String;
@@ -9,25 +9,21 @@ public final class space/kscience/krig/core/capabilities/InMemoryMetadataCapabil
 	public fun getSnapshotSerializer ()Lkotlinx/serialization/KSerializer;
 	public synthetic fun getState ()Ljava/lang/Object;
 	public fun getState ()Lkotlin/Unit;
-	public fun getTags ()Ljava/util/Set;
-	public fun onAttach (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun onDetach (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun onAttach (Lspace/kscience/krig/core/contracts/CapabilityHost;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun onDetach (Lspace/kscience/krig/core/contracts/CapabilityHost;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public synthetic fun restoreSnapshot (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun restoreSnapshot (Lspace/kscience/krig/core/capabilities/MetadataSnapshot;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun updateDescription (Ljava/lang/String;)V
-	public final fun updateTags (Ljava/util/Set;)V
 }
 
 public final class space/kscience/krig/core/capabilities/MetadataSnapshot {
 	public static final field Companion Lspace/kscience/krig/core/capabilities/MetadataSnapshot$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/Set;)V
+	public fun <init> (Ljava/lang/String;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/Set;
-	public final fun copy (Ljava/lang/String;Ljava/util/Set;)Lspace/kscience/krig/core/capabilities/MetadataSnapshot;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/capabilities/MetadataSnapshot;Ljava/lang/String;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/core/capabilities/MetadataSnapshot;
+	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/core/capabilities/MetadataSnapshot;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/capabilities/MetadataSnapshot;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/capabilities/MetadataSnapshot;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDescription ()Ljava/lang/String;
-	public final fun getTags ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

@@ -1,9 +1,8 @@
-﻿package space.kscience.krig.api.factory
+package space.kscience.krig.api.factory
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.features.DeviceFeatureSpec
-import space.kscience.krig.api.identifiers.BlueprintId
+import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.api.utils.unit
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBlueprint
@@ -13,6 +12,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.misc.DfType
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.parseAsName
 
 /**
  * A [DeviceBlueprint] that constructs its own device. Typed [C] config, DataForge
@@ -21,7 +21,7 @@ import space.kscience.dataforge.names.Name
  *
  * ```kotlin
  * public object ThermoFactory : DeviceFactory<Device, ThermoConfig>(
- *     id = BlueprintId("thermo"),
+ *     id = "thermo".parseAsName(),
  *     configConverter = MetaConverter.serializable(),
  * ) {
  *     override fun create(context: Context, config: ThermoConfig): Device =
@@ -31,14 +31,14 @@ import space.kscience.dataforge.names.Name
  */
 @DfType(DeviceFactory.TYPE)
 public abstract class DeviceFactory<D : Device, C>(
-    override val id: BlueprintId,
+    override val id: Name,
     public val configConverter: MetaConverter<C>,
 ) : DeviceBlueprint<D>, Factory<D> {
 
     // --- Sensible DeviceBlueprint defaults — subclasses override as needed ---
 
     override val version: String get() = "0.1.0"
-    override val features: Map<String, DeviceFeatureSpec> get() = emptyMap()
+    override val features: Map<Name, FeatureSpec> get() = emptyMap()
     override val properties: Map<Name, PropertyDescriptor> get() = emptyMap()
     override val actions: Map<Name, ActionDescriptor> get() = emptyMap()
     override val meta: Meta get() = Meta.EMPTY
@@ -59,19 +59,30 @@ public abstract class DeviceFactory<D : Device, C>(
     }
 }
 
-/** Inline builder for a typed [DeviceFactory] without subclassing. */
+/** Builder for a typed [DeviceFactory] without subclassing. */
 public fun <D : Device, C> DeviceFactory(
-    id: BlueprintId,
+    id: Name,
     configConverter: MetaConverter<C>,
     create: (Context, C) -> D,
 ): DeviceFactory<D, C> = object : DeviceFactory<D, C>(id, configConverter) {
     override fun create(context: Context, config: C): D = create(context, config)
 }
 
+public fun <D : Device, C> DeviceFactory(
+    id: String,
+    configConverter: MetaConverter<C>,
+    create: (Context, C) -> D,
+): DeviceFactory<D, C> = DeviceFactory(id.parseAsName(), configConverter, create)
+
 /** No-config overload for `DeviceFactory<D, Unit>`. */
 public fun <D : Device> DeviceFactory(
-    id: BlueprintId,
+    id: Name,
     create: (Context) -> D,
 ): DeviceFactory<D, Unit> = object : DeviceFactory<D, Unit>(id, MetaConverter.unit) {
     override fun create(context: Context, config: Unit): D = create(context)
 }
+
+public fun <D : Device> DeviceFactory(
+    id: String,
+    create: (Context) -> D,
+): DeviceFactory<D, Unit> = DeviceFactory(id.parseAsName(), create)

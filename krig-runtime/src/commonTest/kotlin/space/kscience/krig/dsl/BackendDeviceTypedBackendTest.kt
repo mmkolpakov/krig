@@ -20,17 +20,17 @@ import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.contracts.typed.GenericTypedWriter
-import space.kscience.krig.core.contracts.typed.TypedBackend
+import space.kscience.krig.core.contracts.typed.backend
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
-import space.kscience.krig.core.contracts.typed.typedBackend
+import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertySpec
@@ -72,8 +72,8 @@ class BackendDeviceTypedBackendTest {
     }
 
     @Test
-    fun backendDeviceUsesTypedBackendSpecForMetaBoundaryValidation() = runTest {
-        val backend = typedBackend {
+    fun backendDeviceUsesBackendSpecForMetaBoundaryValidation() = runTest {
+        val backend = backend {
             reader(valueSpec) { 0.0 }
             writer(valueSpec) { }
         }
@@ -86,7 +86,7 @@ class BackendDeviceTypedBackendTest {
 
         val outcome = device.writePropertyOutcome(valueSpec.name, metaOf("bad"))
 
-        val failure = assertIs<DeviceOutcome.Fail>(outcome)
+        val failure = assertIs<OperationOutcome.Fail>(outcome)
         assertIs<ValidationFault>(failure.fault)
     }
 
@@ -96,21 +96,21 @@ class BackendDeviceTypedBackendTest {
         val never = CompletableDeferred<Unit>()
         val backend = object : DeviceBackend {
             context(device: DeviceEnvironment)
-            override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> {
+            override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
                 started.complete(Unit)
                 never.await()
-                return DeviceOutcome.Ok(Meta.EMPTY)
+                return OperationOutcome.Ok(Meta.EMPTY)
             }
 
             context(device: DeviceEnvironment)
-            override suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> =
+            override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
                 okUnit()
 
             context(device: DeviceEnvironment)
             override suspend fun execute(
                 action: space.kscience.krig.api.descriptors.ActionDescriptor,
                 argument: Meta?,
-            ): DeviceOutcome<Meta?> = DeviceOutcome.Ok(null)
+            ): OperationOutcome<Meta?> = OperationOutcome.Ok(null)
 
             override fun close() = Unit
         }
@@ -152,13 +152,13 @@ class BackendDeviceTypedBackendTest {
             }
 
         context(device: DeviceEnvironment)
-        override suspend fun read(property: PropertyDescriptor): DeviceOutcome<Meta> {
+        override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
             metaReads += 1
-            return DeviceOutcome.Ok(metaOf(-1.0))
+            return OperationOutcome.Ok(metaOf(-1.0))
         }
 
         context(device: DeviceEnvironment)
-        override suspend fun write(property: PropertyDescriptor, value: Meta): DeviceOutcome<Unit> {
+        override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
             metaWrites += 1
             return okUnit()
         }
@@ -167,7 +167,7 @@ class BackendDeviceTypedBackendTest {
         override suspend fun execute(
             action: space.kscience.krig.api.descriptors.ActionDescriptor,
             argument: Meta?,
-        ): DeviceOutcome<Meta?> = DeviceOutcome.Ok(null)
+        ): OperationOutcome<Meta?> = OperationOutcome.Ok(null)
 
         override fun close() = Unit
     }

@@ -26,7 +26,7 @@ public interface MutableDevicePropertyContract<T> : DevicePropertyContract<T>
  * Pure action contract: serializable [descriptor] plus typed boundary converters.
  *
  * Backends implement actions separately so the same contract can be reused across simulated,
- * inline, and external driver implementations.
+ * declarative, and external driver implementations.
  */
 public interface DeviceActionContract<I, O> {
     public val name: Name

@@ -2,7 +2,7 @@ package space.kscience.krig.demo
 
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.toJson
-import space.kscience.krig.api.result.DeviceOutcome
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.read
@@ -32,8 +32,8 @@ suspend fun metaInteropDemo() {
     println("    rpm: ${pump.read(PumpSpec.rpm)}")
 
     when (val rejected = pump.writePropertyOutcome(PumpSpec.rpm.name, metaOf("fast"))) {
-        is DeviceOutcome.Ok -> println("  unexpected invalid Meta write success")
-        is DeviceOutcome.Fail -> println("  invalid Meta rejected: ${rejected.fault.code}")
+        is OperationOutcome.Ok -> println("  unexpected invalid Meta write success")
+        is OperationOutcome.Fail -> println("  invalid Meta rejected: ${rejected.fault.faultType}")
     }
 
     pump.close()

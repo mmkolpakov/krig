@@ -105,22 +105,22 @@ public final class space/kscience/krig/api/hub/HubEvent$Replaced$Companion {
 
 public final class space/kscience/krig/api/messages/ActionFaultMessage : space/kscience/krig/api/messages/ResponseMessage {
 	public static final field Companion Lspace/kscience/krig/api/messages/ActionFaultMessage$Companion;
-	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
-	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/ActionFaultMessage;
 	public synthetic fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceMessage;
 	public final fun component1 ()Lkotlin/time/Instant;
-	public final fun component2 ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun component2 ()Lspace/kscience/krig/api/faults/OperationFault;
 	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/ActionFaultMessage;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/ActionFaultMessage;Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/ActionFaultMessage;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/ActionFaultMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/ActionFaultMessage;Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/ActionFaultMessage;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCorrelationId ()Ljava/lang/String;
-	public final fun getFault ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
 	public fun getHlcTimestamp ()Lspace/kscience/krig/core/operations/HlcTimestamp;
 	public fun getMessageType ()Ljava/lang/String;
 	public fun getRequestId ()Ljava/lang/String;
@@ -244,22 +244,22 @@ public final class space/kscience/krig/api/messages/ActionResponseMessage$Compan
 
 public final class space/kscience/krig/api/messages/DeviceAttachedMessage : space/kscience/krig/api/messages/DeviceMessage {
 	public static final field Companion Lspace/kscience/krig/api/messages/DeviceAttachedMessage$Companion;
-	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceAttachedMessage;
 	public synthetic fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceMessage;
 	public final fun component1 ()Lkotlin/time/Instant;
 	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component3-4t-D6Yo ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component5 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ljava/lang/String;
 	public final fun component8 ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun copy-_rZihxs (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceAttachedMessage;
-	public static synthetic fun copy-_rZihxs$default (Lspace/kscience/krig/api/messages/DeviceAttachedMessage;Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceAttachedMessage;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceAttachedMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/DeviceAttachedMessage;Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceAttachedMessage;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBlueprintId-4t-D6Yo ()Ljava/lang/String;
+	public final fun getBlueprintId ()Lspace/kscience/dataforge/names/Name;
 	public fun getCorrelationId ()Ljava/lang/String;
 	public final fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
 	public fun getHlcTimestamp ()Lspace/kscience/krig/core/operations/HlcTimestamp;
@@ -461,22 +461,22 @@ public final class space/kscience/krig/api/messages/DeviceDetachedMessage$Compan
 
 public final class space/kscience/krig/api/messages/DeviceErrorMessage : space/kscience/krig/api/messages/DeviceMessage {
 	public static final field Companion Lspace/kscience/krig/api/messages/DeviceErrorMessage$Companion;
-	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableDeviceFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
-	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableDeviceFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableOperationFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableOperationFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceErrorMessage;
 	public synthetic fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceMessage;
 	public final fun component1 ()Lkotlin/time/Instant;
-	public final fun component2 ()Lspace/kscience/krig/api/faults/SerializableDeviceFailure;
+	public final fun component2 ()Lspace/kscience/krig/api/faults/SerializableOperationFailure;
 	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableDeviceFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceErrorMessage;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/DeviceErrorMessage;Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableDeviceFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceErrorMessage;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableOperationFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceErrorMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/DeviceErrorMessage;Lkotlin/time/Instant;Lspace/kscience/krig/api/faults/SerializableOperationFailure;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceErrorMessage;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCorrelationId ()Ljava/lang/String;
-	public final fun getFailure ()Lspace/kscience/krig/api/faults/SerializableDeviceFailure;
+	public final fun getFailure ()Lspace/kscience/krig/api/faults/SerializableOperationFailure;
 	public fun getHlcTimestamp ()Lspace/kscience/krig/core/operations/HlcTimestamp;
 	public fun getMessageType ()Ljava/lang/String;
 	public fun getRequestId ()Ljava/lang/String;
@@ -590,12 +590,12 @@ public final class space/kscience/krig/api/messages/DeviceOfflineMessage$Compani
 
 public final class space/kscience/krig/api/messages/DeviceOnlineMessage : space/kscience/krig/api/messages/DeviceMessage {
 	public static final field Companion Lspace/kscience/krig/api/messages/DeviceOnlineMessage$Companion;
-	public synthetic fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceMessage;
 	public fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceOnlineMessage;
 	public final fun component1 ()Lkotlin/time/Instant;
-	public final fun component2-4t-D6Yo ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component3 ()Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;
 	public final fun component4 ()Ljava/util/Map;
 	public final fun component5 ()Lspace/kscience/dataforge/names/Name;
@@ -603,10 +603,10 @@ public final class space/kscience/krig/api/messages/DeviceOnlineMessage : space/
 	public final fun component7 ()Ljava/lang/String;
 	public final fun component8 ()Ljava/lang/String;
 	public final fun component9 ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun copy-hngQrzQ (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceOnlineMessage;
-	public static synthetic fun copy-hngQrzQ$default (Lspace/kscience/krig/api/messages/DeviceOnlineMessage;Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceOnlineMessage;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/DeviceOnlineMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/DeviceOnlineMessage;Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/DeviceOnlineMessage;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBlueprintId-4t-D6Yo ()Ljava/lang/String;
+	public final fun getBlueprintId ()Lspace/kscience/dataforge/names/Name;
 	public fun getCorrelationId ()Ljava/lang/String;
 	public final fun getDescriptorSnapshot ()Lspace/kscience/krig/api/messages/DeviceDescriptorSnapshot;
 	public fun getHlcTimestamp ()Lspace/kscience/krig/core/operations/HlcTimestamp;
@@ -688,23 +688,23 @@ public final class space/kscience/krig/api/messages/PropertyChangedMessage$Compa
 
 public final class space/kscience/krig/api/messages/PropertyFaultMessage : space/kscience/krig/api/messages/ResponseMessage {
 	public static final field Companion Lspace/kscience/krig/api/messages/PropertyFaultMessage$Companion;
-	public fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
-	public synthetic fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/DeviceMessage;
 	public fun changeSource (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/messages/PropertyFaultMessage;
 	public final fun component1 ()Lkotlin/time/Instant;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun component3 ()Lspace/kscience/krig/api/faults/OperationFault;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component5 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ljava/lang/String;
 	public final fun component8 ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun copy (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/PropertyFaultMessage;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/PropertyFaultMessage;Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/DeviceFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/PropertyFaultMessage;
+	public final fun copy (Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/api/messages/PropertyFaultMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/messages/PropertyFaultMessage;Lkotlin/time/Instant;Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/operations/HlcTimestamp;ILjava/lang/Object;)Lspace/kscience/krig/api/messages/PropertyFaultMessage;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getCorrelationId ()Ljava/lang/String;
-	public final fun getFault ()Lspace/kscience/krig/api/faults/DeviceFault;
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
 	public fun getHlcTimestamp ()Lspace/kscience/krig/core/operations/HlcTimestamp;
 	public fun getMessageType ()Ljava/lang/String;
 	public final fun getProperty ()Ljava/lang/String;
@@ -965,32 +965,5 @@ public abstract interface class space/kscience/krig/api/serialization/Serializat
 
 public final class space/kscience/krig/api/serialization/SerializationContributor$DefaultImpls {
 	public static fun getSerializersModule (Lspace/kscience/krig/api/serialization/SerializationContributor;)Lkotlinx/serialization/modules/SerializersModule;
-}
-
-public final class space/kscience/krig/api/serialization/UnknownMemberTag : space/kscience/krig/api/meta/MemberTag {
-	public static final field Companion Lspace/kscience/krig/api/serialization/UnknownMemberTag$Companion;
-	public fun <init> (Ljava/lang/String;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/api/serialization/UnknownMemberTag;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/serialization/UnknownMemberTag;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/api/serialization/UnknownMemberTag;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getType ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/serialization/UnknownMemberTag$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/serialization/UnknownMemberTag$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/serialization/UnknownMemberTag;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/serialization/UnknownMemberTag;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/serialization/UnknownMemberTag$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

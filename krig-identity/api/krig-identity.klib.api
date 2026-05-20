@@ -224,27 +224,8 @@ final class space.kscience.krig.api.context/SimplePrincipal : space.kscience.kri
     }
 }
 
-final value class space.kscience.krig.api.identifiers/BlueprintId { // space.kscience.krig.api.identifiers/BlueprintId|null[0]
-    constructor <init>(kotlin/String) // space.kscience.krig.api.identifiers/BlueprintId.<init>|<init>(kotlin.String){}[0]
-
-    final val value // space.kscience.krig.api.identifiers/BlueprintId.value|{}value[0]
-        final fun <get-value>(): kotlin/String // space.kscience.krig.api.identifiers/BlueprintId.value.<get-value>|<get-value>(){}[0]
-
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.identifiers/BlueprintId.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.identifiers/BlueprintId.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.identifiers/BlueprintId.toString|toString(){}[0]
-
-    final object Companion { // space.kscience.krig.api.identifiers/BlueprintId.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.identifiers/BlueprintId> // space.kscience.krig.api.identifiers/BlueprintId.Companion.serializer|serializer(){}[0]
-    }
-
-    final object Serializer : kotlinx.serialization/KSerializer<space.kscience.krig.api.identifiers/BlueprintId> { // space.kscience.krig.api.identifiers/BlueprintId.Serializer|null[0]
-        final val descriptor // space.kscience.krig.api.identifiers/BlueprintId.Serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.identifiers/BlueprintId.Serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.identifiers/BlueprintId // space.kscience.krig.api.identifiers/BlueprintId.Serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.identifiers/BlueprintId) // space.kscience.krig.api.identifiers/BlueprintId.Serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.identifiers.BlueprintId){}[0]
-    }
+final class space.kscience.krig.api.services/AuthorizationException : kotlin/RuntimeException { // space.kscience.krig.api.services/AuthorizationException|null[0]
+    constructor <init>(kotlin/String, kotlin/Throwable? = ...) // space.kscience.krig.api.services/AuthorizationException.<init>|<init>(kotlin.String;kotlin.Throwable?){}[0]
 }
 
 final value class space.kscience.krig.api.identifiers/CorrelationId : kotlin.coroutines/CoroutineContext.Element { // space.kscience.krig.api.identifiers/CorrelationId|null[0]
@@ -310,5 +291,4 @@ final val space.kscience.krig.api.services/auditService // space.kscience.krig.a
 final val space.kscience.krig.api.services/authorizationService // space.kscience.krig.api.services/authorizationService|@space.kscience.dataforge.context.Context{}authorizationService[0]
     final fun (space.kscience.dataforge.context/Context).<get-authorizationService>(): space.kscience.krig.api.services/AuthorizationService // space.kscience.krig.api.services/authorizationService.<get-authorizationService>|<get-authorizationService>@space.kscience.dataforge.context.Context(){}[0]
 
-final fun (kotlin/String).space.kscience.krig.api.identifiers/toBlueprintId(): space.kscience.krig.api.identifiers/BlueprintId // space.kscience.krig.api.identifiers/toBlueprintId|toBlueprintId@kotlin.String(){}[0]
 final fun space.kscience.krig.api.context/executionContextOf(space.kscience.krig.api.context/ExecutionContext): kotlin.coroutines/CoroutineContext // space.kscience.krig.api.context/executionContextOf|executionContextOf(space.kscience.krig.api.context.ExecutionContext){}[0]

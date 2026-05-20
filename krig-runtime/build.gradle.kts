@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Runtime composition: PipelinedDevice, Read/Write/Action pipeline, " +
+description = "Runtime composition: PipelineDevice, device pipeline adapters, " +
         "HybridLogicalClock, DeviceBuilder DSL, BackendDevice."
 
 kotlin {
@@ -11,6 +11,7 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":krig-contracts"))
+                api(project(":krig-operation"))
                 api(project(":krig-primitives"))
                 implementation(libs.arrow.core)
                 implementation(libs.kotlinx.collections.immutable)
