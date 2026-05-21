@@ -14,6 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
@@ -81,7 +82,7 @@ class HlcStampingE2ETest {
      * the replay-0 data plane never races. Inside `runTest`'s deterministic
      * dispatcher this is reliable.
      */
-    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): DeviceMessage =
+    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): MessageEnvelope<DeviceMessage> =
         coroutineScope {
             val awaited = async(start = CoroutineStart.UNDISPATCHED) {
                 device.dataFlow.first()
@@ -93,11 +94,12 @@ class HlcStampingE2ETest {
     @Test
     fun emittedMessageHasNullHlcStampWhenRuntimeHasNoHlc() = runTest {
         val device = StampedTestDevice("d", DeviceRuntime(freshContext()))
-        val msg = collectFirstFromDataFlow(device)
+        val envelope = collectFirstFromDataFlow(device)
+        val msg = envelope.payload
         assertTrue(msg is PropertyChangedMessage)
         assertNull(
-            msg.hlcTimestamp,
-            "When runtime.hlc is null the emit() helper must leave hlcTimestamp as null.",
+            envelope.context.hlcTimestamp,
+            "When runtime.hlc is null the emit() helper must leave envelope HLC context as null.",
         )
     }
 
@@ -106,22 +108,26 @@ class HlcStampingE2ETest {
         val hlc = HybridLogicalClock(ScriptedClock(listOf(1_000, 1_000, 2_000)))
         val device = StampedTestDevice("d", DeviceRuntime(freshContext(), hlc = hlc))
 
-        val first = collectFirstFromDataFlow(device)
+        val firstEnvelope = collectFirstFromDataFlow(device)
+        val first = firstEnvelope.payload
         assertTrue(first is PropertyChangedMessage)
-        val firstStamp = assertNotNull(first.hlcTimestamp, "HLC was configured; stamp must be present.")
+        val firstStamp = assertNotNull(firstEnvelope.context.hlcTimestamp, "HLC was configured; stamp must be present.")
         // First tick at physical=1000 -> (1000, 0).
         assertEquals(1_000L, firstStamp.physicalMilliseconds)
         assertEquals(0, firstStamp.logicalCounter)
 
-        val second = collectFirstFromDataFlow(device)
+        val secondEnvelope = collectFirstFromDataFlow(device)
+        val second = secondEnvelope.payload
         assertTrue(second is PropertyChangedMessage)
-        val secondStamp = assertNotNull(second.hlcTimestamp)
+        val secondStamp = assertNotNull(secondEnvelope.context.hlcTimestamp)
         // Same physical ms -> logical counter advances.
         assertEquals(1_000L, secondStamp.physicalMilliseconds)
         assertEquals(1, secondStamp.logicalCounter)
 
-        val third = collectFirstFromDataFlow(device) as PropertyChangedMessage
-        val thirdStamp = assertNotNull(third.hlcTimestamp)
+        val thirdEnvelope = collectFirstFromDataFlow(device)
+        val third = thirdEnvelope.payload
+        assertTrue(third is PropertyChangedMessage)
+        val thirdStamp = assertNotNull(thirdEnvelope.context.hlcTimestamp)
         // Physical advances -> logical resets.
         assertEquals(2_000L, thirdStamp.physicalMilliseconds)
         assertEquals(0, thirdStamp.logicalCounter)
@@ -136,8 +142,9 @@ class HlcStampingE2ETest {
 
         val stamps = mutableListOf<HlcTimestamp>()
         repeat(5) {
-            val msg = collectFirstFromDataFlow(device) as PropertyChangedMessage
-            stamps += assertNotNull(msg.hlcTimestamp)
+            val envelope = collectFirstFromDataFlow(device)
+            assertTrue(envelope.payload is PropertyChangedMessage)
+            stamps += assertNotNull(envelope.context.hlcTimestamp)
         }
         for (i in 1 until stamps.size) {
             assertTrue(

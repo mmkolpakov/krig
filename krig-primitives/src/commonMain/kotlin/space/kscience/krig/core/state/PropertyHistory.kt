@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.takeWhile
 import space.kscience.krig.api.data.Timestamped
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.meta.MetaConverter
@@ -90,7 +92,7 @@ public fun <T> Device.propertyHistory(
     maxSize: Int = DEFAULT_PROPERTY_HISTORY_MAX_SIZE,
     started: SharingStarted = SharingStarted.Eagerly,
 ): PropertyHistory<T> = CollectedPropertyHistory(
-    deviceScope, messageFlow, name, property, converter, maxSize, started,
+    deviceScope, messageFlow.payloads(), name, property, converter, maxSize, started,
 )
 
 /** String-name overload of [Device.propertyHistory]. */
@@ -113,6 +115,19 @@ public fun <T> collectPropertyHistory(
     started: SharingStarted = SharingStarted.Eagerly,
 ): PropertyHistory<T> = CollectedPropertyHistory(
     scope, messages, deviceName, propertyName, converter, maxSize, started,
+)
+
+/** Envelope-flow variant preserving the device/runtime context for upstream collectors. */
+public fun <T> collectEnvelopePropertyHistory(
+    scope: CoroutineScope,
+    messages: Flow<MessageEnvelope<DeviceMessage>>,
+    deviceName: Name,
+    propertyName: Name,
+    converter: MetaConverter<T>,
+    maxSize: Int = DEFAULT_PROPERTY_HISTORY_MAX_SIZE,
+    started: SharingStarted = SharingStarted.Eagerly,
+): PropertyHistory<T> = CollectedPropertyHistory(
+    scope, messages.payloads(), deviceName, propertyName, converter, maxSize, started,
 )
 
 /** String-name overload of [collectPropertyHistory]. */

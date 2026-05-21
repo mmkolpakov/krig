@@ -86,6 +86,7 @@ val thermo = device("thermo") {
 | Model | `krig-model` | Descriptors, feature specs, expressions, retry policy |
 | Operation | `krig-operation` | `OperationOutcome`, faults, QoS pipeline, gates, observers, locks |
 | Messaging | `krig-messaging` | Device messages and serialization |
+| Storage | `krig-storage` | Event journals, typed time-series samples/chunks, storage profiles |
 | Contracts | `krig-contracts` | Device, backend, blueprint, typed access, samplers, HLC |
 | Runtime | `krig-runtime` | DSL, operation pipeline assembly, gates, observers, dynamic groups |
 | Primitives | `krig-primitives` | State, storage, event log, time travel, expressions, peer transport |
@@ -134,6 +135,12 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 | Expressions | [`ExpressionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExpressionDemo.kt) | Expression tree compiled into reactive device state |
 | Device scripting DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Declarative properties, computed same-device reads, property history |
 | Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | local `%use @file[krig.json]`, device DSL, history, hub, timeline, simulation, storage |
+
+## Benchmarks
+
+| Bench | Module | Shows |
+|---|---|---|
+| Storage and data plane | [`krig-benchmarks`](krig-benchmarks) | controls-kt storage reference beside krig storage, sampler, and pipeline benchmark profiles |
 
 ## Documentation
 

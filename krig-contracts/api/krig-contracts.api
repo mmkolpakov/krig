@@ -101,6 +101,7 @@ public final class space/kscience/krig/api/hub/DynamicHub$DefaultImpls {
 	public static fun getDefaultChainTarget (Lspace/kscience/krig/api/hub/DynamicHub;)Ljava/lang/String;
 	public static fun getDefaultTarget (Lspace/kscience/krig/api/hub/DynamicHub;)Ljava/lang/String;
 	public static fun getMessageFlow (Lspace/kscience/krig/api/hub/DynamicHub;)Lkotlinx/coroutines/flow/Flow;
+	public static fun getMessagePayloadFlow (Lspace/kscience/krig/api/hub/DynamicHub;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/api/hub/DynamicHub;)Lkotlin/time/TimeSource;
 	public static fun propertySpec (Lspace/kscience/krig/api/hub/DynamicHub;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static fun readPropertyOutcome (Lspace/kscience/krig/api/hub/DynamicHub;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -671,6 +672,7 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
 	public fun getLifecycleStateFlow ()Lkotlinx/coroutines/flow/StateFlow;
 	public fun getMessageFlow ()Lkotlinx/coroutines/flow/Flow;
+	public fun getMessagePayloadFlow ()Lkotlinx/coroutines/flow/Flow;
 	protected final fun getMessaging ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public fun getMeta ()Lspace/kscience/dataforge/meta/ObservableMeta;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
@@ -758,6 +760,7 @@ public abstract interface class space/kscience/krig/core/contracts/Device : java
 	public abstract fun getDeviceScope ()Lkotlinx/coroutines/CoroutineScope;
 	public abstract fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
 	public fun getMessageFlow ()Lkotlinx/coroutines/flow/Flow;
+	public fun getMessagePayloadFlow ()Lkotlinx/coroutines/flow/Flow;
 	public abstract fun getMeta ()Lspace/kscience/dataforge/meta/ObservableMeta;
 	public abstract fun getName ()Lspace/kscience/dataforge/names/Name;
 	public abstract fun getPropertyDescriptors ()Ljava/util/Map;
@@ -786,6 +789,7 @@ public final class space/kscience/krig/core/contracts/Device$DefaultImpls {
 	public static fun getDefaultChainTarget (Lspace/kscience/krig/core/contracts/Device;)Ljava/lang/String;
 	public static fun getDefaultTarget (Lspace/kscience/krig/core/contracts/Device;)Ljava/lang/String;
 	public static fun getMessageFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
+	public static fun getMessagePayloadFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/core/contracts/Device;)Lkotlin/time/TimeSource;
 	public static fun propertySpec (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static fun readPropertyOutcome (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -908,6 +912,7 @@ public final class space/kscience/krig/core/contracts/DeviceCoreKt {
 	public static final fun getPropertyNames (Lspace/kscience/krig/core/contracts/Device;)Ljava/util/Set;
 	public static final fun readProperty (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun subscribeFromContext (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun subscribePayloadsFromContext (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun writeProperty (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -962,7 +967,7 @@ public final class space/kscience/krig/core/contracts/DeviceMessaging {
 public final class space/kscience/krig/core/contracts/DeviceMessaging$Companion {
 	public final fun getDefault ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public final fun getSafetyCritical ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
-	public final fun getTelemetry ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
+	public final fun getStreaming ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceMessaging$Strategy : java/lang/Enum {

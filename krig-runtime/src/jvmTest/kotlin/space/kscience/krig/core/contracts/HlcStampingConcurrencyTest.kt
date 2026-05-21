@@ -97,7 +97,8 @@ class HlcStampingConcurrencyTest {
             assertEquals(total, messages.size, "every emit must reach the subscriber")
 
             val stamps: List<HlcTimestamp> = messages.map {
-                (it as PropertyChangedMessage).hlcTimestamp ?: error("HLC was configured but stamp missing")
+                require(it.payload is PropertyChangedMessage)
+                it.context.hlcTimestamp ?: error("HLC was configured but stamp missing")
             }
             for (i in 1 until stamps.size) {
                 assertTrue(

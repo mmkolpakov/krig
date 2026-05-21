@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlin.jvm.JvmInline
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.names.Name
@@ -92,7 +93,7 @@ private suspend fun ReceiveChannel<DeviceMessage>.receiveOrThrow(): DeviceMessag
  * For persistent sources, use [DeviceEventLog].
  */
 @OptIn(InternalKrigApi::class)
-public fun Device.timeline(): Timeline = Timeline(messageFlow)
+public fun Device.timeline(): Timeline = Timeline(messageFlow.payloads())
 
 /**
  * Replay-capable ordered source of [DeviceMessage]s for a single device.
@@ -152,7 +153,7 @@ public fun DeviceEventLog(messages: Flow<DeviceMessage>): DeviceEventLog =
  * Convenience: returns a [DeviceEventLog] that wraps this device's [Device.messageFlow].
  */
 @OptIn(InternalKrigApi::class)
-public fun Device.eventLog(): DeviceEventLog = DeviceEventLog(messageFlow)
+public fun Device.eventLog(): DeviceEventLog = DeviceEventLog(messageFlow.payloads())
 
 /**
  * **Digital-twin role marker.** A state object whose state is a pure fold of a message log:

@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.sample
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -41,7 +42,7 @@ public data class SubscribeOptions(
 public suspend fun Device.subscribe(
     principal: Principal,
     options: SubscribeOptions,
-): Flow<DeviceMessage> {
+): Flow<MessageEnvelope<DeviceMessage>> {
     val base = subscribe(principal)
     if (options === SubscribeOptions.Unthrottled) return base
 
@@ -53,7 +54,7 @@ public suspend fun Device.subscribe(
     }
     if (options.typeFilter.isNotEmpty()) {
         val allowed = options.typeFilter
-        shaped = shaped.filter { it::class.simpleName in allowed }
+        shaped = shaped.filter { it.payload::class.simpleName in allowed }
     }
     return shaped
 }

@@ -91,6 +91,7 @@ private suspend fun bindingState(
     }
 
     val state = messages
+        .map { it.payload }
         .filterIsInstance<PropertyChangedMessage>()
         .filter { it.property == propertyName }
         .mapNotNull { msg ->

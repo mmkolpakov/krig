@@ -18,7 +18,10 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.identifiers.ControlsPermissions
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.auditService
 import space.kscience.krig.api.services.authorizationService
@@ -80,27 +83,27 @@ public abstract class AbstractDevice(
 
     // --- Two-plane message flows ---
 
-    private val mutableControlFlow: MutableSharedFlow<DeviceMessage> = MutableSharedFlow(
+    private val mutableControlFlow: MutableSharedFlow<MessageEnvelope<DeviceMessage>> = MutableSharedFlow(
         replay = messaging.replay,
         extraBufferCapacity = messaging.controlBufferCapacity,
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
-    private val mutableDataFlow: MutableSharedFlow<DeviceMessage> = MutableSharedFlow(
+    private val mutableDataFlow: MutableSharedFlow<MessageEnvelope<DeviceMessage>> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = messaging.dataBufferCapacity,
         onBufferOverflow = messaging.toDataBufferOverflow(),
     )
 
-    final override val controlFlow: SharedFlow<DeviceMessage> = mutableControlFlow.asSharedFlow()
-    final override val dataFlow: SharedFlow<DeviceMessage> = mutableDataFlow.asSharedFlow()
+    final override val controlFlow: SharedFlow<MessageEnvelope<DeviceMessage>> = mutableControlFlow.asSharedFlow()
+    final override val dataFlow: SharedFlow<MessageEnvelope<DeviceMessage>> = mutableDataFlow.asSharedFlow()
 
-    private val controlMailbox: Channel<DeviceMessage> = Channel(
+    private val controlMailbox: Channel<MessageEnvelope<DeviceMessage>> = Channel(
         capacity = messaging.controlBufferCapacity,
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
-    private val dataMailbox: Channel<DeviceMessage> = Channel(
+    private val dataMailbox: Channel<MessageEnvelope<DeviceMessage>> = Channel(
         capacity = mailboxCapacity(messaging.dataBufferCapacity, messaging.toDataBufferOverflow()),
         onBufferOverflow = messaging.toDataBufferOverflow(),
     )
@@ -118,7 +121,12 @@ public abstract class AbstractDevice(
      */
     @InternalKrigApi
     protected suspend fun emit(message: DeviceMessage) {
-        mailboxFor(message).send(message)
+        emit(message.envelope())
+    }
+
+    @InternalKrigApi
+    protected suspend fun emit(envelope: MessageEnvelope<DeviceMessage>) {
+        mailboxFor(envelope).send(envelope)
     }
 
     /**
@@ -128,20 +136,27 @@ public abstract class AbstractDevice(
      */
     @InternalKrigApi
     protected fun tryEmit(message: DeviceMessage): Boolean {
-        return mailboxFor(message).trySend(message).isSuccess
+        return tryEmit(message.envelope())
+    }
+
+    @InternalKrigApi
+    protected fun tryEmit(envelope: MessageEnvelope<DeviceMessage>): Boolean {
+        return mailboxFor(envelope).trySend(envelope).isSuccess
     }
 
     private suspend fun pumpMessages(
-        mailbox: ReceiveChannel<DeviceMessage>,
-        target: MutableSharedFlow<DeviceMessage>,
+        mailbox: ReceiveChannel<MessageEnvelope<DeviceMessage>>,
+        target: MutableSharedFlow<MessageEnvelope<DeviceMessage>>,
     ) {
-        for (message in mailbox) {
-            val stamped = runtime.hlc?.let { message.withHlcStamp(it.tick()) } ?: message
+        for (envelope in mailbox) {
+            val stamped = runtime.hlc?.let { envelope.withHlcStamp(it.tick()) } ?: envelope
             target.emit(stamped)
         }
     }
 
-    private fun mailboxFor(message: DeviceMessage): Channel<DeviceMessage> = when (message) {
+    private fun mailboxFor(envelope: MessageEnvelope<DeviceMessage>): Channel<MessageEnvelope<DeviceMessage>> = when (
+        envelope.payload
+    ) {
         is PropertyChangedMessage -> dataMailbox
         else -> controlMailbox // errors, lifecycle, attach/detach, faults — never drop
     }
@@ -177,7 +192,7 @@ public abstract class AbstractDevice(
      * DROP_OLDEST so a slow external consumer drops its own messages instead of blocking
      * the hardware polling loop. For guaranteed delivery route through a persistent broker.
      */
-    override suspend fun subscribe(principal: Principal): Flow<DeviceMessage> {
+    override suspend fun subscribe(principal: Principal): Flow<MessageEnvelope<DeviceMessage>> {
         val permission = ControlsPermissions.deviceSubscribe(name.toString())
         context.authorizationService.checkPermission(principal, permission)
         if (context.auditService.isActive) {

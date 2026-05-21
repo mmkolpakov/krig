@@ -19,6 +19,7 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.SubscribeOptions
@@ -67,7 +68,7 @@ private class SamplerOnlyDevice : AbstractDevice(
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         if (spec === valueSpec) sampler as TypedSampler<T> else null
 
-    override suspend fun subscribe(principal: Principal): Flow<DeviceMessage> = messageFlow
+    override suspend fun subscribe(principal: Principal): Flow<MessageEnvelope<DeviceMessage>> = messageFlow
     override suspend fun readProperty(propertyName: Name): Meta = error("typedSamples must not call readProperty")
     override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
     override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null

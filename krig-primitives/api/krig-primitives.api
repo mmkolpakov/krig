@@ -310,6 +310,8 @@ public abstract interface class space/kscience/krig/core/state/PropertyHistory {
 }
 
 public final class space/kscience/krig/core/state/PropertyHistoryKt {
+	public static final fun collectEnvelopePropertyHistory (Lkotlinx/coroutines/CoroutineScope;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;ILkotlinx/coroutines/flow/SharingStarted;)Lspace/kscience/krig/core/state/PropertyHistory;
+	public static synthetic fun collectEnvelopePropertyHistory$default (Lkotlinx/coroutines/CoroutineScope;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;ILkotlinx/coroutines/flow/SharingStarted;ILjava/lang/Object;)Lspace/kscience/krig/core/state/PropertyHistory;
 	public static final fun collectPropertyHistory (Lkotlinx/coroutines/CoroutineScope;Lkotlinx/coroutines/flow/Flow;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;ILkotlinx/coroutines/flow/SharingStarted;)Lspace/kscience/krig/core/state/PropertyHistory;
 	public static final fun collectPropertyHistory (Lkotlinx/coroutines/CoroutineScope;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;ILkotlinx/coroutines/flow/SharingStarted;)Lspace/kscience/krig/core/state/PropertyHistory;
 	public static synthetic fun collectPropertyHistory$default (Lkotlinx/coroutines/CoroutineScope;Lkotlinx/coroutines/flow/Flow;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;ILkotlinx/coroutines/flow/SharingStarted;ILjava/lang/Object;)Lspace/kscience/krig/core/state/PropertyHistory;
@@ -339,7 +341,8 @@ public abstract interface class space/kscience/krig/core/storage/DeviceMessageSt
 	public abstract fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
-	public abstract fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun write (Lspace/kscience/krig/api/messages/MessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -347,12 +350,14 @@ public final class space/kscience/krig/core/storage/DeviceMessageStorage$Default
 	public static fun close (Lspace/kscience/krig/core/storage/DeviceMessageStorage;)V
 	public static fun observe (Lspace/kscience/krig/core/storage/DeviceMessageStorage;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static fun write (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun writeAll (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/storage/DeviceMessageStorageKt {
 	public static final fun messageTypeFor (Lkotlin/reflect/KClass;)Ljava/lang/String;
 	public static final fun propertyHistory (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;)Lspace/kscience/krig/core/state/PropertyHistory;
+	public static final fun writePayloads (Lspace/kscience/krig/core/storage/DeviceMessageStorage;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/storage/InMemoryDeviceMessageStorage : space/kscience/krig/core/storage/DeviceMessageStorage {
@@ -364,6 +369,7 @@ public final class space/kscience/krig/core/storage/InMemoryDeviceMessageStorage
 	public fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public fun readAll ()Lkotlinx/coroutines/flow/Flow;
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/MessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

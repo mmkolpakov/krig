@@ -18,12 +18,15 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.DeviceOfflineMessage
 import space.kscience.krig.api.messages.DeviceOnlineMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.api.messages.PropertyFaultMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.PropertyReadRequest
 import space.kscience.krig.api.messages.PropertyReadResponse
 import space.kscience.krig.api.messages.PropertyWriteRequest
 import space.kscience.krig.api.messages.PropertyWriteResponse
+import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.state.PropertyHistory
 import space.kscience.dataforge.meta.MetaConverter
@@ -32,19 +35,22 @@ import kotlin.reflect.KClass
 import kotlin.time.Instant
 
 /**
- * Persistent store for [DeviceMessage]s. Shape matches krig data-platform: one
+ * Persistent store for [DeviceMessage] envelopes. Shape matches krig data-platform: one
  * read/write surface indexed by time, source and target. Concurrent writers are safe;
  * [readAll]/[read] return cold flows; [observe] is a hot tail flow of new appends.
  */
 public interface DeviceMessageStorage : AutoCloseable {
     /** Appends [event]. */
-    public suspend fun write(event: DeviceMessage)
+    public suspend fun write(event: MessageEnvelope<DeviceMessage>)
+
+    /** Convenience payload overload; wraps [event] in an empty envelope context. */
+    public suspend fun write(event: DeviceMessage): Unit = write(event.envelope())
 
     /** Appends every element of [events] in the same unit of work when the backend supports it. */
-    public suspend fun writeAll(events: Iterable<DeviceMessage>): Unit = events.forEach { write(it) }
+    public suspend fun writeAll(events: Iterable<MessageEnvelope<DeviceMessage>>): Unit = events.forEach { write(it) }
 
     /** Replays every stored message. */
-    public fun readAll(): Flow<DeviceMessage>
+    public fun readAll(): Flow<MessageEnvelope<DeviceMessage>>
 
     /**
      * Replays messages whose [DeviceMessage.messageType] equals [eventType], matching
@@ -55,7 +61,7 @@ public interface DeviceMessageStorage : AutoCloseable {
         range: ClosedRange<Instant>? = null,
         sourceDevice: Name? = null,
         targetDevice: Name? = null,
-    ): Flow<DeviceMessage>
+    ): Flow<MessageEnvelope<DeviceMessage>>
 
     /**
      * Hot tail flow of new appends. Emits every subsequent [write] / [writeAll], never
@@ -64,10 +70,14 @@ public interface DeviceMessageStorage : AutoCloseable {
      * Default implementation returns an empty cold flow; concrete backends override to
      * expose their own event bus.
      */
-    public fun observe(): Flow<DeviceMessage> = emptyFlow()
+    public fun observe(): Flow<MessageEnvelope<DeviceMessage>> = emptyFlow()
 
     override fun close(): Unit = Unit
 }
+
+/** Payload batch helper; wraps each event in an empty envelope context. */
+public suspend fun DeviceMessageStorage.writePayloads(events: Iterable<DeviceMessage>): Unit =
+    writeAll(events.map { it.envelope() })
 
 /**
  * Typed [read] overload. Core DTOs use their explicit [DeviceMessage.messageType];
@@ -81,7 +91,7 @@ public inline fun <reified T : DeviceMessage> DeviceMessageStorage.read(
     targetDevice: Name? = null,
 ): Flow<T> {
     val eventType = messageTypeFor(T::class)
-    return read(eventType, range, sourceDevice, targetDevice).filterIsInstance<T>()
+    return read(eventType, range, sourceDevice, targetDevice).payloads().filterIsInstance<T>()
 }
 
 /** Typed [read] with an explicit storage discriminator for custom message DTOs. */
@@ -90,7 +100,7 @@ public inline fun <reified T : DeviceMessage> DeviceMessageStorage.readTyped(
     range: ClosedRange<Instant>? = null,
     sourceDevice: Name? = null,
     targetDevice: Name? = null,
-): Flow<T> = read(eventType, range, sourceDevice, targetDevice).filterIsInstance<T>()
+): Flow<T> = read(eventType, range, sourceDevice, targetDevice).payloads().filterIsInstance<T>()
 
 /** Built-in [DeviceMessage.messageType] for core DTO classes; `null` means no pre-filter. */
 @Suppress("SameParameterValue")
@@ -140,15 +150,15 @@ public class InMemoryDeviceMessageStorage(
     }
 
     private val lock = SynchronizedObject()
-    private val events: ArrayDeque<DeviceMessage> = ArrayDeque(minOf(capacity, 1024))
-    private val pendingTail: ArrayDeque<DeviceMessage> = ArrayDeque()
+    private val events: ArrayDeque<MessageEnvelope<DeviceMessage>> = ArrayDeque(minOf(capacity, 1024))
+    private val pendingTail: ArrayDeque<MessageEnvelope<DeviceMessage>> = ArrayDeque()
     private var tailDraining: Boolean = false
-    private val tail = MutableSharedFlow<DeviceMessage>(
+    private val tail = MutableSharedFlow<MessageEnvelope<DeviceMessage>>(
         extraBufferCapacity = tailBufferCapacity,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
-    public override suspend fun write(event: DeviceMessage) {
+    public override suspend fun write(event: MessageEnvelope<DeviceMessage>) {
         val shouldDrain = synchronized(lock) {
             appendBounded(event)
             enqueueTailLocked(event)
@@ -156,7 +166,7 @@ public class InMemoryDeviceMessageStorage(
         if (shouldDrain) drainTail()
     }
 
-    public override suspend fun writeAll(events: Iterable<DeviceMessage>) {
+    public override suspend fun writeAll(events: Iterable<MessageEnvelope<DeviceMessage>>) {
         // Snapshot the iterable up front — `addAll` would consume the iterator.
         val batch = events.toList()
         if (batch.isEmpty()) return
@@ -170,7 +180,7 @@ public class InMemoryDeviceMessageStorage(
         if (shouldDrain) drainTail()
     }
 
-    public override fun readAll(): Flow<DeviceMessage> =
+    public override fun readAll(): Flow<MessageEnvelope<DeviceMessage>> =
         snapshot().asFlow()
 
     public override fun read(
@@ -178,24 +188,24 @@ public class InMemoryDeviceMessageStorage(
         range: ClosedRange<Instant>?,
         sourceDevice: Name?,
         targetDevice: Name?,
-    ): Flow<DeviceMessage> = snapshot().asFlow()
-        .filter { eventType == null || it.messageType == eventType }
-        .filter { range == null || it.time in range }
-        .filter { sourceDevice == null || it.sourceDevice == sourceDevice }
-        .filter { targetDevice == null || it.targetDevice == targetDevice }
+    ): Flow<MessageEnvelope<DeviceMessage>> = snapshot().asFlow()
+        .filter { eventType == null || it.payload.messageType == eventType }
+        .filter { range == null || it.payload.time in range }
+        .filter { sourceDevice == null || it.payload.sourceDevice == sourceDevice }
+        .filter { targetDevice == null || it.payload.targetDevice == targetDevice }
 
-    public override fun observe(): Flow<DeviceMessage> = tail.asSharedFlow()
+    public override fun observe(): Flow<MessageEnvelope<DeviceMessage>> = tail.asSharedFlow()
 
-    private fun snapshot(): List<DeviceMessage> = synchronized(lock) { events.toList() }
+    private fun snapshot(): List<MessageEnvelope<DeviceMessage>> = synchronized(lock) { events.toList() }
 
-    private fun appendBounded(event: DeviceMessage) {
+    private fun appendBounded(event: MessageEnvelope<DeviceMessage>) {
         if (events.size >= capacity) {
             events.removeFirst()
         }
         events.addLast(event)
     }
 
-    private fun enqueueTailLocked(event: DeviceMessage): Boolean {
+    private fun enqueueTailLocked(event: MessageEnvelope<DeviceMessage>): Boolean {
         pendingTail.addLast(event)
         return startTailDrainLocked()
     }
@@ -206,7 +216,7 @@ public class InMemoryDeviceMessageStorage(
         return true
     }
 
-    private fun nextTailEventOrStop(): DeviceMessage? = synchronized(lock) {
+    private fun nextTailEventOrStop(): MessageEnvelope<DeviceMessage>? = synchronized(lock) {
         if (pendingTail.isEmpty()) {
             tailDraining = false
             null

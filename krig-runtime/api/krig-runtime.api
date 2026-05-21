@@ -278,6 +278,7 @@ public final class space/kscience/krig/core/pipeline/PipelineDevice : space/ksci
 	public fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
 	public fun getLifecycleStateFlow ()Lkotlinx/coroutines/flow/StateFlow;
 	public fun getMessageFlow ()Lkotlinx/coroutines/flow/Flow;
+	public fun getMessagePayloadFlow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getMeta ()Lspace/kscience/dataforge/meta/ObservableMeta;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
 	public fun getPropertyDescriptors ()Ljava/util/Map;

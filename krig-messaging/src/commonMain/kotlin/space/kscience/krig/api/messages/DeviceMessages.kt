@@ -7,7 +7,6 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.SerializableOperationFailure
-import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Instant
@@ -23,17 +22,12 @@ public data class PropertyChangedMessage(
     public val value: Meta,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String? = null,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
     public val quality: DataQuality? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.PropertyChanged
 
     override fun changeSource(block: (Name) -> Name): PropertyChangedMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyChangedMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -46,16 +40,11 @@ public data class DeviceErrorMessage(
     public val failure: SerializableOperationFailure,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String?,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceError
 
     override fun changeSource(block: (Name) -> Name): DeviceErrorMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): DeviceErrorMessage = copy(hlcTimestamp = stamp)
 }
 
 @Serializable
@@ -65,16 +54,11 @@ public data class ActionFaultMessage(
     public val fault: OperationFault,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.ActionFault
 
     override fun changeSource(block: (Name) -> Name): ActionFaultMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): ActionFaultMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -89,16 +73,11 @@ public data class DeviceAttachedMessage(
     public val blueprintId: Name,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String? = null,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceAttached
 
     override fun changeSource(block: (Name) -> Name): DeviceAttachedMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): DeviceAttachedMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -111,16 +90,11 @@ public data class DeviceDetachedMessage(
     public val deviceName: Name,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String? = null,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceDetached
 
     override fun changeSource(block: (Name) -> Name): DeviceDetachedMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): DeviceDetachedMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -136,21 +110,16 @@ public data class PropertyReadRequest(
     public val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.PropertyReadRequest
 
     override fun changeSource(block: (Name) -> Name): PropertyReadRequest =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyReadRequest = copy(hlcTimestamp = stamp)
 }
 
 /**
  * Successful response to [PropertyReadRequest]. Distinct from [PropertyChangedMessage]:
- * this answers a specific outstanding [requestId], not a state change.
+ * this answers a specific outstanding request envelope, not a state change.
  */
 @Serializable
 @SerialName(DeviceMessageType.PropertyReadResponse)
@@ -160,16 +129,11 @@ public data class PropertyReadResponse(
     public val value: Meta,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyReadResponse
 
     override fun changeSource(block: (Name) -> Name): PropertyReadResponse =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyReadResponse = copy(hlcTimestamp = stamp)
 }
 
 /** Client-initiated request to write a mutable property. Ack is [PropertyWriteResponse]. */
@@ -182,16 +146,11 @@ public data class PropertyWriteRequest(
     public val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.PropertyWriteRequest
 
     override fun changeSource(block: (Name) -> Name): PropertyWriteRequest =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyWriteRequest = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -206,16 +165,11 @@ public data class PropertyWriteResponse(
     public val observedValue: Meta? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyWriteResponse
 
     override fun changeSource(block: (Name) -> Name): PropertyWriteResponse =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyWriteResponse = copy(hlcTimestamp = stamp)
 }
 
 /** Fault response to [PropertyReadRequest] / [PropertyWriteRequest]. Mirrors [ActionFaultMessage]. */
@@ -227,16 +181,11 @@ public data class PropertyFaultMessage(
     public val fault: OperationFault,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyFault
 
     override fun changeSource(block: (Name) -> Name): PropertyFaultMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): PropertyFaultMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -256,16 +205,11 @@ public data class ActionRequestMessage(
     public val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.ActionExecuteRequest
 
     override fun changeSource(block: (Name) -> Name): ActionRequestMessage =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): ActionRequestMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -280,16 +224,11 @@ public data class ActionResponseMessage(
     public val result: Meta?,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
-    override val requestId: String,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.ActionExecuteResponse
 
     override fun changeSource(block: (Name) -> Name): ActionResponseMessage =
         copy(sourceDevice = sourceDevice?.let(block))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): ActionResponseMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -321,16 +260,11 @@ public data class DeviceOnlineMessage(
     public val initialValues: Map<String, Meta> = emptyMap(),
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String? = null,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceOnline
 
     override fun changeSource(block: (Name) -> Name): DeviceOnlineMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): DeviceOnlineMessage = copy(hlcTimestamp = stamp)
 }
 
 /**
@@ -345,14 +279,9 @@ public data class DeviceOfflineMessage(
     public val cause: DeviceDepartureReason,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    override val requestId: String? = null,
-    override val correlationId: String? = null,
-    override val hlcTimestamp: HlcTimestamp? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceOffline
 
     override fun changeSource(block: (Name) -> Name): DeviceOfflineMessage =
         copy(sourceDevice = block(sourceDevice))
-
-    override fun withHlcStamp(stamp: HlcTimestamp): DeviceOfflineMessage = copy(hlcTimestamp = stamp)
 }

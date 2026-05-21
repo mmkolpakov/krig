@@ -58,6 +58,7 @@ public fun Device.propertyChangesFlow(
     options: SubscribeOptions = SubscribeOptions.Unthrottled,
 ): Flow<PropertyChangedMessage> = flow {
     subscribe(principal, options)
+        .map { it.payload }
         .filterIsInstance<PropertyChangedMessage>()
         .filter { it.property == propertyName }
         .collect { emit(it) }
@@ -119,8 +120,8 @@ private fun <T> Flow<T>.applyRateLimit(options: SubscribeOptions): Flow<T> {
 
 /** All faults from the control plane: [DeviceErrorMessage], [ActionFaultMessage], [PropertyFaultMessage]. */
 public fun Device.faultFlow(principal: Principal): Flow<OperationFault> = flow {
-    subscribe(principal).collect { msg ->
-        val fault: OperationFault? = when (msg) {
+    subscribe(principal).collect { envelope ->
+        val fault: OperationFault? = when (val msg = envelope.payload) {
             is DeviceErrorMessage -> msg.failure.fault
             is ActionFaultMessage -> msg.fault
             is PropertyFaultMessage -> msg.fault

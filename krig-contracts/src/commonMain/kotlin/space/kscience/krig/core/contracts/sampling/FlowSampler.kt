@@ -36,6 +36,7 @@ public class FlowSampler<T>(
 }
 
 /** Reified factory — single public entry point replacing the primitive-specialised factories. */
+@Suppress("SameParameterValue")
 public inline fun <reified T> sampler(capacity: Int = 256): FlowSampler<T> =
     FlowSampler(safeTypeOf(), capacity)
 

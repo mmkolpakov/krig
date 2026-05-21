@@ -50,7 +50,7 @@ class InMemoryDeviceMessageStorageStressTest {
             }
             jobs.joinAll()
 
-            val replay = withTimeout(5.seconds) { storage.readAll().toList() }
+            val replay = withTimeout(5.seconds) { storage.readAll().toList() }.map { it.payload }
 
             assertEquals(total, replay.size)
             assertEquals(
@@ -67,7 +67,7 @@ class InMemoryDeviceMessageStorageStressTest {
 
         repeat(5) { storage.write(makeMsg(it)) }
 
-        val replay = withTimeout(5.seconds) { storage.readAll().toList() }
+        val replay = withTimeout(5.seconds) { storage.readAll().toList() }.map { it.payload }
         assertEquals(listOf(2, 3, 4), replay.map(::seqOf))
     }
 
@@ -82,12 +82,12 @@ class InMemoryDeviceMessageStorageStressTest {
             val jobs = List(batches) { b ->
                 launch {
                     val batch = List(perBatch) { i -> makeMsg(b * perBatch + i) }
-                    storage.writeAll(batch)
+                    storage.writePayloads(batch)
                 }
             }
             jobs.joinAll()
 
-            val replay = withTimeout(5.seconds) { storage.readAll().toList() }
+            val replay = withTimeout(5.seconds) { storage.readAll().toList() }.map { it.payload }
 
             assertEquals(total, replay.size)
 

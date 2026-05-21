@@ -43,7 +43,7 @@ public val OperationDescriptor.description: String? by attr(MetadataAttribute::d
  * [acquireAllLocks][space.kscience.krig.core.pipeline.acquireAllLocks],
  * [requiredCapabilities] → capability toggle gates.
  *
- * Specialised behavior (caching, persistence, telemetry, streaming) lives in dedicated
+ * Specialised behavior (caching, persistence, time-series storage, streaming) lives in dedicated
  * `OperationAttribute` subtypes contributed by their FeatureSpec integration — keeping this
  * attribute focused on what the core pipeline actually enforces.
  */

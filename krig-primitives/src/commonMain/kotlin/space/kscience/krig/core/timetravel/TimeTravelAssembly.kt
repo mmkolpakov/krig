@@ -15,12 +15,13 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.names.Name
 
 /** Merge of [Device.controlFlow] and [Device.dataFlow]; the default source for [enableTimeTravel]. */
 public fun Device.defaultTimeTravelMessageFlow(): Flow<DeviceMessage> =
-    merge(controlFlow, dataFlow)
+    merge(controlFlow, dataFlow).payloads()
 
 /**
  * Wires event-sourced time travel onto [this] device: every message on [messageFlow] is

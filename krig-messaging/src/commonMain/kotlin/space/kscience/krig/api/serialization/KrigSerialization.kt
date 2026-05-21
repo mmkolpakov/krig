@@ -65,3 +65,8 @@ public fun krigJson(vararg contributors: SerializationContributor): Json = Json 
     encodeDefaults = true
     classDiscriminator = "type"
 }
+
+/** Compact storage JSON: same polymorphic module, but default fields are omitted. */
+public fun krigStorageJson(vararg contributors: SerializationContributor): Json = Json(krigJson(*contributors)) {
+    encodeDefaults = false
+}

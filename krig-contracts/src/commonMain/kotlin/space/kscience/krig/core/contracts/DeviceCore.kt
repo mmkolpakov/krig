@@ -11,7 +11,9 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.MessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.InternalKrigApi
@@ -84,23 +86,28 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     /** Control plane: lifecycle, faults, attach/detach. SUSPEND on buffer overflow — never dropped. */
     @InternalKrigApi
-    public val controlFlow: Flow<DeviceMessage>
+    public val controlFlow: Flow<MessageEnvelope<DeviceMessage>>
 
     /** Data plane: property and predicate changes. DROP_OLDEST on overflow. */
     @InternalKrigApi
-    public val dataFlow: Flow<DeviceMessage>
+    public val dataFlow: Flow<MessageEnvelope<DeviceMessage>>
 
     /** Cold merge of [controlFlow] and [dataFlow]. Each subscriber owns its back-pressure. */
     @InternalKrigApi
-    public val messageFlow: Flow<DeviceMessage>
+    public val messageFlow: Flow<MessageEnvelope<DeviceMessage>>
         get() = merge(controlFlow, dataFlow)
+
+    /** Payload-only view for scripts and legacy consumers that do not need envelope context. */
+    @InternalKrigApi
+    public val messagePayloadFlow: Flow<DeviceMessage>
+        get() = messageFlow.payloads()
 
     /**
      * Opens a principal-scoped subscription. Authorization is checked once at subscribe time;
      * subsequent elements flow without per-element overhead. Throws
      * [space.kscience.krig.api.services.AuthorizationException] on missing permission.
      */
-    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<DeviceMessage>
+    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<MessageEnvelope<DeviceMessage>>
 
     /** Timestamping source; may be a virtual clock in simulations. */
     override val clock: Clock
@@ -242,5 +249,9 @@ private suspend inline fun <T> Device.captureOutcome(block: suspend () -> T): Op
     }
 
 /** Resolves the principal from the current coroutine context and delegates to [Device.subscribe]. */
-public suspend fun Device.subscribeFromContext(): Flow<DeviceMessage> =
+public suspend fun Device.subscribeFromContext(): Flow<MessageEnvelope<DeviceMessage>> =
     subscribe(currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal)
+
+/** Payload-only subscription helper for call sites that intentionally ignore envelope context. */
+public suspend fun Device.subscribePayloadsFromContext(): Flow<DeviceMessage> =
+    subscribeFromContext().payloads()

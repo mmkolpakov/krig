@@ -9,6 +9,7 @@ import kotlinx.coroutines.yield
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.envelope
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.asName
@@ -36,7 +37,7 @@ class DeviceMessageStorageTest {
             listOf(message),
             storage.readTyped<PropertyChangedMessage>(DeviceMessageType.PropertyChanged).toList(),
         )
-        assertEquals(listOf(message), storage.read(DeviceMessageType.PropertyChanged).toList())
+        assertEquals(listOf(message.envelope()), storage.read(DeviceMessageType.PropertyChanged).toList())
         assertEquals(listOf<DeviceMessage>(message), storage.read<DeviceMessage>().toList())
     }
 
@@ -56,8 +57,8 @@ class DeviceMessageStorageTest {
         }
         yield()
 
-        storage.writeAll(messages)
+        storage.writePayloads(messages)
 
-        assertEquals(messages, observed.await())
+        assertEquals(messages, observed.await().map { it.payload })
     }
 }

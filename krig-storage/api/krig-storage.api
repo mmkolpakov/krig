@@ -1,0 +1,93 @@
+public abstract interface class space/kscience/krig/storage/journal/EventJournal {
+	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public abstract fun write (Lspace/kscience/krig/api/messages/MessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/journal/EventJournalKt {
+	public static final fun write (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/profile/StorageProfile {
+	public static final synthetic fun box-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/storage/profile/StorageProfile;
+	public static fun constructor-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Z
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lspace/kscience/dataforge/names/Name;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lspace/kscience/dataforge/names/Name;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/storage/profile/StorageProfiles {
+	public static final field INSTANCE Lspace/kscience/krig/storage/profile/StorageProfiles;
+	public final fun getJournalCompact-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+	public final fun getJournalFull-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTimeSeriesChunks-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTimeSeriesDeadband-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTimeSeriesRows-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+}
+
+public abstract interface class space/kscience/krig/storage/timeseries/TimeSeries {
+	public abstract fun append (Lspace/kscience/krig/storage/timeseries/TimeSeriesSample;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class space/kscience/krig/storage/timeseries/TimeSeriesChunk {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;)Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;
+	public static synthetic fun copy$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRows ()Ljava/util/List;
+	public final fun getSeries ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/storage/timeseries/TimeSeriesChunkSink {
+	public abstract fun append (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/timeseries/TimeSeriesRow {
+	public fun <init> (Lkotlin/time/Instant;Ljava/util/Map;Lspace/kscience/krig/api/data/DataQuality;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Ljava/util/Map;Lspace/kscience/krig/api/data/DataQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/time/Instant;
+	public final fun component2 ()Ljava/util/Map;
+	public final fun component3 ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun copy (Lkotlin/time/Instant;Ljava/util/Map;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/storage/timeseries/TimeSeriesRow;
+	public static synthetic fun copy$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesRow;Lkotlin/time/Instant;Ljava/util/Map;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/TimeSeriesRow;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValues ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/storage/timeseries/TimeSeriesSample {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun component3 ()Lkotlin/time/Instant;
+	public final fun component4 ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/storage/timeseries/TimeSeriesSample;
+	public static synthetic fun copy$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesSample;Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/TimeSeriesSample;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getObserved ()Lspace/kscience/krig/api/data/ObservedValue;
+	public final fun getQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getSeries ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/storage/timeseries/TimeSeriesSampleKt {
+	public static final fun timeSeriesSample (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/data/ObservedValue;)Lspace/kscience/krig/storage/timeseries/TimeSeriesSample;
+}
+

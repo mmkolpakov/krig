@@ -48,6 +48,7 @@ include(
     ":krig-model",
     ":krig-operation",
     ":krig-messaging",
+    ":krig-storage",
     ":krig-contracts",
     // Runtime
     ":krig-runtime",
@@ -67,6 +68,7 @@ include(
 
     // Demo — minimal self-contained device, zero external dependencies.
     ":krig-demo",
+    ":krig-benchmarks",
 
     // BOM.
     ":krig-bom",
