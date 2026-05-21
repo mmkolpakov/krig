@@ -10,6 +10,8 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
@@ -57,7 +59,7 @@ public interface DescriptorSource {
     public fun action(name: Name): ActionDescriptor?
 
     public companion object {
-        /** The empty source. Only synthetic fallback descriptors are produced. */
+        /** The empty source. Undeclared Meta properties require explicit ad-hoc mode. */
         public val Empty: DescriptorSource = object : DescriptorSource {
             override fun property(name: Name): PropertyDescriptor? = null
             override fun action(name: Name): ActionDescriptor? = null
@@ -78,11 +80,9 @@ public interface DescriptorSource {
  * Minimal [Device] delegating read / write / execute to a [DeviceBackend]. Use the
  * [device] factory; direct construction bypasses pipeline assembly.
  *
- * [descriptorSource] supplies declared descriptors so their attributes (e.g.
- * `BindingsAttribute`) reach protocol adapters. A missing source falls back to a
- * synthetic descriptor, which silently drops such attributes. That fallback is fine for
- * trivial simulations, but descriptor-aware adapters should use the [device] factory so
- * the original blueprint descriptors are preserved.
+ * [descriptorSource] supplies declared descriptors so their attributes reach protocol
+ * adapters. Undeclared Meta calls are rejected unless [allowAdHocProperties] is enabled
+ * explicitly for legacy adapters and notebooks.
  */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 public class BackendDevice @InternalKrigApi constructor(
@@ -90,6 +90,7 @@ public class BackendDevice @InternalKrigApi constructor(
     name: Name,
     runtime: DeviceRuntime,
     private val descriptorSource: DescriptorSource = DescriptorSource.Empty,
+    private val allowAdHocProperties: Boolean = false,
 ) : AbstractDevice(name, runtime) {
     @InternalKrigApi
     public constructor(
@@ -97,13 +98,14 @@ public class BackendDevice @InternalKrigApi constructor(
         name: Name,
         context: Context,
         descriptorSource: DescriptorSource = DescriptorSource.Empty,
-    ) : this(backend, name, DeviceRuntime(context), descriptorSource)
+        allowAdHocProperties: Boolean = false,
+    ) : this(backend, name, DeviceRuntime(context), descriptorSource, allowAdHocProperties)
 
     private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
 
     override suspend fun readProperty(propertyName: Name): Meta =
-        backend.read(descriptorSource.property(propertyName) ?: syntheticProperty(propertyName)).getOrThrow()
+        readPropertyOutcome(propertyName).getOrThrow()
 
     override suspend fun writeProperty(propertyName: Name, value: Meta) {
         writeToBackend(propertyName, value).getOrThrow()
@@ -111,7 +113,7 @@ public class BackendDevice @InternalKrigApi constructor(
     }
 
     override suspend fun execute(actionName: Name, argument: Meta?): Meta? =
-        backend.execute(descriptorSource.action(actionName) ?: syntheticAction(actionName), argument).getOrThrow()
+        executeOutcome(actionName, argument).getOrThrow()
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         contractBackend?.reader(spec) ?: GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
@@ -135,7 +137,10 @@ public class BackendDevice @InternalKrigApi constructor(
      * The backend already returns [OperationOutcome], so we pass it through unchanged.
      */
     override suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
-        backendOutcome { backend.read(descriptorSource.property(propertyName) ?: syntheticProperty(propertyName)) }
+        when (val descriptor = propertyDescriptor(propertyName, "read")) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backendOutcome { backend.read(descriptor.value) }
+        }
 
     /**
      * Delegates to [DeviceBackend.write] and emits [PropertyChangedMessage] on success.
@@ -150,10 +155,10 @@ public class BackendDevice @InternalKrigApi constructor(
         }
 
     private suspend fun writeToBackend(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-        backend.write(
-            descriptorSource.property(propertyName) ?: syntheticProperty(propertyName),
-            value,
-        )
+        when (val descriptor = propertyDescriptor(propertyName, "write")) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backend.write(descriptor.value, value)
+        }
 
     private suspend fun emitPropertyChanged(propertyName: Name, value: Meta) {
         emit(
@@ -170,7 +175,10 @@ public class BackendDevice @InternalKrigApi constructor(
      * Delegates directly to [DeviceBackend.execute] without the getOrThrow/re-wrap overhead.
      */
     override suspend fun executeOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
-        backendOutcome { backend.execute(descriptorSource.action(actionName) ?: syntheticAction(actionName), argument) }
+        when (val descriptor = actionDescriptor(actionName)) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backendOutcome { backend.execute(descriptor.value, argument) }
+        }
 
     @OptIn(InternalKrigApi::class)
     override fun close() {
@@ -186,8 +194,9 @@ public class BackendDevice @InternalKrigApi constructor(
 
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? {
         typedDeviceBackend?.propertySpec(propertyName)?.let { return it }
-        val descriptor = descriptorSource.property(propertyName) ?: return null
-        return if (descriptor.isMutable) {
+        val declared = descriptorSource.property(propertyName)
+        val descriptor = declared ?: if (allowAdHocProperties) syntheticProperty(propertyName) else return null
+        return if (descriptor.isMutable || (declared == null && allowAdHocProperties)) {
             BackendMutableMetaPropertySpec(descriptor)
         } else {
             BackendMetaPropertySpec(descriptor)
@@ -205,7 +214,34 @@ public class BackendDevice @InternalKrigApi constructor(
         metaDescriptor = MetaDescriptor(),
     )
 
-    private fun syntheticAction(name: Name): ActionDescriptor = ActionDescriptor(name = name)
+    private fun propertyDescriptor(propertyName: Name, operation: String): OperationOutcome<PropertyDescriptor> {
+        descriptorSource.property(propertyName)?.let { return OperationOutcome.Ok(it) }
+        return if (allowAdHocProperties) {
+            OperationOutcome.Ok(syntheticProperty(propertyName))
+        } else {
+            OperationOutcome.Fail(
+                GenericOperationFault(
+                    faultType = OperationFaultTypes.UnknownProperty,
+                    message = "Cannot $operation undeclared property '$propertyName'.",
+                    details = Meta {
+                        "property" put propertyName.toString()
+                        "operation" put operation
+                    },
+                ),
+            )
+        }
+    }
+
+    private fun actionDescriptor(actionName: Name): OperationOutcome<ActionDescriptor> {
+        descriptorSource.action(actionName)?.let { return OperationOutcome.Ok(it) }
+        return OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnknownAction,
+                message = "Cannot execute undeclared action '$actionName'.",
+                details = Meta { "action" put actionName.toString() },
+            ),
+        )
+    }
 
     private suspend inline fun <T> backendOutcome(block: suspend () -> OperationOutcome<T>): OperationOutcome<T> =
         try {

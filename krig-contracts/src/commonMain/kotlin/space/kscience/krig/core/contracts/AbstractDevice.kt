@@ -60,7 +60,11 @@ public abstract class AbstractDevice(
     override val timeSource: TimeSource = runtime.timeSource
 
     override val deviceScope: CoroutineScope =
-        CoroutineScope(context.coroutineContext + SupervisorJob(context.coroutineContext[Job]))
+        CoroutineScope(
+            context.coroutineContext +
+                    SupervisorJob(context.coroutineContext[Job]) +
+                    DeviceScopeElement(name),
+        )
 
     override val propertyDescriptors: Map<Name, PropertyDescriptor> = emptyMap()
     override val actionDescriptors: Map<Name, ActionDescriptor> = emptyMap()

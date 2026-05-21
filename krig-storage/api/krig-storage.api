@@ -1,10 +1,37 @@
-public abstract interface class space/kscience/krig/storage/journal/EventJournal {
+public abstract interface class space/kscience/krig/storage/journal/EventJournal : java/lang/AutoCloseable {
+	public fun close ()V
+	public fun observe ()Lkotlinx/coroutines/flow/Flow;
+	public abstract fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun write (Lspace/kscience/krig/api/messages/MessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/journal/EventJournal$DefaultImpls {
+	public static fun close (Lspace/kscience/krig/storage/journal/EventJournal;)V
+	public static fun observe (Lspace/kscience/krig/storage/journal/EventJournal;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static fun write (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun writeAll (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/storage/journal/EventJournalKt {
-	public static final fun write (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun writePayloads (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/journal/InMemoryEventJournal : space/kscience/krig/storage/journal/EventJournal {
+	public fun <init> ()V
+	public fun <init> (II)V
+	public synthetic fun <init> (IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public fun observe ()Lkotlinx/coroutines/flow/Flow;
+	public fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
+	public fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/MessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/storage/profile/StorageProfile {
@@ -27,7 +54,27 @@ public final class space/kscience/krig/storage/profile/StorageProfiles {
 	public final fun getJournalFull-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
 	public final fun getTimeSeriesChunks-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
 	public final fun getTimeSeriesDeadband-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTimeSeriesDense-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
 	public final fun getTimeSeriesRows-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public final fun getRows ()Ljava/util/List;
+	public final fun getSeries ()Ljava/util/List;
+}
+
+public abstract interface class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunkSink {
+	public abstract fun append (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesRow {
+	public fun <init> (Lkotlin/time/Instant;[DLspace/kscience/krig/api/data/DataQuality;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;[DLspace/kscience/krig/api/data/DataQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun get (I)D
+	public final fun getQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValues ()[D
 }
 
 public abstract interface class space/kscience/krig/storage/timeseries/TimeSeries {
@@ -46,6 +93,11 @@ public final class space/kscience/krig/storage/timeseries/TimeSeriesChunk {
 	public final fun getSeries ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/storage/timeseries/TimeSeriesChunkKt {
+	public static final fun toDenseDoubleChunk (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;D)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
+	public static synthetic fun toDenseDoubleChunk$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;DILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
 }
 
 public abstract interface class space/kscience/krig/storage/timeseries/TimeSeriesChunkSink {

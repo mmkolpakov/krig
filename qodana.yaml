@@ -23,15 +23,17 @@ exclude:
     paths:
       - build
       - buildSrc/build
+      - krig-assembly/build
       - krig-contracts/build
       - krig-demo/build
       - krig-identity/build
+      - krig-io/build
       - krig-jupyter/build
       - krig-ksp-processor/build
       - krig-magix/build
       - krig-messaging/build
       - krig-model/build
-      - krig-primitives/build
+      - krig-runtime-stdlib/build
       - krig-runtime/build
       - krig-simulation/build
       - krig-state/build

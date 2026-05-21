@@ -205,14 +205,15 @@ private fun runBinaryRowsChunk(
     val file = config.root.resolve("chunks/$scenario")
     file.parent.createDirectories()
     file.deleteIfExists()
+    val chunk = workload.denseDoubleChunk()
 
     val write = measureNanoTime {
         DataOutputStream(DeflaterOutputStream(Files.newOutputStream(file))).use { out ->
-            out.writeInt(workload.tags)
-            out.writeInt(workload.rows)
-            for (row in 0 until workload.rows) {
-                out.writeLong(row.toLong() * 1_000L)
-                for (tag in 0 until workload.tags) out.writeDouble(workload.valueAt(row, tag))
+            out.writeInt(chunk.series.size)
+            out.writeInt(chunk.rows.size)
+            chunk.rows.forEach { row ->
+                out.writeLong(row.time.toEpochMilliseconds())
+                row.values.forEach(out::writeDouble)
             }
         }
     }.nanoseconds
@@ -238,20 +239,20 @@ private fun runBinaryDeadbandChunk(
     val file = config.root.resolve("chunks/$scenario")
     file.parent.createDirectories()
     file.deleteIfExists()
+    val chunk = workload.denseDoubleChunk()
 
     var storedValues = 0
     val write = measureNanoTime {
-        val previous = DoubleArray(workload.tags) { Double.NaN }
+        val previous = DoubleArray(chunk.series.size) { Double.NaN }
         DataOutputStream(DeflaterOutputStream(Files.newOutputStream(file))).use { out ->
-            out.writeInt(workload.tags)
-            out.writeInt(workload.rows)
+            out.writeInt(chunk.series.size)
+            out.writeInt(chunk.rows.size)
             out.writeDouble(deadband)
-            for (row in 0 until workload.rows) {
-                val changed = IntArray(workload.tags)
-                val values = DoubleArray(workload.tags)
+            chunk.rows.forEach { row ->
+                val changed = IntArray(chunk.series.size)
+                val values = DoubleArray(chunk.series.size)
                 var count = 0
-                for (tag in 0 until workload.tags) {
-                    val value = workload.valueAt(row, tag)
+                row.values.forEachIndexed { tag, value ->
                     if (previous[tag].isNaN() || abs(value - previous[tag]) > deadband) {
                         changed[count] = tag
                         values[count] = value
@@ -259,7 +260,7 @@ private fun runBinaryDeadbandChunk(
                         count++
                     }
                 }
-                out.writeLong(row.toLong() * 1_000L)
+                out.writeLong(row.time.toEpochMilliseconds())
                 out.writeInt(count)
                 for (i in 0 until count) {
                     out.writeInt(changed[i])

@@ -15,8 +15,9 @@ dependencies {
     compileOnly(libs.kotlin.jupyter.api)
 
     api(project(":krig-contracts"))
-    api(project(":krig-primitives"))
+    api(project(":krig-runtime-stdlib"))
     api(project(":krig-runtime"))
+    api(project(":krig-assembly"))
     api(project(":krig-simulation"))
     api(project(":krig-magix"))
 }

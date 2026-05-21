@@ -6,6 +6,8 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow
 import space.kscience.krig.storage.timeseries.TimeSeriesSample
 
 internal data class ReadStats(val duration: Duration, val count: Int, val checksum: Double)
@@ -39,3 +41,14 @@ internal fun TimeSeriesSample<Double>.toPropertyChangedMessage(source: Name): Pr
     )
 
 internal fun tagName(tag: Int): Name = "tag$tag".asName()
+
+internal fun MatrixWorkload.denseDoubleChunk(): DenseDoubleTimeSeriesChunk {
+    val series = List(tags, ::tagName)
+    val rows = List(rows) { row ->
+        DenseDoubleTimeSeriesRow(
+            time = Instant.fromEpochMilliseconds(row.toLong() * 1_000L),
+            values = DoubleArray(tags) { tag -> valueAt(row, tag) },
+        )
+    }
+    return DenseDoubleTimeSeriesChunk(series, rows)
+}

@@ -16,11 +16,13 @@ public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
 }
 
 /**
- * Runtime object providing a composable API domain (lifecycle, automation, streaming, ...).
- * Companion to the serializable [FeatureSpec][space.kscience.krig.api.features.FeatureSpec] DTO:
- * the blueprint declares the `FeatureSpec`, the runtime installs the matching `Capability`
- * via contributed Features. Use `FeatureSpec`
- * for wire-traversable descriptions; use `Capability` for live state and coroutines.
+ * Local runtime state owned by a [CapabilityHost].
+ *
+ * A [FeatureSpec][space.kscience.krig.api.features.FeatureSpec] is the serializable
+ * blueprint declaration. A runtime [Feature][space.kscience.krig.core.features.Feature]
+ * may translate that declaration into operation policies and capabilities. Use
+ * `FeatureSpec` for wire-traversable descriptions; use `Capability` for live state
+ * and coroutines.
  *
  * The generic [S] is the *runtime* state of the capability — typically a holder containing
  * `MutableStateFlow`s, `Mutex`es, accumulators, etc. Capabilities that have nothing to
@@ -29,7 +31,7 @@ public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
  * separate, `@Serializable` snapshot view.
  *
  * Lifecycle hooks receive the owning [CapabilityHost]. Device-specific capabilities can
- * require `host as Device`; global services should stay in the DataForge Context plugin layer.
+ * require `host as Device`; application services are requested from the DataForge Context.
  */
 public interface Capability<S : Any> {
 

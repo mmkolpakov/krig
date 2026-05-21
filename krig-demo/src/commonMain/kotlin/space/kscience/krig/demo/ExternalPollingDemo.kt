@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.yield
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.isUsable
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.result.ok
@@ -36,7 +37,7 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
         source("stand", connector = "external.virtual")
         tag("rpm")
             .from("stand", "rpm", TypeIds.DOUBLE, timeout = 50.milliseconds)
-            .toTarget(pump.name.toString(), PumpSpec.rpm.name.toString())
+            .toTarget(pump.name, PumpSpec.rpm.name)
         tag("temperature")
             .from("stand", "temperature", TypeIds.DOUBLE, timeout = 50.milliseconds)
             .withoutTarget()
@@ -58,8 +59,8 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
                 values.forEach { observation ->
                     val target = observation.tag.target
                     if (
-                        target?.deviceId == pump.name.toString() &&
-                        target.property == PumpSpec.rpm.name.toString() &&
+                        target?.deviceId == pump.name &&
+                        target.property == PumpSpec.rpm.name &&
                         observation.observed.isUsable
                     ) {
                         pump.write(PumpSpec.rpm, MetaConverter.double.read(observation.observed.value!!))
@@ -70,7 +71,7 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
     yield()
     val observed = observations.await()
     val temperatures = observed
-        .filter { it.tag.id == "temperature" }
+        .filter { it.tag.id == "temperature".asName() }
         .mapNotNull { it.observed.value }
         .map { MetaConverter.double.read(it) }
 

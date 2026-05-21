@@ -25,7 +25,7 @@ suspend fun timeTravelDemo() {
 
     println("=== 1. Event log ===")
 
-    val log = InMemoryEventLogStore()
+    val log = InMemoryReplayLog()
     repeat(5) { i ->
         log.record(PropertyChangedMessage(
             time = Instant.fromEpochMilliseconds((i + 1) * 1000L),

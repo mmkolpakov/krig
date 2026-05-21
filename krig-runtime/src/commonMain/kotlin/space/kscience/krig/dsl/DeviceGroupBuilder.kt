@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 /**
- * Builder for composing multiple devices into a composite [Device] (Composite Pattern).
+ * Builder for composing named child devices into one [CompositeDevice].
  *
  * ```kotlin
  * val group = deviceGroup {
@@ -65,7 +65,7 @@ public class DeviceGroupBuilder {
     }
 
     /**
-     * Declare a nested device sub-group (recursive Composite Pattern).
+     * Declare a nested device sub-group.
      *
      * The sub-group is materialized when the parent is started via [start].
      *
@@ -95,8 +95,7 @@ public class DeviceGroupBuilder {
 
     /**
      * Declarative reactive link between two device states with a pure [transform].
-     * `source` collects and pushes transformed values to `target`. Nozik's `bindState`/
-     * `mapState` DX on typed Data Plane states.
+     * `source` collects and pushes transformed values to `target`.
      */
     public fun <T, R> link(
         source: DeviceState<T>,
@@ -186,9 +185,7 @@ public class DeviceGroupBuilder {
     private val pushWirings = mutableListOf<PushWiringDeclaration>()
 
     /**
-     * Materialises the group into a [CompositeDevice] — a [Device] that carries its own
-     * identity alongside a map of [Device.children]. The fractal contract means a composite
-     * is an ordinary Device, not a separate hub type.
+     * Materialises the group into a [CompositeDevice] — a [Device] with named children.
      *
      * Each deferred child device (declared via `device(name) { ... }`) is built with
      * its own [Name] and a DataForge child [Context] derived from [context]. This
@@ -207,8 +204,8 @@ public class DeviceGroupBuilder {
             val childContext = context.buildContext(devName)
             devices[devName] = device(devName, childContext, builder)
         }
-        // Recursively materialise nested sub-groups; a sub-group is itself a CompositeDevice
-        // (a Device with children), so it fits into the children map naturally.
+        // Nested groups are materialised as devices with children, so they fit into
+        // the same topology map as leaves.
         for ((subName, subBuilder) in subGroups) {
             val childContext = context.buildContext(subName)
             devices[subName] = subBuilder.start(subName.toString(), childContext, scope)

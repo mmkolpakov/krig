@@ -12,9 +12,10 @@ import kotlin.time.Instant
 import kotlin.time.TimeSource
 
 /**
- * Deterministic virtual-time [SimulationScheduler] wrapping [TestCoroutineScheduler].
- * Adds [initial time offset][initialTimeMs], a `kotlin.time.Clock` adapter, and a raw
- * [scheduleAt] primitive. Single-threaded, like TCS — one per federate for co-simulation.
+ * Deterministic virtual-time [SimulationScheduler] for tests, notebooks and replay runs.
+ *
+ * The coroutine scheduler backend is an implementation detail; user code depends on
+ * [SimulationScheduler], [Clock] and [TimeSource], not on a coroutine-test API.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 public class DeterministicScheduler(
@@ -50,7 +51,7 @@ public class DeterministicScheduler(
     override fun asTimeSource(): TimeSource = underlying.timeSource
 
     public companion object {
-        /** Returns `true` for coroutine-test virtual-time dispatchers. */
+        /** Returns `true` for the virtual-time dispatchers used by this scheduler. */
         public fun isVirtualDispatcher(dispatcher: CoroutineDispatcher): Boolean =
             dispatcher is TestDispatcher
     }

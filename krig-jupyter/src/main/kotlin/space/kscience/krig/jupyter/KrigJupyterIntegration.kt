@@ -54,7 +54,7 @@ public class KrigJupyterIntegration : JupyterIntegration() {
         import("space.kscience.krig.core.operations.*")
         import("space.kscience.krig.core.state.*")
         import("space.kscience.krig.core.runtime.*")
-        import("space.kscience.krig.core.storage.*")
+        import("space.kscience.krig.storage.journal.*")
         import("space.kscience.krig.core.timetravel.*")
         import("space.kscience.krig.simulation.*")
         import("space.kscience.krig.concurrency.*")

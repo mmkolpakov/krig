@@ -28,9 +28,6 @@ import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.krig.core.contracts.CapabilityRegistry
 import space.kscience.krig.core.contracts.CapabilityToggles
 import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedAction
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
@@ -178,9 +175,50 @@ public class PipelineDevice @InternalKrigApi constructor(
         delegate.sampler(spec)
 
     @Suppress("UNCHECKED_CAST")
+    override suspend fun <T> readOutcome(spec: DevicePropertyContract<T>): OperationOutcome<T> {
+        val compiled = reader(spec)
+        return if (compiled is OutcomeTypedReader<*>) {
+            (compiled as OutcomeTypedReader<T>).readOutcome()
+        } else {
+            catchingOperationOutcome { compiled.read() }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun <T> writeOutcome(
+        spec: MutableDevicePropertyContract<T>,
+        value: T,
+    ): OperationOutcome<Unit> {
+        val compiled = writer(spec)
+        return if (compiled is OutcomeTypedWriter<*>) {
+            (compiled as OutcomeTypedWriter<T>).writeOutcome(value)
+        } else {
+            catchingOperationOutcome { compiled.write(value) }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun <I, O> executeOutcome(
+        spec: DeviceActionContract<I, O>,
+        input: I,
+    ): OperationOutcome<O?> {
+        val compiled = action(spec)
+        return if (compiled is OutcomeTypedAction<*, *>) {
+            (compiled as OutcomeTypedAction<I, O>).executeOutcome(input)
+        } else {
+            catchingOperationOutcome { compiled.execute(input) }
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> {
         val executor = actionExecutor(spec as DeviceActionContract<Any?, Any?>) as suspend (I) -> O?
-        return GenericTypedAction { input -> executor(input) }
+        return object : OutcomeTypedAction<I, O> {
+            override suspend fun executeOutcome(input: I): OperationOutcome<O?> =
+                catchingOperationOutcome { executor(input) }
+
+            override suspend fun execute(input: I): O? = executeOutcome(input).getOrThrow()
+        }
     }
 
     private fun <T> compileReader(spec: DevicePropertyContract<T>): TypedReader<T> {
@@ -203,17 +241,20 @@ public class PipelineDevice @InternalKrigApi constructor(
             terminal = { _: Unit -> catchingOperationOutcome { decorated.read() } },
         )
         val tracker = delegate as? OperationTracker
-        return GenericTypedReader {
-            if (tracker == null) {
-                execute(Unit).getOrThrow()
-            } else {
-                tracker.enterOperation()
-                try {
-                    execute(Unit).getOrThrow()
-                } finally {
-                    tracker.exitOperation()
+        return object : OutcomeTypedReader<T> {
+            override suspend fun readOutcome(): OperationOutcome<T> =
+                if (tracker == null) {
+                    execute(Unit)
+                } else {
+                    tracker.enterOperation()
+                    try {
+                        execute(Unit)
+                    } finally {
+                        tracker.exitOperation()
+                    }
                 }
-            }
+
+            override suspend fun read(): T = readOutcome().getOrThrow()
         }
     }
 
@@ -236,16 +277,21 @@ public class PipelineDevice @InternalKrigApi constructor(
             terminal = { value: T -> catchingOperationOutcome { raw.write(value) } },
         )
         val tracker = delegate as? OperationTracker
-        return GenericTypedWriter { value ->
-            if (tracker == null) {
-                execute(value).getOrThrow()
-            } else {
-                tracker.enterOperation()
-                try {
-                    execute(value).getOrThrow()
-                } finally {
-                    tracker.exitOperation()
+        return object : OutcomeTypedWriter<T> {
+            override suspend fun writeOutcome(value: T): OperationOutcome<Unit> =
+                if (tracker == null) {
+                    execute(value)
+                } else {
+                    tracker.enterOperation()
+                    try {
+                        execute(value)
+                    } finally {
+                        tracker.exitOperation()
+                    }
                 }
+
+            override suspend fun write(value: T) {
+                writeOutcome(value).getOrThrow()
             }
         }
     }
@@ -402,16 +448,17 @@ public class PipelineDevice @InternalKrigApi constructor(
         )
         val tracker = delegate as? OperationTracker
         return { input ->
-            if (tracker == null) {
-                execute(input).getOrThrow()
+            val outcome = if (tracker == null) {
+                execute(input)
             } else {
                 tracker.enterOperation()
                 try {
-                    execute(input).getOrThrow()
+                    execute(input)
                 } finally {
                     tracker.exitOperation()
                 }
             }
+            outcome.getOrThrow()
         }
     }
 
@@ -431,6 +478,18 @@ private data class CachedReader(
         requireCompatible(spec.descriptor, spec.converter, spec.name)
         return reader as TypedReader<T>
     }
+}
+
+private interface OutcomeTypedReader<T> : TypedReader<T> {
+    suspend fun readOutcome(): OperationOutcome<T>
+}
+
+private interface OutcomeTypedWriter<T> : TypedWriter<T> {
+    suspend fun writeOutcome(value: T): OperationOutcome<Unit>
+}
+
+private interface OutcomeTypedAction<I, O> : TypedAction<I, O> {
+    suspend fun executeOutcome(input: I): OperationOutcome<O?>
 }
 
 private data class CachedWriter(

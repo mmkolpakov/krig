@@ -3,7 +3,7 @@
  * Extends krig-mpp with macOS and iOS targets.
  *
  * Used by the data-plane quartet (krig-state, krig-identity, krig-model,
- * krig-messaging), krig-contracts, krig-primitives, krig-simulation,
+ * krig-messaging), krig-contracts, krig-runtime-stdlib, krig-simulation,
  * and pure-API FeatureSpec modules.
  */
 plugins {

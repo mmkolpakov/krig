@@ -8,8 +8,8 @@ import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.capabilities.CapabilityKey
 
 /**
- * Runtime owner of local capabilities. Global services belong to the DataForge
- * [space.kscience.dataforge.context.Context] plugin layer.
+ * Runtime owner of local capabilities. Application services are requested from the
+ * DataForge [space.kscience.dataforge.context.Context].
  */
 public interface CapabilityHost {
     public val installedCapabilities: Collection<Capability<*>>

@@ -13,6 +13,7 @@ kotlin {
                 api(project(":krig-messaging"))
                 api(libs.dataforge.meta)
                 api(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.atomicfu)
             }
         }
     }

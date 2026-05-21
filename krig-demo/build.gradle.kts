@@ -19,6 +19,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":krig-runtime"))
+                implementation(project(":krig-assembly"))
                 implementation(project(":krig-simulation"))
             }
         }

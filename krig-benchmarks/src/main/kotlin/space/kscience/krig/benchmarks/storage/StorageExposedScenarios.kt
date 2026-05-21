@@ -19,7 +19,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 
 private object ExposedMessages : Table("DeviceMessages") {

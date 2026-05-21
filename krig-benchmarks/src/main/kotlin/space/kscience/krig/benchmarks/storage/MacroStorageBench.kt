@@ -56,7 +56,7 @@ internal fun runH2ExposedJournal(config: BenchConfig): List<BenchResult> {
     val h2Root = config.root.resolve("h2")
     h2Root.createDirectories()
     return listOf(
-        withH2Url(h2Root, "exposed-event-json") { url, size ->
+        withH2Url(h2Root) { url, size ->
             runExposedEventJournal(
                 url = url,
                 backend = SqlBackend.H2,
@@ -257,10 +257,9 @@ private fun withH2(
 
 private fun withH2Url(
     root: Path,
-    name: String,
     block: (url: String, () -> Long?) -> BenchResult,
 ): BenchResult {
-    val dbBase = root.resolve(name)
+    val dbBase = root.resolve("exposed-event-json")
     deleteH2Files(dbBase)
     val result = block(h2Url(dbBase)) { h2Bytes(dbBase) }
     return result.copy(bytes = h2Bytes(dbBase))

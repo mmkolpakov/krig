@@ -1,0 +1,652 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <space.kscience:krig-assembly>
+open annotation class space.kscience.krig.assembly/ContributesActionHandler : kotlin/Annotation { // space.kscience.krig.assembly/ContributesActionHandler|null[0]
+    constructor <init>() // space.kscience.krig.assembly/ContributesActionHandler.<init>|<init>(){}[0]
+}
+
+open annotation class space.kscience.krig.assembly/ContributesBlueprint : kotlin/Annotation { // space.kscience.krig.assembly/ContributesBlueprint|null[0]
+    constructor <init>(kotlin/String) // space.kscience.krig.assembly/ContributesBlueprint.<init>|<init>(kotlin.String){}[0]
+
+    final val blueprintId // space.kscience.krig.assembly/ContributesBlueprint.blueprintId|{}blueprintId[0]
+        final fun <get-blueprintId>(): kotlin/String // space.kscience.krig.assembly/ContributesBlueprint.blueprintId.<get-blueprintId>|<get-blueprintId>(){}[0]
+}
+
+open annotation class space.kscience.krig.assembly/ContributesFactory : kotlin/Annotation { // space.kscience.krig.assembly/ContributesFactory|null[0]
+    constructor <init>() // space.kscience.krig.assembly/ContributesFactory.<init>|<init>(){}[0]
+}
+
+open annotation class space.kscience.krig.assembly/ContributesFeature : kotlin/Annotation { // space.kscience.krig.assembly/ContributesFeature|null[0]
+    constructor <init>() // space.kscience.krig.assembly/ContributesFeature.<init>|<init>(){}[0]
+}
+
+open annotation class space.kscience.krig.assembly/ContributesProtocol : kotlin/Annotation { // space.kscience.krig.assembly/ContributesProtocol|null[0]
+    constructor <init>() // space.kscience.krig.assembly/ContributesProtocol.<init>|<init>(){}[0]
+}
+
+final enum class space.kscience.krig.assembly/BlueprintValidationPolicy : kotlin/Enum<space.kscience.krig.assembly/BlueprintValidationPolicy> { // space.kscience.krig.assembly/BlueprintValidationPolicy|null[0]
+    enum entry FailOnError // space.kscience.krig.assembly/BlueprintValidationPolicy.FailOnError|null[0]
+    enum entry Skip // space.kscience.krig.assembly/BlueprintValidationPolicy.Skip|null[0]
+    enum entry Strict // space.kscience.krig.assembly/BlueprintValidationPolicy.Strict|null[0]
+
+    final val entries // space.kscience.krig.assembly/BlueprintValidationPolicy.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.assembly/BlueprintValidationPolicy> // space.kscience.krig.assembly/BlueprintValidationPolicy.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.assembly/BlueprintValidationPolicy // space.kscience.krig.assembly/BlueprintValidationPolicy.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.assembly/BlueprintValidationPolicy> // space.kscience.krig.assembly/BlueprintValidationPolicy.values|values#static(){}[0]
+}
+
+abstract fun interface space.kscience.krig.assembly/AcquisitionTagReader { // space.kscience.krig.assembly/AcquisitionTagReader|null[0]
+    abstract suspend fun read(space.kscience.krig.assembly/AcquisitionTagSpec): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.assembly/AcquisitionTagReader.read|read(space.kscience.krig.assembly.AcquisitionTagSpec){}[0]
+}
+
+sealed interface space.kscience.krig.assembly/ReductionSpec { // space.kscience.krig.assembly/ReductionSpec|null[0]
+    abstract val id // space.kscience.krig.assembly/ReductionSpec.id|{}id[0]
+        abstract fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.id.<get-id>|<get-id>(){}[0]
+
+    final class Named : space.kscience.krig.assembly/ReductionSpec { // space.kscience.krig.assembly/ReductionSpec.Named|null[0]
+        constructor <init>(space.kscience.dataforge.names/Name, kotlinx.serialization.json/JsonObject = ...) // space.kscience.krig.assembly/ReductionSpec.Named.<init>|<init>(space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonObject){}[0]
+
+        final val config // space.kscience.krig.assembly/ReductionSpec.Named.config|{}config[0]
+            final fun <get-config>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/ReductionSpec.Named.config.<get-config>|<get-config>(){}[0]
+        final val id // space.kscience.krig.assembly/ReductionSpec.Named.id|{}id[0]
+            final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.Named.id.<get-id>|<get-id>(){}[0]
+        final val name // space.kscience.krig.assembly/ReductionSpec.Named.name|{}name[0]
+            final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.Named.name.<get-name>|<get-name>(){}[0]
+
+        final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.Named.component1|component1(){}[0]
+        final fun component2(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/ReductionSpec.Named.component2|component2(){}[0]
+        final fun copy(space.kscience.dataforge.names/Name = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.assembly/ReductionSpec.Named // space.kscience.krig.assembly/ReductionSpec.Named.copy|copy(space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonObject){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/ReductionSpec.Named.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/ReductionSpec.Named.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.assembly/ReductionSpec.Named.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/ReductionSpec.Named> { // space.kscience.krig.assembly/ReductionSpec.Named.$serializer|null[0]
+            final val descriptor // space.kscience.krig.assembly/ReductionSpec.Named.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/ReductionSpec.Named.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/ReductionSpec.Named.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/ReductionSpec.Named // space.kscience.krig.assembly/ReductionSpec.Named.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/ReductionSpec.Named) // space.kscience.krig.assembly/ReductionSpec.Named.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.ReductionSpec.Named){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.assembly/ReductionSpec.Named.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/ReductionSpec.Named> // space.kscience.krig.assembly/ReductionSpec.Named.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.assembly/ReductionSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/ReductionSpec> // space.kscience.krig.assembly/ReductionSpec.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.assembly/ReductionSpec.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+
+    final object Last : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.assembly/ReductionSpec { // space.kscience.krig.assembly/ReductionSpec.Last|null[0]
+        final val id // space.kscience.krig.assembly/ReductionSpec.Last.id|{}id[0]
+            final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.Last.id.<get-id>|<get-id>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/ReductionSpec.Last.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/ReductionSpec.Last.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/ReductionSpec.Last> // space.kscience.krig.assembly/ReductionSpec.Last.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.assembly/ReductionSpec.Last.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.assembly/ReductionSpec.Last.toString|toString(){}[0]
+    }
+
+    final object Mean : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.assembly/ReductionSpec { // space.kscience.krig.assembly/ReductionSpec.Mean|null[0]
+        final val id // space.kscience.krig.assembly/ReductionSpec.Mean.id|{}id[0]
+            final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.Mean.id.<get-id>|<get-id>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/ReductionSpec.Mean.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/ReductionSpec.Mean.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/ReductionSpec.Mean> // space.kscience.krig.assembly/ReductionSpec.Mean.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.assembly/ReductionSpec.Mean.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.assembly/ReductionSpec.Mean.toString|toString(){}[0]
+    }
+
+    final object MinMaxMean : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.assembly/ReductionSpec { // space.kscience.krig.assembly/ReductionSpec.MinMaxMean|null[0]
+        final val id // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.id|{}id[0]
+            final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.id.<get-id>|<get-id>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/ReductionSpec.MinMaxMean> // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.assembly/ReductionSpec.MinMaxMean.toString|toString(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/AcquisitionObservation { // space.kscience.krig.assembly/AcquisitionObservation|null[0]
+    constructor <init>(space.kscience.krig.assembly/AcquisitionTagSpec, space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>, space.kscience.krig.api.faults/OperationFault? = ...) // space.kscience.krig.assembly/AcquisitionObservation.<init>|<init>(space.kscience.krig.assembly.AcquisitionTagSpec;space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>;space.kscience.krig.api.faults.OperationFault?){}[0]
+
+    final val fault // space.kscience.krig.assembly/AcquisitionObservation.fault|{}fault[0]
+        final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault? // space.kscience.krig.assembly/AcquisitionObservation.fault.<get-fault>|<get-fault>(){}[0]
+    final val isOk // space.kscience.krig.assembly/AcquisitionObservation.isOk|{}isOk[0]
+        final fun <get-isOk>(): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionObservation.isOk.<get-isOk>|<get-isOk>(){}[0]
+    final val observed // space.kscience.krig.assembly/AcquisitionObservation.observed|{}observed[0]
+        final fun <get-observed>(): space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.assembly/AcquisitionObservation.observed.<get-observed>|<get-observed>(){}[0]
+    final val tag // space.kscience.krig.assembly/AcquisitionObservation.tag|{}tag[0]
+        final fun <get-tag>(): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/AcquisitionObservation.tag.<get-tag>|<get-tag>(){}[0]
+
+    final fun component1(): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/AcquisitionObservation.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.assembly/AcquisitionObservation.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.faults/OperationFault? // space.kscience.krig.assembly/AcquisitionObservation.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.assembly/AcquisitionTagSpec = ..., space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> = ..., space.kscience.krig.api.faults/OperationFault? = ...): space.kscience.krig.assembly/AcquisitionObservation // space.kscience.krig.assembly/AcquisitionObservation.copy|copy(space.kscience.krig.assembly.AcquisitionTagSpec;space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>;space.kscience.krig.api.faults.OperationFault?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionObservation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/AcquisitionObservation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/AcquisitionObservation.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.assembly/AcquisitionSourceSpec { // space.kscience.krig.assembly/AcquisitionSourceSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/String, kotlinx.serialization.json/JsonObject = ...) // space.kscience.krig.assembly/AcquisitionSourceSpec.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String;kotlinx.serialization.json.JsonObject){}[0]
+
+    final val config // space.kscience.krig.assembly/AcquisitionSourceSpec.config|{}config[0]
+        final fun <get-config>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/AcquisitionSourceSpec.config.<get-config>|<get-config>(){}[0]
+    final val connector // space.kscience.krig.assembly/AcquisitionSourceSpec.connector|{}connector[0]
+        final fun <get-connector>(): kotlin/String // space.kscience.krig.assembly/AcquisitionSourceSpec.connector.<get-connector>|<get-connector>(){}[0]
+    final val id // space.kscience.krig.assembly/AcquisitionSourceSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionSourceSpec.id.<get-id>|<get-id>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionSourceSpec.component1|component1(){}[0]
+    final fun component2(): kotlin/String // space.kscience.krig.assembly/AcquisitionSourceSpec.component2|component2(){}[0]
+    final fun component3(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/AcquisitionSourceSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/String = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.assembly/AcquisitionSourceSpec // space.kscience.krig.assembly/AcquisitionSourceSpec.copy|copy(space.kscience.dataforge.names.Name;kotlin.String;kotlinx.serialization.json.JsonObject){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionSourceSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/AcquisitionSourceSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/AcquisitionSourceSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/AcquisitionSourceSpec> { // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/AcquisitionSourceSpec // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/AcquisitionSourceSpec) // space.kscience.krig.assembly/AcquisitionSourceSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.AcquisitionSourceSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/AcquisitionSourceSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/AcquisitionSourceSpec> // space.kscience.krig.assembly/AcquisitionSourceSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/AcquisitionTagSpec { // space.kscience.krig.assembly/AcquisitionTagSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, kotlin/String, kotlin/String = ..., space.kscience.krig.assembly/AcquisitionTargetSpec? = ..., kotlin/Long? = ..., kotlin/Int = ...) // space.kscience.krig.assembly/AcquisitionTagSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String;space.kscience.krig.assembly.AcquisitionTargetSpec?;kotlin.Long?;kotlin.Int){}[0]
+
+    final val address // space.kscience.krig.assembly/AcquisitionTagSpec.address|{}address[0]
+        final fun <get-address>(): kotlin/String // space.kscience.krig.assembly/AcquisitionTagSpec.address.<get-address>|<get-address>(){}[0]
+    final val bufferCapacity // space.kscience.krig.assembly/AcquisitionTagSpec.bufferCapacity|{}bufferCapacity[0]
+        final fun <get-bufferCapacity>(): kotlin/Int // space.kscience.krig.assembly/AcquisitionTagSpec.bufferCapacity.<get-bufferCapacity>|<get-bufferCapacity>(){}[0]
+    final val id // space.kscience.krig.assembly/AcquisitionTagSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTagSpec.id.<get-id>|<get-id>(){}[0]
+    final val sourceId // space.kscience.krig.assembly/AcquisitionTagSpec.sourceId|{}sourceId[0]
+        final fun <get-sourceId>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTagSpec.sourceId.<get-sourceId>|<get-sourceId>(){}[0]
+    final val target // space.kscience.krig.assembly/AcquisitionTagSpec.target|{}target[0]
+        final fun <get-target>(): space.kscience.krig.assembly/AcquisitionTargetSpec? // space.kscience.krig.assembly/AcquisitionTagSpec.target.<get-target>|<get-target>(){}[0]
+    final val timeoutMs // space.kscience.krig.assembly/AcquisitionTagSpec.timeoutMs|{}timeoutMs[0]
+        final fun <get-timeoutMs>(): kotlin/Long? // space.kscience.krig.assembly/AcquisitionTagSpec.timeoutMs.<get-timeoutMs>|<get-timeoutMs>(){}[0]
+    final val valueTypeId // space.kscience.krig.assembly/AcquisitionTagSpec.valueTypeId|{}valueTypeId[0]
+        final fun <get-valueTypeId>(): kotlin/String // space.kscience.krig.assembly/AcquisitionTagSpec.valueTypeId.<get-valueTypeId>|<get-valueTypeId>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTagSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTagSpec.component2|component2(){}[0]
+    final fun component3(): kotlin/String // space.kscience.krig.assembly/AcquisitionTagSpec.component3|component3(){}[0]
+    final fun component4(): kotlin/String // space.kscience.krig.assembly/AcquisitionTagSpec.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.assembly/AcquisitionTargetSpec? // space.kscience.krig.assembly/AcquisitionTagSpec.component5|component5(){}[0]
+    final fun component6(): kotlin/Long? // space.kscience.krig.assembly/AcquisitionTagSpec.component6|component6(){}[0]
+    final fun component7(): kotlin/Int // space.kscience.krig.assembly/AcquisitionTagSpec.component7|component7(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ..., kotlin/String = ..., kotlin/String = ..., space.kscience.krig.assembly/AcquisitionTargetSpec? = ..., kotlin/Long? = ..., kotlin/Int = ...): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/AcquisitionTagSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String;space.kscience.krig.assembly.AcquisitionTargetSpec?;kotlin.Long?;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionTagSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/AcquisitionTagSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/AcquisitionTagSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/AcquisitionTagSpec> { // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/AcquisitionTagSpec) // space.kscience.krig.assembly/AcquisitionTagSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.AcquisitionTagSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/AcquisitionTagSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/AcquisitionTagSpec> // space.kscience.krig.assembly/AcquisitionTagSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/AcquisitionTargetSpec { // space.kscience.krig.assembly/AcquisitionTargetSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name) // space.kscience.krig.assembly/AcquisitionTargetSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+
+    final val deviceId // space.kscience.krig.assembly/AcquisitionTargetSpec.deviceId|{}deviceId[0]
+        final fun <get-deviceId>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTargetSpec.deviceId.<get-deviceId>|<get-deviceId>(){}[0]
+    final val property // space.kscience.krig.assembly/AcquisitionTargetSpec.property|{}property[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTargetSpec.property.<get-property>|<get-property>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTargetSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTargetSpec.component2|component2(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.assembly/AcquisitionTargetSpec // space.kscience.krig.assembly/AcquisitionTargetSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionTargetSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/AcquisitionTargetSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/AcquisitionTargetSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/AcquisitionTargetSpec> { // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/AcquisitionTargetSpec // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/AcquisitionTargetSpec) // space.kscience.krig.assembly/AcquisitionTargetSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.AcquisitionTargetSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/AcquisitionTargetSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/AcquisitionTargetSpec> // space.kscience.krig.assembly/AcquisitionTargetSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/AcquisitionTimerBuilder { // space.kscience.krig.assembly/AcquisitionTimerBuilder|null[0]
+    final val id // space.kscience.krig.assembly/AcquisitionTimerBuilder.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTimerBuilder.id.<get-id>|<get-id>(){}[0]
+
+    final fun samples(kotlin/Array<out kotlin/String>...) // space.kscience.krig.assembly/AcquisitionTimerBuilder.samples|samples(kotlin.Array<out|kotlin.String>...){}[0]
+    final fun samples(kotlin/Array<out space.kscience.dataforge.names/Name>...) // space.kscience.krig.assembly/AcquisitionTimerBuilder.samples|samples(kotlin.Array<out|space.kscience.dataforge.names.Name>...){}[0]
+}
+
+final class space.kscience.krig.assembly/AcquisitionTimerSpec { // space.kscience.krig.assembly/AcquisitionTimerSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/Long, kotlin.collections/List<space.kscience.dataforge.names/Name> = ...) // space.kscience.krig.assembly/AcquisitionTimerSpec.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.Long;kotlin.collections.List<space.kscience.dataforge.names.Name>){}[0]
+
+    final val id // space.kscience.krig.assembly/AcquisitionTimerSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTimerSpec.id.<get-id>|<get-id>(){}[0]
+    final val intervalMs // space.kscience.krig.assembly/AcquisitionTimerSpec.intervalMs|{}intervalMs[0]
+        final fun <get-intervalMs>(): kotlin/Long // space.kscience.krig.assembly/AcquisitionTimerSpec.intervalMs.<get-intervalMs>|<get-intervalMs>(){}[0]
+    final val tags // space.kscience.krig.assembly/AcquisitionTimerSpec.tags|{}tags[0]
+        final fun <get-tags>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/AcquisitionTimerSpec.tags.<get-tags>|<get-tags>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionTimerSpec.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // space.kscience.krig.assembly/AcquisitionTimerSpec.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/AcquisitionTimerSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/Long = ..., kotlin.collections/List<space.kscience.dataforge.names/Name> = ...): space.kscience.krig.assembly/AcquisitionTimerSpec // space.kscience.krig.assembly/AcquisitionTimerSpec.copy|copy(space.kscience.dataforge.names.Name;kotlin.Long;kotlin.collections.List<space.kscience.dataforge.names.Name>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/AcquisitionTimerSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/AcquisitionTimerSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/AcquisitionTimerSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/AcquisitionTimerSpec> { // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/AcquisitionTimerSpec // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/AcquisitionTimerSpec) // space.kscience.krig.assembly/AcquisitionTimerSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.AcquisitionTimerSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/AcquisitionTimerSpec.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/AcquisitionTimerSpec.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/AcquisitionTimerSpec> // space.kscience.krig.assembly/AcquisitionTimerSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/BlueprintPlugin : space.kscience.dataforge.context/AbstractPlugin { // space.kscience.krig.assembly/BlueprintPlugin|null[0]
+    constructor <init>(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>> = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.assembly/BlueprintPlugin.<init>|<init>(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.DeviceBlueprint<*>>;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val serializerModule // space.kscience.krig.assembly/BlueprintPlugin.serializerModule|{}serializerModule[0]
+        final fun <get-serializerModule>(): kotlinx.serialization.modules/SerializersModule // space.kscience.krig.assembly/BlueprintPlugin.serializerModule.<get-serializerModule>|<get-serializerModule>(){}[0]
+    final val tag // space.kscience.krig.assembly/BlueprintPlugin.tag|{}tag[0]
+        final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.assembly/BlueprintPlugin.tag.<get-tag>|<get-tag>(){}[0]
+
+    final fun content(kotlin/String): kotlin.collections/Map<space.kscience.dataforge.names/Name, kotlin/Any> // space.kscience.krig.assembly/BlueprintPlugin.content|content(kotlin.String){}[0]
+    final fun get(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/DeviceBlueprint<*>? // space.kscience.krig.assembly/BlueprintPlugin.get|get(space.kscience.dataforge.names.Name){}[0]
+    final fun ids(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/BlueprintPlugin.ids|ids(){}[0]
+    final fun register(space.kscience.krig.core.contracts/DeviceBlueprint<*>) // space.kscience.krig.assembly/BlueprintPlugin.register|register(space.kscience.krig.core.contracts.DeviceBlueprint<*>){}[0]
+    final fun remove(space.kscience.dataforge.names/Name): kotlin/Boolean // space.kscience.krig.assembly/BlueprintPlugin.remove|remove(space.kscience.dataforge.names.Name){}[0]
+
+    final object Companion : space.kscience.dataforge.context/PluginFactory<space.kscience.krig.assembly/BlueprintPlugin> { // space.kscience.krig.assembly/BlueprintPlugin.Companion|null[0]
+        final val Target // space.kscience.krig.assembly/BlueprintPlugin.Companion.Target|{}Target[0]
+            final fun <get-Target>(): space.kscience.krig.api.discovery/ContributionTarget<space.kscience.krig.core.contracts/DeviceBlueprint<*>> // space.kscience.krig.assembly/BlueprintPlugin.Companion.Target.<get-Target>|<get-Target>(){}[0]
+        final val tag // space.kscience.krig.assembly/BlueprintPlugin.Companion.tag|{}tag[0]
+            final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.assembly/BlueprintPlugin.Companion.tag.<get-tag>|<get-tag>(){}[0]
+
+        final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.krig.assembly/BlueprintPlugin // space.kscience.krig.assembly/BlueprintPlugin.Companion.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DataAcquisitionBuilder { // space.kscience.krig.assembly/DataAcquisitionBuilder|null[0]
+    final fun source(kotlin/String, kotlin/String, kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.assembly/AcquisitionSourceSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.source|source(kotlin.String;kotlin.String;kotlinx.serialization.json.JsonObject){}[0]
+    final fun source(space.kscience.dataforge.names/Name, kotlin/String, kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.assembly/AcquisitionSourceSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.source|source(space.kscience.dataforge.names.Name;kotlin.String;kotlinx.serialization.json.JsonObject){}[0]
+    final fun tag(kotlin/String): space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagHandle // space.kscience.krig.assembly/DataAcquisitionBuilder.tag|tag(kotlin.String){}[0]
+    final fun tag(space.kscience.dataforge.names/Name): space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagHandle // space.kscience.krig.assembly/DataAcquisitionBuilder.tag|tag(space.kscience.dataforge.names.Name){}[0]
+    final fun timer(kotlin/String, kotlin.time/Duration, kotlin/Function1<space.kscience.krig.assembly/AcquisitionTimerBuilder, kotlin/Unit> = ...) // space.kscience.krig.assembly/DataAcquisitionBuilder.timer|timer(kotlin.String;kotlin.time.Duration;kotlin.Function1<space.kscience.krig.assembly.AcquisitionTimerBuilder,kotlin.Unit>){}[0]
+    final fun timer(space.kscience.dataforge.names/Name, kotlin.time/Duration, kotlin/Function1<space.kscience.krig.assembly/AcquisitionTimerBuilder, kotlin/Unit> = ...) // space.kscience.krig.assembly/DataAcquisitionBuilder.timer|timer(space.kscience.dataforge.names.Name;kotlin.time.Duration;kotlin.Function1<space.kscience.krig.assembly.AcquisitionTimerBuilder,kotlin.Unit>){}[0]
+
+    final inner class AcquisitionTagBinding { // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding|null[0]
+        final val spec // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding.spec|{}spec[0]
+            final fun <get-spec>(): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding.spec.<get-spec>|<get-spec>(){}[0]
+
+        final fun toTarget(kotlin/String, kotlin/String): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding.toTarget|toTarget(kotlin.String;kotlin.String){}[0]
+        final fun toTarget(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding.toTarget|toTarget(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+        final fun withoutTarget(): space.kscience.krig.assembly/AcquisitionTagSpec // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding.withoutTarget|withoutTarget(){}[0]
+    }
+
+    final inner class AcquisitionTagHandle { // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagHandle|null[0]
+        final fun from(kotlin/String, kotlin/String, kotlin/String = ..., kotlin.time/Duration? = ..., kotlin/Int = ...): space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagHandle.from|from(kotlin.String;kotlin.String;kotlin.String;kotlin.time.Duration?;kotlin.Int){}[0]
+        final fun from(space.kscience.dataforge.names/Name, kotlin/String, kotlin/String = ..., kotlin.time/Duration? = ..., kotlin/Int = ...): space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagBinding // space.kscience.krig.assembly/DataAcquisitionBuilder.AcquisitionTagHandle.from|from(space.kscience.dataforge.names.Name;kotlin.String;kotlin.String;kotlin.time.Duration?;kotlin.Int){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DataAcquisitionConfiguration { // space.kscience.krig.assembly/DataAcquisitionConfiguration|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.krig.assembly/AcquisitionSourceSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTimerSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> = ...) // space.kscience.krig.assembly/DataAcquisitionConfiguration.<init>|<init>(kotlin.collections.List<space.kscience.krig.assembly.AcquisitionSourceSpec>;kotlin.collections.List<space.kscience.krig.assembly.AcquisitionTimerSpec>;kotlin.collections.List<space.kscience.krig.assembly.AcquisitionTagSpec>){}[0]
+
+    final val sources // space.kscience.krig.assembly/DataAcquisitionConfiguration.sources|{}sources[0]
+        final fun <get-sources>(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionSourceSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.sources.<get-sources>|<get-sources>(){}[0]
+    final val tags // space.kscience.krig.assembly/DataAcquisitionConfiguration.tags|{}tags[0]
+        final fun <get-tags>(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.tags.<get-tags>|<get-tags>(){}[0]
+    final val timers // space.kscience.krig.assembly/DataAcquisitionConfiguration.timers|{}timers[0]
+        final fun <get-timers>(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTimerSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.timers.<get-timers>|<get-timers>(){}[0]
+
+    final fun component1(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionSourceSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTimerSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> // space.kscience.krig.assembly/DataAcquisitionConfiguration.component3|component3(){}[0]
+    final fun copy(kotlin.collections/List<space.kscience.krig.assembly/AcquisitionSourceSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTimerSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> = ...): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/DataAcquisitionConfiguration.copy|copy(kotlin.collections.List<space.kscience.krig.assembly.AcquisitionSourceSpec>;kotlin.collections.List<space.kscience.krig.assembly.AcquisitionTimerSpec>;kotlin.collections.List<space.kscience.krig.assembly.AcquisitionTagSpec>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/DataAcquisitionConfiguration.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/DataAcquisitionConfiguration.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/DataAcquisitionConfiguration.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/DataAcquisitionConfiguration> { // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/DataAcquisitionConfiguration) // space.kscience.krig.assembly/DataAcquisitionConfiguration.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.DataAcquisitionConfiguration){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/DataAcquisitionConfiguration.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/DataAcquisitionConfiguration.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun parse(kotlin/String, kotlinx.serialization.json/Json = ...): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/DataAcquisitionConfiguration.Companion.parse|parse(kotlin.String;kotlinx.serialization.json.Json){}[0]
+        final fun parseLenient(kotlin/String): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/DataAcquisitionConfiguration.Companion.parseLenient|parseLenient(kotlin.String){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/DataAcquisitionConfiguration> // space.kscience.krig.assembly/DataAcquisitionConfiguration.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DataPlatformBuilder { // space.kscience.krig.assembly/DataPlatformBuilder|null[0]
+    final fun property(kotlin/String): space.kscience.krig.assembly/DataPlatformBuilder.PropertyHandle // space.kscience.krig.assembly/DataPlatformBuilder.property|property(kotlin.String){}[0]
+    final fun property(space.kscience.dataforge.names/Name): space.kscience.krig.assembly/DataPlatformBuilder.PropertyHandle // space.kscience.krig.assembly/DataPlatformBuilder.property|property(space.kscience.dataforge.names.Name){}[0]
+    final fun source(kotlin/String): space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle // space.kscience.krig.assembly/DataPlatformBuilder.source|source(kotlin.String){}[0]
+    final fun source(space.kscience.dataforge.names/Name): space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle // space.kscience.krig.assembly/DataPlatformBuilder.source|source(space.kscience.dataforge.names.Name){}[0]
+    final fun timer(kotlin/String, kotlin.time/Duration, kotlin/Function1<space.kscience.krig.assembly/TimerBuilder, kotlin/Unit> = ...) // space.kscience.krig.assembly/DataPlatformBuilder.timer|timer(kotlin.String;kotlin.time.Duration;kotlin.Function1<space.kscience.krig.assembly.TimerBuilder,kotlin.Unit>){}[0]
+    final fun timer(space.kscience.dataforge.names/Name, kotlin.time/Duration, kotlin/Function1<space.kscience.krig.assembly/TimerBuilder, kotlin/Unit> = ...) // space.kscience.krig.assembly/DataPlatformBuilder.timer|timer(space.kscience.dataforge.names.Name;kotlin.time.Duration;kotlin.Function1<space.kscience.krig.assembly.TimerBuilder,kotlin.Unit>){}[0]
+
+    final inner class PropertyHandle { // space.kscience.krig.assembly/DataPlatformBuilder.PropertyHandle|null[0]
+        final fun from(kotlin/String, kotlin/String, space.kscience.krig.assembly/ReductionSpec = ..., kotlin/Int = ...): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/DataPlatformBuilder.PropertyHandle.from|from(kotlin.String;kotlin.String;space.kscience.krig.assembly.ReductionSpec;kotlin.Int){}[0]
+        final fun from(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, space.kscience.krig.assembly/ReductionSpec = ..., kotlin/Int = ...): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/DataPlatformBuilder.PropertyHandle.from|from(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.krig.assembly.ReductionSpec;kotlin.Int){}[0]
+    }
+
+    final inner class SourceHandle { // space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle|null[0]
+        final fun (space.kscience.krig.assembly/SourceSpec).with(kotlinx.serialization.json/JsonObject): space.kscience.krig.assembly/SourceSpec // space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle.with|with@space.kscience.krig.assembly.SourceSpec(kotlinx.serialization.json.JsonObject){}[0]
+        final fun from(kotlin/String): space.kscience.krig.assembly/SourceSpec // space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle.from|from(kotlin.String){}[0]
+        final fun from(space.kscience.dataforge.names/Name): space.kscience.krig.assembly/SourceSpec // space.kscience.krig.assembly/DataPlatformBuilder.SourceHandle.from|from(space.kscience.dataforge.names.Name){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DataPlatformConfiguration { // space.kscience.krig.assembly/DataPlatformConfiguration|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.krig.assembly/SourceSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/TimerSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> = ...) // space.kscience.krig.assembly/DataPlatformConfiguration.<init>|<init>(kotlin.collections.List<space.kscience.krig.assembly.SourceSpec>;kotlin.collections.List<space.kscience.krig.assembly.TimerSpec>;kotlin.collections.List<space.kscience.krig.assembly.PropertySpec>){}[0]
+
+    final val properties // space.kscience.krig.assembly/DataPlatformConfiguration.properties|{}properties[0]
+        final fun <get-properties>(): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/DataPlatformConfiguration.properties.<get-properties>|<get-properties>(){}[0]
+    final val sources // space.kscience.krig.assembly/DataPlatformConfiguration.sources|{}sources[0]
+        final fun <get-sources>(): kotlin.collections/List<space.kscience.krig.assembly/SourceSpec> // space.kscience.krig.assembly/DataPlatformConfiguration.sources.<get-sources>|<get-sources>(){}[0]
+    final val timers // space.kscience.krig.assembly/DataPlatformConfiguration.timers|{}timers[0]
+        final fun <get-timers>(): kotlin.collections/List<space.kscience.krig.assembly/TimerSpec> // space.kscience.krig.assembly/DataPlatformConfiguration.timers.<get-timers>|<get-timers>(){}[0]
+
+    final fun component1(): kotlin.collections/List<space.kscience.krig.assembly/SourceSpec> // space.kscience.krig.assembly/DataPlatformConfiguration.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<space.kscience.krig.assembly/TimerSpec> // space.kscience.krig.assembly/DataPlatformConfiguration.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/DataPlatformConfiguration.component3|component3(){}[0]
+    final fun copy(kotlin.collections/List<space.kscience.krig.assembly/SourceSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/TimerSpec> = ..., kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> = ...): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/DataPlatformConfiguration.copy|copy(kotlin.collections.List<space.kscience.krig.assembly.SourceSpec>;kotlin.collections.List<space.kscience.krig.assembly.TimerSpec>;kotlin.collections.List<space.kscience.krig.assembly.PropertySpec>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/DataPlatformConfiguration.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/DataPlatformConfiguration.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/DataPlatformConfiguration.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/DataPlatformConfiguration> { // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/DataPlatformConfiguration) // space.kscience.krig.assembly/DataPlatformConfiguration.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.DataPlatformConfiguration){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/DataPlatformConfiguration.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/DataPlatformConfiguration.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun parse(kotlin/String, kotlinx.serialization.json/Json = ...): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/DataPlatformConfiguration.Companion.parse|parse(kotlin.String;kotlinx.serialization.json.Json){}[0]
+        final fun parseLenient(kotlin/String): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/DataPlatformConfiguration.Companion.parseLenient|parseLenient(kotlin.String){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/DataPlatformConfiguration> // space.kscience.krig.assembly/DataPlatformConfiguration.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DataPlatformRuntime { // space.kscience.krig.assembly/DataPlatformRuntime|null[0]
+    constructor <init>(space.kscience.krig.assembly/DataPlatformConfiguration, kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>, kotlin.time/Clock = ...) // space.kscience.krig.assembly/DataPlatformRuntime.<init>|<init>(space.kscience.krig.assembly.DataPlatformConfiguration;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>;kotlin.time.Clock){}[0]
+
+    final val clock // space.kscience.krig.assembly/DataPlatformRuntime.clock|{}clock[0]
+        final fun <get-clock>(): kotlin.time/Clock // space.kscience.krig.assembly/DataPlatformRuntime.clock.<get-clock>|<get-clock>(){}[0]
+    final val config // space.kscience.krig.assembly/DataPlatformRuntime.config|{}config[0]
+        final fun <get-config>(): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/DataPlatformRuntime.config.<get-config>|<get-config>(){}[0]
+    final val devices // space.kscience.krig.assembly/DataPlatformRuntime.devices|{}devices[0]
+        final fun <get-devices>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> // space.kscience.krig.assembly/DataPlatformRuntime.devices.<get-devices>|<get-devices>(){}[0]
+
+    final fun propertiesForTimer(kotlin/String): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/DataPlatformRuntime.propertiesForTimer|propertiesForTimer(kotlin.String){}[0]
+    final fun propertiesForTimer(space.kscience.dataforge.names/Name): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/DataPlatformRuntime.propertiesForTimer|propertiesForTimer(space.kscience.dataforge.names.Name){}[0]
+}
+
+final class space.kscience.krig.assembly/DeviceFactoryPlugin : space.kscience.dataforge.context/AbstractPlugin { // space.kscience.krig.assembly/DeviceFactoryPlugin|null[0]
+    constructor <init>(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.factory/DeviceFactory<*, *>> = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.assembly/DeviceFactoryPlugin.<init>|<init>(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.api.factory.DeviceFactory<*,*>>;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val tag // space.kscience.krig.assembly/DeviceFactoryPlugin.tag|{}tag[0]
+        final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.assembly/DeviceFactoryPlugin.tag.<get-tag>|<get-tag>(){}[0]
+
+    final fun content(kotlin/String): kotlin.collections/Map<space.kscience.dataforge.names/Name, kotlin/Any> // space.kscience.krig.assembly/DeviceFactoryPlugin.content|content(kotlin.String){}[0]
+    final fun get(space.kscience.dataforge.names/Name): space.kscience.krig.api.factory/DeviceFactory<*, *>? // space.kscience.krig.assembly/DeviceFactoryPlugin.get|get(space.kscience.dataforge.names.Name){}[0]
+    final fun ids(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/DeviceFactoryPlugin.ids|ids(){}[0]
+    final fun register(space.kscience.krig.api.factory/DeviceFactory<*, *>) // space.kscience.krig.assembly/DeviceFactoryPlugin.register|register(space.kscience.krig.api.factory.DeviceFactory<*,*>){}[0]
+    final fun remove(space.kscience.dataforge.names/Name): kotlin/Boolean // space.kscience.krig.assembly/DeviceFactoryPlugin.remove|remove(space.kscience.dataforge.names.Name){}[0]
+
+    final object Companion : space.kscience.dataforge.context/PluginFactory<space.kscience.krig.assembly/DeviceFactoryPlugin> { // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion|null[0]
+        final val Target // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion.Target|{}Target[0]
+            final fun <get-Target>(): space.kscience.krig.api.discovery/ContributionTarget<space.kscience.krig.api.factory/DeviceFactory<*, *>> // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion.Target.<get-Target>|<get-Target>(){}[0]
+        final val tag // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion.tag|{}tag[0]
+            final fun <get-tag>(): space.kscience.dataforge.context/PluginTag // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion.tag.<get-tag>|<get-tag>(){}[0]
+
+        final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.krig.assembly/DeviceFactoryPlugin // space.kscience.krig.assembly/DeviceFactoryPlugin.Companion.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/InstalledDataPlatform { // space.kscience.krig.assembly/InstalledDataPlatform|null[0]
+    constructor <init>(space.kscience.krig.assembly/DataPlatformConfiguration, kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>>, kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> = ...) // space.kscience.krig.assembly/InstalledDataPlatform.<init>|<init>(space.kscience.krig.assembly.DataPlatformConfiguration;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.DeviceBlueprint<*>>;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>){}[0]
+
+    final val blueprints // space.kscience.krig.assembly/InstalledDataPlatform.blueprints|{}blueprints[0]
+        final fun <get-blueprints>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>> // space.kscience.krig.assembly/InstalledDataPlatform.blueprints.<get-blueprints>|<get-blueprints>(){}[0]
+    final val config // space.kscience.krig.assembly/InstalledDataPlatform.config|{}config[0]
+        final fun <get-config>(): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/InstalledDataPlatform.config.<get-config>|<get-config>(){}[0]
+    final val devices // space.kscience.krig.assembly/InstalledDataPlatform.devices|{}devices[0]
+        final fun <get-devices>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> // space.kscience.krig.assembly/InstalledDataPlatform.devices.<get-devices>|<get-devices>(){}[0]
+
+    final fun component1(): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/InstalledDataPlatform.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>> // space.kscience.krig.assembly/InstalledDataPlatform.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> // space.kscience.krig.assembly/InstalledDataPlatform.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.assembly/DataPlatformConfiguration = ..., kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>> = ..., kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> = ...): space.kscience.krig.assembly/InstalledDataPlatform // space.kscience.krig.assembly/InstalledDataPlatform.copy|copy(space.kscience.krig.assembly.DataPlatformConfiguration;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.DeviceBlueprint<*>>;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/InstalledDataPlatform.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/InstalledDataPlatform.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/InstalledDataPlatform.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.assembly/PlatformObservation { // space.kscience.krig.assembly/PlatformObservation|null[0]
+    constructor <init>(space.kscience.krig.assembly/PropertySpec, space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>, space.kscience.krig.api.faults/OperationFault? = ...) // space.kscience.krig.assembly/PlatformObservation.<init>|<init>(space.kscience.krig.assembly.PropertySpec;space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>;space.kscience.krig.api.faults.OperationFault?){}[0]
+
+    final val fault // space.kscience.krig.assembly/PlatformObservation.fault|{}fault[0]
+        final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault? // space.kscience.krig.assembly/PlatformObservation.fault.<get-fault>|<get-fault>(){}[0]
+    final val isOk // space.kscience.krig.assembly/PlatformObservation.isOk|{}isOk[0]
+        final fun <get-isOk>(): kotlin/Boolean // space.kscience.krig.assembly/PlatformObservation.isOk.<get-isOk>|<get-isOk>(){}[0]
+    final val observed // space.kscience.krig.assembly/PlatformObservation.observed|{}observed[0]
+        final fun <get-observed>(): space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.assembly/PlatformObservation.observed.<get-observed>|<get-observed>(){}[0]
+    final val property // space.kscience.krig.assembly/PlatformObservation.property|{}property[0]
+        final fun <get-property>(): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/PlatformObservation.property.<get-property>|<get-property>(){}[0]
+
+    final fun component1(): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/PlatformObservation.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.assembly/PlatformObservation.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.faults/OperationFault? // space.kscience.krig.assembly/PlatformObservation.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.assembly/PropertySpec = ..., space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> = ..., space.kscience.krig.api.faults/OperationFault? = ...): space.kscience.krig.assembly/PlatformObservation // space.kscience.krig.assembly/PlatformObservation.copy|copy(space.kscience.krig.assembly.PropertySpec;space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>;space.kscience.krig.api.faults.OperationFault?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/PlatformObservation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/PlatformObservation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/PlatformObservation.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.assembly/PropertySpec { // space.kscience.krig.assembly/PropertySpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, space.kscience.krig.assembly/ReductionSpec = ..., kotlin/Int = ...) // space.kscience.krig.assembly/PropertySpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.krig.assembly.ReductionSpec;kotlin.Int){}[0]
+
+    final val bufferCapacity // space.kscience.krig.assembly/PropertySpec.bufferCapacity|{}bufferCapacity[0]
+        final fun <get-bufferCapacity>(): kotlin/Int // space.kscience.krig.assembly/PropertySpec.bufferCapacity.<get-bufferCapacity>|<get-bufferCapacity>(){}[0]
+    final val id // space.kscience.krig.assembly/PropertySpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.id.<get-id>|<get-id>(){}[0]
+    final val property // space.kscience.krig.assembly/PropertySpec.property|{}property[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.property.<get-property>|<get-property>(){}[0]
+    final val reduction // space.kscience.krig.assembly/PropertySpec.reduction|{}reduction[0]
+        final fun <get-reduction>(): space.kscience.krig.assembly/ReductionSpec // space.kscience.krig.assembly/PropertySpec.reduction.<get-reduction>|<get-reduction>(){}[0]
+    final val sourceId // space.kscience.krig.assembly/PropertySpec.sourceId|{}sourceId[0]
+        final fun <get-sourceId>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.sourceId.<get-sourceId>|<get-sourceId>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/PropertySpec.component3|component3(){}[0]
+    final fun component4(): space.kscience.krig.assembly/ReductionSpec // space.kscience.krig.assembly/PropertySpec.component4|component4(){}[0]
+    final fun component5(): kotlin/Int // space.kscience.krig.assembly/PropertySpec.component5|component5(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ..., space.kscience.krig.assembly/ReductionSpec = ..., kotlin/Int = ...): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/PropertySpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.krig.assembly.ReductionSpec;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/PropertySpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/PropertySpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/PropertySpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/PropertySpec> { // space.kscience.krig.assembly/PropertySpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/PropertySpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/PropertySpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/PropertySpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/PropertySpec // space.kscience.krig.assembly/PropertySpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/PropertySpec) // space.kscience.krig.assembly/PropertySpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.PropertySpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/PropertySpec.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/PropertySpec.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/PropertySpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/SourceSpec { // space.kscience.krig.assembly/SourceSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, kotlinx.serialization.json/JsonObject = ...) // space.kscience.krig.assembly/SourceSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonObject){}[0]
+
+    final val blueprintId // space.kscience.krig.assembly/SourceSpec.blueprintId|{}blueprintId[0]
+        final fun <get-blueprintId>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/SourceSpec.blueprintId.<get-blueprintId>|<get-blueprintId>(){}[0]
+    final val config // space.kscience.krig.assembly/SourceSpec.config|{}config[0]
+        final fun <get-config>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/SourceSpec.config.<get-config>|<get-config>(){}[0]
+    final val id // space.kscience.krig.assembly/SourceSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/SourceSpec.id.<get-id>|<get-id>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/SourceSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/SourceSpec.component2|component2(){}[0]
+    final fun component3(): kotlinx.serialization.json/JsonObject // space.kscience.krig.assembly/SourceSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.assembly/SourceSpec // space.kscience.krig.assembly/SourceSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonObject){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/SourceSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/SourceSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/SourceSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/SourceSpec> { // space.kscience.krig.assembly/SourceSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/SourceSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/SourceSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/SourceSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/SourceSpec // space.kscience.krig.assembly/SourceSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/SourceSpec) // space.kscience.krig.assembly/SourceSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.SourceSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/SourceSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/SourceSpec> // space.kscience.krig.assembly/SourceSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/TimerBuilder { // space.kscience.krig.assembly/TimerBuilder|null[0]
+    final val id // space.kscience.krig.assembly/TimerBuilder.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/TimerBuilder.id.<get-id>|<get-id>(){}[0]
+
+    final fun samples(kotlin/Array<out kotlin/String>...) // space.kscience.krig.assembly/TimerBuilder.samples|samples(kotlin.Array<out|kotlin.String>...){}[0]
+    final fun samples(kotlin/Array<out space.kscience.dataforge.names/Name>...) // space.kscience.krig.assembly/TimerBuilder.samples|samples(kotlin.Array<out|space.kscience.dataforge.names.Name>...){}[0]
+}
+
+final class space.kscience.krig.assembly/TimerSpec { // space.kscience.krig.assembly/TimerSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/Long, kotlin.collections/List<space.kscience.dataforge.names/Name> = ...) // space.kscience.krig.assembly/TimerSpec.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.Long;kotlin.collections.List<space.kscience.dataforge.names.Name>){}[0]
+
+    final val id // space.kscience.krig.assembly/TimerSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/TimerSpec.id.<get-id>|<get-id>(){}[0]
+    final val intervalMs // space.kscience.krig.assembly/TimerSpec.intervalMs|{}intervalMs[0]
+        final fun <get-intervalMs>(): kotlin/Long // space.kscience.krig.assembly/TimerSpec.intervalMs.<get-intervalMs>|<get-intervalMs>(){}[0]
+    final val properties // space.kscience.krig.assembly/TimerSpec.properties|{}properties[0]
+        final fun <get-properties>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/TimerSpec.properties.<get-properties>|<get-properties>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/TimerSpec.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // space.kscience.krig.assembly/TimerSpec.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/TimerSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/Long = ..., kotlin.collections/List<space.kscience.dataforge.names/Name> = ...): space.kscience.krig.assembly/TimerSpec // space.kscience.krig.assembly/TimerSpec.copy|copy(space.kscience.dataforge.names.Name;kotlin.Long;kotlin.collections.List<space.kscience.dataforge.names.Name>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/TimerSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/TimerSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/TimerSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/TimerSpec> { // space.kscience.krig.assembly/TimerSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/TimerSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/TimerSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/TimerSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/TimerSpec // space.kscience.krig.assembly/TimerSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/TimerSpec) // space.kscience.krig.assembly/TimerSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.TimerSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/TimerSpec.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/TimerSpec.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/TimerSpec> // space.kscience.krig.assembly/TimerSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final object space.kscience.krig.assembly/FeatureContract { // space.kscience.krig.assembly/FeatureContract|null[0]
+    final fun validate(space.kscience.krig.core.features/Feature<*, *>): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.assembly/FeatureContract.validate|validate(space.kscience.krig.core.features.Feature<*,*>){}[0]
+}
+
+final val space.kscience.krig.assembly/deviceName // space.kscience.krig.assembly/deviceName|@space.kscience.krig.assembly.SourceSpec{}deviceName[0]
+    final fun (space.kscience.krig.assembly/SourceSpec).<get-deviceName>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/deviceName.<get-deviceName>|<get-deviceName>@space.kscience.krig.assembly.SourceSpec(){}[0]
+
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/blueprints(): space.kscience.krig.assembly/BlueprintPlugin // space.kscience.krig.assembly/blueprints|blueprints@space.kscience.dataforge.context.Context(){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/deviceFactories(): space.kscience.krig.assembly/DeviceFactoryPlugin // space.kscience.krig.assembly/deviceFactories|deviceFactories@space.kscience.dataforge.context.Context(){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/findBlueprint(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/DeviceBlueprint<*>? // space.kscience.krig.assembly/findBlueprint|findBlueprint@space.kscience.dataforge.context.Context(space.kscience.dataforge.names.Name){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/findFactory(space.kscience.dataforge.names/Name): space.kscience.krig.api.factory/DeviceFactory<*, *>? // space.kscience.krig.assembly/findFactory|findFactory@space.kscience.dataforge.context.Context(space.kscience.dataforge.names.Name){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/gatherFeatureCatalog(): space.kscience.krig.core.features/FeatureCatalog // space.kscience.krig.assembly/gatherFeatureCatalog|gatherFeatureCatalog@space.kscience.dataforge.context.Context(){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/gatherFeatureCatalogOutcome(): space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.core.features/FeatureCatalog> // space.kscience.krig.assembly/gatherFeatureCatalogOutcome|gatherFeatureCatalogOutcome@space.kscience.dataforge.context.Context(){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/installDataPlatform(space.kscience.krig.assembly/DataPlatformConfiguration): space.kscience.krig.assembly/InstalledDataPlatform // space.kscience.krig.assembly/installDataPlatform|installDataPlatform@space.kscience.dataforge.context.Context(space.kscience.krig.assembly.DataPlatformConfiguration){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/installDataPlatformAndMaterialise(space.kscience.krig.assembly/DataPlatformConfiguration): space.kscience.krig.assembly/InstalledDataPlatform // space.kscience.krig.assembly/installDataPlatformAndMaterialise|installDataPlatformAndMaterialise@space.kscience.dataforge.context.Context(space.kscience.krig.assembly.DataPlatformConfiguration){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/registerBlueprints(kotlin.collections/Iterable<space.kscience.krig.core.contracts/DeviceBlueprint<*>>) // space.kscience.krig.assembly/registerBlueprints|registerBlueprints@space.kscience.dataforge.context.Context(kotlin.collections.Iterable<space.kscience.krig.core.contracts.DeviceBlueprint<*>>){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/resolveBlueprints(space.kscience.krig.assembly/DataPlatformConfiguration): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceBlueprint<*>> // space.kscience.krig.assembly/resolveBlueprints|resolveBlueprints@space.kscience.dataforge.context.Context(space.kscience.krig.assembly.DataPlatformConfiguration){}[0]
+final fun (space.kscience.krig.assembly/DataAcquisitionConfiguration).space.kscience.krig.assembly/pollTimer(kotlin/String, kotlinx.coroutines.flow/Flow<kotlin/Unit>, kotlin.time/Clock = ..., space.kscience.krig.assembly/AcquisitionTagReader): kotlinx.coroutines.flow/Flow<space.kscience.krig.assembly/AcquisitionObservation> // space.kscience.krig.assembly/pollTimer|pollTimer@space.kscience.krig.assembly.DataAcquisitionConfiguration(kotlin.String;kotlinx.coroutines.flow.Flow<kotlin.Unit>;kotlin.time.Clock;space.kscience.krig.assembly.AcquisitionTagReader){}[0]
+final fun (space.kscience.krig.assembly/DataAcquisitionConfiguration).space.kscience.krig.assembly/pollTimer(space.kscience.dataforge.names/Name, kotlinx.coroutines.flow/Flow<kotlin/Unit>, kotlin.time/Clock = ..., space.kscience.krig.assembly/AcquisitionTagReader): kotlinx.coroutines.flow/Flow<space.kscience.krig.assembly/AcquisitionObservation> // space.kscience.krig.assembly/pollTimer|pollTimer@space.kscience.krig.assembly.DataAcquisitionConfiguration(space.kscience.dataforge.names.Name;kotlinx.coroutines.flow.Flow<kotlin.Unit>;kotlin.time.Clock;space.kscience.krig.assembly.AcquisitionTagReader){}[0]
+final fun (space.kscience.krig.assembly/DataAcquisitionConfiguration).space.kscience.krig.assembly/tagsForTimer(kotlin/String): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> // space.kscience.krig.assembly/tagsForTimer|tagsForTimer@space.kscience.krig.assembly.DataAcquisitionConfiguration(kotlin.String){}[0]
+final fun (space.kscience.krig.assembly/DataAcquisitionConfiguration).space.kscience.krig.assembly/tagsForTimer(space.kscience.dataforge.names/Name): kotlin.collections/List<space.kscience.krig.assembly/AcquisitionTagSpec> // space.kscience.krig.assembly/tagsForTimer|tagsForTimer@space.kscience.krig.assembly.DataAcquisitionConfiguration(space.kscience.dataforge.names.Name){}[0]
+final fun (space.kscience.krig.assembly/DataAcquisitionConfiguration).space.kscience.krig.assembly/validate(): kotlin.collections/List<kotlin/String> // space.kscience.krig.assembly/validate|validate@space.kscience.krig.assembly.DataAcquisitionConfiguration(){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformConfiguration).space.kscience.krig.assembly/propertiesForTimer(kotlin/String): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/propertiesForTimer|propertiesForTimer@space.kscience.krig.assembly.DataPlatformConfiguration(kotlin.String){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformConfiguration).space.kscience.krig.assembly/propertiesForTimer(space.kscience.dataforge.names/Name): kotlin.collections/List<space.kscience.krig.assembly/PropertySpec> // space.kscience.krig.assembly/propertiesForTimer|propertiesForTimer@space.kscience.krig.assembly.DataPlatformConfiguration(space.kscience.dataforge.names.Name){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformConfiguration).space.kscience.krig.assembly/runtime(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>, kotlin.time/Clock = ...): space.kscience.krig.assembly/DataPlatformRuntime // space.kscience.krig.assembly/runtime|runtime@space.kscience.krig.assembly.DataPlatformConfiguration(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>;kotlin.time.Clock){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformConfiguration).space.kscience.krig.assembly/validate(): kotlin.collections/List<kotlin/String> // space.kscience.krig.assembly/validate|validate@space.kscience.krig.assembly.DataPlatformConfiguration(){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformRuntime).space.kscience.krig.assembly/pollTimer(kotlin/String, kotlinx.coroutines.flow/Flow<kotlin/Unit>): kotlinx.coroutines.flow/Flow<space.kscience.krig.assembly/PlatformObservation> // space.kscience.krig.assembly/pollTimer|pollTimer@space.kscience.krig.assembly.DataPlatformRuntime(kotlin.String;kotlinx.coroutines.flow.Flow<kotlin.Unit>){}[0]
+final fun (space.kscience.krig.assembly/DataPlatformRuntime).space.kscience.krig.assembly/pollTimer(space.kscience.dataforge.names/Name, kotlinx.coroutines.flow/Flow<kotlin/Unit>): kotlinx.coroutines.flow/Flow<space.kscience.krig.assembly/PlatformObservation> // space.kscience.krig.assembly/pollTimer|pollTimer@space.kscience.krig.assembly.DataPlatformRuntime(space.kscience.dataforge.names.Name;kotlinx.coroutines.flow.Flow<kotlin.Unit>){}[0]
+final fun (space.kscience.krig.assembly/InstalledDataPlatform).space.kscience.krig.assembly/runtime(kotlin.time/Clock = ...): space.kscience.krig.assembly/DataPlatformRuntime // space.kscience.krig.assembly/runtime|runtime@space.kscience.krig.assembly.InstalledDataPlatform(kotlin.time.Clock){}[0]
+final fun space.kscience.krig.assembly/dataAcquisition(kotlin/Function1<space.kscience.krig.assembly/DataAcquisitionBuilder, kotlin/Unit>): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/dataAcquisition|dataAcquisition(kotlin.Function1<space.kscience.krig.assembly.DataAcquisitionBuilder,kotlin.Unit>){}[0]
+final fun space.kscience.krig.assembly/dataPlatform(kotlin/Function1<space.kscience.krig.assembly/DataPlatformBuilder, kotlin/Unit>): space.kscience.krig.assembly/DataPlatformConfiguration // space.kscience.krig.assembly/dataPlatform|dataPlatform(kotlin.Function1<space.kscience.krig.assembly.DataPlatformBuilder,kotlin.Unit>){}[0]
+final suspend fun (space.kscience.krig.core.contracts/DeviceBlueprint<*>).space.kscience.krig.assembly/assemblePipeline(space.kscience.krig.core.contracts/Device, space.kscience.dataforge.context/Context, space.kscience.krig.core.features/FeatureCatalog = ..., space.kscience.krig.core.features/UnknownFeaturePolicy = ..., space.kscience.krig.assembly/BlueprintValidationPolicy = ..., kotlin/Function1<space.kscience.krig.core.pipeline/PipelineBuilder, kotlin/Unit> = ...): space.kscience.krig.core.contracts/Device // space.kscience.krig.assembly/assemblePipeline|assemblePipeline@space.kscience.krig.core.contracts.DeviceBlueprint<*>(space.kscience.krig.core.contracts.Device;space.kscience.dataforge.context.Context;space.kscience.krig.core.features.FeatureCatalog;space.kscience.krig.core.features.UnknownFeaturePolicy;space.kscience.krig.assembly.BlueprintValidationPolicy;kotlin.Function1<space.kscience.krig.core.pipeline.PipelineBuilder,kotlin.Unit>){}[0]
+final suspend fun <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> (space.kscience.krig.api.factory/DeviceFactory<#A, #B>).space.kscience.krig.assembly/assembleDevice(space.kscience.dataforge.context/Context, #B, kotlin/Function1<space.kscience.krig.core.pipeline/PipelineBuilder, kotlin/Unit> = ...): space.kscience.krig.core.contracts/Device // space.kscience.krig.assembly/assembleDevice|assembleDevice@space.kscience.krig.api.factory.DeviceFactory<0:0,0:1>(space.kscience.dataforge.context.Context;0:1;kotlin.Function1<space.kscience.krig.core.pipeline.PipelineBuilder,kotlin.Unit>){0§<space.kscience.krig.core.contracts.Device>;1§<kotlin.Any?>}[0]
+final suspend fun <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> (space.kscience.krig.api.factory/DeviceFactory<#A, #B>).space.kscience.krig.assembly/assembleDeviceFromBlueprint(space.kscience.dataforge.context/Context, #B, space.kscience.krig.core.features/FeatureCatalog = ..., space.kscience.krig.core.features/UnknownFeaturePolicy = ..., space.kscience.krig.assembly/BlueprintValidationPolicy = ..., kotlin/Function1<space.kscience.krig.core.pipeline/PipelineBuilder, kotlin/Unit> = ...): space.kscience.krig.core.contracts/Device // space.kscience.krig.assembly/assembleDeviceFromBlueprint|assembleDeviceFromBlueprint@space.kscience.krig.api.factory.DeviceFactory<0:0,0:1>(space.kscience.dataforge.context.Context;0:1;space.kscience.krig.core.features.FeatureCatalog;space.kscience.krig.core.features.UnknownFeaturePolicy;space.kscience.krig.assembly.BlueprintValidationPolicy;kotlin.Function1<space.kscience.krig.core.pipeline.PipelineBuilder,kotlin.Unit>){0§<space.kscience.krig.core.contracts.Device>;1§<kotlin.Any?>}[0]

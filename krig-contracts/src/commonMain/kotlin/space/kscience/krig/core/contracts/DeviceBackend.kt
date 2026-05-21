@@ -10,8 +10,9 @@ import space.kscience.dataforge.meta.Meta
  * remote service. Every operation returns a [OperationOutcome] instead of throwing;
  * drivers wrap throwing code with `runCatchingOperation { ... }`.
  *
- * Operations receive [DeviceEnvironment] as context — only the clock, scope and name
- * are visible; the full [Device] hierarchy is not exposed to backend implementations.
+ * Operations receive [DeviceEnvironment] as context — the current operation environment,
+ * not an application service locator. Application services are requested from the
+ * DataForge Context when wiring the device.
  * Backends with native typed data-plane handles additionally implement
  * [space.kscience.krig.core.contracts.typed.TypedBackend].
  */

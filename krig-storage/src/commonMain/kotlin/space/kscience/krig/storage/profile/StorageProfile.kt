@@ -15,5 +15,6 @@ public object StorageProfiles {
     public val JournalCompact: StorageProfile = StorageProfile("journal.compact".parseAsName())
     public val TimeSeriesRows: StorageProfile = StorageProfile("timeseries.rows".parseAsName())
     public val TimeSeriesChunks: StorageProfile = StorageProfile("timeseries.chunks".parseAsName())
+    public val TimeSeriesDense: StorageProfile = StorageProfile("timeseries.dense".parseAsName())
     public val TimeSeriesDeadband: StorageProfile = StorageProfile("timeseries.deadband".parseAsName())
 }

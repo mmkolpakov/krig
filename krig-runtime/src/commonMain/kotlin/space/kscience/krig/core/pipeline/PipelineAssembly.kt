@@ -15,11 +15,11 @@ import space.kscience.krig.core.capabilities.LifecycleManagingCapability
 import space.kscience.krig.core.capabilities.capabilityValues
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBlueprint
-import space.kscience.krig.core.contracts.FeatureCatalog
-import space.kscience.krig.core.contracts.FeatureSpecMismatchException
+import space.kscience.krig.core.features.FeatureCatalog
+import space.kscience.krig.core.features.FeatureSpecMismatchException
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.CapabilityHost
-import space.kscience.krig.core.contracts.UnknownFeaturePolicy
+import space.kscience.krig.core.features.UnknownFeaturePolicy
 import space.kscience.krig.core.hook.PropertyReadRequested
 import space.kscience.krig.core.operations.ResourceLockRegistry
 

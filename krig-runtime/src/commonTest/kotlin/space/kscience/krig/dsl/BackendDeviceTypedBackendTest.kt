@@ -10,20 +10,29 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.context.PluginFactory
+import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.lifecycle.LifecycleState
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.okUnit
+import space.kscience.krig.api.services.AuditService
+import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.contracts.typed.GenericTypedWriter
@@ -51,6 +60,20 @@ class BackendDeviceTypedBackendTest {
         override suspend fun read(device: BackendDevice): Double = error("not used")
         override suspend fun write(device: BackendDevice, value: Double): Unit =
             error("not used: ${device.name} = $value")
+    }
+
+    private object TestAuthorizationService : PluginFactory<AuthorizationService> {
+        override val tag: PluginTag get() = AuthorizationService.tag
+
+        override fun build(context: Context, meta: Meta): AuthorizationService =
+            object : AbstractPlugin(meta), AuthorizationService {
+                override suspend fun checkPermission(principal: Principal, permission: Permission) = Unit
+            }
+    }
+
+    private fun permissiveContext(): Context = Context("loose-meta-test") {
+        plugin(TestAuthorizationService)
+        plugin(AuditService)
     }
 
     @Test
@@ -131,6 +154,35 @@ class BackendDeviceTypedBackendTest {
         assertTrue(device.lifecycleState !is LifecycleState.Failed)
     }
 
+    @Test
+    fun backendDeviceRejectsUndeclaredMetaPropertiesByDefault() = runTest {
+        val device = BackendDevice(
+            backend = LooseMetaBackend(),
+            name = "strict-meta".asName(),
+            context = Context("strict-meta-test"),
+            descriptorSource = DescriptorSource.Empty,
+        )
+
+        val outcome = device.readPropertyOutcome("loose".asName())
+
+        val failure = assertIs<OperationOutcome.Fail>(outcome)
+        assertEquals(OperationFaultTypes.UnknownProperty, failure.fault.faultType)
+    }
+
+    @Test
+    fun deviceBuilderAllowsAdHocPropertiesOnlyWhenEnabled() = runTest {
+        val backend = LooseMetaBackend()
+        val device = device("loose-meta", backend, permissiveContext()) {
+            allowAdHocProperties = true
+        }
+
+        assertEquals(7.0, device.readProperty("loose".asName()).doubleValue)
+        device.writeProperty("loose".asName(), metaOf(9.0))
+
+        assertEquals("loose".asName(), backend.lastWrite)
+        assertEquals(9.0, backend.lastValue?.doubleValue)
+    }
+
     private inner class NativeTypedBackend : DeviceBackend, TypedBackend {
         var metaReads: Int = 0
             private set
@@ -160,6 +212,32 @@ class BackendDeviceTypedBackendTest {
         context(device: DeviceEnvironment)
         override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
             metaWrites += 1
+            return okUnit()
+        }
+
+        context(device: DeviceEnvironment)
+        override suspend fun execute(
+            action: space.kscience.krig.api.descriptors.ActionDescriptor,
+            argument: Meta?,
+        ): OperationOutcome<Meta?> = OperationOutcome.Ok(null)
+
+        override fun close() = Unit
+    }
+
+    private class LooseMetaBackend : DeviceBackend {
+        var lastWrite: Name? = null
+            private set
+        var lastValue: Meta? = null
+            private set
+
+        context(device: DeviceEnvironment)
+        override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
+            OperationOutcome.Ok(metaOf(7.0))
+
+        context(device: DeviceEnvironment)
+        override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
+            lastWrite = property.name
+            lastValue = value
             return okUnit()
         }
 

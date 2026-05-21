@@ -16,10 +16,8 @@ import kotlin.time.TimeSource
 
 /**
  * Configures the context to use a virtual timeline, starting at the given [start] time.
- * All `delay` calls and `Clock` access within this context will be managed by a
- * [kotlinx.coroutines.test.TestCoroutineScheduler] exposed via
- * [ClockManager.simulationDispatcher] and [ClockManager.clock]. This is the primary entry
- * point for setting up a deterministic simulation environment.
+ * All `delay` calls and `Clock` access within this context are routed through the
+ * [ClockManager.simulationDispatcher] and [ClockManager.clock].
  *
  * @param start The initial [Instant] for the virtual timeline. Defaults to the current system time.
  */

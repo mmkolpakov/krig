@@ -3,14 +3,14 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Virtual time simulation and coroutine DES helpers for krig."
+description = "Deterministic virtual-time adapters and coroutine simulation helpers for krig."
 
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
                 api(project(":krig-contracts"))
-                api(project(":krig-primitives"))
+                api(project(":krig-runtime-stdlib"))
                 api(project(":krig-runtime"))
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)

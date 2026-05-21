@@ -4,7 +4,7 @@ import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.InternalKrigApi
-import space.kscience.krig.core.contracts.featureCatalogOf
+import space.kscience.krig.core.features.featureCatalogOf
 import space.kscience.krig.dsl.feature
 import space.kscience.dataforge.names.asName
 import kotlin.time.Duration.Companion.milliseconds

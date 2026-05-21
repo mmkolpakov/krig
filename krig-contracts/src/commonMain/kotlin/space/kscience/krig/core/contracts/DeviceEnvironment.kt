@@ -10,9 +10,10 @@ import kotlin.time.TimeSource
  * a wall/event [clock], a monotonic [timeSource] for elapsed-time measurements,
  * a coroutine scope, and the device's name.
  *
- * [Device] extends this interface, so a backend declared with
- * `context(env: DeviceEnvironment)` automatically receives the owning
- * device as its context parameter — no adapters needed.
+ * [Device] extends this interface, so backend operations declared with
+ * `context(env: DeviceEnvironment)` receive the current operation environment
+ * without manual parameter plumbing. It is not a replacement for DataForge
+ * Context services.
  */
 public interface DeviceEnvironment {
     public val clock: Clock

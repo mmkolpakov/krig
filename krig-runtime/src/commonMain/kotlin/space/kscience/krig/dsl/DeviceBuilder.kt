@@ -7,7 +7,7 @@ import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceBlueprint
 import space.kscience.krig.core.contracts.DeviceEnvironment
-import space.kscience.krig.core.contracts.Feature
+import space.kscience.krig.core.features.Feature
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.TransportBackend
 import space.kscience.krig.core.contracts.booleanValue
@@ -40,6 +40,12 @@ import kotlin.time.Duration
 public sealed interface DeviceBuilder {
     public val deviceName: Name
     public val deviceContext: Context
+
+    /**
+     * Allows string/Meta property calls not declared by a blueprint or DSL property.
+     * Keep `false` for contract-checked devices; set `true` for legacy adapters and notebooks.
+     */
+    public var allowAdHocProperties: Boolean
 
     /** Installs descriptors from a [DeviceBlueprint]. */
     public fun blueprint(blueprint: DeviceBlueprint<*>)
@@ -130,6 +136,8 @@ internal class DeviceBuilderCore internal constructor(
 
     @PublishedApi internal val pipeline: PipelineBuilder = PipelineBuilder()
 
+    override var allowAdHocProperties: Boolean = false
+
     @PublishedApi
     internal var descriptorSource: DescriptorSource = DescriptorSource.Empty
         private set
@@ -155,7 +163,13 @@ internal class DeviceBuilderCore internal constructor(
         if (backend is TransportBackend) {
             pipeline.useConnectionState { backend.connectionState.value }
         }
-        val baseDevice = BackendDevice(backend, deviceName, runtime, descriptorSource)
+        val baseDevice = BackendDevice(
+            backend = backend,
+            name = deviceName,
+            runtime = runtime,
+            descriptorSource = descriptorSource,
+            allowAdHocProperties = allowAdHocProperties,
+        )
         return wrapWithPipeline(baseDevice, pipeline, deviceName.toString())
     }
 }

@@ -12,7 +12,7 @@ kotlin {
             dependencies {
                 api(project(":krig-contracts"))
                 api(project(":krig-operation"))
-                api(project(":krig-primitives"))
+                api(project(":krig-runtime-stdlib"))
                 implementation(libs.arrow.core)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.atomicfu)

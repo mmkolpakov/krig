@@ -173,7 +173,7 @@ class AbstractDeviceCloseGracefullyTest {
     @Test
     fun shutdownFromInsideDeviceScopeDoesNotJoinItself() = runTest {
         val deviceJob = SupervisorJob(coroutineContext[Job])
-        val scope = CoroutineScope(coroutineContext + deviceJob)
+        val scope = CoroutineScope(coroutineContext + deviceJob + DeviceScopeElement("drain".asName()))
         val completed = CompletableDeferred<Unit>()
 
         scope.launch {

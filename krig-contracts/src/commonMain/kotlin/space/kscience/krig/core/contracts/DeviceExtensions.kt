@@ -1,5 +1,6 @@
 package space.kscience.krig.core.contracts
 
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -34,3 +35,7 @@ public suspend fun <I, O> Device.execute(spec: DeviceActionContract<I, O>, input
  * @see execute
  */
 public suspend fun <O> Device.execute(spec: DeviceActionContract<Unit, O>): O? = execute(spec, Unit)
+
+/** Outcome-returning unit-input action overload. */
+public suspend fun <O> Device.executeOutcome(spec: DeviceActionContract<Unit, O>): OperationOutcome<O?> =
+    executeOutcome(spec, Unit)

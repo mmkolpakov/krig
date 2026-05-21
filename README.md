@@ -66,16 +66,16 @@ val thermo = device("thermo") {
    fault types are open `Name` keys, not string switches.
 5. **State keeps time and quality.** `Timestamped<T>` and `ObservedValue<T>` carry time and
    `DataQuality` through reactive views.
-6. **Acquisition mapping is protocol-neutral.** krig validates sources, timers, tags, and
-   device-property targets; concrete connectors live outside the SDK core.
+6. **Acquisition mapping is protocol-neutral.** krig validates named sources, timers,
+   tags, and device-property targets; concrete connectors live outside the SDK core.
 7. **Device identity is a `Name`.** Transport routes and physical addresses stay at the
    connector/envelope boundary, outside core device messages.
 8. **Serialization is explicit.** KSP builds static indexes; REPL and integrations can add
    runtime `SerializationContributor`s without classpath scanning.
 9. **Real and virtual devices share one model.** The same contracts work with wall-clock
    devices, deterministic simulation, event logs, and counterfactual replay.
-10. **Features assemble policies; capabilities hold local state.** Feature ids are `Name`s;
-    global services stay in DataForge `Context` plugins.
+10. **Features assemble policies; capabilities hold per-host state.** Feature ids are
+    `Name`s; application services are requested from the DataForge `Context`.
 
 ## Modules
 
@@ -86,10 +86,12 @@ val thermo = device("thermo") {
 | Model | `krig-model` | Descriptors, feature specs, expressions, retry policy |
 | Operation | `krig-operation` | `OperationOutcome`, faults, QoS pipeline, gates, observers, locks |
 | Messaging | `krig-messaging` | Device messages and serialization |
-| Storage | `krig-storage` | Event journals, typed time-series samples/chunks, storage profiles |
+| Storage | `krig-storage` | Event journals, typed row and dense time-series chunks, storage profiles |
 | Contracts | `krig-contracts` | Device, backend, blueprint, typed access, samplers, HLC |
+| IO | `krig-io` | Byte-stream framers and flow adapters |
 | Runtime | `krig-runtime` | DSL, operation pipeline assembly, gates, observers, dynamic groups |
-| Primitives | `krig-primitives` | State, storage, event log, time travel, expressions, peer transport |
+| Runtime stdlib | `krig-runtime-stdlib` | Dynamic hubs, state history, expressions, peer runtime, time travel |
+| Assembly | `krig-assembly` | DataForge plugins, blueprint/factory discovery, data-platform polling |
 | Transport | `krig-magix` | Magix endpoint and envelope support |
 | Simulation | `krig-simulation` | Deterministic scheduler, resources, signals, process DSL |
 | Build | `krig-ksp-processor` | KSP2 validation and serializers module generation |
@@ -122,7 +124,7 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 | Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the curated alpha-3 demo set |
 | Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `blueprintOf`, `backend`, typed `read`/`write`/action, retry installation |
 | Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
-| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed against a live device |
+| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed by reusable runtime polling |
 | External polling | [`ExternalPollingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExternalPollingDemo.kt) | Protocol-neutral acquisition mapping driven by one shared timer |
 | Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, shared ticks, zero-order hold for UI-rate streams |
 | Shared timer control | [`SharedTimerControlDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SharedTimerControlDemo.kt) | One timer shared by control loop and UI-rate sampling |

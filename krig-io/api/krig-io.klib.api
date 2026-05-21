@@ -1,0 +1,17 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <space.kscience:krig-io>
+abstract fun interface <#A: kotlin/Any?> space.kscience.krig.transport.io/Framer { // space.kscience.krig.transport.io/Framer|null[0]
+    abstract fun decode(kotlinx.io/Buffer): #A? // space.kscience.krig.transport.io/Framer.decode|decode(kotlinx.io.Buffer){}[0]
+}
+
+final fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/Flow<kotlin/ByteArray>).space.kscience.krig.transport.io/framed(space.kscience.krig.transport.io/Framer<#A>): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.transport.io/framed|framed@kotlinx.coroutines.flow.Flow<kotlin.ByteArray>(space.kscience.krig.transport.io.Framer<0:0>){0§<kotlin.Any?>}[0]
+final fun space.kscience.krig.transport.io/delimitedFramer(kotlinx.io.bytestring/ByteString, kotlin/Int = ...): space.kscience.krig.transport.io/Framer<kotlin/ByteArray> // space.kscience.krig.transport.io/delimitedFramer|delimitedFramer(kotlinx.io.bytestring.ByteString;kotlin.Int){}[0]
+final fun space.kscience.krig.transport.io/fixedSizeFramer(kotlin/Int): space.kscience.krig.transport.io/Framer<kotlin/ByteArray> // space.kscience.krig.transport.io/fixedSizeFramer|fixedSizeFramer(kotlin.Int){}[0]
+final fun space.kscience.krig.transport.io/lengthPrefixedFramer(kotlin/Int = ...): space.kscience.krig.transport.io/Framer<kotlin/ByteArray> // space.kscience.krig.transport.io/lengthPrefixedFramer|lengthPrefixedFramer(kotlin.Int){}[0]
+final fun space.kscience.krig.transport.io/lineFramer(kotlinx.io.bytestring/ByteString = ..., kotlin/Int = ...): space.kscience.krig.transport.io/Framer<kotlin/String> // space.kscience.krig.transport.io/lineFramer|lineFramer(kotlinx.io.bytestring.ByteString;kotlin.Int){}[0]

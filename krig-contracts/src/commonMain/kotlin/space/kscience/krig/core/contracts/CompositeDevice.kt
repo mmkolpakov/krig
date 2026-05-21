@@ -12,7 +12,7 @@ import space.kscience.dataforge.names.asName
 import kotlin.time.Duration
 
 /**
- * Composite [Device] implementing the Composite Pattern.
+ * [Device] with named child devices.
  *
  * Hierarchical names route to children: `motor.position` reads `position`
  * from child `motor`. A name with no sub-path (single token) is always

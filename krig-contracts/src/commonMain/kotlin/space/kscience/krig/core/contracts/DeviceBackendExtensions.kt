@@ -11,8 +11,8 @@ import space.kscience.dataforge.meta.*
  *
  * Default implementations delegate to [DeviceBackend.read]/[DeviceBackend.write]
  * using DataForge's built-in ByteArrayValue codec. All extensions carry a
- * `context(device: DeviceEnvironment)` because the underlying [DeviceBackend.read] / [write] /
- * [execute] do.
+ * `context(device: DeviceEnvironment)` because the underlying [DeviceBackend] operations
+ * already require the current operation environment.
  */
 
 /**

@@ -50,14 +50,16 @@ include(
     ":krig-messaging",
     ":krig-storage",
     ":krig-contracts",
+    ":krig-io",
     // Runtime
     ":krig-runtime",
-    ":krig-primitives",
+    ":krig-runtime-stdlib",
+    ":krig-assembly",
 
     // Transport Contract.
     ":krig-magix",
 
-    // Simulation — virtual time engine built on kotlinx-coroutines-test.
+    // Simulation — deterministic virtual-time adapters for tests, notebooks and replay.
     ":krig-simulation",
 
     // Jupyter integration — JVM-only convenience module for notebook demos.

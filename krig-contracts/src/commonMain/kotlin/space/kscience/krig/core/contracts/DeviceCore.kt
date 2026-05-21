@@ -114,10 +114,13 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     public val lifecycleState: LifecycleState
 
-    /** Children for composite devices; empty for leaves. Hierarchical names route through here. */
+    /**
+     * Read-only topology view. Leaves return an empty map; mutable topology is exposed
+     * by [space.kscience.krig.api.hub.DynamicHub].
+     */
     public val children: Map<Name, Device> get() = emptyMap()
 
-    /** Reactive view of [children]. Leaves share [EmptyChildrenFlow]; hubs back it with a mutable flow. */
+    /** Reactive view of [children]. Leaves share [EmptyChildrenFlow]. */
     public val childrenFlow: StateFlow<Map<Name, Device>>
         get() = EmptyChildrenFlow
 

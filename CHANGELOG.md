@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `SerializersModuleGenerator`. Fine-grained incremental processing.
 -   **New devices DSL:** `KrigDsl.kt`, `ExpressionDsl.kt`, Device DSL builder
     (`propertyDouble`, `mutableProperty`, etc.), `DemoSuite.kt` with curated demos.
--   **New transport primitives:** Framer merged into `krig-primitives`.
+-   **New transport primitives:** Framer lives in `krig-io`.
 -   **New compiler flag:** `-Xreturn-value-checker=full` across all modules.
 
 ### Changed
@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     three independent generators. Processor service provider renamed to
     `KrigSymbolProcessorProvider`.
 -   **Simulation module redesigned:** `VirtualTimeDispatcher` / `controls-simulation`
-    replaced by `DeterministicScheduler` (wrapping `TestCoroutineScheduler`),
+    replaced by `DeterministicScheduler`,
     `ProcessDsl`, `Resource`, `Signal`.
 -   **ABI exclusion:** Changed from `@InternalControlsApi` to `@InternalKrigApi`.
     ABI validation runs on all modules.

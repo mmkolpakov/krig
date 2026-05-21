@@ -8,7 +8,7 @@ import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.capabilities.Capability
-import space.kscience.krig.core.contracts.Feature
+import space.kscience.krig.core.features.Feature
 import space.kscience.krig.core.hook.Hook
 import space.kscience.krig.core.pipeline.OperationGate
 import space.kscience.krig.core.pipeline.OperationKind
@@ -16,7 +16,7 @@ import space.kscience.krig.core.pipeline.OperationObserver
 import space.kscience.krig.core.pipeline.PipelineBuilder
 import space.kscience.krig.core.pipeline.ReadDecorator
 
-/** Receiver for [feature]'s install lambda. */
+/** Scope for translating feature config into pipeline policy and local capabilities. */
 public class FeatureScope<C : Any>(
     public val config: C,
     public val pipeline: PipelineBuilder,
@@ -71,7 +71,7 @@ public class FeatureOperationScope internal constructor(
         }
 }
 
-/** Builder for a [feature] without subclassing. */
+/** Creates a [Feature] without subclassing. */
 public fun <C : Any, F : FeatureSpec> feature(
     id: Name,
     specClass: KClass<F>,
@@ -94,7 +94,7 @@ public fun <C : Any, F : FeatureSpec> feature(
     install: FeatureScope<C>.() -> Unit,
 ): Feature<C, F> = feature(id.asName(), specClass, createConfig, install)
 
-/** Builder for a spec-less [feature]. */
+/** Creates a spec-less [Feature]. */
 public fun <C : Any> feature(
     id: Name,
     createConfig: () -> C,

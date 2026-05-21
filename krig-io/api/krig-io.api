@@ -1,0 +1,15 @@
+public abstract interface class space/kscience/krig/transport/io/Framer {
+	public abstract fun decode (Lkotlinx/io/Buffer;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/transport/io/FramerKt {
+	public static final fun delimitedFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun delimitedFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun fixedSizeFramer (I)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun framed (Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/transport/io/Framer;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun lengthPrefixedFramer (I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun lengthPrefixedFramer$default (IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+	public static final fun lineFramer (Lkotlinx/io/bytestring/ByteString;I)Lspace/kscience/krig/transport/io/Framer;
+	public static synthetic fun lineFramer$default (Lkotlinx/io/bytestring/ByteString;IILjava/lang/Object;)Lspace/kscience/krig/transport/io/Framer;
+}
+

@@ -7,10 +7,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.withContext
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.core.InternalKrigApi
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
 /**
@@ -42,6 +42,16 @@ public object CleanupFailureReporting {
     public fun report(failure: Exception) {
         reporterRef.value?.report(failure)
     }
+}
+
+/**
+ * Marker inherited by coroutines launched in a device-owned scope.
+ */
+@InternalKrigApi
+public class DeviceScopeElement(public val deviceName: Name) : CoroutineContext.Element {
+    public companion object Key : CoroutineContext.Key<DeviceScopeElement>
+
+    override val key: CoroutineContext.Key<DeviceScopeElement> get() = Key
 }
 
 /** Runs best-effort cleanup while preserving coroutine cancellation. */
@@ -93,8 +103,8 @@ public suspend inline fun ignoreCleanupFailureSuspending(crossinline block: susp
  * Cancels [deviceScope] without joining it from one of its own children.
  *
  * A remote `shutdown` command may execute inside the device's operation scope. Joining the
- * root job from that child waits for the child itself and deadlocks. In that case we cancel
- * sibling branches now and cancel the root once the current operation completes.
+ * root job from that child waits for the child itself and deadlocks. In that case we request
+ * root cancellation after the current operation completes.
  */
 @InternalKrigApi
 public suspend fun cancelDeviceScopeSafely(deviceName: Name, deviceScope: CoroutineScope) {
@@ -105,38 +115,14 @@ public suspend fun cancelDeviceScopeSafely(deviceName: Name, deviceScope: Corout
         return
     }
 
-    val currentJob = currentCoroutineContext()[Job]
-    if (currentJob != null && deviceJob.containsJob(currentJob)) {
-        if (currentJob === deviceJob) {
-            deviceJob.cancel(cause)
-            return
-        }
-        deviceJob.cancelChildrenExcept(currentJob, cause)
-        currentJob.invokeOnCompletion {
-            deviceJob.cancel(cause)
-        }
+    val currentDevice = currentCoroutineContext()[DeviceScopeElement]?.deviceName
+    if (currentDevice == deviceName) {
+        val currentJob = currentCoroutineContext()[Job]
+        currentJob?.invokeOnCompletion {
+            deviceScope.cancel(cause)
+        } ?: deviceScope.cancel(cause)
     } else {
         deviceJob.cancel(cause)
         deviceJob.join()
     }
-}
-
-private fun Job.containsJob(target: Job): Boolean =
-    this === target || children.any { child -> child.containsJob(target) }
-
-private suspend fun Job.cancelChildrenExcept(kept: Job, cause: CancellationException) {
-    val cancelled = mutableListOf<Job>()
-    for (child in children) {
-        when {
-            child === kept -> Unit
-            child.containsJob(kept) -> {
-                child.cancelChildrenExcept(kept, cause)
-            }
-            else -> {
-                child.cancel(cause)
-                cancelled += child
-            }
-        }
-    }
-    cancelled.joinAll()
 }

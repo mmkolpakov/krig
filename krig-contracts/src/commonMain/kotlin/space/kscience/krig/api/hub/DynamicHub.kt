@@ -8,9 +8,8 @@ import space.kscience.krig.core.hook.HookRegistry
 import space.kscience.dataforge.names.Name
 
 /**
- * A [Device] whose children can be attached / detached / replaced at runtime. Separate from
- * [Device] itself because most devices are leaves — exposing mutation universally would
- * weaken encapsulation.
+ * Mutation API for device topology. Ordinary [Device]s expose only a read-only
+ * [Device.children] view; hubs add attach / replace / detach operations.
  */
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
 public interface DynamicHub : Device {
@@ -49,10 +48,7 @@ public interface DynamicHub : Device {
         reason: DeviceDepartureReason = DeviceDepartureReason.Graceful,
     ): Device?
 
-    /**
-     * Hot observability flow of topology events. This is not a durable log; use
-     * [children] or [childrenFlow] as the source of truth for current topology.
-     */
+    /** Hot observability flow; [children] and [childrenFlow] are the topology source of truth. */
     public val hubEvents: Flow<HubEvent>
 
     /**
