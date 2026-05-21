@@ -2,10 +2,7 @@
 
 import space.kscience.krig.core.meta.DevicePropertyContract
 
-/**
- * Typed write handle for a device property — the write counterpart of [TypedReader].
- * For zero-allocation writes, use [TypedSampler] for high-frequency data.
- */
+/** Typed write handle for a device property. */
 public interface TypedWriter<T> {
     public suspend fun write(value: T)
 }

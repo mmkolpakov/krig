@@ -1,14 +1,14 @@
-# krig benchmarks
+# KRig benchmarks
 
-JVM benchmark companion for the KRig.
+JVM benchmark companion for KRig.
 
 ## Macro storage
 
 Wall-clock storage scenarios:
 
-- controls-compatible `DeviceMessage` JSON journal through Exposed;
+- controls-shaped `DeviceMessage` JSON journal through Exposed;
 - direct JDBC event-journal baseline;
-- compatible dense rows profile for controls-kt reference numbers;
+- controls-shaped dense rows profile;
 - typed narrow and wide time-series rows;
 - compressed row chunks.
 
@@ -17,8 +17,7 @@ Wall-clock storage scenarios:
 ```
 
 The report is written to `krig-benchmarks/build/krig-benchmarks/storage-results.md`.
-The report includes controls-kt reference tables captured for the same benchmark
-shape.
+The report includes controls-kt reference tables for the same benchmark shape.
 
 TimescaleDB is optional:
 

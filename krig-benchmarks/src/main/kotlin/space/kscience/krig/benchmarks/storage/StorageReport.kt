@@ -6,12 +6,12 @@ import kotlin.io.path.absolutePathString
 
 internal fun printReference() {
     println()
-    println("controls-kt published reference")
+    println("controls-kt reference")
     println("| scenario | values | write | read | bytes | bytes/value | note |")
     println("|---|---:|---:|---:|---:|---:|---|")
     controlsReferences.forEach { println(it.markdownRow()) }
     println()
-    println("controls-kt local rerun")
+    println("controls-kt comparison run")
     println("| scenario | values | write | read | bytes | bytes/value | note |")
     println("|---|---:|---:|---:|---:|---:|---|")
     controlsLocalRerun.forEach { println(it.markdownRow()) }
@@ -40,13 +40,13 @@ internal fun writeReport(
         appendLine("matrix=${matrix.tags} tags x ${matrix.rows} rows")
         appendLine("timescale=${config.runTimescale}")
         appendLine()
-        appendLine("## controls-kt published reference")
+        appendLine("## controls-kt reference")
         appendLine()
         appendLine("| scenario | values | write | read | bytes | bytes/value | note |")
         appendLine("|---|---:|---:|---:|---:|---:|---|")
         controlsReferences.forEach { appendLine(it.markdownRow()) }
         appendLine()
-        appendLine("## controls-kt local rerun")
+        appendLine("## controls-kt comparison run")
         appendLine()
         appendLine("| scenario | values | write | read | bytes | bytes/value | note |")
         appendLine("|---|---:|---:|---:|---:|---:|---|")
@@ -76,9 +76,9 @@ internal fun writeReport(
         appendLine("|---|---:|---:|---:|---:|---:|---:|---|")
         results.architecture.forEach { appendLine(it.markdownRow()) }
         appendLine()
-        appendLine("The controls-kt table is an external historical reference from `feature/data-platform-storage` runs.")
+        appendLine("The controls-kt reference table comes from `feature/data-platform-storage` runs.")
         appendLine(
-            "The controls-kt local table records a rerun captured for comparison; " +
+            "The controls-kt comparison table records the same branch and workload; " +
                 "only the current rewrite-enabled Timescale test exists there.",
         )
         appendLine("Exposed rows compare the same ORM layer; direct JDBC rows show a lower storage-path bound.")

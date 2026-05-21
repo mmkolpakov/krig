@@ -136,7 +136,7 @@ internal val controlsLocalRerun: List<ReferenceResult> = listOf(
         read = "1.166s",
         bytes = "17,387,520",
         bytesPerValue = "173.88",
-        note = "local rerun, Exposed + H2, one property, full DeviceMessage JSON",
+        note = "Exposed + H2, one property, full DeviceMessage JSON",
     ),
     ReferenceResult(
         scenario = "controls.local.timescale.event-json.rewrite",
@@ -145,7 +145,7 @@ internal val controlsLocalRerun: List<ReferenceResult> = listOf(
         read = "1.839s",
         bytes = "37,796,360 delta",
         bytesPerValue = "377.96",
-        note = "local rerun, TimescaleDB, reWriteBatchedInserts=true",
+        note = "TimescaleDB, reWriteBatchedInserts=true",
     ),
     ReferenceResult(
         scenario = "controls.local.rows.deflate",
@@ -154,7 +154,7 @@ internal val controlsLocalRerun: List<ReferenceResult> = listOf(
         read = "194.56ms",
         bytes = "1,040,198",
         bytesPerValue = "10.40",
-        note = "local rerun, 50 tags x 2000 rows, no value filtering",
+        note = "50 tags x 2000 rows, no value filtering",
     ),
     ReferenceResult(
         scenario = "controls.local.rows.deflate.repeating",
@@ -163,7 +163,7 @@ internal val controlsLocalRerun: List<ReferenceResult> = listOf(
         read = "86.26ms",
         bytes = "1,040,198",
         bytesPerValue = "10.40",
-        note = "local rerun, 50 tags x 2000 rows, skip exact repeats",
+        note = "50 tags x 2000 rows, skip exact repeats",
     ),
     ReferenceResult(
         scenario = "controls.local.rows.deflate.delta",
@@ -172,7 +172,7 @@ internal val controlsLocalRerun: List<ReferenceResult> = listOf(
         read = "21.72ms",
         bytes = "212,768",
         bytesPerValue = "2.13",
-        note = "local rerun, 50 tags x 2000 rows, numeric margin 0.1",
+        note = "50 tags x 2000 rows, numeric margin 0.1",
     ),
 )
 

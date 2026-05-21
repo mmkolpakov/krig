@@ -65,7 +65,7 @@ internal fun runH2ExposedJournal(config: BenchConfig): List<BenchResult> {
                 pageSize = 1_000,
                 size = size,
                 scenario = "krig.exposed.h2.event-json",
-                note = "controls-compatible workload, Exposed + krig DeviceMessage JSON",
+                note = "controls-shaped workload, Exposed + krig DeviceMessage JSON",
             )
         },
     )
@@ -83,7 +83,7 @@ internal fun runH2JdbcJournal(config: BenchConfig): List<BenchResult> {
                 batchSize = config.batchSize,
                 size = size,
                 scenario = "krig.jdbc.h2.event-json",
-                note = "controls-compatible workload, direct JDBC + krig DeviceMessage JSON",
+                note = "controls-shaped workload, direct JDBC + krig DeviceMessage JSON",
             )
         },
         withH2(h2Root, "jdbc-event-envelope-json") { connection, size ->
