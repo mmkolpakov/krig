@@ -149,7 +149,7 @@ public class PipelineDevice @InternalKrigApi constructor(
 
     private fun compileSharedExecutor(
         kind: OperationKind,
-    ): suspend (OperationCall) -> OperationOutcome<Any?> {
+    ): suspend (OperationPlan, Any?) -> OperationOutcome<Any?> {
         val opSpec = operationSpec(kind)
         return compileOperationExecutor(
             gates = opSpec.gates,
@@ -162,8 +162,8 @@ public class PipelineDevice @InternalKrigApi constructor(
     private fun operationPolicy(
         descriptor: OperationDescriptor,
         opSpec: OperationPipelineSpec,
-    ): OperationCallPolicy =
-        OperationCallPolicy(
+    ): OperationPolicy =
+        OperationPolicy(
             timeout = descriptor.timeout ?: opSpec.defaultTimeout,
             retry = descriptor.retryPolicy ?: opSpec.defaultRetry,
             locks = descriptor.requiredLocks,
@@ -259,33 +259,34 @@ public class PipelineDevice @InternalKrigApi constructor(
         val context = OperationContext(OperationKinds.Read, spec.name, spec.descriptor, name)
         val policy = operationPolicy(spec.descriptor, opSpec)
         val decorated = readDecorators.fold(raw) { acc, dec -> dec.decorate(spec, acc) }
-        val terminal: suspend () -> OperationOutcome<Any?> = {
+        val plan = OperationPlan(context, policy) {
             catchingOperationOutcome { decorated.read() }
         }
         val tracker = delegate as? OperationTracker
         return object : OutcomeTypedReader<T> {
             override suspend fun readOutcome(): OperationOutcome<T> =
                 trackedOperation(tracker) {
-                    readExecutor(OperationCall(context, policy, terminal)).castOutcome()
+                    readExecutor(plan, Unit).castOutcome()
                 }
 
             override suspend fun read(): T = readOutcome().getOrThrow()
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> compileWriter(spec: MutableDevicePropertyContract<T>): TypedWriter<T> {
         val raw = delegate.writer(spec)
         val opSpec = operationSpec(OperationKinds.Write)
         val context = OperationContext(OperationKinds.Write, spec.name, spec.descriptor, name)
         val policy = operationPolicy(spec.descriptor, opSpec)
         val tracker = delegate as? OperationTracker
+        val plan = OperationPlan(context, policy) { value ->
+            catchingOperationOutcome { raw.write(value as T) }
+        }
         return object : OutcomeTypedWriter<T> {
             override suspend fun writeOutcome(value: T): OperationOutcome<Unit> =
                 trackedOperation(tracker) {
-                    val call = OperationCall(context, policy) {
-                        catchingOperationOutcome { raw.write(value) }
-                    }
-                    writeExecutor(call).castOutcome()
+                    writeExecutor(plan, value).castOutcome()
                 }
 
             override suspend fun write(value: T) {
@@ -421,20 +422,21 @@ public class PipelineDevice @InternalKrigApi constructor(
         return slot.value.executorFor(spec)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <I, O> compileAction(spec: DeviceActionContract<I, O>): suspend (I) -> O? {
         val opSpec = operationSpec(OperationKinds.Action)
         val context = OperationContext(OperationKinds.Action, spec.name, spec.descriptor, name)
         val policy = operationPolicy(spec.descriptor, opSpec)
         val tracker = delegate as? OperationTracker
-        return { input ->
-            val call = OperationCall(context, policy) {
-                catchingOperationOutcome {
-                    val argMeta = if (input != null) spec.inputConverter.convert(input) else null
-                    val resultMeta = delegate.execute(spec.name, argMeta)
-                    if (resultMeta != null) spec.outputConverter.read(resultMeta) else null
-                }
+        val plan = OperationPlan(context, policy) { input ->
+            catchingOperationOutcome {
+                val argMeta = if (input != null) spec.inputConverter.convert(input as I) else null
+                val resultMeta = delegate.execute(spec.name, argMeta)
+                if (resultMeta != null) spec.outputConverter.read(resultMeta) else null
             }
-            val outcome = trackedOperation(tracker) { actionPipelineExecutor(call).castOutcome<O?>() }
+        }
+        return { input ->
+            val outcome = trackedOperation(tracker) { actionPipelineExecutor(plan, input).castOutcome<O?>() }
             outcome.getOrThrow()
         }
     }

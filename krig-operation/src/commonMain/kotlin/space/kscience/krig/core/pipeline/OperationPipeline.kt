@@ -33,20 +33,20 @@ public data class OperationContext(
     public val hostName: Name? = null,
 )
 
-/** Per-call policy resolved from operation defaults and the concrete descriptor. */
+/** Policy resolved from operation defaults and the concrete descriptor. */
 @InternalKrigApi
-public data class OperationCallPolicy(
+public data class OperationPolicy(
     public val timeout: Duration? = null,
     public val retry: RetryPolicy? = null,
     public val locks: List<ResourceLock> = emptyList(),
 )
 
-/** One invocation through a compiled operation pipeline. */
+/** Reusable invocation plan for one operation descriptor. */
 @InternalKrigApi
-public data class OperationCall(
+public data class OperationPlan(
     public val context: OperationContext,
-    public val policy: OperationCallPolicy,
-    public val terminal: suspend () -> OperationOutcome<Any?>,
+    public val policy: OperationPolicy,
+    public val terminal: suspend (payload: Any?) -> OperationOutcome<Any?>,
 )
 
 /** Fail-fast precondition for an operation. */

@@ -6,24 +6,25 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.TestCoroutineScheduler
-import space.kscience.krig.api.faults.OperationFault
-import space.kscience.krig.api.faults.GenericOperationFault
-import space.kscience.krig.api.faults.InvalidStateFault
-import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.faults.TimeoutFault
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
+import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.attributes.BehaviorAttribute
-import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
+import space.kscience.krig.api.descriptors.attributes.RetryPolicy
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.InvalidStateFault
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
+import space.kscience.krig.api.faults.TimeoutFault
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.CapabilityToggles
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.operations.ResourceLockRegistry
-import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -146,16 +147,46 @@ class PipelineExecutorTest {
             kind = PropertyKind.LOGICAL,
             valueTypeId = "kotlin.Double",
         )
-        val call = OperationCall(
+        val plan = OperationPlan(
             context = OperationContext(OperationKinds.Read, descriptor.name, descriptor),
-            policy = OperationCallPolicy(),
-        ) {
+            policy = OperationPolicy(),
+        ) { _ ->
             scheduler.advanceTimeBy(1.seconds)
             OperationOutcome.Ok(1.0)
         }
 
-        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(call)).value)
+        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, Unit)).value)
         assertEquals(1.seconds.inWholeNanoseconds, observedNanos)
+    }
+
+    @Test
+    fun operationExecutorReusesPlanWithDifferentPayloads() = runTest {
+        val seenByGate = mutableListOf<Name>()
+        val seenByObserver = mutableListOf<Name>()
+        val descriptor = PropertyDescriptor(
+            name = "setpoint".asName(),
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = "kotlin.Double",
+        )
+        val context = OperationContext(OperationKinds.Write, descriptor.name, descriptor, "device".asName())
+        val execute = compileOperationExecutor(
+            gates = listOf(OperationGate { gateContext ->
+                seenByGate += gateContext.name
+                OperationOutcome.OkUnit
+            }),
+            observers = listOf(OperationObserver { observerContext, _, _ ->
+                seenByObserver += observerContext.name
+            }),
+            registry = ResourceLockRegistry(),
+        )
+        val plan = OperationPlan(context, OperationPolicy()) { payload ->
+            OperationOutcome.Ok(payload as Double + 1.0)
+        }
+
+        assertEquals(2.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 1.0)).value)
+        assertEquals(3.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 2.0)).value)
+        assertEquals(listOf(descriptor.name, descriptor.name), seenByGate)
+        assertEquals(listOf(descriptor.name, descriptor.name), seenByObserver)
     }
 
     @Test

@@ -14,11 +14,11 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.operations.ResourceLockRegistry
-import space.kscience.krig.core.pipeline.OperationCall
-import space.kscience.krig.core.pipeline.OperationCallPolicy
 import space.kscience.krig.core.pipeline.OperationContext
 import space.kscience.krig.core.pipeline.OperationGate
 import space.kscience.krig.core.pipeline.OperationKinds
+import space.kscience.krig.core.pipeline.OperationPlan
+import space.kscience.krig.core.pipeline.OperationPolicy
 import space.kscience.krig.core.pipeline.compileOperationExecutor
 
 private val okGate: OperationGate = OperationGate { OperationOutcome.OkUnit }
@@ -32,17 +32,17 @@ private val benchmarkContext = OperationContext(OperationKinds.Read, benchmarkDe
 /** Raw suspend call against a compiled krig operation pipeline. */
 @State(Scope.Benchmark)
 open class PipelineOverheadBenchmark {
-    private lateinit var raw: suspend () -> OperationOutcome<Any?>
-    private lateinit var call: OperationCall
-    private lateinit var pipeline: suspend (OperationCall) -> OperationOutcome<Any?>
-    private lateinit var gatedPipeline: suspend (OperationCall) -> OperationOutcome<Any?>
+    private lateinit var raw: suspend (Any?) -> OperationOutcome<Any?>
+    private lateinit var plan: OperationPlan
+    private lateinit var pipeline: suspend (OperationPlan, Any?) -> OperationOutcome<Any?>
+    private lateinit var gatedPipeline: suspend (OperationPlan, Any?) -> OperationOutcome<Any?>
 
     @Setup
     open fun setup() {
         raw = { OperationOutcome.Ok(42.0) }
-        call = OperationCall(
+        plan = OperationPlan(
             context = benchmarkContext,
-            policy = OperationCallPolicy(),
+            policy = OperationPolicy(),
             terminal = raw,
         )
         pipeline = compileOperationExecutor(
@@ -59,16 +59,16 @@ open class PipelineOverheadBenchmark {
 
     @Benchmark
     open fun rawCall(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
-        raw().also(blackhole::consume)
+        raw(Unit).also(blackhole::consume)
     }
 
     @Benchmark
     open fun compiledPipeline(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
-        pipeline(call).also(blackhole::consume)
+        pipeline(plan, Unit).also(blackhole::consume)
     }
 
     @Benchmark
     open fun compiledPipelineWithGate(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
-        gatedPipeline(call).also(blackhole::consume)
+        gatedPipeline(plan, Unit).also(blackhole::consume)
     }
 }

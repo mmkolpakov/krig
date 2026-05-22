@@ -188,17 +188,17 @@ public fun compileOperationExecutor(
     observers: List<OperationObserver>,
     registry: ResourceLockRegistry,
     timeSource: TimeSource = TimeSource.Monotonic,
-): suspend (OperationCall) -> OperationOutcome<Any?> = { call ->
+): suspend (OperationPlan, Any?) -> OperationOutcome<Any?> = { plan, payload ->
     val mark = timeSource.markNow()
     var captured: OperationFault? = null
     try {
-        val result = withGlobalTimeout(call.policy.timeout) {
+        val result = withGlobalTimeout(plan.policy.timeout) {
             for (gate in gates) {
-                val gateResult = gate.check(call.context)
+                val gateResult = gate.check(plan.context)
                 if (gateResult is OperationOutcome.Fail) return@withGlobalTimeout gateResult
             }
-            withIoRetry(call.policy.retry) {
-                acquireAllLocks(registry, call.policy.locks) { call.terminal() }
+            withIoRetry(plan.policy.retry) {
+                acquireAllLocks(registry, plan.policy.locks) { plan.terminal(payload) }
             }
         }
         captured = result.faultOrNull()
@@ -215,7 +215,7 @@ public fun compileOperationExecutor(
         ignoreObserverFailure {
             val durationNanos = mark.elapsedNow().inWholeNanoseconds
             observers.forEach { observer ->
-                observer.observe(call.context, durationNanos, captured)
+                observer.observe(plan.context, durationNanos, captured)
             }
         }
     }
