@@ -41,6 +41,8 @@ public fun <D : Device> D.enableTimeTravel(
     messageFlow: Flow<DeviceMessage> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
+    snapshotCodec: SnapshotCodec = SnapshotCodec(),
+    retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
 ): Job {
     val supervisor = SupervisorJob(parent = scope.coroutineContext.job)
     val supervisedScope = CoroutineScope(scope.coroutineContext + supervisor)
@@ -51,12 +53,14 @@ public fun <D : Device> D.enableTimeTravel(
 
     @Suppress("RETURN_VALUE_NOT_USED")
     reconstructible.runCheckpointing(
-        deviceName = deviceName,
+        subject = deviceName,
         messageFlow = messageFlow,
         snapshotStore = snapshotStore,
         strategy = strategy,
         scope = supervisedScope,
         clock = clock,
+        snapshotCodec = snapshotCodec,
+        retentionPolicy = retentionPolicy,
     )
 
     return supervisor
@@ -72,6 +76,8 @@ public fun <D : Device> D.enableTimeTravel(
     messageFlow: Flow<DeviceMessage> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
+    snapshotCodec: SnapshotCodec = SnapshotCodec(),
+    retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
 ): Pair<Job, RecordingReplayLog> {
     val store = InMemoryReplayLog()
     val job = enableTimeTravel(
@@ -83,6 +89,8 @@ public fun <D : Device> D.enableTimeTravel(
         messageFlow = messageFlow,
         scope = scope,
         clock = clock,
+        snapshotCodec = snapshotCodec,
+        retentionPolicy = retentionPolicy,
     )
     return job to store
 }
@@ -106,9 +114,11 @@ public fun <D : Device> D.withTimeTravel(
     replayLog: RecordingReplayLog,
     snapshotStore: SnapshotStore = InMemorySnapshotStore(),
     deviceName: Name = this.name,
-    strategy: CheckpointStrategy = CheckpointStrategy.Manual,
+    strategy: CheckpointStrategy = CheckpointStrategy.manual,
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
+    snapshotCodec: SnapshotCodec = SnapshotCodec(),
+    retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
 ): Reconstructible {
     enableTimeTravel(
         reconstructible = reconstructible,
@@ -119,6 +129,8 @@ public fun <D : Device> D.withTimeTravel(
         messageFlow = defaultTimeTravelMessageFlow(),
         scope = scope,
         clock = clock,
+        snapshotCodec = snapshotCodec,
+        retentionPolicy = retentionPolicy,
     ).let { }
     return reconstructible
 }

@@ -42,7 +42,7 @@ JMH-backed scenarios use `kotlinx-benchmark`:
 - boxed `FlowSampler<Double>` vs `RingDoubleSampler`;
 - raw operation call vs compiled krig pipeline;
 - outcome values vs throw/catch fault path;
-- dynamic hub attach/detach.
+- device hub attach/detach.
 
 ```shell
 ./gradlew :krig-benchmarks:benchmark

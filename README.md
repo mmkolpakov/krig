@@ -90,7 +90,7 @@ val thermo = device("thermo") {
 | Contracts | `krig-contracts` | Device, backend, blueprint, typed access, samplers, HLC |
 | IO | `krig-io` | Byte-stream framers and flow adapters |
 | Runtime | `krig-runtime` | DSL, operation pipeline assembly, gates, observers, dynamic groups |
-| Runtime stdlib | `krig-runtime-stdlib` | Dynamic hubs, state history, expressions, peer runtime, time travel |
+| Runtime stdlib | `krig-runtime-stdlib` | Device hubs, state history, expressions, peer runtime, time travel |
 | Assembly | `krig-assembly` | DataForge plugins, blueprint/factory discovery, data-platform polling |
 | Transport | `krig-magix` | Magix endpoint and envelope support |
 | Simulation | `krig-simulation` | Deterministic scheduler, resources, signals, process DSL |
@@ -119,11 +119,16 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 ./gradlew publishToMavenLocal
 ```
 
+Read the demos as one line: contracts and backends, explicit state models,
+Meta interop, topology, acquisition/streaming, operation policies, then replay.
+
 | Demo | File | Shows |
 |---|---|---|
 | Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the curated alpha-3 demo set |
 | Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `blueprintOf`, `backend`, typed `read`/`write`/action, retry installation |
+| State model | [`StateModelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StateModelDemo.kt) | Explicit virtual-device state mapped to typed properties and actions |
 | Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
+| Device tree | [`DeviceTreeDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceTreeDemo.kt) | Folder nodes and alternative topology views over live devices |
 | Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed by reusable runtime polling |
 | External polling | [`ExternalPollingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExternalPollingDemo.kt) | Protocol-neutral acquisition mapping driven by one shared timer |
 | Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, shared ticks, zero-order hold for UI-rate streams |
@@ -132,8 +137,9 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 | Policy and faults | [`PolicyFaultsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/PolicyFaultsDemo.kt) | Feature-installed capability, write gate, validation fault, observer fault capture |
 | Auth and audit | [`AuthAuditDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/AuthAuditDemo.kt) | DataForge `Context` plugins for global auth/audit, operation faults as values |
 | Simulation process | [`SimulationProcessDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SimulationProcessDemo.kt) | Virtual-time process driving a device |
-| Dynamic hub | [`DynamicHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DynamicHubDemo.kt) | Attach, detach, hub events, reconcile loop |
-| Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Event log, replay, counterfactual DSL |
+| Device hub | [`DeviceHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceHubDemo.kt) | Attach, detach, hub events, reconcile loop |
+| Replay navigation | [`ReplayNavigationDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ReplayNavigationDemo.kt) | Branch points and alternative replay without mutating the source log |
+| Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Replay, snapshots, branches, journal migration |
 | Expressions | [`ExpressionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExpressionDemo.kt) | Expression tree compiled into reactive device state |
 | Device scripting DSL | [`DeviceDslDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceDslDemo.kt) | Declarative properties, computed same-device reads, property history |
 | Kotlin Notebook | [`krig-intro.ipynb`](krig-jupyter/src/main/resources/krig-intro.ipynb) | local `%use @file[krig.json]`, device DSL, history, hub, timeline, simulation, storage |

@@ -1,18 +1,25 @@
 ﻿package space.kscience.krig.api.hub
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.DeviceNode
 import space.kscience.krig.core.hook.HookRegistry
 import space.kscience.dataforge.names.Name
 
 /**
- * Mutation API for device topology. Ordinary [Device]s expose only a read-only
- * [Device.children] view; hubs add attach / replace / detach operations.
+ * Mutation API for owned device topology.
  */
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
-public interface DynamicHub : Device {
+public interface DeviceHub : Device, DeviceNode {
+
+    /** Direct child devices owned by this hub. */
+    public val devices: Map<Name, Device>
+
+    /** Reactive view of [devices]. */
+    public val devicesFlow: StateFlow<Map<Name, Device>>
 
     /**
      * Attach [device] under [name]. Throws [HubConflictException] if [name] is already taken —
@@ -48,7 +55,7 @@ public interface DynamicHub : Device {
         reason: DeviceDepartureReason = DeviceDepartureReason.Graceful,
     ): Device?
 
-    /** Hot observability flow; [children] and [childrenFlow] are the topology source of truth. */
+    /** Hot observability flow; [devices] and [devicesFlow] are the topology source of truth. */
     public val hubEvents: Flow<HubEvent>
 
     /**
@@ -59,7 +66,7 @@ public interface DynamicHub : Device {
     public val hubHooks: HookRegistry
 }
 
-/** Thrown by [DynamicHub.attach] when the target name is already taken. */
+/** Thrown by [DeviceHub.attach] when the target name is already taken. */
 @Suppress("CanBeParameter")
 public class HubConflictException(
     public val conflictName: Name,

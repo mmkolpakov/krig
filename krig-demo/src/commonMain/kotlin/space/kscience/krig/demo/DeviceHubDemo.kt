@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.ExperimentalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
@@ -21,20 +21,20 @@ import space.kscience.krig.api.hub.HubEvent
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
-import space.kscience.krig.core.runtime.MutableCompositeDevice
 import space.kscience.krig.core.runtime.awaitChildren
+import space.kscience.krig.core.runtime.deviceHub
 import space.kscience.krig.core.runtime.reconcile
 
 /**
- * Dynamic hub walkthrough: attach, detach, reconcile, hub events.
+ * Device hub walkthrough: attach, detach, reconcile, hub events.
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
-suspend fun dynamicHubDemo(): Unit = coroutineScope {
+suspend fun deviceHubDemo(): Unit = coroutineScope {
     val hubCtx = Context("hub-demo")
-    val hub = MutableCompositeDevice("hub".asName(), hubCtx)
+    val hub = deviceHub("hub", hubCtx)
 
-    println("=== 1. Attach children ===")
+    println("=== 1. Attach devices ===")
 
     val childA = trackingDevice("a", hubCtx)
     val childB = trackingDevice("b", hubCtx)
@@ -50,13 +50,13 @@ suspend fun dynamicHubDemo(): Unit = coroutineScope {
 
     collector.join()
     println("  attached: ${attached.map { it.name }}")
-    println("  children: ${hub.children.keys}")
+    println("  devices: ${hub.devices.keys}")
 
-    println("\n=== 2. Detach child ===")
+    println("\n=== 2. Detach device ===")
 
     hub.detach("a".asName(), DeviceDepartureReason.Evicted)
-    println("  children after detach: ${hub.children.keys}")
-    println("  detached child remains caller-owned: ${!childA.closed}")
+    println("  devices after detach: ${hub.devices.keys}")
+    println("  detached device remains caller-owned: ${!childA.closed}")
 
     println("\n=== 3. Reconcile loop ===")
 
@@ -72,12 +72,12 @@ suspend fun dynamicHubDemo(): Unit = coroutineScope {
     desired.value = setOf("c".asName())
     val reconciled = hub.awaitChildren(setOf("c".asName()))
 
-    println("  children after reconcile: ${reconciled.keys}")
+    println("  devices after reconcile: ${reconciled.keys}")
     loop.job.cancel()
 
     hub.close()
     hubCtx.close()
-    println("\nDone - dynamic hub demo complete.")
+    println("\nDone - device hub demo complete.")
 }
 
 private class TrackingDevice(name: Name, context: Context) :

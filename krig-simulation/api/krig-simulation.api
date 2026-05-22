@@ -1,101 +1,166 @@
 public final class space/kscience/krig/concurrency/Resource {
-	public fun <init> (Ljava/lang/String;I)V
+	public fun <init> (Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePreemptionPolicy;Lspace/kscience/krig/concurrency/ResourceEventSink;)V
+	public synthetic fun <init> (Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePreemptionPolicy;Lspace/kscience/krig/concurrency/ResourceEventSink;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getCapacity ()I
 	public final fun getName ()Ljava/lang/String;
+	public final fun getPreemption ()Lspace/kscience/krig/concurrency/ResourcePreemptionPolicy;
 	public final fun getState ()Lkotlinx/coroutines/flow/StateFlow;
-	public final fun preemptBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
-	public final fun preemptHoldersBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
-	public final fun preemptWaitersBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
+	public final fun preemptBelow-HUTZ-tQ (I)V
+	public final fun preemptHoldersBelow-HUTZ-tQ (I)V
+	public final fun preemptWaitersBelow-HUTZ-tQ (I)V
 	public final fun release (I)V
 	public static synthetic fun release$default (Lspace/kscience/krig/concurrency/Resource;IILjava/lang/Object;)V
-	public final fun seize (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun seize$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun use (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun use$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun seize-UJSXV0k (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun seize-UJSXV0k$default (Lspace/kscience/krig/concurrency/Resource;IILkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun use-Au6mKOg (IILkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun use-Au6mKOg$default (Lspace/kscience/krig/concurrency/Resource;IILkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/concurrency/ResourceClaim {
+	public synthetic fun <init> (JIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun component2 ()I
+	public final fun component3-ZdHmlBo ()I
+	public final fun copy-G_1ULmw (JII)Lspace/kscience/krig/concurrency/ResourceClaim;
+	public static synthetic fun copy-G_1ULmw$default (Lspace/kscience/krig/concurrency/ResourceClaim;JIIILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourceClaim;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmount ()I
+	public final fun getId ()J
+	public final fun getPriority-ZdHmlBo ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourceEvent {
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/concurrency/ResourceClaim;IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-elippGM ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/concurrency/ResourceClaim;
+	public final fun component4 ()I
+	public final fun component5 ()I
+	public final fun component6 ()I
+	public final fun copy-SshV19Q (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/concurrency/ResourceClaim;III)Lspace/kscience/krig/concurrency/ResourceEvent;
+	public static synthetic fun copy-SshV19Q$default (Lspace/kscience/krig/concurrency/ResourceEvent;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/concurrency/ResourceClaim;IIIILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourceEvent;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCapacity ()I
+	public final fun getClaim ()Lspace/kscience/krig/concurrency/ResourceClaim;
+	public final fun getResourceName ()Ljava/lang/String;
+	public final fun getType-elippGM ()Ljava/lang/String;
+	public final fun getUsed ()I
+	public final fun getWaiting ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/concurrency/ResourceEventSink {
+	public static final field Companion Lspace/kscience/krig/concurrency/ResourceEventSink$Companion;
+	public abstract fun emit (Lspace/kscience/krig/concurrency/ResourceEvent;)V
+}
+
+public final class space/kscience/krig/concurrency/ResourceEventSink$Companion {
+	public final fun getNone ()Lspace/kscience/krig/concurrency/ResourceEventSink;
+}
+
+public final class space/kscience/krig/concurrency/ResourceEventType {
+	public static final field Companion Lspace/kscience/krig/concurrency/ResourceEventType$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/concurrency/ResourceEventType;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourceEventType$Companion {
+	public final fun getGranted-elippGM ()Ljava/lang/String;
+	public final fun getPreempted-elippGM ()Ljava/lang/String;
+	public final fun getQueued-elippGM ()Ljava/lang/String;
+	public final fun getReleased-elippGM ()Ljava/lang/String;
+	public final fun getRequested-elippGM ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/concurrency/ResourcePreemptedException : java/util/concurrent/CancellationException {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/krig/concurrency/ResourcePreemptionCause;Ljava/lang/String;)V
+	public synthetic fun <init> (Lspace/kscience/krig/concurrency/ResourcePreemptionCause;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getPreemption ()Lspace/kscience/krig/concurrency/ResourcePreemptionCause;
 	public final fun getResourceName ()Ljava/lang/String;
 }
 
-public abstract interface class space/kscience/krig/concurrency/ResourcePriority : java/lang/Comparable {
+public final class space/kscience/krig/concurrency/ResourcePreemptionCause {
+	public synthetic fun <init> (Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePriority;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePriority;Ljava/lang/Integer;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2-ZdHmlBo ()I
+	public final fun component3-mNSmRmg ()Lspace/kscience/krig/concurrency/ResourcePriority;
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun copy-QYoCBR0 (Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePriority;Ljava/lang/Integer;)Lspace/kscience/krig/concurrency/ResourcePreemptionCause;
+	public static synthetic fun copy-QYoCBR0$default (Lspace/kscience/krig/concurrency/ResourcePreemptionCause;Ljava/lang/String;ILspace/kscience/krig/concurrency/ResourcePriority;Ljava/lang/Integer;ILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourcePreemptionCause;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmount ()Ljava/lang/Integer;
+	public final fun getHolderPriority-mNSmRmg ()Lspace/kscience/krig/concurrency/ResourcePriority;
+	public final fun getRequestedPriority-ZdHmlBo ()I
+	public final fun getResourceName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePreemptionContext {
+	public fun <init> (Lspace/kscience/krig/concurrency/ResourceClaim;ILjava/util/List;)V
+	public final fun component1 ()Lspace/kscience/krig/concurrency/ResourceClaim;
+	public final fun component2 ()I
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Lspace/kscience/krig/concurrency/ResourceClaim;ILjava/util/List;)Lspace/kscience/krig/concurrency/ResourcePreemptionContext;
+	public static synthetic fun copy$default (Lspace/kscience/krig/concurrency/ResourcePreemptionContext;Lspace/kscience/krig/concurrency/ResourceClaim;ILjava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourcePreemptionContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvailable ()I
+	public final fun getHolders ()Ljava/util/List;
+	public final fun getRequest ()Lspace/kscience/krig/concurrency/ResourceClaim;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePreemptionPolicies {
+	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePreemptionPolicies;
+	public final fun getNone ()Lspace/kscience/krig/concurrency/ResourcePreemptionPolicy;
+	public final fun getPriority ()Lspace/kscience/krig/concurrency/ResourcePreemptionPolicy;
+}
+
+public abstract interface class space/kscience/krig/concurrency/ResourcePreemptionPolicy {
+	public abstract fun selectVictims (Lspace/kscience/krig/concurrency/ResourcePreemptionContext;)Ljava/util/List;
+}
+
+public final class space/kscience/krig/concurrency/ResourcePriority : java/lang/Comparable {
 	public static final field Companion Lspace/kscience/krig/concurrency/ResourcePriority$Companion;
+	public static final synthetic fun box-impl (I)Lspace/kscience/krig/concurrency/ResourcePriority;
 	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public abstract fun getLevel ()I
+	public fun compareTo-HUTZ-tQ (I)I
+	public static fun compareTo-HUTZ-tQ (II)I
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public final fun getLevel ()I
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
 }
 
 public final class space/kscience/krig/concurrency/ResourcePriority$Companion {
-	public final fun getDEFAULT ()Lspace/kscience/krig/concurrency/ResourcePriority;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$Critical : space/kscience/krig/concurrency/ResourcePriority {
-	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Critical;
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$Custom : space/kscience/krig/concurrency/ResourcePriority {
-	public fun <init> (I)V
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public final fun component1 ()I
-	public final fun copy (I)Lspace/kscience/krig/concurrency/ResourcePriority$Custom;
-	public static synthetic fun copy$default (Lspace/kscience/krig/concurrency/ResourcePriority$Custom;IILjava/lang/Object;)Lspace/kscience/krig/concurrency/ResourcePriority$Custom;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$DefaultImpls {
-	public static fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;Lspace/kscience/krig/concurrency/ResourcePriority;)I
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$High : space/kscience/krig/concurrency/ResourcePriority {
-	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$High;
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$Low : space/kscience/krig/concurrency/ResourcePriority {
-	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Low;
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$Lowest : space/kscience/krig/concurrency/ResourcePriority {
-	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Lowest;
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/concurrency/ResourcePriority$Normal : space/kscience/krig/concurrency/ResourcePriority {
-	public static final field INSTANCE Lspace/kscience/krig/concurrency/ResourcePriority$Normal;
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/concurrency/ResourcePriority;)I
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getLevel ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+	public final fun getCritical-ZdHmlBo ()I
+	public final fun getDEFAULT-ZdHmlBo ()I
+	public final fun getHigh-ZdHmlBo ()I
+	public final fun getLow-ZdHmlBo ()I
+	public final fun getLowest-ZdHmlBo ()I
+	public final fun getNormal-ZdHmlBo ()I
 }
 
 public final class space/kscience/krig/concurrency/ResourceState {
@@ -203,8 +268,8 @@ public final class space/kscience/krig/simulation/ProcessDslKt {
 	public static final fun hold-8Mi8wO0 (Lspace/kscience/krig/simulation/ProcessScope;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun process (Lkotlinx/coroutines/CoroutineScope;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
 	public static synthetic fun process$default (Lkotlinx/coroutines/CoroutineScope;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
-	public static final fun request (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun request$default (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun request-HWeOUvA (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;IILkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun request-HWeOUvA$default (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Resource;IILkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun runProcess (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
 	public static synthetic fun runProcess$default (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
 	public static final fun simulationScope (Lspace/kscience/krig/simulation/DeterministicScheduler;)Lkotlinx/coroutines/CoroutineScope;

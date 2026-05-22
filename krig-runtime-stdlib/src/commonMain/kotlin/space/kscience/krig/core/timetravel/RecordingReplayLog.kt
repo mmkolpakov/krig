@@ -59,12 +59,12 @@ public class InMemoryReplayLog(
     init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
 
     private val lock = SynchronizedObject()
-    private val log = ArrayDeque<EventRecord>(capacity)
+    private val log = ArrayDeque<ReplayRecord>(capacity)
     private var nextSequence: Long = 0
 
     override suspend fun record(message: DeviceMessage) {
         synchronized(lock) {
-            val record = EventRecord(SequenceCursor(nextSequence++), message)
+            val record = ReplayRecord(SequenceCursor(nextSequence++), message)
             log.addLast(record)
             if (log.size > capacity) {
                 log.removeFirst()
@@ -78,7 +78,7 @@ public class InMemoryReplayLog(
             .map { it.message }
             .asFlow()
 
-    override fun replayFrom(after: EventCursor?): Flow<EventRecord> {
+    override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> {
         val afterSequence = sequenceAfter(after)
         return snapshot()
             .asSequence()
@@ -86,14 +86,14 @@ public class InMemoryReplayLog(
             .asFlow()
     }
 
-    override fun replayRecords(from: Instant, until: Instant): Flow<EventRecord> =
+    override fun replayRecords(from: Instant, until: Instant): Flow<ReplayRecord> =
         timeSnapshot(from, until).asFlow()
 
     public fun size(): Int = synchronized(lock) { log.size }
 
-    private fun snapshot(): List<EventRecord> = synchronized(lock) { log.toList() }
+    private fun snapshot(): List<ReplayRecord> = synchronized(lock) { log.toList() }
 
-    private fun timeSnapshot(from: Instant, until: Instant): List<EventRecord> {
+    private fun timeSnapshot(from: Instant, until: Instant): List<ReplayRecord> {
         if (until < from) return emptyList()
         return snapshot()
             .asSequence()
@@ -102,7 +102,7 @@ public class InMemoryReplayLog(
             .toList()
     }
 
-    private fun compareRecords(left: EventRecord, right: EventRecord): Int {
+    private fun compareRecords(left: ReplayRecord, right: ReplayRecord): Int {
         val byTime = left.message.time.compareTo(right.message.time)
         if (byTime != 0) return byTime
         return (left.cursor as SequenceCursor).sequence.compareTo((right.cursor as SequenceCursor).sequence)

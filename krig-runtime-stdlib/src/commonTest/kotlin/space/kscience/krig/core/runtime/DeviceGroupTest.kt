@@ -1,10 +1,10 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.PerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 
-package space.kscience.krig.core.contracts
+package space.kscience.krig.core.runtime
 
 import kotlin.concurrent.atomics.AtomicInt
 import kotlinx.coroutines.test.runTest
@@ -14,13 +14,21 @@ import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
+import space.kscience.krig.api.hub.resolveDevice
+import space.kscience.krig.api.hub.resolveNode
+import space.kscience.krig.core.contracts.AbstractDevice
+import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.asNode
+import space.kscience.krig.core.contracts.deviceTree
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
+import kotlin.test.assertSame
 
 private val cdTestSeq: AtomicInt = AtomicInt(0)
 
-class CompositeDeviceTest {
+class DeviceGroupTest {
 
     private class StubDevice(
         name: String,
@@ -44,63 +52,79 @@ class CompositeDeviceTest {
         val child1 = StubDevice("child1", mapOf("temp".asName() to Meta { "value".asName() put 25 }))
         val child2 = StubDevice("child2", mapOf("pressure".asName() to Meta { "value".asName() put 1013 }))
 
-        val composite = CompositeDevice(
+        val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-test"),
             children = mapOf("child1".asName() to child1, "child2".asName() to child2),
         )
 
-        val result = composite.readProperty("child1.temp".parseAsName())
+        val result = group.readProperty("child1.temp".parseAsName())
         assertEquals(25, result["value".asName()].int)
 
-        val result2 = composite.readProperty("child2.pressure".parseAsName())
+        val result2 = group.readProperty("child2.pressure".parseAsName())
         assertEquals(1013, result2["value".asName()].int)
     }
 
     @Test
     fun writePropertyDelegatesToCorrectChild() = runTest {
         val child1 = StubDevice("child1")
-        val composite = CompositeDevice(
+        val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-write"),
             children = mapOf("child1".asName() to child1),
         )
-        composite.writeProperty("child1.setpoint".parseAsName(), Meta { "value".asName() put 100 })
+        group.writeProperty("child1.setpoint".parseAsName(), Meta { "value".asName() put 100 })
     }
 
     @Test
     fun executeDelegatesToCorrectChild() = runTest {
         val child1 = StubDevice("child1")
-        val composite = CompositeDevice(
+        val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-exec"),
             children = mapOf("child1".asName() to child1),
         )
-        val result = composite.execute("child1.reset".parseAsName(), null)
+        val result = group.execute("child1.reset".parseAsName(), null)
         assertEquals("reset", result?.get("action".asName())?.value?.toString())
     }
 
     @Test
     fun unknownChildThrowsError() = runTest {
-        val composite = CompositeDevice(
+        val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-fail"),
             children = mapOf("child1".asName() to StubDevice("child1")),
         )
         assertFailsWith<IllegalStateException> {
-            composite.readProperty("nonexistent.prop".parseAsName())
+            group.readProperty("nonexistent.prop".parseAsName())
         }
     }
 
     @Test
     fun emptyPropertyNameThrowsError() = runTest {
-        val composite = CompositeDevice(
+        val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-empty"),
             children = mapOf("child1".asName() to StubDevice("child1")),
         )
         assertFailsWith<IllegalStateException> {
-            composite.readProperty(Name.EMPTY)
+            group.readProperty(Name.EMPTY)
         }
+    }
+
+    @Test
+    fun deviceTreeCanContainFolderNodesAndLeafDevices() {
+        val pump = StubDevice("pump")
+        val tree = deviceTree(
+            children = mapOf(
+                "line".asName() to deviceTree(
+                    children = mapOf("pump".asName() to pump.asNode()),
+                ),
+            ),
+        )
+
+        assertSame(pump, tree.resolveDevice("line.pump".parseAsName()))
+        assertNull(tree.resolveDevice("line".parseAsName()))
+        assertEquals(setOf("pump".asName()), tree.resolveNode("line".parseAsName())?.children?.keys)
     }
 }

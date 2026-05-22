@@ -12,6 +12,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.asFlow
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.time.Clock
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -79,17 +80,20 @@ class CheckpointingTest {
     }
 
     private class RecordingSnapshotStore : SnapshotStore {
-        val saved = mutableListOf<DeviceSnapshot>()
+        val saved = mutableListOf<SnapshotEntry>()
 
-        override suspend fun save(subject: Name, snapshot: DeviceSnapshot) {
+        override suspend fun save(snapshot: SnapshotEntry) {
             saved += snapshot
         }
 
-        override suspend fun latestBefore(subject: Name, threshold: Instant): DeviceSnapshot? =
-            saved.lastOrNull { it.at <= threshold }
+        override suspend fun latestBefore(subject: Name, threshold: Instant): SnapshotEntry? =
+            saved.lastOrNull { it.subject == subject && it.at <= threshold }
+
+        override fun read(subject: Name) =
+            saved.filter { it.subject == subject }.asFlow()
 
         override suspend fun delete(subject: Name, olderThan: Instant?) {
-            saved.removeAll { olderThan == null || it.at < olderThan }
+            saved.removeAll { it.subject == subject && (olderThan == null || it.at < olderThan) }
         }
     }
 
@@ -105,17 +109,17 @@ class CheckpointingTest {
         val feed = flowOf(*events.toTypedArray()).onEach { counter.applyEvent(it) }
 
         val job = counter.runCheckpointing(
-            deviceName = devName,
+            subject = devName,
             messageFlow = feed,
             snapshotStore = store,
-            strategy = CheckpointStrategy.EveryNEvents(2),
+            strategy = CheckpointStrategy.everyNEvents(2),
             scope = scope,
             clock = FakeClock(startMs = 500),
         )
         job.join()
 
         // Expect snapshots at events 2 and 4 (fake clock 500ms, 501ms, ...).
-        val latest = store.latestBefore(devName, Instant.fromEpochMilliseconds(9999))
+        val latest = store.latestSnapshotBefore(devName, Instant.fromEpochMilliseconds(9999))
         assertTrue(latest != null, "expected at least one snapshot")
         assertEquals(4, latest.state.int)
 
@@ -131,16 +135,16 @@ class CheckpointingTest {
 
         val feed = flowOf(event(1, 42)).onEach { counter.applyEvent(it) }
         val job = counter.runCheckpointing(
-            deviceName = devName,
+            subject = devName,
             messageFlow = feed,
             snapshotStore = store,
-            strategy = CheckpointStrategy.Manual,
+            strategy = CheckpointStrategy.manual,
             scope = scope,
         )
         advanceUntilIdle()
 
         // Manual path writes nothing automatically.
-        val latest = store.latestBefore(devName, Instant.fromEpochMilliseconds(1000))
+        val latest = store.latestSnapshotBefore(devName, Instant.fromEpochMilliseconds(1000))
         assertEquals(null, latest)
 
         scope.cancel()
@@ -155,10 +159,10 @@ class CheckpointingTest {
         val devName = "counter".asName()
 
         val job = counter.runCheckpointing(
-            deviceName = devName,
+            subject = devName,
             messageFlow = flowOf(),
             snapshotStore = store,
-            strategy = CheckpointStrategy.EveryDuration(10.milliseconds),
+            strategy = CheckpointStrategy.everyDuration(10.milliseconds),
             scope = scope,
             clock = FakeClock(startMs = 700),
         )
@@ -184,7 +188,7 @@ class CheckpointingTest {
     @Test
     fun everyDurationRequiresPositiveDuration() {
         try {
-            CheckpointStrategy.EveryDuration(0.milliseconds).let { }
+            CheckpointStrategy.everyDuration(0.milliseconds).let { }
             error("expected IllegalArgumentException")
         } catch (expected: IllegalArgumentException) {
             // ok
@@ -194,7 +198,7 @@ class CheckpointingTest {
     @Test
     fun everyNEventsRequiresPositiveN() {
         try {
-            CheckpointStrategy.EveryNEvents(0).let { }
+            CheckpointStrategy.everyNEvents(0).let { }
             error("expected IllegalArgumentException")
         } catch (expected: IllegalArgumentException) {
             // ok

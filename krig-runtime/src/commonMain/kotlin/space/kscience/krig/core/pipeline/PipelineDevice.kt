@@ -46,6 +46,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
+import space.kscience.krig.core.contracts.DeviceNode
+import space.kscience.krig.core.contracts.EmptyDeviceNodeChildren
 
 /**
  * Typed-primary pipeline decorator. Wraps a [delegate] [Device] so every
@@ -65,7 +67,7 @@ public class PipelineDevice @InternalKrigApi constructor(
     private val readDecorators: List<ReadDecorator> = emptyList(),
     private val registry: ResourceLockRegistry = ResourceLockRegistry(),
     @property:InternalKrigApi public val capabilities: Attributes = Attributes.EMPTY,
-) : Device by delegate, LifecycleStateHolder, CapabilityHost {
+) : Device by delegate, LifecycleStateHolder, CapabilityHost, DeviceNode {
     private val cacheLock = SynchronizedObject()
     private val readerCache = mutableMapOf<Name, Lazy<CachedReader>>()
     private val writerCache = mutableMapOf<Name, Lazy<CachedWriter>>()
@@ -82,6 +84,14 @@ public class PipelineDevice @InternalKrigApi constructor(
     private val actionPipelineExecutor by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         compileSharedExecutor(OperationKinds.Action)
     }
+
+    override val device: Device get() = this
+
+    override val children: Map<Name, DeviceNode>
+        get() = (delegate as? DeviceNode)?.children.orEmpty()
+
+    override val childrenFlow: StateFlow<Map<Name, DeviceNode>>
+        get() = (delegate as? DeviceNode)?.childrenFlow ?: EmptyDeviceNodeChildren
 
     override val capabilityToggles: CapabilityToggles =
         (delegate as? CapabilityHost)?.capabilityToggles ?: CapabilityToggles()

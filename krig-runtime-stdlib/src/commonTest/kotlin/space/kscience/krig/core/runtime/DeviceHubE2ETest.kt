@@ -32,7 +32,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(InternalKrigApi::class, ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
-class DynamicHubE2ETest {
+class DeviceHubE2ETest {
 
     private class TrackingDevice(name: Name, runtime: DeviceRuntime) : AbstractDevice(name, runtime) {
         var closed: Boolean = false
@@ -68,7 +68,7 @@ class DynamicHubE2ETest {
     @Test
     fun concurrentAttachesEmit3HubEvents() = runTest {
         val hubCtx = freshContext("concurrent")
-        val hub = MutableCompositeDevice("hub".asName(), hubCtx)
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
         val collected = mutableListOf<HubEvent>()
         val collector = launch {
             hub.hubEvents.filterIsInstance<HubEvent.Attached>().take(3).toList(collected)
@@ -80,13 +80,13 @@ class DynamicHubE2ETest {
         advanceUntilIdle()
         collector.join()
         assertEquals(3, collected.size)
-        assertEquals(setOf("a", "b", "c").map { it.asName() }.toSet(), hub.children.keys)
+        assertEquals(setOf("a", "b", "c").map { it.asName() }.toSet(), hub.devices.keys)
     }
 
     @Test
     fun reconcileEvictsAbsentChildrenWithEvictedReason() = runTest {
         val hubCtx = freshContext("reconcile")
-        val hub = MutableCompositeDevice("hub".asName(), hubCtx)
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
         listOf("a", "b", "c").forEach { hub.attach(it.asName(), trackingDevice(it, hubCtx)) }
 
         val detachEvents = mutableListOf<HubEvent.Detached>()
@@ -105,7 +105,7 @@ class DynamicHubE2ETest {
         advanceUntilIdle()
         collector.join()
 
-        assertEquals(setOf("a".asName()), hub.children.keys)
+        assertEquals(setOf("a".asName()), hub.devices.keys)
         assertEquals(2, detachEvents.size)
         assertTrue(detachEvents.all { it.reason == DeviceDepartureReason.Evicted })
         loop.job.cancel()
@@ -114,7 +114,7 @@ class DynamicHubE2ETest {
     @Test
     fun closeCascadesWithParentClosedReason() = runTest {
         val hubCtx = freshContext("cascade")
-        val hub = MutableCompositeDevice("hub".asName(), hubCtx)
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
         val devices = listOf("a", "b", "c").map { trackingDevice(it, hubCtx) }
         devices.forEach { hub.attach(it.name, it) }
 
@@ -129,7 +129,7 @@ class DynamicHubE2ETest {
         collector.join()
 
         assertTrue(devices.all { it.closed }, "all children must be closed on cascade")
-        assertEquals(emptyMap(), hub.children)
+        assertEquals(emptyMap(), hub.devices)
         assertTrue(cascadeEvents.all { it.reason == DeviceDepartureReason.ParentClosed })
         assertEquals(3, cascadeEvents.size)
     }
@@ -137,7 +137,7 @@ class DynamicHubE2ETest {
     @Test
     fun concurrentAttachSameNameProducesOneWinnerRestThrowConflict() = runTest {
         val hubCtx = freshContext("conflict")
-        val hub = MutableCompositeDevice("hub".asName(), hubCtx)
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
         val candidates = (0 until 10).map {
             TrackingDevice(
                 "a".asName(),
@@ -157,7 +157,7 @@ class DynamicHubE2ETest {
         }
         advanceUntilIdle()
 
-        assertEquals(1, hub.children.size)
+        assertEquals(1, hub.devices.size)
         assertEquals(9, conflicts.size)
         assertTrue(conflicts.all { it is HubConflictException })
     }

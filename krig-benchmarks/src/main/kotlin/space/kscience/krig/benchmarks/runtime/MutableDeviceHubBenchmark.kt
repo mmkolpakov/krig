@@ -13,13 +13,13 @@ import kotlinx.benchmark.State
 import kotlinx.coroutines.runBlocking
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceDepartureReason
-import space.kscience.krig.core.runtime.MutableCompositeDevice
+import space.kscience.krig.core.runtime.MutableDeviceHub
 
 /** Hub topology attach/detach throughput. */
 @State(Scope.Benchmark)
-open class MutableCompositeDeviceAttachBenchmark {
+open class MutableDeviceHubAttachBenchmark {
 
-    private lateinit var hub: MutableCompositeDevice
+    private lateinit var hub: MutableDeviceHub
     private lateinit var devices: List<Pair<Name, BenchLeafDevice>>
 
     @Setup

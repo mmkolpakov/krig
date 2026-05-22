@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
-import space.kscience.krig.core.runtime.MutableCompositeDevice
+import space.kscience.krig.core.runtime.MutableDeviceHub
 import space.kscience.krig.core.runtime.awaitChildren
 import space.kscience.krig.core.runtime.reconcile
 import space.kscience.krig.core.runtime.reconcileScoped
@@ -35,7 +35,7 @@ class DeviceReconcilerTest {
     @Test
     fun reconcileAttachesAndDetachesToMatchDesiredSet() = runTest {
         val context = Context("hub-test")
-        val hub = MutableCompositeDevice("hub".asName(), context)
+        val hub = MutableDeviceHub("hub".asName(), context)
         val desired = MutableStateFlow(setOf("motorA".asName()))
 
         val loop = context(context) {
@@ -47,7 +47,7 @@ class DeviceReconcilerTest {
         desired.value = setOf("motorB".asName())
 
         assertEquals(setOf("motorB".asName()), hub.awaitChildren(setOf("motorB".asName())).keys)
-        assertTrue("motorB".asName() in hub.children.keys)
+        assertTrue("motorB".asName() in hub.devices.keys)
 
         loop.job.cancel()
     }
@@ -55,7 +55,7 @@ class DeviceReconcilerTest {
     @Test
     fun reconcileScopedRollsBackProducerResourcesWhenProductionFails() = runTest {
         val context = Context("hub-scoped-rollback")
-        val hub = MutableCompositeDevice("hub".asName(), context)
+        val hub = MutableDeviceHub("hub".asName(), context)
         val desired = MutableStateFlow(setOf("motorA".asName()))
         var rollbackCount = 0
 
@@ -71,7 +71,7 @@ class DeviceReconcilerTest {
         }
         advanceUntilIdle()
 
-        assertTrue(hub.children.isEmpty())
+        assertTrue(hub.devices.isEmpty())
         assertEquals(1, rollbackCount)
 
         loop.job.cancel()

@@ -36,8 +36,7 @@ import kotlin.time.TimeSource
 
 /**
  * Base [Device] implementation. Owns the two-plane message flows and the lifecycle state;
- * subclasses implement [readProperty], [writeProperty], [execute] and optionally override
- * [children] for composite devices.
+ * subclasses implement [readProperty], [writeProperty] and [execute].
  */
 @OptIn(InternalKrigApi::class, PerformancePitfall::class)
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
@@ -213,19 +212,7 @@ public abstract class AbstractDevice(
     }
 
     override suspend fun shutdown() {
-        shutdownChildren()
         shutdownSelf()
-    }
-
-    protected open suspend fun shutdownChildren() {
-        supervisorScope {
-            val jobs = children.values.map { child ->
-                async {
-                    ignoreCleanupFailureSuspending { child.shutdown() }
-                }
-            }
-            jobs.awaitAll()
-        }
     }
 
     protected suspend fun shutdownSelf() {

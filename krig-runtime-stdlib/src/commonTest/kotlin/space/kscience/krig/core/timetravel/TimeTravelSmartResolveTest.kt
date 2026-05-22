@@ -84,4 +84,22 @@ class TimeTravelSmartResolveTest {
         // No snapshot > DISTANT_PAST > events up to 200ms applied.
         assertEquals(2, counter.value)
     }
+
+    @Test
+    fun recoveryDslUsesSnapshotAndReplayDelta() = runTest {
+        val counter = CounterReplay()
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val store = InMemorySnapshotStore()
+        val devName = "counter".asName()
+        store.save(devName, DeviceSnapshot(at = Instant.fromEpochMilliseconds(200), state = Meta(20.asValue())))
+
+        counter.recover {
+            subject = devName
+            at = Instant.fromEpochMilliseconds(300)
+            this.log = log
+            snapshots = store
+        }
+
+        assertEquals(3, counter.value)
+    }
 }

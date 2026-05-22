@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Runtime standard library: dynamic hubs, state history, expressions, peer runtime and time travel"
+description = "Runtime standard library: device hubs, state history, expressions, peer runtime and time travel"
 
 kotlin {
     sourceSets {

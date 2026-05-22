@@ -35,7 +35,7 @@ private fun freshContext(prefix: String): Context =
  * close()'s `store(emptyMap)`, the device would leak inside a closed hub. After the fix,
  * mutations after close() throw [HubClosedException] and never land a child.
  */
-class MutableCompositeDeviceCloseRaceTest {
+class MutableDeviceHubCloseRaceTest {
 
     private class LeafDevice(name: Name) : AbstractDevice(name, DeviceRuntime(freshContext(name.toString()))) {
         override suspend fun readProperty(propertyName: Name) = error("not used: $propertyName")
@@ -47,12 +47,12 @@ class MutableCompositeDeviceCloseRaceTest {
 
     @Test
     fun attachAfterCloseIsRejected() = runBlocking {
-        val hub = MutableCompositeDevice("hub".asName(), freshContext("close-race"))
+        val hub = MutableDeviceHub("hub".asName(), freshContext("close-race"))
         hub.close()
         assertFailsWith<HubClosedException> {
             hub.attach("a".asName(), LeafDevice("a".asName()))
         }
-        assertTrue(hub.children.isEmpty())
+        assertTrue(hub.devices.isEmpty())
     }
 
     @Test
@@ -61,7 +61,7 @@ class MutableCompositeDeviceCloseRaceTest {
         // could slip after close(). Since the CAS loop re-checks `closed` after the swap,
         // either the hub ends empty OR attach observes the closed flag and throws.
         repeat(50) { iter ->
-            val hub = MutableCompositeDevice("hub-$iter".asName(), freshContext("race"))
+            val hub = MutableDeviceHub("hub-$iter".asName(), freshContext("race"))
             val winners = AtomicInt(0)
             supervisorScope {
                 val closer = async(Dispatchers.Default) { hub.close() }
@@ -77,15 +77,15 @@ class MutableCompositeDeviceCloseRaceTest {
             // After close, the hub must contain zero children regardless of which attachers
             // "won" their CAS — the rollback path cleans up any slippage.
             assertTrue(
-                hub.children.isEmpty(),
-                "iter $iter: hub.children=${hub.children.keys} after close (winners=${winners.load()})",
+                hub.devices.isEmpty(),
+                "iter $iter: hub.devices=${hub.devices.keys} after close (winners=${winners.load()})",
             )
         }
     }
 
     @Test
     fun slowHubEventSubscriberDoesNotRejectTopologyMutations() = runBlocking {
-        val hub = MutableCompositeDevice("hub".asName(), freshContext("hub-events"))
+        val hub = MutableDeviceHub("hub".asName(), freshContext("hub-events"))
         val slowCollector = launch(start = CoroutineStart.UNDISPATCHED) {
             hub.hubEvents.collect { delay(1.seconds) }
         }
@@ -94,7 +94,7 @@ class MutableCompositeDeviceCloseRaceTest {
             hub.attach("d$index".asName(), LeafDevice("d$index".asName()))
         }
 
-        assertEquals(1200, hub.children.size)
+        assertEquals(1200, hub.devices.size)
         slowCollector.cancel()
         hub.shutdown()
     }

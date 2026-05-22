@@ -1,4 +1,4 @@
-﻿@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
+@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
 @file:MustUseReturnValues
 
 package space.kscience.krig.core.hook
@@ -13,7 +13,7 @@ public fun interface HookRegistration : AutoCloseable
 
 /**
  * Carries [Hook] handlers. Implemented by operation pipeline builders and
- * `DynamicHub` (topology-scope). Third-party consumers that own their own firing sites
+ * `DeviceHub` (topology-scope). Third-party consumers that own their own firing sites
  * implement it too.
  */
 public interface HookRegistry {

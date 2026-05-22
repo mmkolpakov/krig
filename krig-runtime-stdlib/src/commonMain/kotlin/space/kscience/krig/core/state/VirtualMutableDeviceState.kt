@@ -8,7 +8,7 @@ import space.kscience.krig.api.data.observed
 
 /**
  * A [MutableDeviceState] that holds its value in memory with no corresponding physical state.
- * Used for logical state management within a composite device.
+ * Used for logical state management within virtual devices and groups.
  * Initialized with a non-null value.
  *
  * @param initialValue The non-null initial value.

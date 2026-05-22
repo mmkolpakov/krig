@@ -1,11 +1,11 @@
-﻿package space.kscience.krig.core.runtime
+package space.kscience.krig.core.runtime
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
-import space.kscience.krig.api.hub.DynamicHub
+import space.kscience.krig.api.hub.DeviceHub
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.contracts.Device
 import kotlin.time.Duration
@@ -16,21 +16,21 @@ import kotlin.time.Duration.Companion.seconds
  *
  * This is a small DX helper for control loops, tests, and demos that need to wait for
  * asynchronous topology convergence without depending on dispatcher-specific `yield`
- * behavior. For custom predicates, collect [Device.childrenFlow] directly.
+ * behavior. For custom predicates, collect [DeviceHub.devicesFlow] directly.
  */
-public suspend fun DynamicHub.awaitChildren(
+public suspend fun DeviceHub.awaitChildren(
     expectedNames: Set<Name>,
     timeout: Duration = 5.seconds,
 ): Map<Name, Device> = withTimeout(timeout) {
-    childrenFlow.first { children -> children.keys == expectedNames }
+    devicesFlow.first { children -> children.keys == expectedNames }
 }
 
 /**
  * Handle on a running reconcile loop. [job] ties the loop's lifetime to the scope; [events]
  * surfaces per-operation outcomes for observability (attach success/failure, detach
  * success/failure). Active subscribers observe a bounded best-effort stream; old
- * reconcile events may be dropped on observer stalls. Current topology lives in [DynamicHub.children] and
- * [Device.childrenFlow]. Cancelling [job] stops collection but does NOT detach already-attached
+ * reconcile events may be dropped on observer stalls. Current topology lives in [DeviceHub.devices]
+ * and [DeviceHub.devicesFlow]. Cancelling [job] stops collection but does NOT detach already-attached
  * children.
  */
 public class ReconcileLoop internal constructor(
@@ -80,7 +80,7 @@ private suspend inline fun ignoreRollbackFailure(block: suspend () -> Unit) {
 }
 
 /**
- * Reconciliation loop for a [DynamicHub]. Device construction is concurrent; [DynamicHub.attachAll]
+ * Reconciliation loop for a [DeviceHub]. Device construction is concurrent; [DeviceHub.attachAll]
  * is required to transfer ownership atomically. Errors surface via [ReconcileLoop.events],
  * never throw.
  *
@@ -89,7 +89,7 @@ private suspend inline fun ignoreRollbackFailure(block: suspend () -> Unit) {
  * but does not detach already-attached children.
  */
 context(context: Context)
-public fun DynamicHub.reconcile(
+public fun DeviceHub.reconcile(
     desired: Flow<Set<Name>>,
     produce: suspend (Name) -> Device,
     scope: CoroutineScope = context,
@@ -107,7 +107,7 @@ public fun DynamicHub.reconcile(
  * dispatchers created before the final [Device] instance is returned.
  */
 context(context: Context)
-public fun DynamicHub.reconcileScoped(
+public fun DeviceHub.reconcileScoped(
     desired: Flow<Set<Name>>,
     produce: suspend ReconcileProductionScope.(Name) -> Device,
     scope: CoroutineScope = context,
@@ -119,7 +119,7 @@ public fun DynamicHub.reconcileScoped(
     )
     val job = scope.launch {
         desired.distinctUntilChanged().collectLatest { desiredNames ->
-            val currentNames = children.keys
+            val currentNames = devices.keys
             val toAttach = desiredNames - currentNames
             val toDetach = currentNames - desiredNames
 
@@ -229,7 +229,7 @@ private suspend fun produceForReconcile(
  * ambient (e.g. `runBlocking {}`, simple `main()` demos). Delegates to the
  * context-parameter version via `context(context)`.
  */
-public fun DynamicHub.reconcileScoped(
+public fun DeviceHub.reconcileScoped(
     context: Context,
     desired: Flow<Set<Name>>,
     produce: suspend ReconcileProductionScope.(Name) -> Device,
@@ -249,7 +249,7 @@ public fun DynamicHub.reconcileScoped(
  * ambient (e.g. `runBlocking {}`, simple `main()` demos). Delegates to the
  * context-parameter version via `context(context)`.
  */
-public fun DynamicHub.reconcile(
+public fun DeviceHub.reconcile(
     context: Context,
     desired: Flow<Set<Name>>,
     produce: suspend (Name) -> Device,

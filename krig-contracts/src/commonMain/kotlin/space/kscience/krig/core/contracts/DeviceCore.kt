@@ -114,27 +114,11 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     public val lifecycleState: LifecycleState
 
-    /**
-     * Read-only topology view. Leaves return an empty map; mutable topology is exposed
-     * by [space.kscience.krig.api.hub.DynamicHub].
-     */
-    public val children: Map<Name, Device> get() = emptyMap()
-
-    /** Reactive view of [children]. Leaves share [EmptyChildrenFlow]. */
-    public val childrenFlow: StateFlow<Map<Name, Device>>
-        get() = EmptyChildrenFlow
-
     public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C?
 
-    /**
-     * Suspends until owned child devices are shut down and this device scope has completed.
-     * Use for ports, sockets and simulations where [close] is only a best-effort signal.
-     */
+    /** Suspends until capabilities are detached and this device scope has completed. */
     @OptIn(InternalKrigApi::class)
     public suspend fun shutdown() {
-        for (child in children.values) {
-            ignoreCleanupFailureSuspending { child.shutdown() }
-        }
         cancelDeviceScopeSafely(name, deviceScope)
     }
 
@@ -208,12 +192,9 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     override fun content(target: String): Map<Name, Any> = emptyMap()
 
-    /** Best-effort close: cascades to children and signals [deviceScope] cancellation. */
+    /** Best-effort close: signals [deviceScope] cancellation. */
     @OptIn(InternalKrigApi::class)
     override fun close() {
-        for (child in children.values) {
-            ignoreNonCancellationFailure { child.close() }
-        }
         deviceScope.cancel("Device '${name}' closed")
     }
 }
@@ -231,10 +212,6 @@ public suspend fun Device.execute(name: String, argument: Meta? = null): Meta? =
 public val Device.propertyNames: Set<Name> get() = propertyDescriptors.keys
 
 public val Device.actionNames: Set<Name> get() = actionDescriptors.keys
-
-/** Shared empty snapshot returned by leaf [Device.childrenFlow]. One instance per process. */
-public val EmptyChildrenFlow: StateFlow<Map<Name, Device>> =
-    MutableStateFlow(emptyMap<Name, Device>()).asStateFlow()
 
 @OptIn(InternalKrigApi::class)
 private fun Device.markProgrammingFailure(cause: Throwable) {

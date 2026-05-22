@@ -6,6 +6,19 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-simulation>
+abstract fun interface space.kscience.krig.concurrency/ResourceEventSink { // space.kscience.krig.concurrency/ResourceEventSink|null[0]
+    abstract fun emit(space.kscience.krig.concurrency/ResourceEvent) // space.kscience.krig.concurrency/ResourceEventSink.emit|emit(space.kscience.krig.concurrency.ResourceEvent){}[0]
+
+    final object Companion { // space.kscience.krig.concurrency/ResourceEventSink.Companion|null[0]
+        final val None // space.kscience.krig.concurrency/ResourceEventSink.Companion.None|{}None[0]
+            final fun <get-None>(): space.kscience.krig.concurrency/ResourceEventSink // space.kscience.krig.concurrency/ResourceEventSink.Companion.None.<get-None>|<get-None>(){}[0]
+    }
+}
+
+abstract fun interface space.kscience.krig.concurrency/ResourcePreemptionPolicy { // space.kscience.krig.concurrency/ResourcePreemptionPolicy|null[0]
+    abstract fun selectVictims(space.kscience.krig.concurrency/ResourcePreemptionContext): kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim> // space.kscience.krig.concurrency/ResourcePreemptionPolicy.selectVictims|selectVictims(space.kscience.krig.concurrency.ResourcePreemptionContext){}[0]
+}
+
 abstract interface space.kscience.krig.simulation/ProcessScope : kotlinx.coroutines/CoroutineScope // space.kscience.krig.simulation/ProcessScope|null[0]
 
 abstract interface space.kscience.krig.simulation/SimulationScheduler { // space.kscience.krig.simulation/SimulationScheduler|null[0]
@@ -16,76 +29,6 @@ abstract interface space.kscience.krig.simulation/SimulationScheduler { // space
     abstract fun asDispatcher(): kotlinx.coroutines/CoroutineDispatcher // space.kscience.krig.simulation/SimulationScheduler.asDispatcher|asDispatcher(){}[0]
     abstract fun asTimeSource(): kotlin.time/TimeSource // space.kscience.krig.simulation/SimulationScheduler.asTimeSource|asTimeSource(){}[0]
     abstract suspend fun advanceBy(kotlin.time/Duration) // space.kscience.krig.simulation/SimulationScheduler.advanceBy|advanceBy(kotlin.time.Duration){}[0]
-}
-
-sealed interface space.kscience.krig.concurrency/ResourcePriority : kotlin/Comparable<space.kscience.krig.concurrency/ResourcePriority> { // space.kscience.krig.concurrency/ResourcePriority|null[0]
-    abstract val level // space.kscience.krig.concurrency/ResourcePriority.level|{}level[0]
-        abstract fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.level.<get-level>|<get-level>(){}[0]
-
-    open fun compareTo(space.kscience.krig.concurrency/ResourcePriority): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.compareTo|compareTo(space.kscience.krig.concurrency.ResourcePriority){}[0]
-
-    final class Custom : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.Custom|null[0]
-        constructor <init>(kotlin/Int) // space.kscience.krig.concurrency/ResourcePriority.Custom.<init>|<init>(kotlin.Int){}[0]
-
-        final val level // space.kscience.krig.concurrency/ResourcePriority.Custom.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Custom.level.<get-level>|<get-level>(){}[0]
-
-        final fun component1(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Custom.component1|component1(){}[0]
-        final fun copy(kotlin/Int = ...): space.kscience.krig.concurrency/ResourcePriority.Custom // space.kscience.krig.concurrency/ResourcePriority.Custom.copy|copy(kotlin.Int){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.Custom.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Custom.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.Custom.toString|toString(){}[0]
-    }
-
-    final object Companion { // space.kscience.krig.concurrency/ResourcePriority.Companion|null[0]
-        final val DEFAULT // space.kscience.krig.concurrency/ResourcePriority.Companion.DEFAULT|{}DEFAULT[0]
-            final fun <get-DEFAULT>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.DEFAULT.<get-DEFAULT>|<get-DEFAULT>(){}[0]
-    }
-
-    final object Critical : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.Critical|null[0]
-        final val level // space.kscience.krig.concurrency/ResourcePriority.Critical.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Critical.level.<get-level>|<get-level>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.Critical.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Critical.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.Critical.toString|toString(){}[0]
-    }
-
-    final object High : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.High|null[0]
-        final val level // space.kscience.krig.concurrency/ResourcePriority.High.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.High.level.<get-level>|<get-level>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.High.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.High.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.High.toString|toString(){}[0]
-    }
-
-    final object Low : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.Low|null[0]
-        final val level // space.kscience.krig.concurrency/ResourcePriority.Low.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Low.level.<get-level>|<get-level>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.Low.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Low.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.Low.toString|toString(){}[0]
-    }
-
-    final object Lowest : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.Lowest|null[0]
-        final val level // space.kscience.krig.concurrency/ResourcePriority.Lowest.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Lowest.level.<get-level>|<get-level>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.Lowest.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Lowest.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.Lowest.toString|toString(){}[0]
-    }
-
-    final object Normal : space.kscience.krig.concurrency/ResourcePriority { // space.kscience.krig.concurrency/ResourcePriority.Normal|null[0]
-        final val level // space.kscience.krig.concurrency/ResourcePriority.Normal.level|{}level[0]
-            final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Normal.level.<get-level>|<get-level>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.Normal.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.Normal.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.Normal.toString|toString(){}[0]
-    }
 }
 
 sealed interface space.kscience.krig.simulation/ClockMode { // space.kscience.krig.simulation/ClockMode|null[0]
@@ -148,12 +91,14 @@ final class <#A: kotlin/Any?> space.kscience.krig.concurrency/Signal { // space.
 }
 
 final class space.kscience.krig.concurrency/Resource { // space.kscience.krig.concurrency/Resource|null[0]
-    constructor <init>(kotlin/String, kotlin/Int) // space.kscience.krig.concurrency/Resource.<init>|<init>(kotlin.String;kotlin.Int){}[0]
+    constructor <init>(kotlin/String, kotlin/Int, space.kscience.krig.concurrency/ResourcePreemptionPolicy = ..., space.kscience.krig.concurrency/ResourceEventSink = ...) // space.kscience.krig.concurrency/Resource.<init>|<init>(kotlin.String;kotlin.Int;space.kscience.krig.concurrency.ResourcePreemptionPolicy;space.kscience.krig.concurrency.ResourceEventSink){}[0]
 
     final val capacity // space.kscience.krig.concurrency/Resource.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // space.kscience.krig.concurrency/Resource.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val name // space.kscience.krig.concurrency/Resource.name|{}name[0]
         final fun <get-name>(): kotlin/String // space.kscience.krig.concurrency/Resource.name.<get-name>|<get-name>(){}[0]
+    final val preemption // space.kscience.krig.concurrency/Resource.preemption|{}preemption[0]
+        final fun <get-preemption>(): space.kscience.krig.concurrency/ResourcePreemptionPolicy // space.kscience.krig.concurrency/Resource.preemption.<get-preemption>|<get-preemption>(){}[0]
     final val state // space.kscience.krig.concurrency/Resource.state|{}state[0]
         final fun <get-state>(): kotlinx.coroutines.flow/StateFlow<space.kscience.krig.concurrency/ResourceState> // space.kscience.krig.concurrency/Resource.state.<get-state>|<get-state>(){}[0]
 
@@ -165,11 +110,102 @@ final class space.kscience.krig.concurrency/Resource { // space.kscience.krig.co
     final suspend fun seize(kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ...) // space.kscience.krig.concurrency/Resource.seize|seize(kotlin.Int;space.kscience.krig.concurrency.ResourcePriority){}[0]
 }
 
+final class space.kscience.krig.concurrency/ResourceClaim { // space.kscience.krig.concurrency/ResourceClaim|null[0]
+    constructor <init>(kotlin/Long, kotlin/Int, space.kscience.krig.concurrency/ResourcePriority) // space.kscience.krig.concurrency/ResourceClaim.<init>|<init>(kotlin.Long;kotlin.Int;space.kscience.krig.concurrency.ResourcePriority){}[0]
+
+    final val amount // space.kscience.krig.concurrency/ResourceClaim.amount|{}amount[0]
+        final fun <get-amount>(): kotlin/Int // space.kscience.krig.concurrency/ResourceClaim.amount.<get-amount>|<get-amount>(){}[0]
+    final val id // space.kscience.krig.concurrency/ResourceClaim.id|{}id[0]
+        final fun <get-id>(): kotlin/Long // space.kscience.krig.concurrency/ResourceClaim.id.<get-id>|<get-id>(){}[0]
+    final val priority // space.kscience.krig.concurrency/ResourceClaim.priority|{}priority[0]
+        final fun <get-priority>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourceClaim.priority.<get-priority>|<get-priority>(){}[0]
+
+    final fun component1(): kotlin/Long // space.kscience.krig.concurrency/ResourceClaim.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // space.kscience.krig.concurrency/ResourceClaim.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourceClaim.component3|component3(){}[0]
+    final fun copy(kotlin/Long = ..., kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ...): space.kscience.krig.concurrency/ResourceClaim // space.kscience.krig.concurrency/ResourceClaim.copy|copy(kotlin.Long;kotlin.Int;space.kscience.krig.concurrency.ResourcePriority){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourceClaim.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourceClaim.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourceClaim.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.concurrency/ResourceEvent { // space.kscience.krig.concurrency/ResourceEvent|null[0]
+    constructor <init>(space.kscience.krig.concurrency/ResourceEventType, kotlin/String, space.kscience.krig.concurrency/ResourceClaim, kotlin/Int, kotlin/Int, kotlin/Int) // space.kscience.krig.concurrency/ResourceEvent.<init>|<init>(space.kscience.krig.concurrency.ResourceEventType;kotlin.String;space.kscience.krig.concurrency.ResourceClaim;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+
+    final val capacity // space.kscience.krig.concurrency/ResourceEvent.capacity|{}capacity[0]
+        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.capacity.<get-capacity>|<get-capacity>(){}[0]
+    final val claim // space.kscience.krig.concurrency/ResourceEvent.claim|{}claim[0]
+        final fun <get-claim>(): space.kscience.krig.concurrency/ResourceClaim // space.kscience.krig.concurrency/ResourceEvent.claim.<get-claim>|<get-claim>(){}[0]
+    final val resourceName // space.kscience.krig.concurrency/ResourceEvent.resourceName|{}resourceName[0]
+        final fun <get-resourceName>(): kotlin/String // space.kscience.krig.concurrency/ResourceEvent.resourceName.<get-resourceName>|<get-resourceName>(){}[0]
+    final val type // space.kscience.krig.concurrency/ResourceEvent.type|{}type[0]
+        final fun <get-type>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEvent.type.<get-type>|<get-type>(){}[0]
+    final val used // space.kscience.krig.concurrency/ResourceEvent.used|{}used[0]
+        final fun <get-used>(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.used.<get-used>|<get-used>(){}[0]
+    final val waiting // space.kscience.krig.concurrency/ResourceEvent.waiting|{}waiting[0]
+        final fun <get-waiting>(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.waiting.<get-waiting>|<get-waiting>(){}[0]
+
+    final fun component1(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEvent.component1|component1(){}[0]
+    final fun component2(): kotlin/String // space.kscience.krig.concurrency/ResourceEvent.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.concurrency/ResourceClaim // space.kscience.krig.concurrency/ResourceEvent.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.component4|component4(){}[0]
+    final fun component5(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.component5|component5(){}[0]
+    final fun component6(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.component6|component6(){}[0]
+    final fun copy(space.kscience.krig.concurrency/ResourceEventType = ..., kotlin/String = ..., space.kscience.krig.concurrency/ResourceClaim = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...): space.kscience.krig.concurrency/ResourceEvent // space.kscience.krig.concurrency/ResourceEvent.copy|copy(space.kscience.krig.concurrency.ResourceEventType;kotlin.String;space.kscience.krig.concurrency.ResourceClaim;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourceEvent.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourceEvent.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourceEvent.toString|toString(){}[0]
+}
+
 final class space.kscience.krig.concurrency/ResourcePreemptedException : kotlin.coroutines.cancellation/CancellationException { // space.kscience.krig.concurrency/ResourcePreemptedException|null[0]
     constructor <init>(kotlin/String, kotlin/String = ...) // space.kscience.krig.concurrency/ResourcePreemptedException.<init>|<init>(kotlin.String;kotlin.String){}[0]
+    constructor <init>(space.kscience.krig.concurrency/ResourcePreemptionCause, kotlin/String = ...) // space.kscience.krig.concurrency/ResourcePreemptedException.<init>|<init>(space.kscience.krig.concurrency.ResourcePreemptionCause;kotlin.String){}[0]
 
+    final val preemption // space.kscience.krig.concurrency/ResourcePreemptedException.preemption|{}preemption[0]
+        final fun <get-preemption>(): space.kscience.krig.concurrency/ResourcePreemptionCause // space.kscience.krig.concurrency/ResourcePreemptedException.preemption.<get-preemption>|<get-preemption>(){}[0]
     final val resourceName // space.kscience.krig.concurrency/ResourcePreemptedException.resourceName|{}resourceName[0]
         final fun <get-resourceName>(): kotlin/String // space.kscience.krig.concurrency/ResourcePreemptedException.resourceName.<get-resourceName>|<get-resourceName>(){}[0]
+}
+
+final class space.kscience.krig.concurrency/ResourcePreemptionCause { // space.kscience.krig.concurrency/ResourcePreemptionCause|null[0]
+    constructor <init>(kotlin/String, space.kscience.krig.concurrency/ResourcePriority, space.kscience.krig.concurrency/ResourcePriority? = ..., kotlin/Int? = ...) // space.kscience.krig.concurrency/ResourcePreemptionCause.<init>|<init>(kotlin.String;space.kscience.krig.concurrency.ResourcePriority;space.kscience.krig.concurrency.ResourcePriority?;kotlin.Int?){}[0]
+
+    final val amount // space.kscience.krig.concurrency/ResourcePreemptionCause.amount|{}amount[0]
+        final fun <get-amount>(): kotlin/Int? // space.kscience.krig.concurrency/ResourcePreemptionCause.amount.<get-amount>|<get-amount>(){}[0]
+    final val holderPriority // space.kscience.krig.concurrency/ResourcePreemptionCause.holderPriority|{}holderPriority[0]
+        final fun <get-holderPriority>(): space.kscience.krig.concurrency/ResourcePriority? // space.kscience.krig.concurrency/ResourcePreemptionCause.holderPriority.<get-holderPriority>|<get-holderPriority>(){}[0]
+    final val requestedPriority // space.kscience.krig.concurrency/ResourcePreemptionCause.requestedPriority|{}requestedPriority[0]
+        final fun <get-requestedPriority>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePreemptionCause.requestedPriority.<get-requestedPriority>|<get-requestedPriority>(){}[0]
+    final val resourceName // space.kscience.krig.concurrency/ResourcePreemptionCause.resourceName|{}resourceName[0]
+        final fun <get-resourceName>(): kotlin/String // space.kscience.krig.concurrency/ResourcePreemptionCause.resourceName.<get-resourceName>|<get-resourceName>(){}[0]
+
+    final fun component1(): kotlin/String // space.kscience.krig.concurrency/ResourcePreemptionCause.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePreemptionCause.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.concurrency/ResourcePriority? // space.kscience.krig.concurrency/ResourcePreemptionCause.component3|component3(){}[0]
+    final fun component4(): kotlin/Int? // space.kscience.krig.concurrency/ResourcePreemptionCause.component4|component4(){}[0]
+    final fun copy(kotlin/String = ..., space.kscience.krig.concurrency/ResourcePriority = ..., space.kscience.krig.concurrency/ResourcePriority? = ..., kotlin/Int? = ...): space.kscience.krig.concurrency/ResourcePreemptionCause // space.kscience.krig.concurrency/ResourcePreemptionCause.copy|copy(kotlin.String;space.kscience.krig.concurrency.ResourcePriority;space.kscience.krig.concurrency.ResourcePriority?;kotlin.Int?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePreemptionCause.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePreemptionCause.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePreemptionCause.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.concurrency/ResourcePreemptionContext { // space.kscience.krig.concurrency/ResourcePreemptionContext|null[0]
+    constructor <init>(space.kscience.krig.concurrency/ResourceClaim, kotlin/Int, kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim>) // space.kscience.krig.concurrency/ResourcePreemptionContext.<init>|<init>(space.kscience.krig.concurrency.ResourceClaim;kotlin.Int;kotlin.collections.List<space.kscience.krig.concurrency.ResourceClaim>){}[0]
+
+    final val available // space.kscience.krig.concurrency/ResourcePreemptionContext.available|{}available[0]
+        final fun <get-available>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePreemptionContext.available.<get-available>|<get-available>(){}[0]
+    final val holders // space.kscience.krig.concurrency/ResourcePreemptionContext.holders|{}holders[0]
+        final fun <get-holders>(): kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim> // space.kscience.krig.concurrency/ResourcePreemptionContext.holders.<get-holders>|<get-holders>(){}[0]
+    final val request // space.kscience.krig.concurrency/ResourcePreemptionContext.request|{}request[0]
+        final fun <get-request>(): space.kscience.krig.concurrency/ResourceClaim // space.kscience.krig.concurrency/ResourcePreemptionContext.request.<get-request>|<get-request>(){}[0]
+
+    final fun component1(): space.kscience.krig.concurrency/ResourceClaim // space.kscience.krig.concurrency/ResourcePreemptionContext.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // space.kscience.krig.concurrency/ResourcePreemptionContext.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim> // space.kscience.krig.concurrency/ResourcePreemptionContext.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.concurrency/ResourceClaim = ..., kotlin/Int = ..., kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim> = ...): space.kscience.krig.concurrency/ResourcePreemptionContext // space.kscience.krig.concurrency/ResourcePreemptionContext.copy|copy(space.kscience.krig.concurrency.ResourceClaim;kotlin.Int;kotlin.collections.List<space.kscience.krig.concurrency.ResourceClaim>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePreemptionContext.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePreemptionContext.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePreemptionContext.toString|toString(){}[0]
 }
 
 final class space.kscience.krig.concurrency/ResourceState { // space.kscience.krig.concurrency/ResourceState|null[0]
@@ -244,6 +280,57 @@ final class space.kscience.krig.simulation/VirtualTimeScope { // space.kscience.
     final fun toString(): kotlin/String // space.kscience.krig.simulation/VirtualTimeScope.toString|toString(){}[0]
 }
 
+final value class space.kscience.krig.concurrency/ResourceEventType { // space.kscience.krig.concurrency/ResourceEventType|null[0]
+    constructor <init>(kotlin/String) // space.kscience.krig.concurrency/ResourceEventType.<init>|<init>(kotlin.String){}[0]
+
+    final val name // space.kscience.krig.concurrency/ResourceEventType.name|{}name[0]
+        final fun <get-name>(): kotlin/String // space.kscience.krig.concurrency/ResourceEventType.name.<get-name>|<get-name>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourceEventType.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourceEventType.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourceEventType.toString|toString(){}[0]
+
+    final object Companion { // space.kscience.krig.concurrency/ResourceEventType.Companion|null[0]
+        final val Granted // space.kscience.krig.concurrency/ResourceEventType.Companion.Granted|{}Granted[0]
+            final fun <get-Granted>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Granted.<get-Granted>|<get-Granted>(){}[0]
+        final val Preempted // space.kscience.krig.concurrency/ResourceEventType.Companion.Preempted|{}Preempted[0]
+            final fun <get-Preempted>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Preempted.<get-Preempted>|<get-Preempted>(){}[0]
+        final val Queued // space.kscience.krig.concurrency/ResourceEventType.Companion.Queued|{}Queued[0]
+            final fun <get-Queued>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Queued.<get-Queued>|<get-Queued>(){}[0]
+        final val Released // space.kscience.krig.concurrency/ResourceEventType.Companion.Released|{}Released[0]
+            final fun <get-Released>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Released.<get-Released>|<get-Released>(){}[0]
+        final val Requested // space.kscience.krig.concurrency/ResourceEventType.Companion.Requested|{}Requested[0]
+            final fun <get-Requested>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Requested.<get-Requested>|<get-Requested>(){}[0]
+    }
+}
+
+final value class space.kscience.krig.concurrency/ResourcePriority : kotlin/Comparable<space.kscience.krig.concurrency/ResourcePriority> { // space.kscience.krig.concurrency/ResourcePriority|null[0]
+    constructor <init>(kotlin/Int) // space.kscience.krig.concurrency/ResourcePriority.<init>|<init>(kotlin.Int){}[0]
+
+    final val level // space.kscience.krig.concurrency/ResourcePriority.level|{}level[0]
+        final fun <get-level>(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.level.<get-level>|<get-level>(){}[0]
+
+    final fun compareTo(space.kscience.krig.concurrency/ResourcePriority): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.compareTo|compareTo(space.kscience.krig.concurrency.ResourcePriority){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourcePriority.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourcePriority.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourcePriority.toString|toString(){}[0]
+
+    final object Companion { // space.kscience.krig.concurrency/ResourcePriority.Companion|null[0]
+        final val Critical // space.kscience.krig.concurrency/ResourcePriority.Companion.Critical|{}Critical[0]
+            final fun <get-Critical>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.Critical.<get-Critical>|<get-Critical>(){}[0]
+        final val DEFAULT // space.kscience.krig.concurrency/ResourcePriority.Companion.DEFAULT|{}DEFAULT[0]
+            final fun <get-DEFAULT>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.DEFAULT.<get-DEFAULT>|<get-DEFAULT>(){}[0]
+        final val High // space.kscience.krig.concurrency/ResourcePriority.Companion.High|{}High[0]
+            final fun <get-High>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.High.<get-High>|<get-High>(){}[0]
+        final val Low // space.kscience.krig.concurrency/ResourcePriority.Companion.Low|{}Low[0]
+            final fun <get-Low>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.Low.<get-Low>|<get-Low>(){}[0]
+        final val Lowest // space.kscience.krig.concurrency/ResourcePriority.Companion.Lowest|{}Lowest[0]
+            final fun <get-Lowest>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.Lowest.<get-Lowest>|<get-Lowest>(){}[0]
+        final val Normal // space.kscience.krig.concurrency/ResourcePriority.Companion.Normal|{}Normal[0]
+            final fun <get-Normal>(): space.kscience.krig.concurrency/ResourcePriority // space.kscience.krig.concurrency/ResourcePriority.Companion.Normal.<get-Normal>|<get-Normal>(){}[0]
+    }
+}
+
 open class space.kscience.krig.simulation/ClockManager : space.kscience.dataforge.context/AbstractPlugin { // space.kscience.krig.simulation/ClockManager|null[0]
     constructor <init>(space.kscience.dataforge.meta/Meta) // space.kscience.krig.simulation/ClockManager.<init>|<init>(space.kscience.dataforge.meta.Meta){}[0]
 
@@ -266,6 +353,13 @@ open class space.kscience.krig.simulation/ClockManager : space.kscience.dataforg
 
         final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.krig.simulation/ClockManager // space.kscience.krig.simulation/ClockManager.Companion.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
     }
+}
+
+final object space.kscience.krig.concurrency/ResourcePreemptionPolicies { // space.kscience.krig.concurrency/ResourcePreemptionPolicies|null[0]
+    final val None // space.kscience.krig.concurrency/ResourcePreemptionPolicies.None|{}None[0]
+        final fun <get-None>(): space.kscience.krig.concurrency/ResourcePreemptionPolicy // space.kscience.krig.concurrency/ResourcePreemptionPolicies.None.<get-None>|<get-None>(){}[0]
+    final val Priority // space.kscience.krig.concurrency/ResourcePreemptionPolicies.Priority|{}Priority[0]
+        final fun <get-Priority>(): space.kscience.krig.concurrency/ResourcePreemptionPolicy // space.kscience.krig.concurrency/ResourcePreemptionPolicies.Priority.<get-Priority>|<get-Priority>(){}[0]
 }
 
 final fun (kotlinx.coroutines/CoroutineScope).space.kscience.krig.simulation/process(kotlin/String = ..., kotlin.coroutines/SuspendFunction1<space.kscience.krig.simulation/ProcessScope, kotlin/Unit>): kotlinx.coroutines/Job // space.kscience.krig.simulation/process|process@kotlinx.coroutines.CoroutineScope(kotlin.String;kotlin.coroutines.SuspendFunction1<space.kscience.krig.simulation.ProcessScope,kotlin.Unit>){}[0]

@@ -110,7 +110,7 @@ class EnableTimeTravelTest {
             deviceName = "counter".asName(),
             snapshotStore = snapshotStore,
             eventSink = eventSink,
-            strategy = CheckpointStrategy.Manual,
+            strategy = CheckpointStrategy.manual,
             messageFlow = messages,
             scope = testScope(),
             clock = FixedClock(Instant.fromEpochMilliseconds(1000)),
@@ -147,7 +147,7 @@ class EnableTimeTravelTest {
             deviceName = "counter".asName(),
             snapshotStore = snapshotStore,
             eventSink = eventSink,
-            strategy = CheckpointStrategy.EveryNEvents(2),
+            strategy = CheckpointStrategy.everyNEvents(2),
             messageFlow = messages,
             scope = testScope(),
             clock = FixedClock(Instant.fromEpochMilliseconds(1000)),
@@ -164,7 +164,7 @@ class EnableTimeTravelTest {
 
         // EveryNEvents(2) fires once after two events; the pump and the checkpointer
         // both observe the same shared controlFlow.
-        val snapshot = snapshotStore.latestBefore("counter".asName(), Instant.fromEpochMilliseconds(10_000))
+        val snapshot = snapshotStore.latestSnapshotBefore("counter".asName(), Instant.fromEpochMilliseconds(10_000))
         assertNotNull(snapshot)
         assertEquals(7, snapshot.state.int)
 
@@ -185,7 +185,7 @@ class EnableTimeTravelTest {
             deviceName = "counter".asName(),
             snapshotStore = snapshotStore,
             eventSink = eventSink,
-            strategy = CheckpointStrategy.EveryNEvents(1),
+            strategy = CheckpointStrategy.everyNEvents(1),
             messageFlow = messages,
             scope = testScope(),
             clock = FixedClock(Instant.fromEpochMilliseconds(1000)),
@@ -217,7 +217,7 @@ class EnableTimeTravelTest {
             reconstructible = replay,
             deviceName = "counter".asName(),
             snapshotStore = snapshotStore,
-            strategy = CheckpointStrategy.Manual,
+            strategy = CheckpointStrategy.manual,
             messageFlow = messages,
             scope = testScope(),
             clock = FixedClock(Instant.fromEpochMilliseconds(1000)),

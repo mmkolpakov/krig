@@ -110,14 +110,14 @@ public fun interface ReplayLog {
  */
 public interface CursorReplayLog : ReplayLog {
     /** Cold flow of records after [after], or from the beginning when [after] is `null`. */
-    public fun replayFrom(after: EventCursor? = null): Flow<EventRecord>
+    public fun replayFrom(after: EventCursor? = null): Flow<ReplayRecord>
 
     /**
      * Cold flow of cursor records in `[from, until]`. Persistent stores should
      * override this method and seek through their time index instead of scanning
      * from the beginning.
      */
-    public fun replayRecords(from: Instant, until: Instant): Flow<EventRecord> =
+    public fun replayRecords(from: Instant, until: Instant): Flow<ReplayRecord> =
         replayFrom(null)
             .dropWhile { it.message.time < from }
             .takeWhile { it.message.time <= until }
@@ -132,11 +132,11 @@ public interface CursorReplayLog : ReplayLog {
 public interface EventCursor : Comparable<EventCursor>
 
 /**
- * A [DeviceMessage] paired with its storage-assigned [cursor].
+ * A decoded [DeviceMessage] paired with its storage-assigned [cursor].
  * Returned by [CursorReplayLog.replayFrom]; subscribers can store the cursor
  * to resume replay deterministically later.
  */
-public data class EventRecord(
+public data class ReplayRecord(
     val cursor: EventCursor,
     val message: DeviceMessage,
 )
@@ -207,7 +207,8 @@ public suspend fun Reconstructible.timeTravel(
     log: ReplayLog,
     deviceName: Name,
     snapshotStore: SnapshotStore,
+    snapshotCodec: SnapshotCodec = SnapshotCodec(),
 ) {
-    val snapshot = snapshotStore.latestBefore(deviceName, at)
+    val snapshot = snapshotStore.latestSnapshotBefore(deviceName, at, snapshotCodec)
     timeTravel(at, log, snapshot)
 }

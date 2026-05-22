@@ -201,7 +201,7 @@ public final class space/kscience/krig/core/pipeline/PipelineBuilderDeviceOperat
 	public static final fun onWrite (Lspace/kscience/krig/core/pipeline/PipelineBuilder;Lspace/kscience/krig/core/pipeline/OperationGate;)V
 }
 
-public final class space/kscience/krig/core/pipeline/PipelineDevice : space/kscience/krig/core/contracts/CapabilityHost, space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/LifecycleStateHolder {
+public final class space/kscience/krig/core/pipeline/PipelineDevice : space/kscience/krig/core/contracts/CapabilityHost, space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/DeviceNode, space/kscience/krig/core/contracts/LifecycleStateHolder {
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public fun capability (Lspace/kscience/krig/core/capabilities/CapabilityKey;)Lspace/kscience/krig/core/capabilities/Capability;
@@ -220,6 +220,7 @@ public final class space/kscience/krig/core/pipeline/PipelineDevice : space/ksci
 	public fun getDataFlow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getDefaultChainTarget ()Ljava/lang/String;
 	public fun getDefaultTarget ()Ljava/lang/String;
+	public fun getDevice ()Lspace/kscience/krig/core/contracts/Device;
 	public fun getDeviceScope ()Lkotlinx/coroutines/CoroutineScope;
 	public fun getInstalledCapabilities ()Ljava/util/Collection;
 	public fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
@@ -385,7 +386,9 @@ public final class space/kscience/krig/dsl/DeviceGroupBuilder {
 }
 
 public final class space/kscience/krig/dsl/DeviceGroupBuilderKt {
+	public static final fun deviceGroup (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun deviceGroup (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/dsl/DeviceGroupBuilder;
+	public static synthetic fun deviceGroup$default (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/dsl/DeviceKt {
@@ -582,6 +585,17 @@ public abstract interface class space/kscience/krig/dsl/SamplingClock {
 public final class space/kscience/krig/dsl/ScriptContextKt {
 	public static final fun scriptContext (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/dataforge/context/Context;
 	public static synthetic fun scriptContext$default (Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/dataforge/context/Context;
+}
+
+public final class space/kscience/krig/dsl/StateModelBuilder {
+	public final fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/jvm/functions/Function3;)V
+	public final fun bind (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;)V
+	public final fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
+	public final fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class space/kscience/krig/dsl/StateModelBuilderKt {
+	public static final fun stateModel (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
 }
 
 public final class space/kscience/krig/dsl/SubscriptionDslKt {

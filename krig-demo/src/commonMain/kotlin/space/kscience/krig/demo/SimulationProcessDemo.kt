@@ -2,6 +2,9 @@ package space.kscience.krig.demo
 
 import kotlinx.coroutines.cancel
 import space.kscience.krig.concurrency.Resource
+import space.kscience.krig.concurrency.ResourcePreemptedException
+import space.kscience.krig.concurrency.ResourcePreemptionPolicies
+import space.kscience.krig.concurrency.ResourcePriority
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.write
@@ -31,23 +34,39 @@ suspend fun simulationProcessDemo() {
     ) {
         blueprint(PumpBlueprint)
     }
-    val bus = Resource("fieldbus", capacity = 1)
+    val bus = Resource(
+        name = "fieldbus",
+        capacity = 1,
+        preemption = ResourcePreemptionPolicies.Priority,
+    )
     val log = mutableListOf<String>()
 
     try {
-        val process = scope.process("poll-cycle") {
+        val poll = scope.process("poll-cycle") {
             log += "start@${scheduler.currentTimeMs}"
-            request(bus) {
-                hold(50.milliseconds)
-                pump.write(PumpSpec.rpm, 1_250.0)
-                log += "write@${scheduler.currentTimeMs}"
+            try {
+                request(bus, priority = ResourcePriority.Low) {
+                    hold(50.milliseconds)
+                    pump.write(PumpSpec.rpm, 1_250.0)
+                    log += "write@${scheduler.currentTimeMs}"
+                }
+            } catch (_: ResourcePreemptedException) {
+                log += "poll-preempted@${scheduler.currentTimeMs}"
             }
             hold(25.milliseconds)
             log += "publish@${scheduler.currentTimeMs}"
         }
+        val emergency = scope.process("emergency-stop") {
+            hold(10.milliseconds)
+            request(bus, priority = ResourcePriority.High) {
+                pump.write(PumpSpec.rpm, 0.0)
+                log += "stop@${scheduler.currentTimeMs}"
+            }
+        }
 
         scheduler.advanceBy(100.milliseconds)
-        process.join()
+        poll.join()
+        emergency.join()
 
         println("=== Simulation process ===")
         println("  log: $log")

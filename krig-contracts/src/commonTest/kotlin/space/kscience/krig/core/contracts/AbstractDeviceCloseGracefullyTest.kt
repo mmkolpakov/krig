@@ -8,12 +8,10 @@
 package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.currentTime
@@ -31,7 +29,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 private open class DrainTestDevice : AbstractDevice(
@@ -100,74 +97,6 @@ class AbstractDeviceCloseGracefullyTest {
         device.exitOperation()
 
         assertEquals(1, device.shutdownCalls)
-    }
-
-    @Test
-    fun compositeCloseGracefullyDrainsChildrenBeforeShutdown() = runTest {
-        val child = DrainTestDevice()
-        val parent = CompositeDevice(
-            name = "parent".asName(),
-            context = Context("composite-graceful-close-test"),
-            children = mapOf("child".asName() to child),
-        )
-        child.enterOperation()
-
-        val closeJob = launch { parent.closeGracefully(1.seconds) }
-        runCurrent()
-
-        assertTrue(closeJob.isActive)
-        assertFailsWith<OperationFaultException> {
-            child.enterOperation()
-        }
-
-        child.exitOperation()
-        closeJob.join()
-
-        assertTrue(closeJob.isCompleted)
-        assertEquals(1, child.shutdownCalls)
-    }
-
-    @Test
-    fun defaultShutdownSuppressesChildCancellationDuringCleanup() = runTest {
-        val child = object : DrainTestDevice() {
-            override suspend fun shutdown() {
-                throw CancellationException("child cancelled")
-            }
-        }
-        val parent = CompositeDevice(
-            name = "parent".asName(),
-            context = Context("shutdown-cancellation-test"),
-            children = mapOf("child".asName() to child),
-        )
-
-        parent.shutdown()
-    }
-
-    @Test
-    fun defaultShutdownClosesChildrenConcurrently() = runTest {
-        val first = object : DrainTestDevice() {
-            override suspend fun shutdown() {
-                delay(100.milliseconds)
-                shutdownCalls++
-            }
-        }
-        val second = object : DrainTestDevice() {
-            override suspend fun shutdown() {
-                delay(100.milliseconds)
-                shutdownCalls++
-            }
-        }
-        val parent = CompositeDevice(
-            name = "parent".asName(),
-            context = Context("shutdown-concurrent-test"),
-            children = mapOf("first".asName() to first, "second".asName() to second),
-        )
-
-        parent.shutdown()
-
-        assertEquals(100L, currentTime)
-        assertEquals(1, first.shutdownCalls)
-        assertEquals(1, second.shutdownCalls)
     }
 
     @Test

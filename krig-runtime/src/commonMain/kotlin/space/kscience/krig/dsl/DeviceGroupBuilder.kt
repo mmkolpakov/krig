@@ -2,24 +2,27 @@
 
 package space.kscience.krig.dsl
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.misc.DFBuilder
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.core.contracts.CompositeDevice
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.runtime.DeviceGroup
 import space.kscience.krig.core.state.DeviceState
 import space.kscience.krig.core.state.MutableDeviceState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 
-
 /**
- * Builder for composing named child devices into one [CompositeDevice].
+ * Builder for composing named child devices into one [DeviceGroup].
  *
  * ```kotlin
  * val group = deviceGroup {
@@ -57,7 +60,7 @@ public class DeviceGroupBuilder {
      * ```
      *
      * For devices driven by a pre-built `DeviceBackend` (protocol adapters,
-     * physics models), pass the already-materialised [Device] via the
+     * physics models), pass the already-materialized [Device] via the
      * `device(name, device)` overload of [DeviceGroupBuilder].
      */
     public fun device(name: String, builder: DeclarativeDeviceBuilder.() -> Unit) {
@@ -109,23 +112,6 @@ public class DeviceGroupBuilder {
             }.launchIn(this)
         }
     }
-
-    /**
-     * Declares a cross-device property wiring: on each tick,
-     * read [sourceProperty] from [sourceName] device and write the result
-     * to [targetProperty] on [targetName] device.
-     *
-     * Wirings are activated when the group is started via [start].
-     * The [tick] duration controls the polling interval. Under a virtual-time
-     * scheduler (see [ClockManager.Virtual][space.kscience.krig.simulation.ClockMode.Virtual])
-     * this duration is deterministic; with real dispatchers, it's best-effort.
-     *
-     * @param sourceName The name of the device to read from.
-     * @param sourceProperty The property name to read.
-     * @param targetName The name of the device to write to.
-     * @param targetProperty The property name to write.
-     * @param tick Polling interval for the wiring loop. Default: 10ms.
-     */
 
     /**
      * Declares a cross-device property wiring: on each tick, read [source] and write to [target].
@@ -185,39 +171,39 @@ public class DeviceGroupBuilder {
     private val pushWirings = mutableListOf<PushWiringDeclaration>()
 
     /**
-     * Materialises the group into a [CompositeDevice] — a [Device] with named children.
+     * Materializes the group into a [DeviceGroup].
      *
      * Each deferred child device (declared via `device(name) { ... }`) is built with
      * its own [Name] and a DataForge child [Context] derived from [context]. This
      * preserves addressability, isolates plugin discovery per device, and makes
      * error diagnostics meaningful.
      *
-     * @param name The name of the composite device.
+     * @param name The name of the group.
      * @param context DataForge context for coroutines and configuration. Each child
      *                receives its own child context built from this one.
      * @param scope CoroutineScope for activating property bindings and wirings.
      */
-    public suspend fun start(name: String, context: Context, scope: CoroutineScope): CompositeDevice {
+    public suspend fun start(name: String, context: Context, scope: CoroutineScope): DeviceGroup {
         // Build deferred devices via the public `device(name, context, builder)` entry
         // point — keeps DeviceGroupBuilder above the DeclarativeDeviceBuilder visibility fence.
         for ((devName, builder) in deferredDevices) {
             val childContext = context.buildContext(devName)
             devices[devName] = device(devName, childContext, builder)
         }
-        // Nested groups are materialised as devices with children, so they fit into
-        // the same topology map as leaves.
+        // Nested groups are materialized as devices, so they fit into the
+        // same topology map as leaves.
         for ((subName, subBuilder) in subGroups) {
             val childContext = context.buildContext(subName)
             devices[subName] = subBuilder.start(subName.toString(), childContext, scope)
         }
 
         // Activate reactive property bindings. Each binding's Job is scoped to the
-        // composite's [scope]; cancellation of that scope cancels the binding too, so
+        // group's [scope]; cancellation of that scope cancels the binding too, so
         // retaining a handle is unnecessary.
         for (binding in bindings) {
             binding(scope).invokeOnCompletion { }
         }
-        val composite = CompositeDevice(name.asName(), context, devices.toMap())
+        val group = DeviceGroup(name.asName(), context, devices.toMap())
 
         // Activate cross-device pull wirings as periodic control loops. Each loop is
         // sequential: a slow read/write naturally delays the next poll, so values never overlap.
@@ -251,17 +237,17 @@ public class DeviceGroupBuilder {
             }
         }
 
-        return composite
+        return group
     }
 
     /**
      * Convenience method: materializes the group using the context's own coroutine scope.
-     * Returns the composite [Device] directly.
+     * Returns the group directly.
      *
-     * @param name The name of the composite device.
+     * @param name The name of the group.
      * @param context DataForge context.
      */
-    public suspend fun buildAndStart(name: String, context: Context): CompositeDevice =
+    public suspend fun buildAndStart(name: String, context: Context): DeviceGroup =
         start(name, context, CoroutineScope(context.coroutineContext))
 }
 
@@ -293,3 +279,11 @@ internal data class PushWiringDeclaration(
  */
 public fun deviceGroup(builder: DeviceGroupBuilder.() -> Unit): DeviceGroupBuilder =
     DeviceGroupBuilder().apply(builder)
+
+/** Build and start a [DeviceGroup] in one call. */
+public suspend fun deviceGroup(
+    name: String,
+    context: Context,
+    scope: CoroutineScope = CoroutineScope(context.coroutineContext),
+    builder: DeviceGroupBuilder.() -> Unit,
+): DeviceGroup = DeviceGroupBuilder().apply(builder).start(name, context, scope)

@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.PerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
@@ -16,7 +16,7 @@ import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
-import space.kscience.krig.core.runtime.MutableCompositeDevice
+import space.kscience.krig.core.runtime.MutableDeviceHub
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -39,7 +39,7 @@ class HubHookFiringTest {
     @Test
     fun deviceAttachedHandlerInvokedOnEveryAttach() = runTest {
         val ctx = freshContext("hub-hook")
-        val hub = MutableCompositeDevice("hub".asName(), ctx)
+        val hub = MutableDeviceHub("hub".asName(), ctx)
         val attached = mutableListOf<Pair<Name, Device>>()
         hub.hubHooks.on(DeviceAttached) { name, device -> attached += name to device }
 
@@ -56,7 +56,7 @@ class HubHookFiringTest {
     @Test
     fun deviceDetachedHandlerReceivesVictimAndReason() = runTest {
         val ctx = freshContext("hub-detach")
-        val hub = MutableCompositeDevice("hub".asName(), ctx)
+        val hub = MutableDeviceHub("hub".asName(), ctx)
         val detached = mutableListOf<Name>()
         hub.hubHooks.on(DeviceDetached) { name, _ -> detached += name }
 
@@ -70,7 +70,7 @@ class HubHookFiringTest {
 
     @Test
     fun slowAttachedHookDoesNotBlockAttachCommit() = runTest {
-        val hub = MutableCompositeDevice("hub".asName(), freshContext("hub-slow-hook"))
+        val hub = MutableDeviceHub("hub".asName(), freshContext("hub-slow-hook"))
         val hookStarted = CompletableDeferred<Unit>()
         val releaseHook = CompletableDeferred<Unit>()
         hub.hubHooks.on(DeviceAttached) { _, _ ->
@@ -82,7 +82,7 @@ class HubHookFiringTest {
         hub.attach(leaf.name, leaf)
 
         assertEquals(Unit, hookStarted.getCompleted())
-        assertEquals(mapOf(leaf.name to leaf), hub.children)
+        assertEquals(mapOf(leaf.name to leaf), hub.devices)
 
         releaseHook.complete(Unit)
         hub.shutdown()

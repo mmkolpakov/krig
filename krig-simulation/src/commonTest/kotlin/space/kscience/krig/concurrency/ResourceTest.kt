@@ -119,6 +119,54 @@ class ResourceTest {
     }
 
     @Test
+    fun priorityPolicyPreemptsLowerPriorityHolder() = runTest {
+        val r = Resource("r", capacity = 1, preemption = ResourcePreemptionPolicies.Priority)
+        val entered = CompletableDeferred<Unit>()
+        val preempted = CompletableDeferred<ResourcePreemptionCause>()
+
+        val holder = launch {
+            try {
+                r.use(priority = ResourcePriority.Low) {
+                    entered.complete(Unit)
+                    awaitCancellation()
+                }
+            } catch (e: ResourcePreemptedException) {
+                preempted.complete(e.preemption)
+                throw e
+            }
+        }
+        entered.await()
+
+        val high = async {
+            r.use(priority = ResourcePriority.High) { "high" }
+        }
+        yield()
+
+        assertEquals(ResourcePriority.High, preempted.await().requestedPriority)
+        holder.join()
+        assertEquals("high", high.await())
+        assertEquals(0, r.state.value.used)
+    }
+
+    @Test
+    fun resourceEventsReportQueueGrantAndRelease() = runTest {
+        val events = mutableListOf<ResourceEvent>()
+        val r = Resource("r", capacity = 1, eventSink = ResourceEventSink(events::add))
+
+        r.use {
+            assertEquals(
+                listOf(ResourceEventType.Requested, ResourceEventType.Granted),
+                events.map { it.type },
+            )
+        }
+
+        assertEquals(
+            listOf(ResourceEventType.Requested, ResourceEventType.Granted, ResourceEventType.Released),
+            events.map { it.type },
+        )
+    }
+
+    @Test
     fun cancellingGrantedWaiterReturnsCapacity() = runTest {
         val r = Resource("r", capacity = 1)
         r.seize()
