@@ -3,13 +3,15 @@ public final class space/kscience/krig/concurrency/Resource {
 	public final fun getCapacity ()I
 	public final fun getName ()Ljava/lang/String;
 	public final fun getState ()Lkotlinx/coroutines/flow/StateFlow;
+	public final fun preemptBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
+	public final fun preemptHoldersBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
 	public final fun preemptWaitersBelow (Lspace/kscience/krig/concurrency/ResourcePriority;)V
 	public final fun release (I)V
 	public static synthetic fun release$default (Lspace/kscience/krig/concurrency/Resource;IILjava/lang/Object;)V
 	public final fun seize (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun seize$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun use (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun use$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function0;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun use (ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun use$default (Lspace/kscience/krig/concurrency/Resource;ILspace/kscience/krig/concurrency/ResourcePriority;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/concurrency/ResourcePreemptedException : java/util/concurrent/CancellationException {

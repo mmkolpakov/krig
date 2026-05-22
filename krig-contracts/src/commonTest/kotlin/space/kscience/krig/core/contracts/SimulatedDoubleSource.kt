@@ -42,7 +42,7 @@ class SimulatedDoubleSource(
     /**
      * Primitive ring sampler — the driver-thread (here, every typed write) publishes the
      * latest value; consumers attach via `device.sampler(valueSpec)?.flow()` for streaming
-     * or `latestDouble()` for non-suspending point reads.
+     * or `latestDoubleOrNaN()` for non-suspending point reads.
      */
     private val valueSampler: RingDoubleSampler = doubleSampler(capacity = 256)
 

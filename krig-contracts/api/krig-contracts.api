@@ -619,10 +619,12 @@ public final class space/kscience/krig/core/contracts/sampling/RingDoubleSampler
 	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun flow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getCapacity ()I
+	public fun getHasLatest ()Z
 	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	public fun latest ()Ljava/lang/Double;
 	public synthetic fun latest ()Ljava/lang/Object;
-	public fun latestDouble ()Ljava/lang/Double;
+	public fun latestDoubleOr (D)D
+	public fun latestDoubleOrNaN ()D
 	public final fun publish (D)V
 	public fun publishDouble (D)V
 	public fun snapshot ()Ljava/util/List;
@@ -655,9 +657,11 @@ public final class space/kscience/krig/core/contracts/typed/BatchTypedDeviceBack
 }
 
 public abstract interface class space/kscience/krig/core/contracts/typed/DoubleSampler : space/kscience/krig/core/contracts/typed/PrimitiveTypedSampler {
+	public abstract fun getHasLatest ()Z
 	public fun latest ()Ljava/lang/Double;
 	public synthetic fun latest ()Ljava/lang/Object;
-	public abstract fun latestDouble ()Ljava/lang/Double;
+	public fun latestDoubleOr (D)D
+	public abstract fun latestDoubleOrNaN ()D
 	public abstract fun publishDouble (D)V
 	public fun snapshot ()Ljava/util/List;
 	public abstract fun snapshotDoubleArray ()[D
@@ -665,6 +669,7 @@ public abstract interface class space/kscience/krig/core/contracts/typed/DoubleS
 
 public final class space/kscience/krig/core/contracts/typed/DoubleSampler$DefaultImpls {
 	public static fun latest (Lspace/kscience/krig/core/contracts/typed/DoubleSampler;)Ljava/lang/Double;
+	public static fun latestDoubleOr (Lspace/kscience/krig/core/contracts/typed/DoubleSampler;D)D
 	public static fun snapshot (Lspace/kscience/krig/core/contracts/typed/DoubleSampler;)Ljava/util/List;
 }
 

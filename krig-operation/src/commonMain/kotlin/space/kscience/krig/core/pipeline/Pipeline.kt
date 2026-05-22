@@ -183,26 +183,22 @@ public fun <I, O> Pipeline<I, OperationOutcome<O>>.wrapWithIoRetry(
 }
 
 @InternalKrigApi
-public fun <I, O> compileOperationExecutor(
-    timeout: Duration?,
-    retry: RetryPolicy?,
-    gates: List<suspend () -> OperationOutcome<Unit>>,
+public fun compileOperationExecutor(
+    gates: List<OperationGate>,
+    observers: List<OperationObserver>,
     registry: ResourceLockRegistry,
-    locks: List<ResourceLock>,
     timeSource: TimeSource = TimeSource.Monotonic,
-    observers: suspend (durationNanos: Long, fault: OperationFault?) -> Unit,
-    terminal: suspend (I) -> OperationOutcome<O>,
-): suspend (I) -> OperationOutcome<O> = { input ->
+): suspend (OperationCall) -> OperationOutcome<Any?> = { call ->
     val mark = timeSource.markNow()
     var captured: OperationFault? = null
     try {
-        val result = withGlobalTimeout(timeout) {
+        val result = withGlobalTimeout(call.policy.timeout) {
             for (gate in gates) {
-                val gateResult = gate()
+                val gateResult = gate.check(call.context)
                 if (gateResult is OperationOutcome.Fail) return@withGlobalTimeout gateResult
             }
-            withIoRetry(retry) {
-                acquireAllLocks(registry, locks) { terminal(input) }
+            withIoRetry(call.policy.retry) {
+                acquireAllLocks(registry, call.policy.locks) { call.terminal() }
             }
         }
         captured = result.faultOrNull()
@@ -216,7 +212,12 @@ public fun <I, O> compileOperationExecutor(
         captured = faultForThrowable(e)
         throw e
     } finally {
-        ignoreObserverFailure { observers(mark.elapsedNow().inWholeNanoseconds, captured) }
+        ignoreObserverFailure {
+            val durationNanos = mark.elapsedNow().inWholeNanoseconds
+            observers.forEach { observer ->
+                observer.observe(call.context, durationNanos, captured)
+            }
+        }
     }
 }
 

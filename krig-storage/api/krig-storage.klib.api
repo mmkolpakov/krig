@@ -108,16 +108,21 @@ final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk { 
 }
 
 final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/DoubleArray, space.kscience.krig.api.data/DataQuality = ...) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.<init>|<init>(kotlin.time.Instant;kotlin.DoubleArray;space.kscience.krig.api.data.DataQuality){}[0]
+    constructor <init>(kotlin.time/Instant, kotlin/DoubleArray, space.kscience.krig.api.data/DataQuality = ..., kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> = ...) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.<init>|<init>(kotlin.time.Instant;kotlin.DoubleArray;space.kscience.krig.api.data.DataQuality;kotlin.collections.Map<kotlin.Int,space.kscience.krig.api.data.DataQuality>){}[0]
 
-    final val quality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.quality|{}quality[0]
-        final fun <get-quality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.quality.<get-quality>|<get-quality>(){}[0]
+    final val aggregateQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.aggregateQuality|{}aggregateQuality[0]
+        final fun <get-aggregateQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.aggregateQuality.<get-aggregateQuality>|<get-aggregateQuality>(){}[0]
+    final val baselineQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.baselineQuality|{}baselineQuality[0]
+        final fun <get-baselineQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.baselineQuality.<get-baselineQuality>|<get-baselineQuality>(){}[0]
+    final val qualityOverrides // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.qualityOverrides|{}qualityOverrides[0]
+        final fun <get-qualityOverrides>(): kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.qualityOverrides.<get-qualityOverrides>|<get-qualityOverrides>(){}[0]
     final val time // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.time|{}time[0]
         final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.time.<get-time>|<get-time>(){}[0]
     final val values // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.values|{}values[0]
         final fun <get-values>(): kotlin/DoubleArray // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.values.<get-values>|<get-values>(){}[0]
 
     final fun get(kotlin/Int): kotlin/Double // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.get|get(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
 }
 
 final value class space.kscience.krig.storage.profile/StorageProfile { // space.kscience.krig.storage.profile/StorageProfile|null[0]

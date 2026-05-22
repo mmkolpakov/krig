@@ -3,6 +3,8 @@
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,7 +33,7 @@ public sealed interface ResourcePriority : Comparable<ResourcePriority> {
     }
 }
 
-/** Thrown at a waiter preempted by [Resource.preemptWaitersBelow]. Cooperative — holder cleans up. */
+/** Thrown at a waiter or holder preempted by a higher-priority resource claim. */
 public class ResourcePreemptedException(
     public val resourceName: String,
     message: String = "Resource '$resourceName' preempted",
@@ -56,16 +58,24 @@ public class Resource(
     private var usedUnits: Int = 0
     private var seqCounter: Long = 0L
     private val waiters: ArrayDeque<Waiter> = ArrayDeque()
+    private val holders: MutableList<Holder> = mutableListOf()
     private val stateFlow = MutableStateFlow(ResourceState(capacity, 0, 0))
 
     /** Observable `(capacity, used, waiting)` snapshot. */
     public val state: StateFlow<ResourceState> = stateFlow.asStateFlow()
+
+    private data class Holder(
+        val amount: Int,
+        val priority: ResourcePriority,
+        val job: Job?,
+    )
 
     private data class Waiter(
         val amount: Int,
         val priority: ResourcePriority,
         val seqno: Long,
         val continuation: CancellableContinuation<Unit>,
+        val holder: Holder?,
     )
 
     /**
@@ -76,6 +86,13 @@ public class Resource(
     public suspend fun seize(
         amount: Int = 1,
         priority: ResourcePriority = ResourcePriority.DEFAULT,
+    ): Unit = claim(amount, priority, holder = null)
+
+    @OptIn(InternalCoroutinesApi::class)
+    private suspend fun claim(
+        amount: Int,
+        priority: ResourcePriority,
+        holder: Holder?,
     ) {
         require(amount in 1..capacity) {
             "seize amount must be in 1..$capacity (resource '$name'), got $amount"
@@ -83,8 +100,7 @@ public class Resource(
         // Fast path: try to claim synchronously under the lock.
         synchronized(lock) {
             if (usedUnits + amount <= capacity && waiters.isEmpty()) {
-                usedUnits += amount
-                publishState()
+                grantLocked(amount, holder)
                 return
             }
         }
@@ -92,11 +108,11 @@ public class Resource(
         suspendCancellableCoroutine { cont ->
             val toResume = synchronized(lock) {
                 if (usedUnits + amount <= capacity && waiters.isEmpty()) {
-                    usedUnits += amount
-                    publishState()
-                    listOf(Waiter(amount, priority, -1, cont))
+                    val waiter = Waiter(amount, priority, -1, cont, holder)
+                    grantLocked(waiter)
+                    listOf(waiter)
                 } else {
-                    val waiter = Waiter(amount, priority, ++seqCounter, cont)
+                    val waiter = Waiter(amount, priority, ++seqCounter, cont, holder)
                     cont.invokeOnCancellation {
                         synchronized(lock) {
                             removeWaiterLocked(waiter)
@@ -114,13 +130,14 @@ public class Resource(
      * Runs [block] holding [amount] units, releasing them afterwards even on exception.
      * Canonical way to claim a resource in client code.
      */
-    public suspend inline fun <R> use(
+    public suspend fun <R> use(
         amount: Int = 1,
         priority: ResourcePriority = ResourcePriority.DEFAULT,
-        block: () -> R,
+        block: suspend () -> R,
     ): R {
-        seize(amount, priority)
-        try { return block() } finally { release(amount) }
+        val holder = Holder(amount, priority, currentCoroutineContext()[Job])
+        claim(amount, priority, holder)
+        try { return block() } finally { release(holder) }
     }
 
     /** Releases [amount] units and wakes waiters in priority order. */
@@ -140,8 +157,7 @@ public class Resource(
 
     /**
      * Preempts every waiter whose priority is strictly less than [priority]. Does not
-     * affect already-granted holders — those must be cancelled via their own
-     * `CoroutineScope.cancel(ResourcePreemptedException(...))` at the call site.
+     * affect already-granted holders; use [preemptHoldersBelow] for active claims.
      */
     @OptIn(InternalCoroutinesApi::class)
     public fun preemptWaitersBelow(priority: ResourcePriority) {
@@ -154,7 +170,35 @@ public class Resource(
         toCancel.forEach { it.continuation.cancel(ResourcePreemptedException(name)) }
     }
 
+    /** Cooperatively cancels active holders whose priority is strictly less than [priority]. */
+    @OptIn(InternalCoroutinesApi::class)
+    public fun preemptHoldersBelow(priority: ResourcePriority) {
+        val victims = synchronized(lock) {
+            holders
+                .filter { holder -> holder.priority < priority }
+                .mapNotNull { holder -> holder.job }
+                .distinct()
+        }
+        victims.forEach { job -> job.cancel(ResourcePreemptedException(name)) }
+    }
+
+    /** Preempts both queued waiters and active holders below [priority]. */
+    public fun preemptBelow(priority: ResourcePriority) {
+        preemptWaitersBelow(priority)
+        preemptHoldersBelow(priority)
+    }
+
     // --- locked helpers (caller holds [lock]) ------------------------------------
+
+    private fun grantLocked(amount: Int, holder: Holder?) {
+        usedUnits += amount
+        if (holder != null) holders += holder
+        publishState()
+    }
+
+    private fun grantLocked(waiter: Waiter) {
+        grantLocked(waiter.amount, waiter.holder)
+    }
 
     private fun insertWaiterLocked(waiter: Waiter) {
         // Higher priority first; within same priority, earlier seqno first.
@@ -176,7 +220,7 @@ public class Resource(
             val head = waiters.first()
             if (usedUnits + head.amount <= capacity) {
                 waiters.removeFirst()
-                usedUnits += head.amount
+                grantLocked(head)
                 granted += head
             } else return granted
         }
@@ -193,18 +237,36 @@ public class Resource(
     public fun currentWaiterCount(): Int = synchronized(lock) { waiters.size }
 
     @OptIn(InternalCoroutinesApi::class)
-    private fun rollbackGranted(amount: Int): List<Waiter> = synchronized(lock) {
-        if (usedUnits < amount) return@synchronized emptyList()
-        usedUnits -= amount
+    private fun rollbackGranted(waiter: Waiter): List<Waiter> = synchronized(lock) {
+        if (usedUnits < waiter.amount) return@synchronized emptyList()
+        if (waiter.holder != null) holders.remove(waiter.holder)
+        usedUnits -= waiter.amount
         val granted = drainWaitersLocked()
         publishState()
         granted
     }
 
+    @OptIn(InternalCoroutinesApi::class)
+    private fun release(holder: Holder) {
+        val toResume = synchronized(lock) {
+            check(holders.remove(holder)) {
+                "Cannot release a resource holder that is not active for '$name'"
+            }
+            check(usedUnits >= holder.amount) {
+                "Cannot release ${holder.amount} units of '$name' — only $usedUnits held"
+            }
+            usedUnits -= holder.amount
+            val granted = drainWaitersLocked()
+            publishState()
+            granted
+        }
+        resumeGranted(toResume)
+    }
+
     private fun resumeGranted(waiters: List<Waiter>) {
         waiters.forEach { waiter ->
             waiter.continuation.resume(Unit) { _, _, _ ->
-                resumeGranted(rollbackGranted(waiter.amount))
+                resumeGranted(rollbackGranted(waiter))
             }
         }
     }

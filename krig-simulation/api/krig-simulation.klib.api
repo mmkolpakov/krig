@@ -157,10 +157,12 @@ final class space.kscience.krig.concurrency/Resource { // space.kscience.krig.co
     final val state // space.kscience.krig.concurrency/Resource.state|{}state[0]
         final fun <get-state>(): kotlinx.coroutines.flow/StateFlow<space.kscience.krig.concurrency/ResourceState> // space.kscience.krig.concurrency/Resource.state.<get-state>|<get-state>(){}[0]
 
+    final fun preemptBelow(space.kscience.krig.concurrency/ResourcePriority) // space.kscience.krig.concurrency/Resource.preemptBelow|preemptBelow(space.kscience.krig.concurrency.ResourcePriority){}[0]
+    final fun preemptHoldersBelow(space.kscience.krig.concurrency/ResourcePriority) // space.kscience.krig.concurrency/Resource.preemptHoldersBelow|preemptHoldersBelow(space.kscience.krig.concurrency.ResourcePriority){}[0]
     final fun preemptWaitersBelow(space.kscience.krig.concurrency/ResourcePriority) // space.kscience.krig.concurrency/Resource.preemptWaitersBelow|preemptWaitersBelow(space.kscience.krig.concurrency.ResourcePriority){}[0]
     final fun release(kotlin/Int = ...) // space.kscience.krig.concurrency/Resource.release|release(kotlin.Int){}[0]
+    final suspend fun <#A1: kotlin/Any?> use(kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ..., kotlin.coroutines/SuspendFunction0<#A1>): #A1 // space.kscience.krig.concurrency/Resource.use|use(kotlin.Int;space.kscience.krig.concurrency.ResourcePriority;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
     final suspend fun seize(kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ...) // space.kscience.krig.concurrency/Resource.seize|seize(kotlin.Int;space.kscience.krig.concurrency.ResourcePriority){}[0]
-    final suspend inline fun <#A1: kotlin/Any?> use(kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ..., kotlin/Function0<#A1>): #A1 // space.kscience.krig.concurrency/Resource.use|use(kotlin.Int;space.kscience.krig.concurrency.ResourcePriority;kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 }
 
 final class space.kscience.krig.concurrency/ResourcePreemptedException : kotlin.coroutines.cancellation/CancellationException { // space.kscience.krig.concurrency/ResourcePreemptedException|null[0]

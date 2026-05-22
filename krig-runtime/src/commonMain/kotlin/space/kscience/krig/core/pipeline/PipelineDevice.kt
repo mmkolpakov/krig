@@ -12,6 +12,7 @@ import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.descriptors.OperationDescriptor
 import space.kscience.krig.api.descriptors.attributes.requiredLocks
 import space.kscience.krig.api.descriptors.attributes.retryPolicy
 import space.kscience.krig.api.descriptors.attributes.timeout
@@ -72,6 +73,15 @@ public class PipelineDevice @InternalKrigApi constructor(
     private val capabilityRegistry = CapabilityRegistry()
     private val detachLock = SynchronizedObject()
     private var detached = false
+    private val readExecutor by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        compileSharedExecutor(OperationKinds.Read)
+    }
+    private val writeExecutor by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        compileSharedExecutor(OperationKinds.Write)
+    }
+    private val actionPipelineExecutor by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        compileSharedExecutor(OperationKinds.Action)
+    }
 
     override val capabilityToggles: CapabilityToggles =
         (delegate as? CapabilityHost)?.capabilityToggles ?: CapabilityToggles()
@@ -136,6 +146,28 @@ public class PipelineDevice @InternalKrigApi constructor(
 
     private fun operationSpec(kind: OperationKind): OperationPipelineSpec =
         operationSpecs[kind] ?: OperationPipelineSpec.Empty
+
+    private fun compileSharedExecutor(
+        kind: OperationKind,
+    ): suspend (OperationCall) -> OperationOutcome<Any?> {
+        val opSpec = operationSpec(kind)
+        return compileOperationExecutor(
+            gates = opSpec.gates,
+            observers = opSpec.observers,
+            registry = registry,
+            timeSource = timeSource,
+        )
+    }
+
+    private fun operationPolicy(
+        descriptor: OperationDescriptor,
+        opSpec: OperationPipelineSpec,
+    ): OperationCallPolicy =
+        OperationCallPolicy(
+            timeout = descriptor.timeout ?: opSpec.defaultTimeout,
+            retry = descriptor.retryPolicy ?: opSpec.defaultRetry,
+            locks = descriptor.requiredLocks,
+        )
 
     // --- Typed contract: compile pipeline ONCE per reader/writer --------------------
 
@@ -225,33 +257,16 @@ public class PipelineDevice @InternalKrigApi constructor(
         val raw = delegate.reader(spec)
         val opSpec = operationSpec(OperationKinds.Read)
         val context = OperationContext(OperationKinds.Read, spec.name, spec.descriptor, name)
+        val policy = operationPolicy(spec.descriptor, opSpec)
         val decorated = readDecorators.fold(raw) { acc, dec -> dec.decorate(spec, acc) }
-        val delay = spec.descriptor.timeout ?: opSpec.defaultTimeout
-        val retry = spec.descriptor.retryPolicy ?: opSpec.defaultRetry
-
-        val gates = opSpec.gates.map { gate -> suspend { gate.check(context) } }
-        val execute = compileOperationExecutor(
-            timeout = delay,
-            retry = retry,
-            gates = gates,
-            registry = registry,
-            locks = spec.descriptor.requiredLocks,
-            timeSource = timeSource,
-            observers = { d, f -> opSpec.observers.forEach { try { it.observe(context, d, f) } catch (_: Throwable) {} } },
-            terminal = { _: Unit -> catchingOperationOutcome { decorated.read() } },
-        )
+        val terminal: suspend () -> OperationOutcome<Any?> = {
+            catchingOperationOutcome { decorated.read() }
+        }
         val tracker = delegate as? OperationTracker
         return object : OutcomeTypedReader<T> {
             override suspend fun readOutcome(): OperationOutcome<T> =
-                if (tracker == null) {
-                    execute(Unit)
-                } else {
-                    tracker.enterOperation()
-                    try {
-                        execute(Unit)
-                    } finally {
-                        tracker.exitOperation()
-                    }
+                trackedOperation(tracker) {
+                    readExecutor(OperationCall(context, policy, terminal)).castOutcome()
                 }
 
             override suspend fun read(): T = readOutcome().getOrThrow()
@@ -262,32 +277,15 @@ public class PipelineDevice @InternalKrigApi constructor(
         val raw = delegate.writer(spec)
         val opSpec = operationSpec(OperationKinds.Write)
         val context = OperationContext(OperationKinds.Write, spec.name, spec.descriptor, name)
-        val delay = spec.descriptor.timeout ?: opSpec.defaultTimeout
-        val retry = spec.descriptor.retryPolicy ?: opSpec.defaultRetry
-
-        val gates = opSpec.gates.map { gate -> suspend { gate.check(context) } }
-        val execute = compileOperationExecutor(
-            timeout = delay,
-            retry = retry,
-            gates = gates,
-            registry = registry,
-            locks = spec.descriptor.requiredLocks,
-            timeSource = timeSource,
-            observers = { d, f -> opSpec.observers.forEach { try { it.observe(context, d, f) } catch (_: Throwable) {} } },
-            terminal = { value: T -> catchingOperationOutcome { raw.write(value) } },
-        )
+        val policy = operationPolicy(spec.descriptor, opSpec)
         val tracker = delegate as? OperationTracker
         return object : OutcomeTypedWriter<T> {
             override suspend fun writeOutcome(value: T): OperationOutcome<Unit> =
-                if (tracker == null) {
-                    execute(value)
-                } else {
-                    tracker.enterOperation()
-                    try {
-                        execute(value)
-                    } finally {
-                        tracker.exitOperation()
+                trackedOperation(tracker) {
+                    val call = OperationCall(context, policy) {
+                        catchingOperationOutcome { raw.write(value) }
                     }
+                    writeExecutor(call).castOutcome()
                 }
 
             override suspend fun write(value: T) {
@@ -426,38 +424,17 @@ public class PipelineDevice @InternalKrigApi constructor(
     private fun <I, O> compileAction(spec: DeviceActionContract<I, O>): suspend (I) -> O? {
         val opSpec = operationSpec(OperationKinds.Action)
         val context = OperationContext(OperationKinds.Action, spec.name, spec.descriptor, name)
-        val delay = spec.descriptor.timeout ?: opSpec.defaultTimeout
-        val retry = spec.descriptor.retryPolicy ?: opSpec.defaultRetry
-
-        val gates = opSpec.gates.map { gate -> suspend { gate.check(context) } }
-        val execute = compileOperationExecutor(
-            timeout = delay,
-            retry = retry,
-            gates = gates,
-            registry = registry,
-            locks = spec.descriptor.requiredLocks,
-            timeSource = timeSource,
-            observers = { d, f -> opSpec.observers.forEach { try { it.observe(context, d, f) } catch (_: Throwable) {} } },
-            terminal = { input: I ->
+        val policy = operationPolicy(spec.descriptor, opSpec)
+        val tracker = delegate as? OperationTracker
+        return { input ->
+            val call = OperationCall(context, policy) {
                 catchingOperationOutcome {
                     val argMeta = if (input != null) spec.inputConverter.convert(input) else null
                     val resultMeta = delegate.execute(spec.name, argMeta)
                     if (resultMeta != null) spec.outputConverter.read(resultMeta) else null
                 }
-            },
-        )
-        val tracker = delegate as? OperationTracker
-        return { input ->
-            val outcome = if (tracker == null) {
-                execute(input)
-            } else {
-                tracker.enterOperation()
-                try {
-                    execute(input)
-                } finally {
-                    tracker.exitOperation()
-                }
             }
+            val outcome = trackedOperation(tracker) { actionPipelineExecutor(call).castOutcome<O?>() }
             outcome.getOrThrow()
         }
     }
@@ -467,6 +444,25 @@ public class PipelineDevice @InternalKrigApi constructor(
         throw cause
     }
 }
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> OperationOutcome<Any?>.castOutcome(): OperationOutcome<T> =
+    this as OperationOutcome<T>
+
+private suspend fun <T> trackedOperation(
+    tracker: OperationTracker?,
+    block: suspend () -> OperationOutcome<T>,
+): OperationOutcome<T> =
+    if (tracker == null) {
+        block()
+    } else {
+        tracker.enterOperation()
+        try {
+            block()
+        } finally {
+            tracker.exitOperation()
+        }
+    }
 
 private data class CachedReader(
     val descriptor: space.kscience.krig.api.descriptors.PropertyDescriptor,

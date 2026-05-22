@@ -134,20 +134,27 @@ class PipelineExecutorTest {
         val scheduler = TestCoroutineScheduler()
         var observedNanos = -1L
         val execute = compileOperationExecutor(
-            timeout = null,
-            retry = null,
             gates = emptyList(),
+            observers = listOf(
+                OperationObserver { _, durationNanos, _ -> observedNanos = durationNanos },
+            ),
             registry = ResourceLockRegistry(),
-            locks = emptyList(),
             timeSource = scheduler.timeSource,
-            observers = { durationNanos, _ -> observedNanos = durationNanos },
-            terminal = { _: Unit ->
-                scheduler.advanceTimeBy(1.seconds)
-                OperationOutcome.Ok(1.0)
-            },
         )
+        val descriptor = PropertyDescriptor(
+            name = "value".asName(),
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = "kotlin.Double",
+        )
+        val call = OperationCall(
+            context = OperationContext(OperationKinds.Read, descriptor.name, descriptor),
+            policy = OperationCallPolicy(),
+        ) {
+            scheduler.advanceTimeBy(1.seconds)
+            OperationOutcome.Ok(1.0)
+        }
 
-        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(Unit)).value)
+        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(call)).value)
         assertEquals(1.seconds.inWholeNanoseconds, observedNanos)
     }
 

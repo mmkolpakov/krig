@@ -44,7 +44,7 @@ public inline fun <reified T> sampler(capacity: Int = 256): FlowSampler<T> =
  * Bounded double sampler with an unboxed ring buffer for latest/snapshot reads.
  *
  * [flow] is still a boxed reactive view for UI/control-plane observers; the hot path is
- * [publishDouble], [latestDouble], and [snapshotDoubleArray].
+ * [publishDouble], [latestDoubleOrNaN], [latestDoubleOr], and [snapshotDoubleArray].
  */
 public class RingDoubleSampler(
     override val capacity: Int = 256,
@@ -57,7 +57,7 @@ public class RingDoubleSampler(
     private val values = DoubleArray(capacity)
     private var nextIndex: Int = 0
     private var size: Int = 0
-    private var hasLatest: Boolean = false
+    private var hasLatestValue: Boolean = false
     private var latestValue: Double = 0.0
 
     private val updates = MutableSharedFlow<Double>(
@@ -71,15 +71,21 @@ public class RingDoubleSampler(
             nextIndex = (nextIndex + 1) % capacity
             if (size < capacity) size++
             latestValue = value
-            hasLatest = true
+            hasLatestValue = true
         }
         updates.tryEmit(value)
     }
 
     public fun publish(value: Double): Unit = publishDouble(value)
 
-    override fun latestDouble(): Double? = synchronized(lock) {
-        if (hasLatest) latestValue else null
+    override val hasLatest: Boolean get() = synchronized(lock) { hasLatestValue }
+
+    override fun latestDoubleOrNaN(): Double = synchronized(lock) {
+        if (hasLatestValue) latestValue else Double.NaN
+    }
+
+    override fun latestDoubleOr(default: Double): Double = synchronized(lock) {
+        if (hasLatestValue) latestValue else default
     }
 
     override fun snapshotDoubleArray(): DoubleArray = synchronized(lock) {

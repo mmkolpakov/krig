@@ -268,7 +268,7 @@ public fun sharedTicks(
  * This is a reactive/control-plane helper. On JVM, `Flow<Double>` and this
  * generic implementation still cross boxed `T` boundaries; hard real-time or
  * DSP-style loops should read the primitive sampler hot path directly
- * (`DoubleSampler.latestDouble()` / `snapshotDoubleArray()`) instead of routing
+ * (`DoubleSampler.latestDoubleOrNaN()` / `snapshotDoubleArray()`) instead of routing
  * every numeric sample through `Flow`.
  *
  * ```kotlin

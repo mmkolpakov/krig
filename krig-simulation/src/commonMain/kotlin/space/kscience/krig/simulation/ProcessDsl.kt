@@ -92,8 +92,7 @@ public suspend fun <R> ProcessScope.request(
     priority: ResourcePriority = ResourcePriority.DEFAULT,
     block: suspend () -> R,
 ): R {
-    resource.seize(amount, priority)
-    try { return block() } finally { resource.release(amount) }
+    return resource.use(amount, priority, block)
 }
 
 // --- device-side convenience --------------------------------------------

@@ -28,7 +28,7 @@ private fun freshSamplerContext(): Context =
  *
  * - The driver publishes new values into a [RingDoubleSampler] on every typed write.
  * - Consumers obtain the sampler via `device.sampler(spec)`.
- * - Latest value is readable through the unboxed [DoubleSampler.latestDouble] path;
+ * - Latest value is readable through the unboxed [DoubleSampler.latestDoubleOrNaN] path;
  *   streaming consumers attach via [RingDoubleSampler.flow].
  *
  * This is the canonical pattern for high-frequency drivers (Modbus polling loops, EPICS
@@ -52,14 +52,16 @@ class SamplerSubscriptionTest {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
         val sampler = device.sampler(device.valueSpec) as DoubleSampler
 
-        assertNull(sampler.latestDouble(), "no value published yet")
+        assertFalse(sampler.hasLatest, "no value published yet")
+        assertTrue(sampler.latestDoubleOrNaN().isNaN(), "empty primitive latest is NaN")
 
         val writer = device.writer(device.valueSpec) as GenericTypedWriter<Double>
         writer.write(42.0)
-        assertEquals(42.0, sampler.latestDouble())
+        assertTrue(sampler.hasLatest)
+        assertEquals(42.0, sampler.latestDoubleOrNaN())
 
         writer.write(13.5)
-        assertEquals(13.5, sampler.latestDouble())
+        assertEquals(13.5, sampler.latestDoubleOrNaN())
     }
 
     @Test

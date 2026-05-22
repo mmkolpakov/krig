@@ -37,9 +37,28 @@ public class DenseDoubleTimeSeriesChunk(
 public class DenseDoubleTimeSeriesRow(
     public val time: Instant,
     public val values: DoubleArray,
-    public val quality: DataQuality = DataQuality.GOOD,
+    public val baselineQuality: DataQuality = DataQuality.GOOD,
+    public val qualityOverrides: Map<Int, DataQuality> = emptyMap(),
 ) {
+    init {
+        require(qualityOverrides.keys.all { it in values.indices }) {
+            "Dense quality override index must be inside 0 until ${values.size}."
+        }
+    }
+
+    public val aggregateQuality: DataQuality
+        get() {
+            var result = baselineQuality
+            for (quality in qualityOverrides.values) result = result.combine(quality)
+            return result
+        }
+
     public operator fun get(index: Int): Double = values[index]
+
+    public fun qualityAt(index: Int): DataQuality {
+        require(index in values.indices) { "Dense value index must be inside 0 until ${values.size}." }
+        return qualityOverrides[index] ?: baselineQuality
+    }
 }
 
 public interface DenseDoubleTimeSeriesChunkSink {
@@ -54,7 +73,7 @@ public fun TimeSeriesChunk<Double>.toDenseDoubleChunk(default: Double = Double.N
             val index = indexes[name]
             if (index != null) values[index] = value
         }
-        DenseDoubleTimeSeriesRow(row.time, values, row.quality)
+        DenseDoubleTimeSeriesRow(row.time, values, baselineQuality = row.quality)
     }
     return DenseDoubleTimeSeriesChunk(series, denseRows)
 }

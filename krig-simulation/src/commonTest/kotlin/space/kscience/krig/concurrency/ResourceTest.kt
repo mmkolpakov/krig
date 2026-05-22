@@ -1,6 +1,8 @@
 ﻿package space.kscience.krig.concurrency
 
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -93,6 +95,27 @@ class ResourceTest {
         yield()
         r.preemptWaitersBelow(ResourcePriority.Normal)
         assertEquals("preempted:r", outcome.await())
+    }
+
+    @Test
+    fun preemptLowerPriorityHolders() = runTest {
+        val r = Resource("r", capacity = 1)
+        val entered = CompletableDeferred<Unit>()
+
+        val holder = launch {
+            r.use(priority = ResourcePriority.Low) {
+                entered.complete(Unit)
+                awaitCancellation()
+            }
+        }
+        entered.await()
+
+        r.preemptHoldersBelow(ResourcePriority.Normal)
+        holder.join()
+
+        assertTrue(holder.isCancelled)
+        assertEquals(0, r.state.value.used)
+        assertEquals(0, r.state.value.waiting)
     }
 
     @Test

@@ -26,10 +26,15 @@ public interface PrimitiveTypedSampler<T> : TypedSampler<T>
 
 /** Primitive double sampler with unboxed latest/snapshot access for hot data-plane reads. */
 public interface DoubleSampler : PrimitiveTypedSampler<Double> {
+    public val hasLatest: Boolean
+
     public fun publishDouble(value: Double)
-    public fun latestDouble(): Double?
+    public fun latestDoubleOrNaN(): Double
+    public fun latestDoubleOr(default: Double): Double =
+        if (hasLatest) latestDoubleOrNaN() else default
+
     public fun snapshotDoubleArray(): DoubleArray
 
-    override fun latest(): Double? = latestDouble()
+    override fun latest(): Double? = if (hasLatest) latestDoubleOrNaN() else null
     override fun snapshot(): List<Double> = snapshotDoubleArray().asList()
 }

@@ -9,54 +9,66 @@ import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.coroutines.runBlocking
+import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.operations.ResourceLockRegistry
+import space.kscience.krig.core.pipeline.OperationCall
+import space.kscience.krig.core.pipeline.OperationCallPolicy
+import space.kscience.krig.core.pipeline.OperationContext
+import space.kscience.krig.core.pipeline.OperationGate
+import space.kscience.krig.core.pipeline.OperationKinds
 import space.kscience.krig.core.pipeline.compileOperationExecutor
 
-private val okGate: suspend () -> OperationOutcome<Unit> = { OperationOutcome.OkUnit }
+private val okGate: OperationGate = OperationGate { OperationOutcome.OkUnit }
+private val benchmarkDescriptor = PropertyDescriptor(
+    name = "value".asName(),
+    kind = PropertyKind.LOGICAL,
+    valueTypeId = "kotlin.Double",
+)
+private val benchmarkContext = OperationContext(OperationKinds.Read, benchmarkDescriptor.name, benchmarkDescriptor)
 
 /** Raw suspend call against a compiled krig operation pipeline. */
 @State(Scope.Benchmark)
 open class PipelineOverheadBenchmark {
-    private lateinit var raw: suspend (Unit) -> OperationOutcome<Double>
-    private lateinit var pipeline: suspend (Unit) -> OperationOutcome<Double>
-    private lateinit var gatedPipeline: suspend (Unit) -> OperationOutcome<Double>
+    private lateinit var raw: suspend () -> OperationOutcome<Any?>
+    private lateinit var call: OperationCall
+    private lateinit var pipeline: suspend (OperationCall) -> OperationOutcome<Any?>
+    private lateinit var gatedPipeline: suspend (OperationCall) -> OperationOutcome<Any?>
 
     @Setup
     open fun setup() {
         raw = { OperationOutcome.Ok(42.0) }
-        pipeline = compileOperationExecutor(
-            timeout = null,
-            retry = null,
-            gates = emptyList(),
-            registry = ResourceLockRegistry(),
-            locks = emptyList(),
-            observers = { _, _ -> },
+        call = OperationCall(
+            context = benchmarkContext,
+            policy = OperationCallPolicy(),
             terminal = raw,
+        )
+        pipeline = compileOperationExecutor(
+            gates = emptyList(),
+            observers = emptyList(),
+            registry = ResourceLockRegistry(),
         )
         gatedPipeline = compileOperationExecutor(
-            timeout = null,
-            retry = null,
             gates = listOf(okGate),
+            observers = emptyList(),
             registry = ResourceLockRegistry(),
-            locks = emptyList(),
-            observers = { _, _ -> },
-            terminal = raw,
         )
     }
 
     @Benchmark
-    open fun rawCall(blackhole: Blackhole): OperationOutcome<Double> = runBlocking {
-        raw(Unit).also(blackhole::consume)
+    open fun rawCall(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
+        raw().also(blackhole::consume)
     }
 
     @Benchmark
-    open fun compiledPipeline(blackhole: Blackhole): OperationOutcome<Double> = runBlocking {
-        pipeline(Unit).also(blackhole::consume)
+    open fun compiledPipeline(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
+        pipeline(call).also(blackhole::consume)
     }
 
     @Benchmark
-    open fun compiledPipelineWithGate(blackhole: Blackhole): OperationOutcome<Double> = runBlocking {
-        gatedPipeline(Unit).also(blackhole::consume)
+    open fun compiledPipelineWithGate(blackhole: Blackhole): OperationOutcome<Any?> = runBlocking {
+        gatedPipeline(call).also(blackhole::consume)
     }
 }

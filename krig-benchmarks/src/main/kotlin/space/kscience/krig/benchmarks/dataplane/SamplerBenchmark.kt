@@ -35,10 +35,10 @@ open class SamplerBenchmark {
     }
 
     @Benchmark
-    open fun ringPublishLatest(blackhole: Blackhole): Double? {
+    open fun ringPublishLatest(blackhole: Blackhole): Double {
         val sample = nextValue()
         ring.publishDouble(sample)
-        val latest = ring.latestDouble()
+        val latest = ring.latestDoubleOrNaN()
         blackhole.consume(latest)
         return latest
     }

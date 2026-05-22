@@ -5,9 +5,11 @@ import kotlin.time.Duration
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.OperationDescriptor
+import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.core.InternalKrigApi
 
 /** Open operation family key. Built-ins cover devices; integrations add their own [Name]s. */
 @JvmInline
@@ -29,6 +31,22 @@ public data class OperationContext(
     public val name: Name,
     public val descriptor: OperationDescriptor,
     public val hostName: Name? = null,
+)
+
+/** Per-call policy resolved from operation defaults and the concrete descriptor. */
+@InternalKrigApi
+public data class OperationCallPolicy(
+    public val timeout: Duration? = null,
+    public val retry: RetryPolicy? = null,
+    public val locks: List<ResourceLock> = emptyList(),
+)
+
+/** One invocation through a compiled operation pipeline. */
+@InternalKrigApi
+public data class OperationCall(
+    public val context: OperationContext,
+    public val policy: OperationCallPolicy,
+    public val terminal: suspend () -> OperationOutcome<Any?>,
 )
 
 /** Fail-fast precondition for an operation. */

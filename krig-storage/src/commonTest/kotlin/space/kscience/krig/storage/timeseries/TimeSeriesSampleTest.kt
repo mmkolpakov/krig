@@ -32,4 +32,19 @@ class TimeSeriesSampleTest {
         assertEquals("journal.compact", StorageProfiles.JournalCompact.toString())
         assertEquals("timeseries.deadband", StorageProfiles.TimeSeriesDeadband.toString())
     }
+
+    @Test
+    fun denseRowsKeepPerSeriesQualityOverrides() {
+        val bad = DataQuality(QualitySeverity.BAD, QualityCode("demo.bad"))
+        val row = DenseDoubleTimeSeriesRow(
+            time = Instant.fromEpochMilliseconds(42),
+            values = doubleArrayOf(1.0, 2.0, 3.0),
+            qualityOverrides = mapOf(1 to bad),
+        )
+
+        assertEquals(DataQuality.GOOD, row.qualityAt(0))
+        assertEquals(bad, row.qualityAt(1))
+        assertEquals(DataQuality.GOOD, row.qualityAt(2))
+        assertEquals(bad, row.aggregateQuality)
+    }
 }

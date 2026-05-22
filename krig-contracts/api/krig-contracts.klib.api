@@ -182,10 +182,14 @@ abstract interface space.kscience.krig.core.contracts.typed/BatchTypedDeviceBack
 }
 
 abstract interface space.kscience.krig.core.contracts.typed/DoubleSampler : space.kscience.krig.core.contracts.typed/PrimitiveTypedSampler<kotlin/Double> { // space.kscience.krig.core.contracts.typed/DoubleSampler|null[0]
-    abstract fun latestDouble(): kotlin/Double? // space.kscience.krig.core.contracts.typed/DoubleSampler.latestDouble|latestDouble(){}[0]
+    abstract val hasLatest // space.kscience.krig.core.contracts.typed/DoubleSampler.hasLatest|{}hasLatest[0]
+        abstract fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.typed/DoubleSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
+
+    abstract fun latestDoubleOrNaN(): kotlin/Double // space.kscience.krig.core.contracts.typed/DoubleSampler.latestDoubleOrNaN|latestDoubleOrNaN(){}[0]
     abstract fun publishDouble(kotlin/Double) // space.kscience.krig.core.contracts.typed/DoubleSampler.publishDouble|publishDouble(kotlin.Double){}[0]
     abstract fun snapshotDoubleArray(): kotlin/DoubleArray // space.kscience.krig.core.contracts.typed/DoubleSampler.snapshotDoubleArray|snapshotDoubleArray(){}[0]
     open fun latest(): kotlin/Double? // space.kscience.krig.core.contracts.typed/DoubleSampler.latest|latest(){}[0]
+    open fun latestDoubleOr(kotlin/Double): kotlin/Double // space.kscience.krig.core.contracts.typed/DoubleSampler.latestDoubleOr|latestDoubleOr(kotlin.Double){}[0]
     open fun snapshot(): kotlin.collections/List<kotlin/Double> // space.kscience.krig.core.contracts.typed/DoubleSampler.snapshot|snapshot(){}[0]
 }
 
@@ -495,11 +499,14 @@ final class space.kscience.krig.core.contracts.sampling/RingDoubleSampler : spac
 
     final val capacity // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
+    final val hasLatest // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.hasLatest|{}hasLatest[0]
+        final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
     final val type // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.type|{}type[0]
         final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.type.<get-type>|<get-type>(){}[0]
 
     final fun flow(): kotlinx.coroutines.flow/Flow<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.flow|flow(){}[0]
-    final fun latestDouble(): kotlin/Double? // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latestDouble|latestDouble(){}[0]
+    final fun latestDoubleOr(kotlin/Double): kotlin/Double // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latestDoubleOr|latestDoubleOr(kotlin.Double){}[0]
+    final fun latestDoubleOrNaN(): kotlin/Double // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latestDoubleOrNaN|latestDoubleOrNaN(){}[0]
     final fun publish(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publish|publish(kotlin.Double){}[0]
     final fun publishDouble(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publishDouble|publishDouble(kotlin.Double){}[0]
     final fun snapshotDoubleArray(): kotlin/DoubleArray // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.snapshotDoubleArray|snapshotDoubleArray(){}[0]

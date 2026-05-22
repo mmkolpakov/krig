@@ -50,7 +50,7 @@ suspend fun streamingDemo(): Unit = supervisorScope {
     val rpmHeld = heldRpm.await()
     val loadHeld = heldLoad.await()
     publisher.cancelAndJoin()
-    println("  latest rpm: ${sampler.latestDouble()}")
+    println("  latest rpm: ${sampler.latestDoubleOrNaN()}")
     println("  snapshot: ${sampler.snapshotDoubleArray().joinToString(prefix = "[", postfix = "]")}")
     println("  held rpm samples: $rpmHeld")
     println("  held load samples: $loadHeld")
