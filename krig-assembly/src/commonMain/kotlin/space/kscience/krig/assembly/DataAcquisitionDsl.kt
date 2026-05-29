@@ -1,7 +1,8 @@
 package space.kscience.krig.assembly
 
-import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.misc.DFBuilder
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.MutableMeta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.time.Duration
@@ -21,19 +22,46 @@ public class DataAcquisitionBuilder internal constructor() {
     @IgnorableReturnValue
     public fun source(
         id: Name,
-        connector: String,
-        config: JsonObject = JsonObject(emptyMap()),
+        connector: Name,
+        config: Meta = Meta.EMPTY,
     ): AcquisitionSourceSpec = AcquisitionSourceSpec(id, connector, config).also(sources::add)
 
     @IgnorableReturnValue
     public fun source(
         id: String,
         connector: String,
-        config: JsonObject = JsonObject(emptyMap()),
-    ): AcquisitionSourceSpec = source(id.asName(), connector, config)
+        config: Meta = Meta.EMPTY,
+    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config)
+
+    @IgnorableReturnValue
+    public fun source(
+        id: Name,
+        connector: String,
+        config: Meta = Meta.EMPTY,
+    ): AcquisitionSourceSpec = source(id, connector.asName(), config)
+
+    @IgnorableReturnValue
+    public fun source(
+        id: Name,
+        connector: Name,
+        block: MutableMeta.() -> Unit,
+    ): AcquisitionSourceSpec = source(id, connector, Meta(block))
+
+    @IgnorableReturnValue
+    public fun source(
+        id: String,
+        connector: String,
+        block: MutableMeta.() -> Unit,
+    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), Meta(block))
+
+    @IgnorableReturnValue
+    public fun source(
+        id: Name,
+        connector: String,
+        block: MutableMeta.() -> Unit,
+    ): AcquisitionSourceSpec = source(id, connector.asName(), Meta(block))
 
     /** Declares a timer and the tag ids sampled by that timer. */
-    @Suppress("SameParameterValue")
     public fun timer(
         id: Name,
         interval: Duration,
@@ -43,7 +71,6 @@ public class DataAcquisitionBuilder internal constructor() {
         timers += AcquisitionTimerSpec(id, interval.inWholeMilliseconds, builder.tagIds)
     }
 
-    @Suppress("SameParameterValue")
     public fun timer(
         id: String,
         interval: Duration,
@@ -69,7 +96,6 @@ public class DataAcquisitionBuilder internal constructor() {
 
     @DFBuilder
     public inner class AcquisitionTagHandle internal constructor(private val id: Name) {
-        @Suppress("SameParameterValue")
         @IgnorableReturnValue
         public fun from(
             sourceId: Name,
@@ -90,7 +116,6 @@ public class DataAcquisitionBuilder internal constructor() {
             ),
         )
 
-        @Suppress("SameParameterValue")
         @IgnorableReturnValue
         public fun from(
             sourceId: String,

@@ -2,6 +2,7 @@ package space.kscience.krig.demo
 
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.toJson
+import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.metaOf
@@ -16,7 +17,7 @@ import space.kscience.krig.dsl.device
 suspend fun metaInteropDemo() {
     val ctx = demoContext("meta-interop-demo")
     val pump = device("interopPump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
 
     println("=== Meta interop ===")
@@ -33,7 +34,7 @@ suspend fun metaInteropDemo() {
 
     when (val rejected = pump.writePropertyOutcome(PumpSpec.rpm.name, metaOf("fast"))) {
         is OperationOutcome.Ok -> println("  unexpected invalid Meta write success")
-        is OperationOutcome.Fail -> println("  invalid Meta rejected: ${rejected.fault.faultType}")
+        is OperationOutcome.Fail -> println("  invalid Meta rejected: ${rejected.fault.displayType}")
     }
 
     pump.close()

@@ -2,10 +2,10 @@ package space.kscience.krig.api.factory
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.features.FeatureSpec
+import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.utils.unit
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.DeviceBlueprint
+import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Factory
 import space.kscience.dataforge.meta.Meta
@@ -15,8 +15,8 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
 
 /**
- * A [DeviceBlueprint] that constructs its own device. Typed [C] config, DataForge
- * `Factory<D>` wiring. Subclasses implement [create] and override [DeviceBlueprint]
+ * A [DeviceManifest] that constructs its own device. Typed [C] config, DataForge
+ * `Factory<D>` wiring. Subclasses implement [create] and override [DeviceManifest]
  * members as needed.
  *
  * ```kotlin
@@ -33,12 +33,12 @@ import space.kscience.dataforge.names.parseAsName
 public abstract class DeviceFactory<D : Device, C>(
     override val id: Name,
     public val configConverter: MetaConverter<C>,
-) : DeviceBlueprint<D>, Factory<D> {
+) : DeviceManifest, Factory<D> {
 
-    // --- Sensible DeviceBlueprint defaults — subclasses override as needed ---
+    // --- Sensible DeviceManifest defaults — subclasses override as needed ---
 
     override val version: String get() = "0.1.0"
-    override val features: Map<Name, FeatureSpec> get() = emptyMap()
+    override val features: Map<Name, PipelineFeatureSpec> get() = emptyMap()
     override val properties: Map<Name, PropertyDescriptor> get() = emptyMap()
     override val actions: Map<Name, ActionDescriptor> get() = emptyMap()
     override val meta: Meta get() = Meta.EMPTY
@@ -50,8 +50,6 @@ public abstract class DeviceFactory<D : Device, C>(
 
     final override fun build(context: Context, meta: Meta): D =
         create(context, configConverter.read(meta))
-
-    override fun toMeta(): Meta = meta
 
     public companion object {
         /** DataForge type tag for `@DfType` discovery. */

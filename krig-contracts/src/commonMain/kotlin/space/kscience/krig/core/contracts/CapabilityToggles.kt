@@ -1,3 +1,5 @@
+@file:OptIn(space.kscience.krig.core.InternalKrigApi::class)
+
 package space.kscience.krig.core.contracts
 
 import kotlinx.atomicfu.locks.SynchronizedObject

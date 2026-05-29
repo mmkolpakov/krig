@@ -3,18 +3,18 @@ package space.kscience.krig.assembly
 import space.kscience.krig.api.annotations.Contributes
 import space.kscience.krig.api.annotations.EmissionStrategy
 import space.kscience.krig.api.discovery.ActionHandlerContributions
-import space.kscience.krig.api.discovery.FeatureContributions
+import space.kscience.krig.api.discovery.PipelineFeatureContributions
 import space.kscience.krig.api.discovery.ProtocolContributions
 
 /**
- * Marks a `() -> DeviceBlueprint<*>` factory object for discovery via [BlueprintPlugin].
- * [blueprintId] becomes the `Name` key in the generated plugin's entries map; KSP enforces
+ * Marks a `() -> DeviceManifest` factory object for discovery via [DeviceCatalog].
+ * [manifestId] becomes the `Name` key in the generated plugin's entries map; KSP enforces
  * uniqueness per module.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@Contributes(BlueprintPlugin::class, strategy = EmissionStrategy.INVOKE_AS_FACTORY)
-public annotation class ContributesBlueprint(public val blueprintId: String)
+@Contributes(DeviceCatalog::class, strategy = EmissionStrategy.INVOKE_AS_FACTORY)
+public annotation class ContributesManifest(public val manifestId: String)
 
 /** Marks a `DeviceFactory` object for discovery via [DeviceFactoryPlugin]. */
 @Target(AnnotationTarget.CLASS)
@@ -22,11 +22,11 @@ public annotation class ContributesBlueprint(public val blueprintId: String)
 @Contributes(DeviceFactoryPlugin::class)
 public annotation class ContributesFactory
 
-/** Marks a `Feature` object for discovery via [FeatureContributions]. */
+/** Marks a `PipelineFeature` object for discovery via [PipelineFeatureContributions]. */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
-@Contributes(FeatureContributions::class)
-public annotation class ContributesFeature
+@Contributes(PipelineFeatureContributions::class)
+public annotation class ContributesPipelineFeature
 
 /** Marks a `ProtocolEngineFactory` object for discovery via [ProtocolContributions]. */
 @Target(AnnotationTarget.CLASS)

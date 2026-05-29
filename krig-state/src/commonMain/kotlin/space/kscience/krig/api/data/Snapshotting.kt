@@ -23,9 +23,8 @@ import kotlinx.serialization.KSerializer
  *   state through public mutators (which themselves may suspend on coroutine sync
  *   primitives or device I/O).
  *
- * Industrial precedent: this mirrors arkivanov/Decompose's `StateKeeper` (serialisable,
- * survives process death) sitting alongside `InstanceKeeper` (runtime, survives
- * configuration change).
+ * Runtime-only objects stay out of the snapshot. Only the serializable projection is
+ * persisted and later restored.
  */
 public interface Snapshotting<Snap : Any> {
     /**

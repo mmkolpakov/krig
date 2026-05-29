@@ -8,9 +8,11 @@ import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.capabilities.CapabilityKey
 
 /**
- * Runtime owner of local capabilities. Application services are requested from the
- * DataForge [space.kscience.dataforge.context.Context].
+ * Runtime owner of local pipeline capabilities.
+ *
+ * Intended for SDK internals and decorators, not for the normal device contract surface.
  */
+@InternalKrigApi
 public interface CapabilityHost {
     public val installedCapabilities: Collection<Capability<*>>
 

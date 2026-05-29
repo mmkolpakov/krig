@@ -14,6 +14,7 @@ kotlin {
                 api(project(":krig-io"))
                 api(libs.dataforge.data)
                 api(libs.dataforge.context)
+                api(libs.dataforge.io)
                 api(libs.dataforge.meta)
                 api(libs.tables.kt)
                 implementation(libs.kotlinx.atomicfu)

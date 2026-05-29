@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.payloads
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.names.Name
 
 /** Merge of [Device.controlFlow] and [Device.dataFlow]; the default source for [enableTimeTravel]. */
-public fun Device.defaultTimeTravelMessageFlow(): Flow<DeviceMessage> =
-    merge(controlFlow, dataFlow).payloads()
+public fun Device.defaultTimeTravelMessageFlow(): Flow<DeviceMessageEnvelope<DeviceMessage>> =
+    merge(controlFlow, dataFlow)
 
 /**
  * Wires event-sourced time travel onto [this] device: every message on [messageFlow] is
@@ -38,7 +38,7 @@ public fun <D : Device> D.enableTimeTravel(
     snapshotStore: SnapshotStore,
     eventSink: ReplaySink,
     strategy: CheckpointStrategy,
-    messageFlow: Flow<DeviceMessage> = defaultTimeTravelMessageFlow(),
+    messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
@@ -73,7 +73,7 @@ public fun <D : Device> D.enableTimeTravel(
     deviceName: Name,
     snapshotStore: SnapshotStore,
     strategy: CheckpointStrategy,
-    messageFlow: Flow<DeviceMessage> = defaultTimeTravelMessageFlow(),
+    messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),

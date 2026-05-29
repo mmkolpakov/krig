@@ -1,6 +1,8 @@
 package space.kscience.krig.assembly
 
 import kotlinx.serialization.SerializationException
+import space.kscience.dataforge.io.JsonMetaFormat
+import space.kscience.dataforge.io.parse
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,7 +15,7 @@ class DataPlatformConfigurationTest {
     @Test
     fun validateFlagsUnknownPropertyReferencedByTimer() {
         val config = DataPlatformConfiguration(
-            sources = listOf(SourceSpec(id = "motor".asName(), blueprintId = "bp.motor".asName())),
+            sources = listOf(SourceSpec(id = "motor".asName(), manifestId = "bp.motor".asName())),
             timers = listOf(TimerSpec(id = "fast".asName(), intervalMs = 50, properties = listOf("missing".asName()))),
             properties = listOf(),
         )
@@ -24,7 +26,7 @@ class DataPlatformConfigurationTest {
     @Test
     fun validateFlagsUnknownSourceIdOnProperty() {
         val config = DataPlatformConfiguration(
-            sources = listOf(SourceSpec(id = "motor".asName(), blueprintId = "bp.motor".asName())),
+            sources = listOf(SourceSpec(id = "motor".asName(), manifestId = "bp.motor".asName())),
             timers = emptyList(),
             properties = listOf(
                 PropertySpec(id = "motor.pv".asName(), sourceId = "ghost".asName(), property = "pv".asName()),
@@ -37,7 +39,7 @@ class DataPlatformConfigurationTest {
     @Test
     fun validateAcceptsCoherentConfig() {
         val config = DataPlatformConfiguration(
-            sources = listOf(SourceSpec(id = "motor".asName(), blueprintId = "bp.motor".asName())),
+            sources = listOf(SourceSpec(id = "motor".asName(), manifestId = "bp.motor".asName())),
             timers = listOf(TimerSpec(id = "fast".asName(), intervalMs = 50, properties = listOf("motor.pv".asName()))),
             properties = listOf(PropertySpec(id = "motor.pv".asName(), sourceId = "motor".asName(), property = "pv".asName())),
         )
@@ -67,7 +69,7 @@ class DataPlatformConfigurationTest {
         }
 
         assertEquals(1, built.sources.size)
-        assertEquals("bp.motor".asName(), built.sources.single().blueprintId)
+        assertEquals("bp.motor".asName(), built.sources.single().manifestId)
         assertEquals(2048, built.properties.single().bufferCapacity)
         assertEquals(50, built.timers.single().intervalMs)
         assertEquals(listOf("motor.pv".asName()), built.timers.single().properties)
@@ -77,12 +79,12 @@ class DataPlatformConfigurationTest {
     fun parseRoundTripsCoherentJson() {
         val json = """
             {
-              "sources": [{"id": "motor", "blueprintId": "bp.motor"}],
+              "sources": [{"id": "motor", "manifestId": "bp.motor"}],
               "timers": [{"id": "fast", "intervalMs": 50, "properties": ["motor.pv"]}],
               "properties": [{"id": "motor.pv", "sourceId": "motor", "property": "pv"}]
             }
         """.trimIndent()
-        val parsed = DataPlatformConfiguration.parse(json)
+        val parsed = DataPlatformConfiguration.fromMeta(JsonMetaFormat().parse(json))
         assertTrue(parsed.validate().isEmpty())
         assertEquals("motor".asName(), parsed.sources.single().id)
     }
@@ -97,7 +99,7 @@ class DataPlatformConfigurationTest {
         """.trimIndent()
 
         assertFailsWith<SerializationException> {
-            DataPlatformConfiguration.parse(json)
+            DataPlatformConfiguration.fromMeta(JsonMetaFormat().parse(json))
         }
     }
 
@@ -110,7 +112,7 @@ class DataPlatformConfigurationTest {
             }
         """.trimIndent()
 
-        val parsed = DataPlatformConfiguration.parseLenient(json)
+        val parsed = DataPlatformConfiguration.fromMeta(JsonMetaFormat().parse(json), lenient = true)
 
         assertTrue(parsed.validate().isEmpty())
     }

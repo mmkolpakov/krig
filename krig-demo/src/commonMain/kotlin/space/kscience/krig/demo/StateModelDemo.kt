@@ -10,7 +10,7 @@ import space.kscience.krig.dsl.stateModel
 suspend fun stateModelDemo() {
     val ctx = demoContext("state-model-demo")
     val pump = device("virtualPump", virtualPumpModel(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
 
     pump.write(PumpSpec.rpm, 900.0)

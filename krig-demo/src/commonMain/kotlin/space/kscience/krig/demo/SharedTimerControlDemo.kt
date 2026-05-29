@@ -21,7 +21,7 @@ import kotlin.time.Duration.Companion.milliseconds
 suspend fun sharedTimerControlDemo(): Unit = supervisorScope {
     val ctx = demoContext("shared-timer-control-demo")
     val pump = device("sharedTimerPump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
     val ticks = sharedTicks(pump.deviceScope, 10.milliseconds)
 

@@ -9,13 +9,14 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.api.descriptors.attributes.AccessAttribute
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
 import kotlinx.coroutines.CancellationException
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
@@ -34,12 +35,10 @@ import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.meta.DeviceActionContract
-import space.kscience.krig.core.meta.DeviceActionSpec
 import space.kscience.krig.core.meta.DevicePropertyContract
-import space.kscience.krig.core.meta.DevicePropertySpec
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
@@ -59,13 +58,13 @@ public interface DescriptorSource {
     public fun action(name: Name): ActionDescriptor?
 
     public companion object {
-        /** The empty source. Undeclared Meta properties require explicit ad-hoc mode. */
+        /** Empty descriptor source. Undeclared Meta properties require explicit dynamic-property mode. */
         public val Empty: DescriptorSource = object : DescriptorSource {
             override fun property(name: Name): PropertyDescriptor? = null
             override fun action(name: Name): ActionDescriptor? = null
         }
 
-        /** Builds a source from two maps (typical result of a Blueprint lookup). */
+        /** Builds a source from two maps (typical result of a Manifest lookup). */
         public fun of(
             properties: Map<Name, PropertyDescriptor>,
             actions: Map<Name, ActionDescriptor> = emptyMap(),
@@ -104,17 +103,6 @@ public class BackendDevice @InternalKrigApi constructor(
     private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
 
-    override suspend fun readProperty(propertyName: Name): Meta =
-        readPropertyOutcome(propertyName).getOrThrow()
-
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {
-        writeToBackend(propertyName, value).getOrThrow()
-        emitPropertyChanged(propertyName, value)
-    }
-
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? =
-        executeOutcome(actionName, argument).getOrThrow()
-
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         contractBackend?.reader(spec) ?: GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
 
@@ -136,7 +124,7 @@ public class BackendDevice @InternalKrigApi constructor(
      * Delegates directly to [DeviceBackend.read] without the getOrThrow/re-wrap overhead.
      * The backend already returns [OperationOutcome], so we pass it through unchanged.
      */
-    override suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         when (val descriptor = propertyDescriptor(propertyName, "read")) {
             is OperationOutcome.Fail -> descriptor
             is OperationOutcome.Ok -> backendOutcome { backend.read(descriptor.value) }
@@ -145,7 +133,7 @@ public class BackendDevice @InternalKrigApi constructor(
     /**
      * Delegates to [DeviceBackend.write] and emits [PropertyChangedMessage] on success.
      */
-    override suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         when (val outcome = backendOutcome { writeToBackend(propertyName, value) }) {
             is OperationOutcome.Ok -> {
                 emitPropertyChanged(propertyName, value)
@@ -174,11 +162,133 @@ public class BackendDevice @InternalKrigApi constructor(
     /**
      * Delegates directly to [DeviceBackend.execute] without the getOrThrow/re-wrap overhead.
      */
-    override suspend fun executeOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
         when (val descriptor = actionDescriptor(actionName)) {
             is OperationOutcome.Fail -> descriptor
             is OperationOutcome.Ok -> backendOutcome { backend.execute(descriptor.value, argument) }
         }
+
+    override suspend fun doReadObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
+        when (val descriptor = propertyDescriptor(propertyName, "read")) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backendOutcome { backend.readObserved(descriptor.value) }
+        }
+
+    override suspend fun doReadBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+        val descriptors = LinkedHashMap<Name, PropertyDescriptor>()
+        val results = LinkedHashMap<Name, OperationOutcome<ObservedValue<Meta?>>>()
+        for (propertyName in properties) {
+            when (val descriptor = propertyDescriptor(propertyName, "read")) {
+                is OperationOutcome.Ok -> descriptors[propertyName] = descriptor.value
+                is OperationOutcome.Fail -> results[propertyName] = descriptor
+            }
+        }
+        if (descriptors.isEmpty()) return results
+
+        val batchOutcome = backendOutcome {
+            OperationOutcome.Ok(backend.readBatchObserved(descriptors.values))
+        }
+        when (batchOutcome) {
+            is OperationOutcome.Fail -> {
+                descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
+            }
+            is OperationOutcome.Ok -> {
+                for ((propertyName, descriptor) in descriptors) {
+                    results[propertyName] = batchOutcome.value[descriptor.name]
+                        ?: OperationOutcome.Fail(
+                            GenericOperationFault(
+                                message = "Backend batch read did not return property '$propertyName'.",
+                            ),
+                        )
+                }
+            }
+        }
+        return results
+    }
+
+    override suspend fun doReadBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
+        when (val descriptor = propertyDescriptor(propertyName, "read")) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backendOutcome { backend.readBinary(descriptor.value) }
+        }
+
+    override suspend fun doReadBatchBinaryOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<Binary>> {
+        val descriptors = LinkedHashMap<Name, PropertyDescriptor>()
+        val results = LinkedHashMap<Name, OperationOutcome<Binary>>()
+        for (propertyName in properties) {
+            when (val descriptor = propertyDescriptor(propertyName, "read")) {
+                is OperationOutcome.Ok -> descriptors[propertyName] = descriptor.value
+                is OperationOutcome.Fail -> results[propertyName] = descriptor
+            }
+        }
+        if (descriptors.isEmpty()) return results
+
+        val batchOutcome = backendOutcome {
+            OperationOutcome.Ok(backend.readBatchBinary(descriptors.values))
+        }
+        when (batchOutcome) {
+            is OperationOutcome.Fail -> {
+                descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
+            }
+            is OperationOutcome.Ok -> {
+                for ((propertyName, descriptor) in descriptors) {
+                    results[propertyName] = batchOutcome.value[descriptor.name]
+                        ?: OperationOutcome.Fail(
+                            GenericOperationFault(
+                                message = "Backend batch binary read did not return property '$propertyName'.",
+                            ),
+                        )
+                }
+            }
+        }
+        return results
+    }
+
+    override suspend fun doWriteBatchOutcome(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> {
+        val descriptors = LinkedHashMap<Name, PropertyDescriptor>()
+        val backendValues = LinkedHashMap<PropertyDescriptor, Meta>()
+        val results = LinkedHashMap<Name, OperationOutcome<Unit>>()
+        for ((propertyName, value) in values) {
+            when (val descriptor = propertyDescriptor(propertyName, "write")) {
+                is OperationOutcome.Ok -> {
+                    descriptors[propertyName] = descriptor.value
+                    backendValues[descriptor.value] = value
+                }
+                is OperationOutcome.Fail -> results[propertyName] = descriptor
+            }
+        }
+        if (backendValues.isEmpty()) return results
+
+        val batchOutcome = backendOutcome {
+            OperationOutcome.Ok(backend.writeBatch(backendValues))
+        }
+        when (batchOutcome) {
+            is OperationOutcome.Fail -> {
+                descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
+            }
+            is OperationOutcome.Ok -> {
+                for ((propertyName, descriptor) in descriptors) {
+                    val outcome = batchOutcome.value[descriptor.name]
+                        ?: OperationOutcome.Fail(
+                            GenericOperationFault(
+                                message = "Backend batch write did not return property '$propertyName'.",
+                            ),
+                        )
+                    results[propertyName] = outcome
+                    if (outcome is OperationOutcome.Ok) {
+                        emitPropertyChanged(propertyName, values.getValue(propertyName))
+                    }
+                }
+            }
+        }
+        return results
+    }
 
     @OptIn(InternalKrigApi::class)
     override fun close() {
@@ -197,15 +307,15 @@ public class BackendDevice @InternalKrigApi constructor(
         val declared = descriptorSource.property(propertyName)
         val descriptor = declared ?: if (allowAdHocProperties) syntheticProperty(propertyName) else return null
         return if (descriptor.isMutable || (declared == null && allowAdHocProperties)) {
-            BackendMutableMetaPropertySpec(descriptor)
+            BackendMutableMetaPropertyContract(descriptor)
         } else {
-            BackendMetaPropertySpec(descriptor)
+            BackendMetaPropertyContract(descriptor)
         }
     }
 
     override fun actionSpec(actionName: Name): DeviceActionContract<*, *>? =
         typedDeviceBackend?.actionSpec(actionName)
-            ?: descriptorSource.action(actionName)?.let(::BackendMetaActionSpec)
+            ?: descriptorSource.action(actionName)?.let(::BackendMetaActionContract)
 
     private fun syntheticProperty(name: Name): PropertyDescriptor = PropertyDescriptor(
         name = name,
@@ -215,6 +325,7 @@ public class BackendDevice @InternalKrigApi constructor(
     )
 
     private fun propertyDescriptor(propertyName: Name, operation: String): OperationOutcome<PropertyDescriptor> {
+        typedDeviceBackend?.propertySpec(propertyName)?.descriptor?.let { return OperationOutcome.Ok(it) }
         descriptorSource.property(propertyName)?.let { return OperationOutcome.Ok(it) }
         return if (allowAdHocProperties) {
             OperationOutcome.Ok(syntheticProperty(propertyName))
@@ -224,8 +335,8 @@ public class BackendDevice @InternalKrigApi constructor(
                     faultType = OperationFaultTypes.UnknownProperty,
                     message = "Cannot $operation undeclared property '$propertyName'.",
                     details = Meta {
-                        "property" put propertyName.toString()
-                        "operation" put operation
+                        OperationFaultDetails.PROPERTY put propertyName.toString()
+                        OperationFaultDetails.OPERATION put operation
                     },
                 ),
             )
@@ -233,12 +344,13 @@ public class BackendDevice @InternalKrigApi constructor(
     }
 
     private fun actionDescriptor(actionName: Name): OperationOutcome<ActionDescriptor> {
+        typedDeviceBackend?.actionSpec(actionName)?.descriptor?.let { return OperationOutcome.Ok(it) }
         descriptorSource.action(actionName)?.let { return OperationOutcome.Ok(it) }
         return OperationOutcome.Fail(
             GenericOperationFault(
                 faultType = OperationFaultTypes.UnknownAction,
                 message = "Cannot execute undeclared action '$actionName'.",
-                details = Meta { "action" put actionName.toString() },
+                details = Meta { OperationFaultDetails.ACTION put actionName.toString() },
             ),
         )
     }
@@ -255,33 +367,23 @@ public class BackendDevice @InternalKrigApi constructor(
 }
 
 private val PropertyDescriptor.isMutable: Boolean
-    get() = attributes.filterIsInstance<AccessAttribute>().any { it.mutable }
+    get() = attributes[OperationAttributeKeys.Access]?.mutable == true
 
-private open class BackendMetaPropertySpec(
+private open class BackendMetaPropertyContract(
     final override val descriptor: PropertyDescriptor,
-) : DevicePropertySpec<BackendDevice, Meta> {
+) : DevicePropertyContract<Meta> {
     final override val name: Name = descriptor.name
     final override val converter: MetaConverter<Meta> = MetaConverter.meta
-
-    override suspend fun read(device: BackendDevice): Meta =
-        device.readProperty(name)
 }
 
-private class BackendMutableMetaPropertySpec(
+private class BackendMutableMetaPropertyContract(
     descriptor: PropertyDescriptor,
-) : BackendMetaPropertySpec(descriptor), MutableDevicePropertySpec<BackendDevice, Meta> {
-    override suspend fun write(device: BackendDevice, value: Meta) {
-        device.writeProperty(name, value)
-    }
-}
+) : BackendMetaPropertyContract(descriptor), MutableDevicePropertyContract<Meta>
 
-private class BackendMetaActionSpec(
+private class BackendMetaActionContract(
     override val descriptor: ActionDescriptor,
-) : DeviceActionSpec<BackendDevice, Meta, Meta> {
+) : DeviceActionContract<Meta, Meta> {
     override val name: Name = descriptor.name
     override val inputConverter: MetaConverter<Meta> = MetaConverter.meta
     override val outputConverter: MetaConverter<Meta> = MetaConverter.meta
-
-    override suspend fun execute(device: BackendDevice, input: Meta): Meta? =
-        device.execute(name, input)
 }

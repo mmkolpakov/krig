@@ -1,6 +1,7 @@
 package space.kscience.krig.api.faults
 
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.toStringUnescaped
 import space.kscience.dataforge.meta.MetaRepr
 
 /**
@@ -15,3 +16,6 @@ public interface OperationFault : MetaRepr {
     /** Human-readable description for consoles and logs. Defaults to [faultType]. */
     public val message: String get() = faultType.toString()
 }
+
+/** Human-readable fault type without DataForge escaping. */
+public val OperationFault.displayType: String get() = faultType.toStringUnescaped()

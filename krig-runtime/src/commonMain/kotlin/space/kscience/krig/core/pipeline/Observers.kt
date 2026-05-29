@@ -15,6 +15,8 @@ import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.descriptors.attributes.latencyBudget
 import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
+import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.AuditService
 
@@ -119,8 +121,8 @@ private fun OperationContext.auditAction(): AuditAction? =
 
 private fun OperationContext.auditDetails(hostName: String, fault: OperationFault?): Meta =
     Meta {
-        "device" put hostName
-        val key = if (kind == OperationKinds.Action) "action" else "property"
+        OperationFaultDetails.DEVICE put hostName
+        val key = if (kind == OperationKinds.Action) OperationFaultDetails.ACTION else OperationFaultDetails.PROPERTY
         key put name.toString()
-        if (fault != null) "fault" put fault.faultType.toString()
+        if (fault != null) OperationFaultDetails.FAULT put fault.displayType
     }

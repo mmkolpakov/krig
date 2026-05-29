@@ -32,7 +32,7 @@ suspend fun simulationProcessDemo() {
             timeSource = scheduler.asTimeSource(),
         ),
     ) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
     val bus = Resource(
         name = "fieldbus",

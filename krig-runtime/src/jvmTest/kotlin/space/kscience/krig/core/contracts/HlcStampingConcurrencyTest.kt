@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
@@ -32,11 +34,14 @@ private class ConcurrentStampedDevice(
     name: String,
     runtime: DeviceRuntime,
 ) : AbstractDevice(name.asName(), runtime) {
-    override suspend fun readProperty(propertyName: Name): Meta = error("not used: $propertyName")
-    override suspend fun writeProperty(propertyName: Name, value: Meta): Unit =
-        error("not used: $propertyName = $value")
-    override suspend fun execute(actionName: Name, argument: Meta?) =
-        error("not used: $actionName($argument)")
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        runCatchingOperation { error("not used: $propertyName") }
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        runCatchingOperation { error("not used: $propertyName = $value") }
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        runCatchingOperation { error("not used: $actionName($argument)") }
 
     suspend fun publish(seq: Int) {
         emit(

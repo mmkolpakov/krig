@@ -1,3 +1,5 @@
+@file:OptIn(space.kscience.krig.core.InternalKrigApi::class)
+
 package space.kscience.krig.core.capabilities
 
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +20,10 @@ public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
 /**
  * Local runtime state owned by a [CapabilityHost].
  *
- * A [FeatureSpec][space.kscience.krig.api.features.FeatureSpec] is the serializable
- * blueprint declaration. A runtime [Feature][space.kscience.krig.core.features.Feature]
+ * A [PipelineFeatureSpec][space.kscience.krig.api.features.PipelineFeatureSpec] is the serializable
+ * Manifest declaration. A runtime [PipelineFeature][space.kscience.krig.core.features.PipelineFeature]
  * may translate that declaration into operation policies and capabilities. Use
- * `FeatureSpec` for wire-traversable descriptions; use `Capability` for live state
+ * `PipelineFeatureSpec` for serialized descriptions; use `Capability` for live state
  * and coroutines.
  *
  * The generic [S] is the *runtime* state of the capability — typically a holder containing
@@ -55,8 +57,8 @@ public interface Capability<S : Any> {
 }
 
 /**
- * **Lifecycle-managed role marker.** Drives the device through its [LifecycleState] via
- * an FSM. With the capability installed the device starts in [LifecycleState.Detached];
+ * Drives the device through its [LifecycleState] via an FSM. With the capability
+ * installed the device starts in [LifecycleState.Detached];
  * without it the pipeline auto-promotes to [LifecycleState.Running].
  *
  * `S = Unit` because lifecycle state lives on the [Device] (`Device.lifecycleState`,

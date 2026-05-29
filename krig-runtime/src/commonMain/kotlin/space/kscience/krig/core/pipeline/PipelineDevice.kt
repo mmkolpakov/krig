@@ -8,11 +8,17 @@
 package space.kscience.krig.core.pipeline
 
 import space.kscience.attributes.Attributes
+import space.kscience.dataforge.io.Binary
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.faults.faultDetails
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.OperationDescriptor
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.requiredLocks
 import space.kscience.krig.api.descriptors.attributes.retryPolicy
 import space.kscience.krig.api.descriptors.attributes.timeout
@@ -93,6 +99,9 @@ public class PipelineDevice @InternalKrigApi constructor(
     override val childrenFlow: StateFlow<Map<Name, DeviceNode>>
         get() = (delegate as? DeviceNode)?.childrenFlow ?: EmptyDeviceNodeChildren
 
+    override fun content(target: String): Map<Name, Any> =
+        if (target == defaultTarget) children else delegate.content(target)
+
     override val capabilityToggles: CapabilityToggles =
         (delegate as? CapabilityHost)?.capabilityToggles ?: CapabilityToggles()
 
@@ -103,9 +112,8 @@ public class PipelineDevice @InternalKrigApi constructor(
         (delegate as? LifecycleStateHolder)?.updateLifecycleState(state)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
-        directCapabilities().firstOrNull { it.key == key || it.key.id == key.id } as? C
+        directCapabilities().firstCapability(key)
             ?: capabilityRegistry.capability(key)
             ?: delegate.capability(key)
 
@@ -181,7 +189,6 @@ public class PipelineDevice @InternalKrigApi constructor(
 
     // --- Typed contract: compile pipeline ONCE per reader/writer --------------------
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> {
         val slot = synchronized(cacheLock) {
             readerCache.getOrPut(spec.name) {
@@ -197,7 +204,6 @@ public class PipelineDevice @InternalKrigApi constructor(
         return slot.value.readerFor(spec)
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> {
         val slot = synchronized(cacheLock) {
             writerCache.getOrPut(spec.name) {
@@ -216,45 +222,32 @@ public class PipelineDevice @InternalKrigApi constructor(
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         delegate.sampler(spec)
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun <T> readOutcome(spec: DevicePropertyContract<T>): OperationOutcome<T> {
         val compiled = reader(spec)
-        return if (compiled is OutcomeTypedReader<*>) {
-            (compiled as OutcomeTypedReader<T>).readOutcome()
-        } else {
-            catchingOperationOutcome { compiled.read() }
-        }
+        return compiled.outcomeReaderOrNull()?.readOutcome()
+            ?: catchingOperationOutcome { compiled.read() }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun <T> writeOutcome(
         spec: MutableDevicePropertyContract<T>,
         value: T,
     ): OperationOutcome<Unit> {
         val compiled = writer(spec)
-        return if (compiled is OutcomeTypedWriter<*>) {
-            (compiled as OutcomeTypedWriter<T>).writeOutcome(value)
-        } else {
-            catchingOperationOutcome { compiled.write(value) }
-        }
+        return compiled.outcomeWriterOrNull()?.writeOutcome(value)
+            ?: catchingOperationOutcome { compiled.write(value) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun <I, O> executeOutcome(
         spec: DeviceActionContract<I, O>,
         input: I,
     ): OperationOutcome<O?> {
         val compiled = action(spec)
-        return if (compiled is OutcomeTypedAction<*, *>) {
-            (compiled as OutcomeTypedAction<I, O>).executeOutcome(input)
-        } else {
-            catchingOperationOutcome { compiled.execute(input) }
-        }
+        return compiled.outcomeActionOrNull()?.executeOutcome(input)
+            ?: catchingOperationOutcome { compiled.execute(input) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> {
-        val executor = actionExecutor(spec as DeviceActionContract<Any?, Any?>) as suspend (I) -> O?
+        val executor = actionExecutor(spec.asAnyActionContract()).castActionExecutor<I, O>()
         return object : OutcomeTypedAction<I, O> {
             override suspend fun executeOutcome(input: I): OperationOutcome<O?> =
                 catchingOperationOutcome { executor(input) }
@@ -283,7 +276,6 @@ public class PipelineDevice @InternalKrigApi constructor(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun <T> compileWriter(spec: MutableDevicePropertyContract<T>): TypedWriter<T> {
         val raw = delegate.writer(spec)
         val opSpec = operationSpec(OperationKinds.Write)
@@ -291,7 +283,7 @@ public class PipelineDevice @InternalKrigApi constructor(
         val policy = operationPolicy(spec.descriptor, opSpec)
         val tracker = delegate as? OperationTracker
         val plan = OperationPlan(context, policy) { value ->
-            catchingOperationOutcome { raw.write(value as T) }
+            catchingOperationOutcome { raw.write(value.castPayload()) }
         }
         return object : OutcomeTypedWriter<T> {
             override suspend fun writeOutcome(value: T): OperationOutcome<Unit> =
@@ -308,21 +300,19 @@ public class PipelineDevice @InternalKrigApi constructor(
     // --- Control-plane Meta boundary: route through the operation pipeline when spec is known --
     //
     // When the delegate registers a [DevicePropertyContract] / [DeviceActionContract] for the
-    // requested name (typically through [DeviceBlueprint]), the serialization-facing
+    // requested name (typically through [DeviceManifest]), the serialization-facing
     // Meta API crosses into the typed executor so timeout / retry / locks / observers
     // all fire. Unknown names fail fast: the core runtime no longer fabricates synthetic
     // specs for unregistered Meta calls.
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun readProperty(propertyName: Name): Meta =
         readPropertyOutcome(propertyName).getOrThrow()
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> {
         try {
             val spec = delegate.propertySpec(propertyName)
             if (spec != null) {
-                val typedSpec = spec as DevicePropertyContract<Any?>
+                val typedSpec = spec.asAnyPropertyContract()
                 return when (val typed = catchingOperationOutcome { reader(typedSpec).read() }) {
                     is OperationOutcome.Fail -> typed
                     is OperationOutcome.Ok -> encodeControlPlaneMeta(typedSpec.converter, typed.value, "property", propertyName)
@@ -338,17 +328,44 @@ public class PipelineDevice @InternalKrigApi constructor(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
+    override suspend fun readObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
+        pipelinedSingleRead(propertyName, "read observed") {
+            delegate.readObservedOutcome(propertyName)
+        }
+
+    override suspend fun readBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
+        pipelinedSingleRead(propertyName, "read binary") {
+            delegate.readBinaryOutcome(propertyName)
+        }
+
+    override suspend fun readBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
+        pipelinedBatchRead(properties, OperationNames.BatchRead) { names ->
+            delegate.readBatchOutcome(names)
+        }
+
+    override suspend fun readBatchBinaryOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<Binary>> =
+        pipelinedBatchRead(properties, OperationNames.BatchReadBinary) { names ->
+            delegate.readBatchBinaryOutcome(names)
+        }
+
+    override suspend fun writeBatchOutcome(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        pipelinedBatchWrite(values)
+
     override suspend fun writeProperty(propertyName: Name, value: Meta) {
         writePropertyOutcome(propertyName, value).getOrThrow()
     }
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> {
         try {
             val spec = delegate.propertySpec(propertyName) as? MutableDevicePropertyContract<*>
             if (spec != null) {
-                val mutable = spec as MutableDevicePropertyContract<Any?>
+                val mutable = spec.asAnyMutablePropertyContract()
                 return when (val decoded = decodeControlPlaneMeta(mutable.converter, value, "property", propertyName)) {
                     is OperationOutcome.Fail -> decoded
                     is OperationOutcome.Ok -> catchingOperationOutcome { writer(mutable).write(decoded.value) }
@@ -364,16 +381,14 @@ public class PipelineDevice @InternalKrigApi constructor(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun execute(actionName: Name, argument: Meta?): Meta? =
         executeOutcome(actionName, argument).getOrThrow()
 
-    @Suppress("UNCHECKED_CAST")
     override suspend fun executeOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> {
         try {
             val spec = delegate.actionSpec(actionName)
                 ?: return unknownAction(actionName)
-            return executeControlPlaneAction(spec as DeviceActionContract<Any?, Any?>, actionName, argument)
+            return executeControlPlaneAction(spec.asAnyActionContract(), actionName, argument)
         } catch (e: OperationFaultException) {
             return OperationOutcome.Fail(e.fault)
         } catch (e: CancellationException) {
@@ -432,7 +447,6 @@ public class PipelineDevice @InternalKrigApi constructor(
         return slot.value.executorFor(spec)
     }
 
-    @Suppress("UNCHECKED_CAST")
     private fun <I, O> compileAction(spec: DeviceActionContract<I, O>): suspend (I) -> O? {
         val opSpec = operationSpec(OperationKinds.Action)
         val context = OperationContext(OperationKinds.Action, spec.name, spec.descriptor, name)
@@ -440,7 +454,7 @@ public class PipelineDevice @InternalKrigApi constructor(
         val tracker = delegate as? OperationTracker
         val plan = OperationPlan(context, policy) { input ->
             catchingOperationOutcome {
-                val argMeta = if (input != null) spec.inputConverter.convert(input as I) else null
+                val argMeta = if (input != null) spec.inputConverter.convert(input.castPayload()) else null
                 val resultMeta = delegate.execute(spec.name, argMeta)
                 if (resultMeta != null) spec.outputConverter.read(resultMeta) else null
             }
@@ -455,11 +469,192 @@ public class PipelineDevice @InternalKrigApi constructor(
         updateLifecycleState(LifecycleState.Failed(cause))
         throw cause
     }
+
+    private suspend fun <T> pipelinedSingleRead(
+        propertyName: Name,
+        operation: String,
+        terminal: suspend () -> OperationOutcome<T>,
+    ): OperationOutcome<T> {
+        try {
+            val descriptor = delegate.propertySpec(propertyName)?.descriptor
+                ?: return unknownProperty(propertyName, operation)
+            val opSpec = operationSpec(OperationKinds.Read)
+            val context = OperationContext(OperationKinds.Read, propertyName, descriptor, name)
+            val policy = operationPolicy(descriptor, opSpec)
+            val tracker = delegate as? OperationTracker
+            val plan = OperationPlan(context, policy) {
+                terminal().eraseOutcome()
+            }
+            return trackedOperation(tracker) {
+                readExecutor(plan, Unit).castOutcome()
+            }
+        } catch (e: OperationFaultException) {
+            return OperationOutcome.Fail(e.fault)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: RuntimeException) {
+            markFailure(e)
+        }
+    }
+
+    private suspend fun <T> pipelinedBatchRead(
+        properties: Collection<Name>,
+        operationName: Name,
+        terminal: suspend (Collection<Name>) -> Map<Name, OperationOutcome<T>>,
+    ): Map<Name, OperationOutcome<T>> =
+        pipelinedBatch(
+            kind = OperationKinds.Read,
+            operationName = operationName,
+            names = properties,
+            resolveDescriptor = { propertyName -> delegate.propertySpec(propertyName)?.descriptor },
+            missing = { propertyName -> unknownProperty(propertyName, "read") },
+            terminal = terminal,
+        )
+
+    private suspend fun pipelinedBatchWrite(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        pipelinedBatch(
+            kind = OperationKinds.Write,
+            operationName = OperationNames.BatchWrite,
+            names = values.keys,
+            resolveDescriptor = { propertyName ->
+                (delegate.propertySpec(propertyName) as? MutableDevicePropertyContract<*>)?.descriptor
+            },
+            missing = { propertyName -> unknownProperty(propertyName, "write") },
+            terminal = { names ->
+                val selected = names.toSet()
+                delegate.writeBatchOutcome(values.filterKeys { it in selected })
+            },
+        )
+
+    private suspend fun <T> pipelinedBatch(
+        kind: OperationKind,
+        operationName: Name,
+        names: Collection<Name>,
+        resolveDescriptor: (Name) -> PropertyDescriptor?,
+        missing: (Name) -> OperationOutcome.Fail,
+        terminal: suspend (Collection<Name>) -> Map<Name, OperationOutcome<T>>,
+    ): Map<Name, OperationOutcome<T>> {
+        if (names.isEmpty()) return emptyMap()
+        val descriptors = LinkedHashMap<Name, PropertyDescriptor>()
+        val results = LinkedHashMap<Name, OperationOutcome<T>>()
+        for (propertyName in names) {
+            val descriptor = resolveDescriptor(propertyName)
+            if (descriptor == null) {
+                results[propertyName] = missing(propertyName)
+            } else {
+                descriptors[propertyName] = descriptor
+            }
+        }
+        if (descriptors.isEmpty()) return results
+
+        val opSpec = operationSpec(kind)
+        for ((propertyName, descriptor) in descriptors) {
+            val gateContext = OperationContext(kind, propertyName, descriptor, name)
+            for (gate in opSpec.gates) {
+                val gateResult = gate.check(gateContext)
+                if (gateResult is OperationOutcome.Fail) {
+                    results[propertyName] = gateResult
+                }
+            }
+        }
+        val eligible = descriptors.filterKeys { it !in results }
+        if (eligible.isEmpty()) return results
+
+        val policy = batchPolicy(eligible.values, opSpec)
+        val plan = OperationPlan(
+            context = OperationContext(kind, operationName, batchDescriptor(operationName), name),
+            policy = policy,
+        ) {
+            OperationOutcome.Ok(terminal(eligible.keys)).eraseOutcome()
+        }
+        val tracker = delegate as? OperationTracker
+        val outcome: OperationOutcome<Map<Name, OperationOutcome<T>>> = trackedOperation(tracker) {
+            when (kind) {
+                OperationKinds.Write -> writeExecutor(plan, Unit).castOutcome()
+                else -> readExecutor(plan, Unit).castOutcome()
+            }
+        }
+        when (outcome) {
+            is OperationOutcome.Fail -> eligible.keys.forEach { propertyName -> results[propertyName] = outcome }
+            is OperationOutcome.Ok -> {
+                for (propertyName in eligible.keys) {
+                    results[propertyName] = outcome.value[propertyName]
+                        ?: OperationOutcome.Fail(
+                            GenericOperationFault(
+                                message = "Batch operation '$operationName' did not return property '$propertyName'.",
+                            ),
+                        )
+                }
+            }
+        }
+        return results
+    }
+
+    private fun batchPolicy(
+        descriptors: Collection<PropertyDescriptor>,
+        opSpec: OperationPipelineSpec,
+    ): OperationPolicy {
+        val timeouts = descriptors.mapNotNull { it.timeout ?: opSpec.defaultTimeout }
+        val retries = descriptors.map { it.retryPolicy ?: opSpec.defaultRetry }.distinct()
+        return OperationPolicy(
+            timeout = timeouts.minOrNull(),
+            retry = retries.singleOrNull(),
+            locks = descriptors.flatMap { it.requiredLocks },
+        )
+    }
 }
+
+private fun batchDescriptor(name: Name): PropertyDescriptor =
+    PropertyDescriptor(
+        name = name,
+        kind = PropertyKind.LOGICAL,
+        valueTypeId = TypeIds.META,
+    )
+
+@Suppress("UNCHECKED_CAST")
+private fun <C : Capability<*>> Collection<Capability<*>>.firstCapability(key: CapabilityKey<C>): C? =
+    firstOrNull { it.key == key || it.key.id == key.id } as? C
 
 @Suppress("UNCHECKED_CAST")
 private fun <T> OperationOutcome<Any?>.castOutcome(): OperationOutcome<T> =
     this as OperationOutcome<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> OperationOutcome<T>.eraseOutcome(): OperationOutcome<Any?> =
+    this as OperationOutcome<Any?>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> Any?.castPayload(): T = this as T
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> TypedReader<T>.outcomeReaderOrNull(): OutcomeTypedReader<T>? =
+    this as? OutcomeTypedReader<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> TypedWriter<T>.outcomeWriterOrNull(): OutcomeTypedWriter<T>? =
+    this as? OutcomeTypedWriter<T>
+
+@Suppress("UNCHECKED_CAST")
+private fun <I, O> TypedAction<I, O>.outcomeActionOrNull(): OutcomeTypedAction<I, O>? =
+    this as? OutcomeTypedAction<I, O>
+
+@Suppress("UNCHECKED_CAST")
+private fun DevicePropertyContract<*>.asAnyPropertyContract(): DevicePropertyContract<Any?> =
+    this as DevicePropertyContract<Any?>
+
+@Suppress("UNCHECKED_CAST")
+private fun MutableDevicePropertyContract<*>.asAnyMutablePropertyContract(): MutableDevicePropertyContract<Any?> =
+    this as MutableDevicePropertyContract<Any?>
+
+@Suppress("UNCHECKED_CAST")
+private fun DeviceActionContract<*, *>.asAnyActionContract(): DeviceActionContract<Any?, Any?> =
+    this as DeviceActionContract<Any?, Any?>
+
+@Suppress("UNCHECKED_CAST")
+private fun <I, O> (suspend (Any?) -> Any?).castActionExecutor(): suspend (I) -> O? =
+    this as suspend (I) -> O?
 
 private suspend fun <T> trackedOperation(
     tracker: OperationTracker?,
@@ -603,14 +798,6 @@ private fun invalidControlPlanePayload(
 ): OperationOutcome.Fail =
     OperationOutcome.Fail(
         ValidationFault(
-            details = Meta {
-                "kind" put kind
-                "name" put name.toString()
-                "message" put message
-                if (cause != null) {
-                    "causeType" put (cause::class.simpleName ?: "Exception")
-                    "causeMessage" put (cause.message ?: cause.toString())
-                }
-            },
+            details = faultDetails(message = message, kind = kind, name = name, cause = cause),
         ),
     )

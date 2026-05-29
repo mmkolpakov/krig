@@ -1,21 +1,34 @@
 package space.kscience.krig.core.contracts
 
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.*
+import space.kscience.dataforge.context.ContextAware
+import space.kscience.dataforge.io.Binary
+import space.kscience.dataforge.io.toByteArray
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.ObservableMeta
+import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
+import space.kscience.dataforge.provider.Provider
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.executionContext
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.api.result.map
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
@@ -32,12 +45,6 @@ import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.dataforge.context.ContextAware
-import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.ObservableMeta
-import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.asName
-import space.kscience.dataforge.provider.Provider
 import kotlin.time.Clock
 
 /**
@@ -68,33 +75,37 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      * Reads a property through the serialization boundary. Implementations may perform I/O and
      * emit [PropertyChangedMessage] on success.
      *
-     * **Hot-path note.** This API allocates [Meta] on every call. The typed contract
-     * ([reader] returning [TypedReader]) is the zero-allocation primary surface for
-     * high-frequency reads. `readProperty(Name): Meta` is preserved for control-plane
+     * **Hot-path note.** This API allocates [Meta] on every call. Typed readers
+     * avoid that serialization boundary for high-frequency reads.
+     * `readProperty(Name): Meta` is preserved for control-plane
      * operations: introspection, debug tools, and generic transports that must serialize.
      */
     @PerformancePitfall
-    public suspend fun readProperty(propertyName: Name): Meta
+    public suspend fun readProperty(propertyName: Name): Meta =
+        readPropertyOutcome(propertyName).getOrThrow()
 
     /** Writes a property through the serialization boundary. Prefer [writer] on the data plane. */
     @PerformancePitfall
-    public suspend fun writeProperty(propertyName: Name, value: Meta)
+    public suspend fun writeProperty(propertyName: Name, value: Meta) {
+        writePropertyOutcome(propertyName, value).getOrThrow()
+    }
 
     /** Executes an action through the serialization boundary. Prefer [executeOutcome] for value-based error handling. */
     @PerformancePitfall
-    public suspend fun execute(actionName: Name, argument: Meta? = null): Meta?
+    public suspend fun execute(actionName: Name, argument: Meta? = null): Meta? =
+        executeOutcome(actionName, argument).getOrThrow()
 
     /** Control plane: lifecycle, faults, attach/detach. SUSPEND on buffer overflow — never dropped. */
     @InternalKrigApi
-    public val controlFlow: Flow<MessageEnvelope<DeviceMessage>>
+    public val controlFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
 
     /** Data plane: property and predicate changes. DROP_OLDEST on overflow. */
     @InternalKrigApi
-    public val dataFlow: Flow<MessageEnvelope<DeviceMessage>>
+    public val dataFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
 
     /** Cold merge of [controlFlow] and [dataFlow]. Each subscriber owns its back-pressure. */
     @InternalKrigApi
-    public val messageFlow: Flow<MessageEnvelope<DeviceMessage>>
+    public val messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
         get() = merge(controlFlow, dataFlow)
 
     /** Payload-only view for scripts and legacy consumers that do not need envelope context. */
@@ -107,13 +118,14 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      * subsequent elements flow without per-element overhead. Throws
      * [space.kscience.krig.api.services.AuthorizationException] on missing permission.
      */
-    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<MessageEnvelope<DeviceMessage>>
+    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<DeviceMessageEnvelope<DeviceMessage>>
 
     /** Timestamping source; may be a virtual clock in simulations. */
     override val clock: Clock
 
     public val lifecycleState: LifecycleState
 
+    @InternalKrigApi
     public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C?
 
     /** Suspends until capabilities are detached and this device scope has completed. */
@@ -153,7 +165,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     /**
      * Returns a known [DevicePropertyContract] by name. Drivers backed by a
-     * [DeviceBlueprint][space.kscience.krig.core.contracts.DeviceBlueprint] expose
+     * [DeviceManifest][space.kscience.krig.core.contracts.DeviceManifest] expose
      * registered specs so `readProperty(Name): Meta` callers can cross the serialization
      * boundary through the full operation pipeline (gates -> locks -> timeout -> retry ->
      * observers -> reader). Default returns `null`; `PipelineDevice` then applies
@@ -168,27 +180,67 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 
     // --- Outcome-based API (errors as values) ---
 
-    /**
-     * Outcome wrapper of [readProperty]. Default routes through [runCatchingOperation]
-     * (getOrThrow → re-wrap). Drivers that can produce [OperationOutcome] directly
-     * (e.g. [DeviceBackend]-based) override this to avoid the double-wrap overhead;
-     * override [readProperty] is NOT sufficient — callers using the outcome API
-     * go through this method.
-     */
-    @OptIn(PerformancePitfall::class)
-    public suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
-        captureOutcome { readProperty(propertyName) }
+    /** Primary read API: predictable hardware/protocol failures are returned as values. */
+    public suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta>
 
     /** Write-plane analogue of [readPropertyOutcome]. */
-    @OptIn(PerformancePitfall::class)
-    public suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-        captureOutcome { writeProperty(propertyName, value) }
+    public suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit>
 
-    /** Action-plane analogue of [readPropertyOutcome]. Drivers that can produce [OperationOutcome]
-     * directly should override this to avoid the double-wrap overhead through [execute]. */
-    @OptIn(PerformancePitfall::class)
-    public suspend fun executeOutcome(actionName: Name, argument: Meta? = null): OperationOutcome<Meta?> =
-        captureOutcome { execute(actionName, argument) }
+    /** Action-plane analogue of [readPropertyOutcome]. */
+    public suspend fun executeOutcome(actionName: Name, argument: Meta? = null): OperationOutcome<Meta?>
+
+    /** Read API that preserves protocol/device data quality instead of forcing every success to GOOD. */
+    public suspend fun readObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
+        readPropertyOutcome(propertyName).map { value ->
+            ObservedValue(value = value, time = clock.now(), quality = DataQuality.GOOD)
+        }
+
+    /**
+     * Batch read surface used by acquisition loops. Default is conservative and preserves
+     * semantics by falling back to one [readObservedOutcome] per property.
+     */
+    public suspend fun readBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
+        properties.associateWith { propertyName -> readObservedOutcome(propertyName) }
+
+    /** Opaque binary read path using DataForge [Binary]. */
+    public suspend fun readBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
+        OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = "Device '$name' does not support binary read for property '$propertyName'.",
+            ),
+        )
+
+    /** ByteArray convenience over [readBinaryOutcome]. */
+    public suspend fun readBytesOutcome(propertyName: Name): OperationOutcome<ByteArray> =
+        readBinaryOutcome(propertyName).map { binary -> binary.toByteArray() }
+
+    /** Binary batch read. Default is sequential; drivers override it for block reads. */
+    public suspend fun readBatchBinaryOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<Binary>> =
+        properties.associateWith { propertyName -> readBinaryOutcome(propertyName) }
+
+    /**
+     * Batch write surface. Default is sequential and not atomic. Backends that write one
+     * physical transaction should report a whole-transaction failure as the same failure
+     * for every requested property when individual statuses are unavailable.
+     */
+    public suspend fun writeBatchOutcome(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        values.mapValues { (propertyName, value) -> writePropertyOutcome(propertyName, value) }
+
+    /** Binary write path for payloads that should not be forced through Meta. */
+    public suspend fun writeBinaryOutcome(propertyName: Name, value: Binary): OperationOutcome<Unit> =
+        OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = "Device '$name' does not support binary write for property '$propertyName'.",
+            ),
+        )
 
     override fun content(target: String): Map<Name, Any> = emptyMap()
 
@@ -200,36 +252,33 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
 }
 
 @OptIn(PerformancePitfall::class)
-public suspend fun Device.readProperty(name: String): Meta = readProperty(name.asName())
+public suspend fun Device.readPropertyPath(path: String): Meta = readProperty(path.parseAsName())
 
 @OptIn(PerformancePitfall::class)
-public suspend fun Device.writeProperty(name: String, value: Meta): Unit =
-    writeProperty(name.asName(), value)
+public suspend fun Device.readPropertyId(id: String): Meta = readProperty(id.asName())
 
 @OptIn(PerformancePitfall::class)
-public suspend fun Device.execute(name: String, argument: Meta? = null): Meta? = execute(name.asName(), argument)
+public suspend fun Device.writePropertyPath(path: String, value: Meta): Unit =
+    writeProperty(path.parseAsName(), value)
+
+@OptIn(PerformancePitfall::class)
+public suspend fun Device.writePropertyId(id: String, value: Meta): Unit =
+    writeProperty(id.asName(), value)
+
+@OptIn(PerformancePitfall::class)
+public suspend fun Device.executePath(path: String, argument: Meta? = null): Meta? =
+    execute(path.parseAsName(), argument)
+
+@OptIn(PerformancePitfall::class)
+public suspend fun Device.executeId(id: String, argument: Meta? = null): Meta? =
+    execute(id.asName(), argument)
 
 public val Device.propertyNames: Set<Name> get() = propertyDescriptors.keys
 
 public val Device.actionNames: Set<Name> get() = actionDescriptors.keys
 
-@OptIn(InternalKrigApi::class)
-private fun Device.markProgrammingFailure(cause: Throwable) {
-    (this as? LifecycleStateHolder)?.updateLifecycleState(LifecycleState.Failed(cause))
-}
-
-private suspend inline fun <T> Device.captureOutcome(block: suspend () -> T): OperationOutcome<T> =
-    try {
-        runCatchingOperation { block() }
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: RuntimeException) {
-        markProgrammingFailure(e)
-        throw e
-    }
-
 /** Resolves the principal from the current coroutine context and delegates to [Device.subscribe]. */
-public suspend fun Device.subscribeFromContext(): Flow<MessageEnvelope<DeviceMessage>> =
+public suspend fun Device.subscribeFromContext(): Flow<DeviceMessageEnvelope<DeviceMessage>> =
     subscribe(currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal)
 
 /** Payload-only subscription helper for call sites that intentionally ignore envelope context. */

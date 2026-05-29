@@ -90,7 +90,7 @@ kotlin {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 
-    // KGP 2.4.0-RC enables ABI validation by the mere presence of the `abiValidation { }`
+    // KGP 2.4.0-RC2 enables ABI validation by the mere presence of the `abiValidation { }`
     // block; the explicit `enabled.set(true)` getter is gone. Filters still apply.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {

@@ -12,24 +12,44 @@ import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.dataforge.meta.Meta
 
-private val defaultCapabilitySnapshotJson: Json = krigJson()
+private val defaultCapabilitySnapshotCodec: CapabilitySnapshotCodec =
+    KotlinxJsonCapabilitySnapshotCodec()
+
+/** Encodes and restores snapshot payloads for runtime capabilities. */
+public interface CapabilitySnapshotCodec {
+    public fun encode(capability: Snapshotting<*>): Meta
+
+    public suspend fun restore(capability: Snapshotting<*>, raw: Meta)
+}
+
+/** JSON-backed capability snapshot codec. */
+public class KotlinxJsonCapabilitySnapshotCodec(
+    private val json: Json = krigJson(),
+) : CapabilitySnapshotCodec {
+    override fun encode(capability: Snapshotting<*>): Meta =
+        encodeSnapshot(capability, json)
+
+    override suspend fun restore(capability: Snapshotting<*>, raw: Meta) {
+        decodeAndRestore(capability, raw, json)
+    }
+}
 
 /**
  * Captures every [Snapshotting]-implementing capability on this device as a
  * `Map<capabilityKey.id, Meta>`. Capabilities that don't implement [Snapshotting] are
  * silently absent from the map.
  *
- * Encoding goes through the capability's own [Snapshotting.snapshotSerializer]; no
- * runtime reflection. Industrial precedent: Decompose `StateKeeper`, Android
- * `onSaveInstanceState(Bundle)`, Spring Boot `/actuator` aggregator.
+ * Encoding goes through the capability's own [Snapshotting.snapshotSerializer].
  */
-public fun CapabilityHost.captureCapabilitySnapshots(json: Json = defaultCapabilitySnapshotJson): Map<String, Meta> {
+public fun CapabilityHost.captureCapabilitySnapshots(
+    codec: CapabilitySnapshotCodec = defaultCapabilitySnapshotCodec,
+): Map<String, Meta> {
     val caps = enumerateInstalledCapabilities()
     if (caps.isEmpty()) return emptyMap()
     val out = LinkedHashMap<String, Meta>(caps.size)
     for (cap in caps) {
         if (cap !is Snapshotting<*>) continue
-        out[cap.key.id.toString()] = encodeSnapshot(cap, json)
+        out[cap.key.id.toString()] = codec.encode(cap)
     }
     return out
 }
@@ -44,13 +64,13 @@ public fun CapabilityHost.captureCapabilitySnapshots(json: Json = defaultCapabil
  */
 public suspend fun CapabilityHost.restoreCapabilitySnapshots(
     snapshots: Map<String, Meta>,
-    json: Json = defaultCapabilitySnapshotJson,
+    codec: CapabilitySnapshotCodec = defaultCapabilitySnapshotCodec,
 ) {
     if (snapshots.isEmpty()) return
     for (cap in enumerateInstalledCapabilities()) {
         if (cap !is Snapshotting<*>) continue
         val raw = snapshots[cap.key.id.toString()] ?: continue
-        decodeAndRestore(cap, raw, json)
+        codec.restore(cap, raw)
     }
 }
 

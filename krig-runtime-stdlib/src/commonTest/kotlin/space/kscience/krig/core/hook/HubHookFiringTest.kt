@@ -7,14 +7,20 @@
 package space.kscience.krig.core.hook
 
 import kotlin.concurrent.atomics.AtomicInt
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import space.kscience.krig.api.hub.HubEvent
 import space.kscience.krig.api.messages.DeviceDepartureReason
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
-import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.runtime.MutableDeviceHub
 import space.kscience.dataforge.context.Context
@@ -31,60 +37,67 @@ private fun freshContext(prefix: String): Context =
 class HubHookFiringTest {
 
     private class LeafDevice(name: Name, ctx: Context) : AbstractDevice(name, DeviceRuntime(ctx)) {
-        override suspend fun readProperty(propertyName: Name) = error("not used")
-        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) = null
+        override suspend fun doReadPropertyOutcome(
+            propertyName: Name,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta> =
+            runCatchingOperation { error("not used") }
+
+        override suspend fun doWritePropertyOutcome(
+            propertyName: Name,
+            value: space.kscience.dataforge.meta.Meta,
+        ): OperationOutcome<Unit> = OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(
+            actionName: Name,
+            argument: space.kscience.dataforge.meta.Meta?,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta?> = OperationOutcome.Ok(null)
     }
 
     @Test
-    fun deviceAttachedHandlerInvokedOnEveryAttach() = runTest {
+    fun hubEventsReportsEveryAttach() = runTest {
         val ctx = freshContext("hub-hook")
         val hub = MutableDeviceHub("hub".asName(), ctx)
-        val attached = mutableListOf<Pair<Name, Device>>()
-        hub.hubHooks.on(DeviceAttached) { name, device -> attached += name to device }
+        val attachedEvents = async(start = CoroutineStart.UNDISPATCHED) {
+            hub.hubEvents.filterIsInstance<HubEvent.Attached>().take(3).toList()
+        }
 
         val devices = listOf("a", "b", "c").map { n ->
             LeafDevice(n.asName(), freshContext(n))
         }
         devices.forEach { hub.attach(it.name, it) }
-        advanceUntilIdle()
 
-        assertEquals(3, attached.size)
-        assertEquals(devices.map { it.name }, attached.map { it.first })
+        assertEquals(devices.map { it.name }, attachedEvents.await().map { it.name })
     }
 
     @Test
-    fun deviceDetachedHandlerReceivesVictimAndReason() = runTest {
+    fun hubEventsReportsDetachedReason() = runTest {
         val ctx = freshContext("hub-detach")
         val hub = MutableDeviceHub("hub".asName(), ctx)
-        val detached = mutableListOf<Name>()
-        hub.hubHooks.on(DeviceDetached) { name, _ -> detached += name }
 
         val leaf = LeafDevice("a".asName(), freshContext("leaf"))
         hub.attach(leaf.name, leaf)
+        val detachedEvent = async(start = CoroutineStart.UNDISPATCHED) {
+            hub.hubEvents.filterIsInstance<HubEvent.Detached>().first()
+        }
         hub.detach(leaf.name, DeviceDepartureReason.Graceful).let { }
-        advanceUntilIdle()
 
-        assertEquals(listOf(leaf.name), detached)
+        assertEquals(leaf.name, detachedEvent.await().name)
+        assertEquals(DeviceDepartureReason.Graceful, detachedEvent.await().reason)
     }
 
     @Test
-    fun slowAttachedHookDoesNotBlockAttachCommit() = runTest {
+    fun attachCommitsTopologyAndPublishesEvent() = runTest {
         val hub = MutableDeviceHub("hub".asName(), freshContext("hub-slow-hook"))
-        val hookStarted = CompletableDeferred<Unit>()
-        val releaseHook = CompletableDeferred<Unit>()
-        hub.hubHooks.on(DeviceAttached) { _, _ ->
-            hookStarted.complete(Unit)
-            releaseHook.await()
+        val attachedEvent = async(start = CoroutineStart.UNDISPATCHED) {
+            hub.hubEvents.filterIsInstance<HubEvent.Attached>().first()
         }
         val leaf = LeafDevice("a".asName(), freshContext("leaf"))
 
         hub.attach(leaf.name, leaf)
 
-        assertEquals(Unit, hookStarted.getCompleted())
         assertEquals(mapOf(leaf.name to leaf), hub.devices)
+        assertEquals(leaf.name, attachedEvent.await().name)
 
-        releaseHook.complete(Unit)
         hub.shutdown()
     }
 }

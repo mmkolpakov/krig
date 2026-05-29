@@ -9,14 +9,14 @@ import kotlinx.serialization.PolymorphicSerializer
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.envelope
 import space.kscience.krig.api.serialization.krigStorageJson
 
 private val storageJson = krigStorageJson()
 private val messageSerializer = PolymorphicSerializer(DeviceMessage::class)
-private val envelopeSerializer = MessageEnvelope.serializer(messageSerializer)
+private val envelopeSerializer = DeviceMessageEnvelope.serializer(messageSerializer)
 
 internal enum class SqlBackend {
     H2,

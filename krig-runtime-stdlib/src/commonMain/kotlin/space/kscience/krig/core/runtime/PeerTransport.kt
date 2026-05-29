@@ -3,8 +3,13 @@
 package space.kscience.krig.core.runtime
 
 import kotlinx.coroutines.flow.Flow
+import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
+import kotlin.jvm.JvmInline
+
+@JvmInline
+public value class PeerRoute(public val name: Name)
 
 /**
  * Pluggable P2P transport layer under [BinaryPeerConnection] and any device-link
@@ -17,16 +22,16 @@ import space.kscience.dataforge.names.Name
  */
 public interface PeerTransport : AutoCloseable {
     /** Stable peer identifier — typically `scheme://host:port/deviceId`. */
-    public val peerId: String
+    public val peerId: Name
 
     /** Request/response — basis for content-addressable binary transfer. */
-    public suspend fun requestResponse(route: String, payload: ByteArray): ByteArray
+    public suspend fun requestResponse(route: PeerRoute, payload: Binary): Binary
 
     /** Hot server-push flow — basis for live message streaming. */
-    public fun requestStream(route: String): Flow<ByteArray>
+    public fun requestStream(route: PeerRoute): Flow<Binary>
 
     /** Fire-and-forget — basis for non-acked send. */
-    public suspend fun fireAndForget(route: String, payload: ByteArray)
+    public suspend fun fireAndForget(route: PeerRoute, payload: Binary)
 
     override fun close(): Unit = Unit
 }

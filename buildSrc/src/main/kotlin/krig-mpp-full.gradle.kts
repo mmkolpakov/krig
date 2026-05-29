@@ -4,7 +4,7 @@
  *
  * Used by the data-plane quartet (krig-state, krig-identity, krig-model,
  * krig-messaging), krig-contracts, krig-runtime-stdlib, krig-simulation,
- * and pure-API FeatureSpec modules.
+ * and pure-API pipeline feature modules.
  */
 plugins {
     id("krig-mpp")

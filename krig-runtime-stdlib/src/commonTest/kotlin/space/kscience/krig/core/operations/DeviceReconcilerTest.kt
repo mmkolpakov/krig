@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.core.InternalKrigApi
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.runtime.MutableDeviceHub
@@ -27,9 +29,20 @@ import kotlin.test.assertTrue
 class DeviceReconcilerTest {
 
     private class TestDevice(name: Name) : AbstractDevice(name, DeviceRuntime(Context("device-$name"))) {
-        override suspend fun readProperty(propertyName: Name) = error("Not used in test")
-        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) = null
+        override suspend fun doReadPropertyOutcome(
+            propertyName: Name,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta> =
+            runCatchingOperation { error("Not used in test") }
+
+        override suspend fun doWritePropertyOutcome(
+            propertyName: Name,
+            value: space.kscience.dataforge.meta.Meta,
+        ): OperationOutcome<Unit> = OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(
+            actionName: Name,
+            argument: space.kscience.dataforge.meta.Meta?,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta?> = OperationOutcome.Ok(null)
     }
 
     @Test

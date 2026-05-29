@@ -22,7 +22,7 @@ internal class ContributesAggregator(
     private companion object {
         const val CONTRIBUTES_FQN = "space.kscience.krig.api.annotations.Contributes"
         const val TARGET_ID_FQN = "space.kscience.krig.api.discovery.TargetId"
-        const val CONTRIBUTES_BLUEPRINT_FQN = "space.kscience.krig.assembly.ContributesBlueprint"
+        const val CONTRIBUTES_MANIFEST_FQN = "space.kscience.krig.assembly.ContributesManifest"
         const val GENERATED_PACKAGE_ROOT = "space.kscience.krig.generated"
     }
 
@@ -32,8 +32,8 @@ internal class ContributesAggregator(
     /** Contributor entry as seen by the aggregator — carries the symbol + optional explicit id. */
     private data class ContributorEntry(
         val decl: KSClassDeclaration,
-        /** Blueprint-level override used as the `Name` key when present (from `@ContributesBlueprint.blueprintId`). */
-        val blueprintId: String?,
+        /** Manifest-level override used as the `Name` key when present (from `@ContributesManifest.manifestId`). */
+        val manifestId: String?,
         /** Emission strategy: direct reference or invoke-as-factory. */
         val invokeAsFactory: Boolean,
     )
@@ -60,16 +60,16 @@ internal class ContributesAggregator(
             }
         }
 
-        // Uniqueness of blueprint ids within a target (per-module).
+        // Uniqueness of Manifest ids within a target (per-module).
         for ((targetId, entries) in bucketsByTarget) {
             val duplicateIds = entries
-                .mapNotNull { it.blueprintId }
+                .mapNotNull { it.manifestId }
                 .groupingBy { it }
                 .eachCount()
                 .filterValues { it > 1 }
             if (duplicateIds.isNotEmpty()) {
                 environment.logger.error(
-                    "Duplicate blueprint ids on target '$targetId': ${duplicateIds.keys.joinToString()}",
+                    "Duplicate Manifest ids on target '$targetId': ${duplicateIds.keys.joinToString()}",
                 )
             }
         }
@@ -98,7 +98,7 @@ internal class ContributesAggregator(
                 val (id, strategy) = readContributes(ann) ?: continue
                 found[id] = ContributorEntry(
                     decl = this,
-                    blueprintId = readBlueprintId(annotations),
+                    manifestId = readManifestId(annotations),
                     invokeAsFactory = strategy,
                 )
                 continue
@@ -110,10 +110,10 @@ internal class ContributesAggregator(
                     ?.qualifiedName?.asString() ?: continue
                 if (metaFqn != CONTRIBUTES_FQN) continue
                 val (id, strategy) = readContributes(meta) ?: continue
-                val bpId = if (annFqn == CONTRIBUTES_BLUEPRINT_FQN) readBlueprintIdArg(ann) else null
+                val manifestId = if (annFqn == CONTRIBUTES_MANIFEST_FQN) readManifestIdArg(ann) else null
                 found[id] = ContributorEntry(
                     decl = this,
-                    blueprintId = bpId,
+                    manifestId = manifestId,
                     invokeAsFactory = strategy,
                 )
             }
@@ -173,15 +173,15 @@ internal class ContributesAggregator(
     private fun annFqn(a: KSAnnotation): String? =
         (a.annotationType.resolve().declaration as? KSClassDeclaration)?.qualifiedName?.asString()
 
-    /** `blueprintId` argument of `@ContributesBlueprint`, or null if absent. */
-    private fun readBlueprintId(annotations: Sequence<KSAnnotation>): String? {
-        val bpAnn = annotations.firstOrNull { annFqn(it) == CONTRIBUTES_BLUEPRINT_FQN } ?: return null
-        return readBlueprintIdArg(bpAnn)
+    /** `manifestId` argument of `@ContributesManifest`, or null if absent. */
+    private fun readManifestId(annotations: Sequence<KSAnnotation>): String? {
+        val manifestAnnotation = annotations.firstOrNull { annFqn(it) == CONTRIBUTES_MANIFEST_FQN } ?: return null
+        return readManifestIdArg(manifestAnnotation)
     }
 
-    private fun readBlueprintIdArg(ann: KSAnnotation): String? =
+    private fun readManifestIdArg(ann: KSAnnotation): String? =
         ann.arguments
-            .firstOrNull { it.name?.asString() == "blueprintId" }
+            .firstOrNull { it.name?.asString() == "manifestId" }
             ?.value as? String
 
     /** Derives a Pascal-cased plugin name segment from a target id. */
@@ -198,7 +198,7 @@ internal class ContributesAggregator(
      * in control-domain vocabulary without trying to be a full morphology library:
      *  - already plural (ends in `s`)          — keep
      *  - consonant + `y`                        — `y` → `ies`   (Factory, Policy, Proxy)
-     *  - otherwise                              — + `s`         (FeatureSpec, Handler, Recovery in kebab → "Recovery" + "s")
+     *  - otherwise                              — + `s`         (PipelineFeatureSpec, Handler, Recovery in kebab → "Recovery" + "s")
      */
     private fun pluralize(word: String): String = when {
         word.endsWith("s") -> word
@@ -262,7 +262,7 @@ internal class ContributesAggregator(
             appendLine("        public val entries: Map<Name, Any> = mapOf(")
             for (entry in contributors) {
                 val fqn = entry.decl.qualifiedName?.asString() ?: continue
-                val keyLiteral = entry.blueprintId ?: entry.decl.simpleName.asString()
+                val keyLiteral = entry.manifestId ?: entry.decl.simpleName.asString()
                 val emit = if (entry.invokeAsFactory) "$fqn()" else fqn
                 appendLine("            \"$keyLiteral\".parseAsName() to $emit,")
             }

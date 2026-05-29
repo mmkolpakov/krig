@@ -5,9 +5,9 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
-import space.kscience.krig.core.contracts.DeviceBlueprint
+import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.DeviceEnvironment
-import space.kscience.krig.core.features.Feature
+import space.kscience.krig.core.features.PipelineFeature
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.TransportBackend
 import space.kscience.krig.core.contracts.booleanValue
@@ -42,23 +42,23 @@ public sealed interface DeviceBuilder {
     public val deviceContext: Context
 
     /**
-     * Allows string/Meta property calls not declared by a blueprint or DSL property.
+     * Allows string/Meta property calls not declared by a Manifest or DSL property.
      * Keep `false` for contract-checked devices; set `true` for legacy adapters and notebooks.
      */
     public var allowAdHocProperties: Boolean
 
-    /** Installs descriptors from a [DeviceBlueprint]. */
-    public fun blueprint(blueprint: DeviceBlueprint<*>)
+    /** Installs descriptors from a [DeviceManifest]. */
+    public fun manifest(manifest: DeviceManifest)
 
     /**
-     * Installs a FeatureSpec and configures its runtime block.
+     * Installs a PipelineFeatureSpec and configures its runtime block.
      * ```
      * install(Caching) { defaultTtl = 1.seconds }
      * install(Retry)   { maxAttempts = 5 }
      * ```
     */
     public fun <C : Any> install(
-        feature: Feature<C, *>,
+        pipelineFeature: PipelineFeature<C, *>,
         configure: C.() -> Unit = {},
     )
 }
@@ -146,16 +146,16 @@ internal class DeviceBuilderCore internal constructor(
         descriptorSource = source
     }
 
-    override fun blueprint(blueprint: DeviceBlueprint<*>) {
-        descriptorSource = DescriptorSource.of(blueprint.properties, blueprint.actions)
+    override fun manifest(manifest: DeviceManifest) {
+        descriptorSource = DescriptorSource.of(manifest.properties, manifest.actions)
     }
 
     override fun <C : Any> install(
-        feature: Feature<C, *>,
+        pipelineFeature: PipelineFeature<C, *>,
         configure: C.() -> Unit,
     ) {
-        val config = feature.createConfig().apply(configure)
-        feature.install(config, pipeline)
+        val config = pipelineFeature.createConfig().apply(configure)
+        pipelineFeature.install(config, pipeline)
     }
 
     @PublishedApi
@@ -266,10 +266,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
         actionDescriptors[name] = ActionDescriptor(name = name)
     }
 
-    /**
-     * Step body invoked by the simulation coordinator with the canonical `dt`.
-     * Omit for stateless devices; `DeviceBackend.step` stays a no-op.
-     */
+    /** Step body invoked by the simulation coordinator with the current `dt`. */
     public fun onStep(block: (dt: Duration) -> Unit) {
         check(stepBody == null) { "onStep was already declared on this builder" }
         stepBody = block

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlin.time.Duration.Companion.milliseconds
 import space.kscience.krig.api.context.AnonymousPrincipal
-import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
+import space.kscience.krig.core.contracts.sampling.requireDoubleSampler
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.dsl.device
 import space.kscience.krig.dsl.sampleWithHold
@@ -24,9 +24,9 @@ import space.kscience.krig.dsl.typedSamples
 suspend fun streamingDemo(): Unit = supervisorScope {
     val ctx = demoContext("streaming-demo")
     val pump = device("streamingPump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
-    val sampler = pump.sampler(PumpSpec.rpm) as RingDoubleSampler
+    val sampler = pump.requireDoubleSampler(PumpSpec.rpm)
 
     println("=== Streaming ===")
     val ticks = sharedTicks(pump.deviceScope, 10.milliseconds)

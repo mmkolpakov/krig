@@ -12,8 +12,7 @@ import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.data.QualityCode
-import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.api.data.staleDataQuality
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.ActionFaultMessage
@@ -77,7 +76,7 @@ public fun Device.propertyFlow(
     options: SubscribeOptions = SubscribeOptions.Unthrottled,
 ): Flow<Meta> = propertyFlow(principal, propertyName.asName(), options)
 
-/** Typed `Flow<T>` via a [DevicePropertySpec]. */
+/** Typed `Flow<T>` via a [DevicePropertyContract]. */
 public fun <T : Any> Device.typedPropertyFlow(
     principal: Principal,
     spec: DevicePropertyContract<T>,
@@ -152,7 +151,7 @@ public fun Device.onPropertyChange(
     action: suspend (Meta) -> Unit,
 ): Job = propertyFlow(principal, name).onEach(action).launchIn(scope)
 
-/** Typed variant of [onPropertyChange] keyed by [DevicePropertySpec]. */
+/** Typed variant of [onPropertyChange] keyed by [DevicePropertyContract]. */
 public fun <T : Any> Device.onPropertyChange(
     principal: Principal,
     spec: DevicePropertyContract<T>,
@@ -186,7 +185,7 @@ public suspend fun Device.onPropertyChangeFromContext(
     action: suspend (Meta) -> Unit,
 ): Job = onPropertyChange(currentPrincipal(), name, scope, action)
 
-/** Typed variant of [onPropertyChangeFromContext] keyed by [DevicePropertySpec]. */
+/** Typed variant of [onPropertyChangeFromContext] keyed by [DevicePropertyContract]. */
 public suspend fun <T : Any> Device.onPropertyChangeFromContext(
     spec: DevicePropertyContract<T>,
     scope: CoroutineScope = deviceScope,
@@ -265,9 +264,9 @@ public fun sharedTicks(
  * control systems — unlike [kotlinx.coroutines.flow.sample] which skips empty
  * periods, this operator guarantees a value at every tick boundary.
  *
- * This is a reactive/control-plane helper. On JVM, `Flow<Double>` and this
- * generic implementation still cross boxed `T` boundaries; hard real-time or
- * DSP-style loops should read the primitive sampler hot path directly
+ * Reactive/control-plane helper. On JVM, `Flow<Double>` and this generic
+ * implementation still cross boxed `T` boundaries; hard real-time or DSP-style
+ * loops should read the primitive sampler hot path directly
  * (`DoubleSampler.latestDoubleOrNaN()` / `snapshotDoubleArray()`) instead of routing
  * every numeric sample through `Flow`.
  *
@@ -347,10 +346,7 @@ public fun <T> Flow<T>.sampleWithHold(ticks: Flow<Unit>): Flow<T> = channelFlow 
  */
 public fun <T> Flow<ObservedValue<T>>.withStalenessFallback(
     clock: Clock = Clock.System,
-    staleQuality: DataQuality = DataQuality(
-        severity = QualitySeverity.BAD,
-        code = QualityCode("krig.stale"),
-    ),
+    staleQuality: DataQuality = staleDataQuality(),
 ): Flow<ObservedValue<T>> = flow {
     var latest: Any? = UninitializedSample
     try {

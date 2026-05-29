@@ -2,37 +2,36 @@ package space.kscience.krig.core.pipeline
 
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.features.FeatureSpec
+import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.api.services.auditService
 import space.kscience.krig.api.services.authorizationService
+import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.capabilities.LifecycleManagingCapability
 import space.kscience.krig.core.capabilities.capabilityValues
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.DeviceBlueprint
-import space.kscience.krig.core.features.FeatureCatalog
-import space.kscience.krig.core.features.FeatureSpecMismatchException
+import space.kscience.krig.core.contracts.DeviceManifest
+import space.kscience.krig.core.features.PipelineFeatureCatalog
+import space.kscience.krig.core.features.PipelineFeatureSpecMismatchException
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.CapabilityHost
-import space.kscience.krig.core.features.UnknownFeaturePolicy
+import space.kscience.krig.core.features.UnknownPipelineFeaturePolicy
 import space.kscience.krig.core.hook.PropertyReadRequested
 import space.kscience.krig.core.operations.ResourceLockRegistry
 
 /**
  * Assembles a [PipelineDevice] from [PipelineBuilder].
  *
- * Auto-installs the canonical gate / observer set on top of FeatureSpec-contributed gates and
- * observers (lifecycle gate, RBAC for writes / actions, optional connection-state gate,
- * latency-budget observer, optional audit observer). FeatureSpec gates and observers
- * run after the defaults.
+ * Installs the default gate / observer set before gates and observers contributed by
+ * [PipelineFeatureSpec]s.
  *
- * Without a [LifecycleManagingCapability] the device auto-promotes to [LifecycleState.Running]
- * so trivial DSL flows work out of the box.
+ * Without a [LifecycleManagingCapability] the device is promoted to [LifecycleState.Running].
  */
 @OptIn(InternalKrigApi::class)
 public suspend fun wrapWithPipeline(
@@ -82,6 +81,24 @@ public suspend fun wrapWithPipeline(
     }
     return pipelined
 }
+
+/**
+ * Opt-in decorator for cross-cutting operation policy around an already materialized device.
+ *
+ * Use this for proxy/RPC/security wrappers and tests that intentionally need a policy layer.
+ * Ordinary local devices should prefer a plain backend plus typed contracts.
+ */
+@ExperimentalKrigApi
+public suspend fun Device.withOperationPipeline(
+    deviceName: String = name.toString(),
+    autoInstallDefaults: Boolean = true,
+    configure: PipelineBuilder.() -> Unit,
+): Device = wrapWithPipeline(
+    device = this,
+    builder = PipelineBuilder().apply(configure),
+    deviceName = deviceName,
+    autoInstallDefaults = autoInstallDefaults,
+)
 
 @OptIn(InternalKrigApi::class)
 private fun installDefaults(
@@ -143,34 +160,34 @@ private fun installDefaults(
 
 /**
  * Materialises [features] into a [PipelineBuilder] by matching each DTO against
- * [catalog]. Unknown ids are handled by [unknownFeaturePolicy].
+ * [catalog]. Unknown ids are handled by [UnknownPipelineFeaturePolicy].
  */
 public fun materializePipeline(
-    features: Map<Name, FeatureSpec>,
-    catalog: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
+    features: Map<Name, PipelineFeatureSpec>,
+    catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
 ): PipelineBuilder = materializePipelineOutcome(
     features = features,
     catalog = catalog,
-    unknownFeaturePolicy = unknownFeaturePolicy,
+    unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
 ).getOrThrow()
 
 public fun materializePipelineOutcome(
-    features: Map<Name, FeatureSpec>,
-    catalog: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
+    features: Map<Name, PipelineFeatureSpec>,
+    catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
 ): OperationOutcome<PipelineBuilder> {
     val builder = PipelineBuilder()
-    for ((id, featureSpec) in features) {
-        val feature = catalog[id]
-        if (feature != null) {
+    for ((id, pipelineFeatureSpec) in features) {
+        val pipelineFeature = catalog[id]
+        if (pipelineFeature != null) {
             try {
-                feature.installFromSpec(featureSpec, builder)
-            } catch (e: FeatureSpecMismatchException) {
-                return invalidFeatureSpec(id, featureSpec, e)
+                pipelineFeature.installFromSpec(pipelineFeatureSpec, builder)
+            } catch (e: PipelineFeatureSpecMismatchException) {
+                return invalidPipelineFeatureSpec(id, pipelineFeatureSpec, e)
             }
         } else {
-            val outcome = unknownFeaturePolicy.handle(id, featureSpec)
+            val outcome = unknownPipelineFeaturePolicy.handle(id, pipelineFeatureSpec)
             if (outcome is OperationOutcome.Fail) return outcome
         }
     }
@@ -178,37 +195,37 @@ public fun materializePipelineOutcome(
 }
 
 public fun materializePipeline(
-    blueprint: DeviceBlueprint<*>,
-    catalog: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
+    manifest: DeviceManifest,
+    catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
 ): PipelineBuilder = materializePipeline(
-    features = blueprint.features,
+    features = manifest.features,
     catalog = catalog,
-    unknownFeaturePolicy = unknownFeaturePolicy,
+    unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
 )
 
 public fun materializePipelineOutcome(
-    blueprint: DeviceBlueprint<*>,
-    catalog: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
+    manifest: DeviceManifest,
+    catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
 ): OperationOutcome<PipelineBuilder> = materializePipelineOutcome(
-    features = blueprint.features,
+    features = manifest.features,
     catalog = catalog,
-    unknownFeaturePolicy = unknownFeaturePolicy,
+    unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
 )
 
-private fun invalidFeatureSpec(
+private fun invalidPipelineFeatureSpec(
     id: Name,
-    spec: FeatureSpec,
+    spec: PipelineFeatureSpec,
     cause: IllegalArgumentException,
 ): OperationOutcome.Fail =
     OperationOutcome.Fail(
         ValidationFault(
-            message = cause.message ?: "FeatureSpec does not match the registered Feature.",
+            message = cause.message ?: "PipelineFeatureSpec does not match the registered PipelineFeature.",
             details = Meta {
                 "featureId" put id.toString()
                 "specType" put (spec::class.simpleName ?: spec::class.toString())
-                "message" put (cause.message ?: "FeatureSpec does not match the registered Feature.")
+                OperationFaultDetails.MESSAGE put (cause.message ?: "PipelineFeatureSpec does not match the registered PipelineFeature.")
             },
         ),
     )

@@ -1,4 +1,4 @@
-﻿@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
+@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
 
 package space.kscience.krig.assembly
 
@@ -20,7 +20,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
 /**
- * DataForge plugin carrying runtime-mutable mappings from blueprint [Name] to
+ * DataForge plugin carrying runtime-mutable mappings from Manifest [Name] to
  * [DeviceFactory]. Jupyter cells and REPL scripts register factories through
  * this plugin; KSP-seeded contributors expose their own plugin at the same
  * [Target], and `Context.gather<DeviceFactory<*, *>>(DeviceFactoryPlugin.Target.id)`
@@ -37,6 +37,16 @@ public class DeviceFactoryPlugin(
         AtomicReference(initial.toPersistentMap())
 
     public fun register(factory: DeviceFactory<*, *>) {
+        while (true) {
+            val current = factories.load()
+            require(factory.id !in current) {
+                "DeviceFactory '${factory.id}' is already registered; call replace(...) to update it explicitly."
+            }
+            if (factories.compareAndSet(current, current.put(factory.id, factory))) return
+        }
+    }
+
+    public fun replace(factory: DeviceFactory<*, *>) {
         factories.update { it.put(factory.id, factory) }
     }
 

@@ -15,9 +15,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
@@ -38,11 +41,14 @@ private fun freshContext(prefix: String): Context =
 class MutableDeviceHubCloseRaceTest {
 
     private class LeafDevice(name: Name) : AbstractDevice(name, DeviceRuntime(freshContext(name.toString()))) {
-        override suspend fun readProperty(propertyName: Name) = error("not used: $propertyName")
-        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta): Unit =
-            error("not used: $propertyName = $value")
-        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) =
-            error("not used: $actionName($argument)")
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            runCatchingOperation { error("not used: $propertyName") }
+
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            runCatchingOperation { error("not used: $propertyName = $value") }
+
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            runCatchingOperation { error("not used: $actionName($argument)") }
     }
 
     @Test

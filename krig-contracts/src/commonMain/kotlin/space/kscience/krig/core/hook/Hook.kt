@@ -1,9 +1,9 @@
 package space.kscience.krig.core.hook
 
 /**
- * Extension-point marker. Each concrete [Hook] is a singleton object parameterised by its
- * handler signature [H]; consumers subscribe through any [HookRegistry] (for example a typed
- * pipeline builder or a `DeviceHub`), integrations fire registered handlers at the
- * appropriate moment.
+ * Typed extension point key. Each concrete [Hook] is a singleton object parameterised
+ * by handler signature [H]. Hooks are intended for infrastructure layers such as
+ * pipelines and hubs; ordinary device behavior should use contracts, backends, and
+ * state models instead.
  */
 public interface Hook<H : Any>

@@ -7,8 +7,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.json.Json
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.krig.api.meta.serializableToMeta
@@ -37,15 +39,35 @@ public class JournalMigrations(
 }
 
 /**
+ * Encodes and decodes journal payloads.
+ */
+public interface JournalPayloadCodec {
+    public fun encode(message: DeviceMessage): Meta
+
+    public fun decode(payload: Meta): DeviceMessage
+}
+
+/** JSON-backed journal payload codec. */
+public class KotlinxJsonJournalPayloadCodec(
+    private val json: Json = krigStorageJson(),
+) : JournalPayloadCodec {
+    private val serializer = PolymorphicSerializer(DeviceMessage::class)
+
+    override fun encode(message: DeviceMessage): Meta =
+        serializableToMeta(serializer, message, json)
+
+    override fun decode(payload: Meta): DeviceMessage =
+        serializableMetaConverter(serializer, json).read(payload)
+}
+
+/**
  * Encodes current [DeviceMessage]s and decodes stored [JournalEntry]s after migrations.
  */
 public class MessageJournalCodec(
-    private val json: Json = krigStorageJson(),
+    private val payloadCodec: JournalPayloadCodec = KotlinxJsonJournalPayloadCodec(),
     private val migrations: JournalMigrations = JournalMigrations.empty,
     private val schema: JournalSchema = JournalSchemas.deviceMessageV1,
 ) {
-    private val serializer = PolymorphicSerializer(DeviceMessage::class)
-
     public fun encode(
         message: DeviceMessage,
         context: MessageContext = MessageContext.Empty,
@@ -55,13 +77,24 @@ public class MessageJournalCodec(
         messageType = message.messageType,
         schema = schema,
         time = message.time,
-        payload = serializableToMeta(serializer, message, json),
+        payload = payloadCodec.encode(message),
         context = context,
     )
 
+    public fun encode(
+        envelope: DeviceMessageEnvelope<DeviceMessage>,
+        subject: Name = envelope.payload.sourceDevice ?: Name.EMPTY,
+    ): JournalEntry = encode(envelope.payload, envelope.context, subject)
+
     public fun decode(entry: JournalEntry): Sequence<DeviceMessage> =
+        decodeEnvelope(entry).map { it.payload }
+
+    public fun decodeEnvelope(entry: JournalEntry): Sequence<DeviceMessageEnvelope<DeviceMessage>> =
         migrations.migrate(entry).map { migrated ->
-            serializableMetaConverter(serializer, json).read(migrated.payload)
+            DeviceMessageEnvelope(
+                payload = payloadCodec.decode(migrated.payload),
+                context = migrated.context,
+            )
         }
 }
 
@@ -75,15 +108,15 @@ public fun CursorJournal.asReplayLog(codec: MessageJournalCodec = MessageJournal
         override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> =
             flow {
                 replayEntries(after).collect { record ->
-                    for (message in codec.decode(record.entry)) {
-                        emit(ReplayRecord(record.cursor, message))
+                    for (envelope in codec.decodeEnvelope(record.entry)) {
+                        emit(ReplayRecord(record.cursor, envelope))
                     }
                 }
             }
 
-        override fun replay(from: Instant, until: Instant): Flow<DeviceMessage> =
+        override fun replay(from: Instant, until: Instant): Flow<DeviceMessageEnvelope<DeviceMessage>> =
             replayFrom(null)
-                .map { it.message }
-                .dropWhile { it.time < from }
-                .takeWhile { it.time <= until }
+                .map { it.envelope }
+                .dropWhile { it.payload.time < from }
+                .takeWhile { it.payload.time <= until }
     }

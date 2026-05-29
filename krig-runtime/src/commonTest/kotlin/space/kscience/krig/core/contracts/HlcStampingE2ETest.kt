@@ -14,8 +14,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
@@ -55,9 +56,14 @@ private class StampedTestDevice(
     name: String,
     runtime: DeviceRuntime,
 ) : AbstractDevice(name.asName(), runtime) {
-    override suspend fun readProperty(propertyName: Name): Meta = Meta { "value".asName() put 0 }
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {}
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta { "value".asName() put 0 })
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 
     suspend fun publishChange(propertyName: Name, value: Meta) {
         emit(
@@ -82,7 +88,7 @@ class HlcStampingE2ETest {
      * the replay-0 data plane never races. Inside `runTest`'s deterministic
      * dispatcher this is reliable.
      */
-    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): MessageEnvelope<DeviceMessage> =
+    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): DeviceMessageEnvelope<DeviceMessage> =
         coroutineScope {
             val awaited = async(start = CoroutineStart.UNDISPATCHED) {
                 device.dataFlow.first()

@@ -19,10 +19,12 @@ import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.meta.DevicePropertyContract
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,39 +37,38 @@ private fun freshContext(): Context = Context("legacy-meta-${seq.addAndFetch(1)}
 /**
  * Proves that `device.readProperty(Name): Meta` and `writeProperty(Name, Meta)` route
  * through the full operation pipeline (gates → executor → observers) when the delegate
- * exposes a registered [DevicePropertySpec] via [Device.propertySpec].
+ * exposes a registered [DevicePropertyContract] via [Device.propertySpec].
  */
 class LegacyMetaPathRoutingTest {
 
     private class DoubleCellDevice : AbstractDevice("cell".asName(), DeviceRuntime(freshContext())) {
         private val cell = atomic(0.0)
 
-        val valueSpec = object : space.kscience.krig.core.meta.MutableDevicePropertySpec<DoubleCellDevice, Double> {
+        val valueSpec = object : MutableDevicePropertyContract<Double> {
             override val name: Name = "value".asName()
             override val descriptor = PropertyDescriptor(
                 name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE,
             )
             override val converter: MetaConverter<Double> = MetaConverter.double
-            override suspend fun read(device: DoubleCellDevice): Double = device.cell.value
-            override suspend fun write(device: DoubleCellDevice, value: Double) {
-                device.cell.value = value
-            }
         }
 
         override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
             if (propertyName == valueSpec.name) valueSpec else null
 
-        override suspend fun readProperty(propertyName: Name): Meta {
-            check(propertyName == valueSpec.name)
-            return MetaConverter.double.convert(cell.value)
-        }
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            runCatchingOperation {
+                check(propertyName == valueSpec.name)
+                MetaConverter.double.convert(cell.value)
+            }
 
-        override suspend fun writeProperty(propertyName: Name, value: Meta) {
-            check(propertyName == valueSpec.name)
-            cell.value = value.double ?: error("expected Double")
-        }
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            runCatchingOperation {
+                check(propertyName == valueSpec.name)
+                cell.value = value.double ?: error("expected Double")
+            }
 
-        override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(null)
     }
 
     @Test
@@ -90,9 +91,14 @@ class LegacyMetaPathRoutingTest {
     @Test
     fun metaReadOnUnknownNameFailsWithoutSyntheticSpec() = runTest {
         val device = object : AbstractDevice("plain".asName(), DeviceRuntime(freshContext())) {
-            override suspend fun readProperty(propertyName: Name): Meta = Meta(7)
-            override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-            override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+            override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+                OperationOutcome.Ok(Meta(7))
+
+            override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+                OperationOutcome.OkUnit
+
+            override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+                OperationOutcome.Ok(null)
         }
         var observerCalled = false
         val builder = PipelineBuilder().apply {

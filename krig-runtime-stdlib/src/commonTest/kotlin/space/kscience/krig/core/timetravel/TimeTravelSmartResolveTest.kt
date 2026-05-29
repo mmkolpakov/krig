@@ -51,7 +51,7 @@ class TimeTravelSmartResolveTest {
     @Test
     fun smartResolveLocatesNearestSnapshotAndReplaysOnlyDelta() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3), event(400, 4)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3), event(400, 4)).testEnvelopes())
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
         store.save(devName, DeviceSnapshot(at = Instant.fromEpochMilliseconds(200), state = Meta(99.asValue())))
@@ -70,7 +70,7 @@ class TimeTravelSmartResolveTest {
     @Test
     fun smartResolveFallsBackToFullReplayWhenNoSnapshotExists() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
 
@@ -88,7 +88,7 @@ class TimeTravelSmartResolveTest {
     @Test
     fun recoveryDslUsesSnapshotAndReplayDelta() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
         store.save(devName, DeviceSnapshot(at = Instant.fromEpochMilliseconds(200), state = Meta(20.asValue())))

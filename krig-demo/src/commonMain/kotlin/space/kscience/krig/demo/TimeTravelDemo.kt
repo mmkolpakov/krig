@@ -6,6 +6,7 @@
 package space.kscience.krig.demo
 
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.PolymorphicSerializer
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
@@ -15,8 +16,11 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigStorageJson
+import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.timetravel.CursorJournal
 import space.kscience.krig.core.timetravel.EventCursor
 import space.kscience.krig.core.timetravel.ExperimentalTimeTravelApi
@@ -28,6 +32,7 @@ import space.kscience.krig.core.timetravel.JournalRecord
 import space.kscience.krig.core.timetravel.JournalSchema
 import space.kscience.krig.core.timetravel.JournalSchemas
 import space.kscience.krig.core.timetravel.JournalMigrations
+import space.kscience.krig.core.timetravel.KotlinxJsonJournalPayloadCodec
 import space.kscience.krig.core.timetravel.MessageJournalCodec
 import space.kscience.krig.core.timetravel.Reconstructible
 import space.kscience.krig.core.timetravel.SequenceCursor
@@ -57,7 +62,7 @@ suspend fun timeTravelDemo() {
                 property = "value".asName(),
                 value = Meta(i.asValue()),
                 sourceDevice = source,
-            ),
+            ).envelope(),
         )
     }
     println("  recorded ${log.size()} events: 0..4")
@@ -118,6 +123,24 @@ suspend fun timeTravelDemo() {
     )
     println("  old journal entry migrated: value = ${migrated.value}")
 
+    println("\n=== 7. Causal ordering ===")
+
+    val causalLog = InMemoryReplayLog()
+    causalLog.record(
+        counterMessage(source, second = 3, value = 300).envelope().withHlcStamp(HlcTimestamp(100, 0)),
+    )
+    causalLog.record(
+        counterMessage(source, second = 1, value = 100).envelope().withHlcStamp(HlcTimestamp(300, 0)),
+    )
+    causalLog.record(
+        counterMessage(source, second = 2, value = 200).envelope().withHlcStamp(HlcTimestamp(200, 0)),
+    )
+    val causalOrder = causalLog
+        .replay(from = Instant.fromEpochMilliseconds(0), until = Instant.fromEpochMilliseconds(10_000))
+        .toList()
+        .mapNotNull { (it.payload as? PropertyChangedMessage)?.value?.int }
+    println("  HLC replay order: $causalOrder")
+
     println("\nDone - time-travel demo complete.")
 }
 
@@ -139,6 +162,14 @@ private fun oldCounterLog(source: Name): CursorJournal {
                 .asFlow()
     }
 }
+
+private fun counterMessage(source: Name, second: Int, value: Int): PropertyChangedMessage =
+    PropertyChangedMessage(
+        time = Instant.fromEpochMilliseconds(second * 1_000L),
+        property = "value".asName(),
+        value = Meta(value.asValue()),
+        sourceDevice = source,
+    )
 
 private fun counterMigrationCodec(): MessageJournalCodec {
     val json = krigStorageJson()
@@ -163,7 +194,10 @@ private fun counterMigrationCodec(): MessageJournalCodec {
             )
         }
     }
-    return MessageJournalCodec(json = json, migrations = JournalMigrations(migration))
+    return MessageJournalCodec(
+        payloadCodec = KotlinxJsonJournalPayloadCodec(json),
+        migrations = JournalMigrations(migration),
+    )
 }
 
 private class CounterReplay : Reconstructible {

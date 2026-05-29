@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Assembly layer: DataForge plugins, blueprint/factory discovery, data-platform configuration and polling"
+description = "Assembly layer: DataForge plugins, Manifest/factory discovery, data-platform configuration and polling"
 
 kotlin {
     sourceSets {

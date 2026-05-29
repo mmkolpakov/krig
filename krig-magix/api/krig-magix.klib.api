@@ -34,10 +34,12 @@ abstract interface space.kscience.magix.api/MagixEndpoint : kotlin/AutoCloseable
 }
 
 final class <#A: kotlin/Any?> space.kscience.magix.api/MagixEnvelope { // space.kscience.magix.api/MagixEnvelope|null[0]
-    constructor <init>(#A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ...) // space.kscience.magix.api/MagixEnvelope.<init>|<init>(1:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject){}[0]
+    constructor <init>(#A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ..., kotlin/String? = ...) // space.kscience.magix.api/MagixEnvelope.<init>|<init>(1:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject;kotlin.String?){}[0]
 
     final val data // space.kscience.magix.api/MagixEnvelope.data|{}data[0]
         final fun <get-data>(): #A // space.kscience.magix.api/MagixEnvelope.data.<get-data>|<get-data>(){}[0]
+    final val format // space.kscience.magix.api/MagixEnvelope.format|{}format[0]
+        final fun <get-format>(): kotlin/String? // space.kscience.magix.api/MagixEnvelope.format.<get-format>|<get-format>(){}[0]
     final val headers // space.kscience.magix.api/MagixEnvelope.headers|{}headers[0]
         final fun <get-headers>(): kotlinx.serialization.json/JsonObject // space.kscience.magix.api/MagixEnvelope.headers.<get-headers>|<get-headers>(){}[0]
     final val topic // space.kscience.magix.api/MagixEnvelope.topic|{}topic[0]
@@ -46,7 +48,8 @@ final class <#A: kotlin/Any?> space.kscience.magix.api/MagixEnvelope { // space.
     final fun component1(): #A // space.kscience.magix.api/MagixEnvelope.component1|component1(){}[0]
     final fun component2(): space.kscience.dataforge.names/Name? // space.kscience.magix.api/MagixEnvelope.component2|component2(){}[0]
     final fun component3(): kotlinx.serialization.json/JsonObject // space.kscience.magix.api/MagixEnvelope.component3|component3(){}[0]
-    final fun copy(#A = ..., space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.magix.api/MagixEnvelope<#A> // space.kscience.magix.api/MagixEnvelope.copy|copy(1:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject){}[0]
+    final fun component4(): kotlin/String? // space.kscience.magix.api/MagixEnvelope.component4|component4(){}[0]
+    final fun copy(#A = ..., space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ..., kotlin/String? = ...): space.kscience.magix.api/MagixEnvelope<#A> // space.kscience.magix.api/MagixEnvelope.copy|copy(1:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject;kotlin.String?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.magix.api/MagixEnvelope.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.magix.api/MagixEnvelope.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.magix.api/MagixEnvelope.toString|toString(){}[0]
@@ -181,12 +184,61 @@ final class space.kscience.magix.api/MagixMessageFilter { // space.kscience.magi
     }
 }
 
+final class space.kscience.magix.api/WaltzRfc1Message { // space.kscience.magix.api/WaltzRfc1Message|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlinx.serialization.json/JsonElement? = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., kotlin/String? = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonElement? = ...) // space.kscience.magix.api/WaltzRfc1Message.<init>|<init>(space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonElement?;kotlin.String?;space.kscience.dataforge.names.Name?;kotlin.String?;kotlin.String?;kotlinx.serialization.json.JsonElement?){}[0]
+
+    final val format // space.kscience.magix.api/WaltzRfc1Message.format|{}format[0]
+        final fun <get-format>(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.format.<get-format>|<get-format>(){}[0]
+    final val id // space.kscience.magix.api/WaltzRfc1Message.id|{}id[0]
+        final fun <get-id>(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.id.<get-id>|<get-id>(){}[0]
+    final val origin // space.kscience.magix.api/WaltzRfc1Message.origin|{}origin[0]
+        final fun <get-origin>(): space.kscience.dataforge.names/Name // space.kscience.magix.api/WaltzRfc1Message.origin.<get-origin>|<get-origin>(){}[0]
+    final val parentId // space.kscience.magix.api/WaltzRfc1Message.parentId|{}parentId[0]
+        final fun <get-parentId>(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.parentId.<get-parentId>|<get-parentId>(){}[0]
+    final val payload // space.kscience.magix.api/WaltzRfc1Message.payload|{}payload[0]
+        final fun <get-payload>(): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/WaltzRfc1Message.payload.<get-payload>|<get-payload>(){}[0]
+    final val target // space.kscience.magix.api/WaltzRfc1Message.target|{}target[0]
+        final fun <get-target>(): space.kscience.dataforge.names/Name? // space.kscience.magix.api/WaltzRfc1Message.target.<get-target>|<get-target>(){}[0]
+    final val user // space.kscience.magix.api/WaltzRfc1Message.user|{}user[0]
+        final fun <get-user>(): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/WaltzRfc1Message.user.<get-user>|<get-user>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.magix.api/WaltzRfc1Message.component1|component1(){}[0]
+    final fun component2(): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/WaltzRfc1Message.component2|component2(){}[0]
+    final fun component3(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.magix.api/WaltzRfc1Message.component4|component4(){}[0]
+    final fun component5(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.component5|component5(){}[0]
+    final fun component6(): kotlin/String? // space.kscience.magix.api/WaltzRfc1Message.component6|component6(){}[0]
+    final fun component7(): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/WaltzRfc1Message.component7|component7(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlinx.serialization.json/JsonElement? = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., kotlin/String? = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonElement? = ...): space.kscience.magix.api/WaltzRfc1Message // space.kscience.magix.api/WaltzRfc1Message.copy|copy(space.kscience.dataforge.names.Name;kotlinx.serialization.json.JsonElement?;kotlin.String?;space.kscience.dataforge.names.Name?;kotlin.String?;kotlin.String?;kotlinx.serialization.json.JsonElement?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.magix.api/WaltzRfc1Message.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.magix.api/WaltzRfc1Message.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.magix.api/WaltzRfc1Message.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.magix.api/WaltzRfc1Message> { // space.kscience.magix.api/WaltzRfc1Message.$serializer|null[0]
+        final val descriptor // space.kscience.magix.api/WaltzRfc1Message.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.magix.api/WaltzRfc1Message.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.magix.api/WaltzRfc1Message.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.magix.api/WaltzRfc1Message // space.kscience.magix.api/WaltzRfc1Message.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.magix.api/WaltzRfc1Message) // space.kscience.magix.api/WaltzRfc1Message.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.magix.api.WaltzRfc1Message){}[0]
+    }
+
+    final object Companion { // space.kscience.magix.api/WaltzRfc1Message.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.magix.api/WaltzRfc1Message> // space.kscience.magix.api/WaltzRfc1Message.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final const val space.kscience.magix.api/KRIG_ENVELOPE_FORMAT // space.kscience.magix.api/KRIG_ENVELOPE_FORMAT|{}KRIG_ENVELOPE_FORMAT[0]
+    final fun <get-KRIG_ENVELOPE_FORMAT>(): kotlin/String // space.kscience.magix.api/KRIG_ENVELOPE_FORMAT.<get-KRIG_ENVELOPE_FORMAT>|<get-KRIG_ENVELOPE_FORMAT>(){}[0]
+
 final fun (kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage>).space.kscience.magix.api/filter(space.kscience.magix.api/MagixMessageFilter): kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage> // space.kscience.magix.api/filter|filter@kotlinx.coroutines.flow.Flow<space.kscience.magix.api.MagixMessage>(space.kscience.magix.api.MagixMessageFilter){}[0]
 final fun (space.kscience.magix.api/MagixFlowPlugin).space.kscience.magix.api/start(kotlinx.coroutines/CoroutineScope, kotlinx.coroutines.flow/MutableSharedFlow<space.kscience.magix.api/MagixMessage>): kotlinx.coroutines/Job // space.kscience.magix.api/start|start@space.kscience.magix.api.MagixFlowPlugin(kotlinx.coroutines.CoroutineScope;kotlinx.coroutines.flow.MutableSharedFlow<space.kscience.magix.api.MagixMessage>){}[0]
 final fun (space.kscience.magix.api/MagixMessage).space.kscience.magix.api/header(kotlin/String): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/header|header@space.kscience.magix.api.MagixMessage(kotlin.String){}[0]
+final fun (space.kscience.magix.api/MagixMessage).space.kscience.magix.api/toWaltzRfc1(kotlin/Boolean = ..., kotlin/String = ...): space.kscience.magix.api/WaltzRfc1Message // space.kscience.magix.api/toWaltzRfc1|toWaltzRfc1@space.kscience.magix.api.MagixMessage(kotlin.Boolean;kotlin.String){}[0]
+final fun (space.kscience.magix.api/WaltzRfc1Message).space.kscience.magix.api/toMagixMessage(kotlin/String = ..., kotlinx.serialization.json/JsonElement = ...): space.kscience.magix.api/MagixMessage // space.kscience.magix.api/toMagixMessage|toMagixMessage@space.kscience.magix.api.WaltzRfc1Message(kotlin.String;kotlinx.serialization.json.JsonElement){}[0]
 final fun <#A: kotlin/Any?> (kotlinx.serialization.json/JsonElement).space.kscience.magix.api/decodeEnvelopeOrNull(kotlinx.serialization.json/Json, kotlinx.serialization/KSerializer<#A>): space.kscience.magix.api/MagixEnvelope<#A>? // space.kscience.magix.api/decodeEnvelopeOrNull|decodeEnvelopeOrNull@kotlinx.serialization.json.JsonElement(kotlinx.serialization.json.Json;kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> (kotlinx.serialization.json/JsonElement.Companion).space.kscience.magix.api/encodeEnvelope(kotlinx.serialization.json/Json, kotlinx.serialization/KSerializer<#A>, #A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ...): kotlinx.serialization.json/JsonElement // space.kscience.magix.api/encodeEnvelope|encodeEnvelope@kotlinx.serialization.json.JsonElement.Companion(kotlinx.serialization.json.Json;kotlinx.serialization.KSerializer<0:0>;0:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (kotlinx.serialization.json/JsonElement.Companion).space.kscience.magix.api/encodeEnvelope(kotlinx.serialization.json/Json, kotlinx.serialization/KSerializer<#A>, #A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ..., kotlin/String? = ...): kotlinx.serialization.json/JsonElement // space.kscience.magix.api/encodeEnvelope|encodeEnvelope@kotlinx.serialization.json.JsonElement.Companion(kotlinx.serialization.json.Json;kotlinx.serialization.KSerializer<0:0>;0:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject;kotlin.String?){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.magix.api/MagixEndpoint).space.kscience.magix.api/subscribe(space.kscience.magix.api/MagixFormat<#A>, kotlinx.serialization.json/Json, kotlin.collections/Collection<space.kscience.dataforge.names/Name>? = ..., kotlin.collections/Collection<space.kscience.dataforge.names/Name?>? = ..., space.kscience.dataforge.names/Name? = ...): kotlinx.coroutines.flow/Flow<kotlin/Pair<space.kscience.magix.api/MagixMessage, #A>> // space.kscience.magix.api/subscribe|subscribe@space.kscience.magix.api.MagixEndpoint(space.kscience.magix.api.MagixFormat<0:0>;kotlinx.serialization.json.Json;kotlin.collections.Collection<space.kscience.dataforge.names.Name>?;kotlin.collections.Collection<space.kscience.dataforge.names.Name?>?;space.kscience.dataforge.names.Name?){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> space.kscience.magix.api/envelopeOf(#A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.magix.api/MagixEnvelope<#A> // space.kscience.magix.api/envelopeOf|envelopeOf(0:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> space.kscience.magix.api/envelopeOf(#A, space.kscience.dataforge.names/Name? = ..., kotlinx.serialization.json/JsonObject = ..., kotlin/String? = ...): space.kscience.magix.api/MagixEnvelope<#A> // space.kscience.magix.api/envelopeOf|envelopeOf(0:0;space.kscience.dataforge.names.Name?;kotlinx.serialization.json.JsonObject;kotlin.String?){0§<kotlin.Any?>}[0]
 final suspend fun (space.kscience.magix.api/MagixEndpoint).space.kscience.magix.api/send(space.kscience.magix.api/MagixMessage) // space.kscience.magix.api/send|send@space.kscience.magix.api.MagixEndpoint(space.kscience.magix.api.MagixMessage){}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.magix.api/MagixEndpoint).space.kscience.magix.api/send(space.kscience.magix.api/MagixFormat<#A>, kotlinx.serialization.json/Json, #A, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., kotlin/String? = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonElement? = ..., kotlinx.serialization.json/JsonObject = ...) // space.kscience.magix.api/send|send@space.kscience.magix.api.MagixEndpoint(space.kscience.magix.api.MagixFormat<0:0>;kotlinx.serialization.json.Json;0:0;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;kotlin.String?;kotlin.String?;kotlinx.serialization.json.JsonElement?;kotlinx.serialization.json.JsonObject){0§<kotlin.Any?>}[0]

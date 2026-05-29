@@ -1,3 +1,24 @@
+public final class space/kscience/krig/assembly/AcquiredSample {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component4 ()Lspace/kscience/krig/api/data/ObservedValue;
+	public final fun component5 ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/assembly/AcquiredSample;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquiredSample;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquiredSample;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun getProperty ()Lspace/kscience/dataforge/names/Name;
+	public final fun getPropertyId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSourceId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getValue ()Lspace/kscience/krig/api/data/ObservedValue;
+	public fun hashCode ()I
+	public final fun isOk ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/assembly/AcquisitionObservation {
 	public fun <init> (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;)V
 	public synthetic fun <init> (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lspace/kscience/krig/api/faults/OperationFault;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -16,26 +37,31 @@ public final class space/kscience/krig/assembly/AcquisitionObservation {
 }
 
 public final class space/kscience/krig/assembly/AcquisitionPollingKt {
-	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;)Lkotlinx/coroutines/flow/Flow;
-	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;)Lkotlinx/coroutines/flow/Flow;
-	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
-	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun acquisitionTagReader (Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/assembly/AcquisitionTagReader;
+	public static synthetic fun acquisitionTagReader$default (Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionTagReader;
+	public static final fun observedAcquisitionTagReader (Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/assembly/AcquisitionTagReader;
+	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lspace/kscience/krig/api/data/QualityPolicy;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lspace/kscience/krig/api/data/QualityPolicy;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun tagsForTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;)Ljava/util/List;
 	public static final fun tagsForTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
 }
 
 public final class space/kscience/krig/assembly/AcquisitionSourceSpec {
 	public static final field Companion Lspace/kscience/krig/assembly/AcquisitionSourceSpec$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getConfig ()Lkotlinx/serialization/json/JsonObject;
-	public final fun getConnector ()Ljava/lang/String;
+	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getConnector ()Lspace/kscience/dataforge/names/Name;
 	public final fun getId ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -167,63 +193,32 @@ public final class space/kscience/krig/assembly/AcquisitionTimerSpec$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/assembly/BlueprintPlugin : space/kscience/dataforge/context/AbstractPlugin {
-	public static final field Companion Lspace/kscience/krig/assembly/BlueprintPlugin$Companion;
-	public fun <init> ()V
-	public fun <init> (Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;)V
-	public synthetic fun <init> (Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
-	public final fun get (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceBlueprint;
-	public fun getSerializerModule ()Lkotlinx/serialization/modules/SerializersModule;
-	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
-	public final fun ids ()Ljava/util/Set;
-	public final fun register (Lspace/kscience/krig/core/contracts/DeviceBlueprint;)V
-	public final fun remove (Lspace/kscience/dataforge/names/Name;)Z
-}
-
-public final class space/kscience/krig/assembly/BlueprintPlugin$Companion : space/kscience/dataforge/context/PluginFactory {
-	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
-	public fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/BlueprintPlugin;
-	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
-	public final fun getTarget-2UET8hs ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/assembly/BlueprintPluginKt {
-	public static final fun blueprints (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/assembly/BlueprintPlugin;
-	public static final fun findBlueprint (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceBlueprint;
-	public static final fun registerBlueprints (Lspace/kscience/dataforge/context/Context;Ljava/lang/Iterable;)V
-}
-
-public final class space/kscience/krig/assembly/BlueprintValidationPolicy : java/lang/Enum {
-	public static final field FailOnError Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
-	public static final field Skip Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
-	public static final field Strict Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
-	public static fun values ()[Lspace/kscience/krig/assembly/BlueprintValidationPolicy;
-}
-
 public abstract interface annotation class space/kscience/krig/assembly/ContributesActionHandler : java/lang/annotation/Annotation {
-}
-
-public abstract interface annotation class space/kscience/krig/assembly/ContributesBlueprint : java/lang/annotation/Annotation {
-	public abstract fun blueprintId ()Ljava/lang/String;
 }
 
 public abstract interface annotation class space/kscience/krig/assembly/ContributesFactory : java/lang/annotation/Annotation {
 }
 
-public abstract interface annotation class space/kscience/krig/assembly/ContributesFeature : java/lang/annotation/Annotation {
+public abstract interface annotation class space/kscience/krig/assembly/ContributesManifest : java/lang/annotation/Annotation {
+	public abstract fun manifestId ()Ljava/lang/String;
+}
+
+public abstract interface annotation class space/kscience/krig/assembly/ContributesPipelineFeature : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class space/kscience/krig/assembly/ContributesProtocol : java/lang/annotation/Annotation {
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionBuilder {
-	public final fun source (Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
 	public final fun tag (Ljava/lang/String;)Lspace/kscience/krig/assembly/DataAcquisitionBuilder$AcquisitionTagHandle;
 	public final fun tag (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/DataAcquisitionBuilder$AcquisitionTagHandle;
 	public final fun timer-8Mi8wO0 (Ljava/lang/String;JLkotlin/jvm/functions/Function1;)V
@@ -276,18 +271,57 @@ public final synthetic class space/kscience/krig/assembly/DataAcquisitionConfigu
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionConfiguration$Companion {
-	public final fun parse (Ljava/lang/String;Lkotlinx/serialization/json/Json;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
-	public static synthetic fun parse$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Ljava/lang/String;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
-	public final fun parseLenient (Ljava/lang/String;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionConfigurationKt {
+	public static final fun fromMeta (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;Z)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+	public static synthetic fun fromMeta$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+	public static final fun load (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;Z)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult;
+	public static synthetic fun load$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult;
+	public static final fun toMeta (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun validate (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Ljava/util/List;
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionDslKt {
 	public static final fun dataAcquisition (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+}
+
+public abstract interface class space/kscience/krig/assembly/DataAcquisitionLoadResult {
+}
+
+public final class space/kscience/krig/assembly/DataAcquisitionLoadResult$Invalid : space/kscience/krig/assembly/DataAcquisitionLoadResult {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Invalid;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Invalid;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getErrors ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/DataAcquisitionLoadResult$Valid : space/kscience/krig/assembly/DataAcquisitionLoadResult {
+	public fun <init> (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)V
+	public final fun component1 ()Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+	public final fun copy (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Valid;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Valid;Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionLoadResult$Valid;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConfig ()Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/DataAcquisitionRuntime {
+	public fun <init> (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/assembly/DataPlatformConfiguration;Lspace/kscience/krig/dsl/ClockState;Lkotlinx/coroutines/CoroutineScope;Lspace/kscience/krig/api/data/QualityPolicy;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/assembly/DataPlatformConfiguration;Lspace/kscience/krig/dsl/ClockState;Lkotlinx/coroutines/CoroutineScope;Lspace/kscience/krig/api/data/QualityPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getClockState ()Lspace/kscience/krig/dsl/ClockState;
+	public final fun getConfig ()Lspace/kscience/krig/assembly/DataPlatformConfiguration;
+	public final fun getHub ()Lspace/kscience/krig/api/hub/DeviceHub;
+	public final fun getQualityPolicy ()Lspace/kscience/krig/api/data/QualityPolicy;
+	public final fun launch (Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/Job;
+	public final fun samples ()Lkotlinx/coroutines/flow/Flow;
+	public final fun samples (Lspace/kscience/krig/assembly/TimerSpec;)Lkotlinx/coroutines/flow/Flow;
 }
 
 public final class space/kscience/krig/assembly/DataPlatformBuilder {
@@ -311,7 +345,8 @@ public final class space/kscience/krig/assembly/DataPlatformBuilder$PropertyHand
 public final class space/kscience/krig/assembly/DataPlatformBuilder$SourceHandle {
 	public final fun from (Ljava/lang/String;)Lspace/kscience/krig/assembly/SourceSpec;
 	public final fun from (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/SourceSpec;
-	public final fun with (Lspace/kscience/krig/assembly/SourceSpec;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/SourceSpec;
+	public final fun with (Lspace/kscience/krig/assembly/SourceSpec;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/SourceSpec;
+	public final fun withMeta (Lspace/kscience/krig/assembly/SourceSpec;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/SourceSpec;
 }
 
 public final class space/kscience/krig/assembly/DataPlatformConfiguration {
@@ -344,15 +379,17 @@ public final synthetic class space/kscience/krig/assembly/DataPlatformConfigurat
 }
 
 public final class space/kscience/krig/assembly/DataPlatformConfiguration$Companion {
-	public final fun parse (Ljava/lang/String;Lkotlinx/serialization/json/Json;)Lspace/kscience/krig/assembly/DataPlatformConfiguration;
-	public static synthetic fun parse$default (Lspace/kscience/krig/assembly/DataPlatformConfiguration$Companion;Ljava/lang/String;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformConfiguration;
-	public final fun parseLenient (Ljava/lang/String;)Lspace/kscience/krig/assembly/DataPlatformConfiguration;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/assembly/DataPlatformConfigurationKt {
+	public static final fun fromMeta (Lspace/kscience/krig/assembly/DataPlatformConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;Z)Lspace/kscience/krig/assembly/DataPlatformConfiguration;
+	public static synthetic fun fromMeta$default (Lspace/kscience/krig/assembly/DataPlatformConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformConfiguration;
 	public static final fun getDeviceName (Lspace/kscience/krig/assembly/SourceSpec;)Lspace/kscience/dataforge/names/Name;
-	public static final fun resolveBlueprints (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Ljava/util/Map;
+	public static final fun load (Lspace/kscience/krig/assembly/DataPlatformConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;Z)Lspace/kscience/krig/assembly/DataPlatformLoadResult;
+	public static synthetic fun load$default (Lspace/kscience/krig/assembly/DataPlatformConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformLoadResult;
+	public static final fun resolveManifests (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Ljava/util/Map;
+	public static final fun toMeta (Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun validate (Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Ljava/util/List;
 }
 
@@ -361,16 +398,43 @@ public final class space/kscience/krig/assembly/DataPlatformDslKt {
 }
 
 public final class space/kscience/krig/assembly/DataPlatformInstallKt {
+	public static final fun configMeta (Lspace/kscience/krig/assembly/SourceSpec;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun installDataPlatform (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Lspace/kscience/krig/assembly/InstalledDataPlatform;
 	public static final fun installDataPlatformAndMaterialise (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Lspace/kscience/krig/assembly/InstalledDataPlatform;
 }
 
+public abstract interface class space/kscience/krig/assembly/DataPlatformLoadResult {
+}
+
+public final class space/kscience/krig/assembly/DataPlatformLoadResult$Invalid : space/kscience/krig/assembly/DataPlatformLoadResult {
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lspace/kscience/krig/assembly/DataPlatformLoadResult$Invalid;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DataPlatformLoadResult$Invalid;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformLoadResult$Invalid;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getErrors ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/DataPlatformLoadResult$Valid : space/kscience/krig/assembly/DataPlatformLoadResult {
+	public fun <init> (Lspace/kscience/krig/assembly/DataPlatformConfiguration;)V
+	public final fun component1 ()Lspace/kscience/krig/assembly/DataPlatformConfiguration;
+	public final fun copy (Lspace/kscience/krig/assembly/DataPlatformConfiguration;)Lspace/kscience/krig/assembly/DataPlatformLoadResult$Valid;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DataPlatformLoadResult$Valid;Lspace/kscience/krig/assembly/DataPlatformConfiguration;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformLoadResult$Valid;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConfig ()Lspace/kscience/krig/assembly/DataPlatformConfiguration;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/assembly/DataPlatformRuntime {
-	public fun <init> (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;)V
-	public synthetic fun <init> (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;)V
+	public synthetic fun <init> (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getClock ()Lkotlin/time/Clock;
 	public final fun getConfig ()Lspace/kscience/krig/assembly/DataPlatformConfiguration;
 	public final fun getDevices ()Ljava/util/Map;
+	public final fun getQualityPolicy ()Lspace/kscience/krig/api/data/QualityPolicy;
 	public final fun propertiesForTimer (Ljava/lang/String;)Ljava/util/List;
 	public final fun propertiesForTimer (Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
 }
@@ -380,19 +444,47 @@ public final class space/kscience/krig/assembly/DataPlatformRuntimeKt {
 	public static final fun pollTimer (Lspace/kscience/krig/assembly/DataPlatformRuntime;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun propertiesForTimer (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/lang/String;)Ljava/util/List;
 	public static final fun propertiesForTimer (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
-	public static final fun runtime (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
-	public static final fun runtime (Lspace/kscience/krig/assembly/InstalledDataPlatform;Lkotlin/time/Clock;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
-	public static synthetic fun runtime$default (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
-	public static synthetic fun runtime$default (Lspace/kscience/krig/assembly/InstalledDataPlatform;Lkotlin/time/Clock;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
+	public static final fun runtime (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
+	public static final fun runtime (Lspace/kscience/krig/assembly/InstalledDataPlatform;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
+	public static synthetic fun runtime$default (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
+	public static synthetic fun runtime$default (Lspace/kscience/krig/assembly/InstalledDataPlatform;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DataPlatformRuntime;
 }
 
 public final class space/kscience/krig/assembly/DeviceAssemblyKt {
 	public static final fun assembleDevice (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun assembleDevice$default (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun assembleDeviceFromBlueprint (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lspace/kscience/krig/core/features/FeatureCatalog;Lspace/kscience/krig/core/features/UnknownFeaturePolicy;Lspace/kscience/krig/assembly/BlueprintValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun assembleDeviceFromBlueprint$default (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lspace/kscience/krig/core/features/FeatureCatalog;Lspace/kscience/krig/core/features/UnknownFeaturePolicy;Lspace/kscience/krig/assembly/BlueprintValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun assemblePipeline (Lspace/kscience/krig/core/contracts/DeviceBlueprint;Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/features/FeatureCatalog;Lspace/kscience/krig/core/features/UnknownFeaturePolicy;Lspace/kscience/krig/assembly/BlueprintValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun assemblePipeline$default (Lspace/kscience/krig/core/contracts/DeviceBlueprint;Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/features/FeatureCatalog;Lspace/kscience/krig/core/features/UnknownFeaturePolicy;Lspace/kscience/krig/assembly/BlueprintValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun assembleDeviceFromManifest (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lspace/kscience/krig/core/features/PipelineFeatureCatalog;Lspace/kscience/krig/core/features/UnknownPipelineFeaturePolicy;Lspace/kscience/krig/assembly/ManifestValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun assembleDeviceFromManifest$default (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;Lspace/kscience/krig/core/features/PipelineFeatureCatalog;Lspace/kscience/krig/core/features/UnknownPipelineFeaturePolicy;Lspace/kscience/krig/assembly/ManifestValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun assemblePipeline (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/features/PipelineFeatureCatalog;Lspace/kscience/krig/core/features/UnknownPipelineFeaturePolicy;Lspace/kscience/krig/assembly/ManifestValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun assemblePipeline$default (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/features/PipelineFeatureCatalog;Lspace/kscience/krig/core/features/UnknownPipelineFeaturePolicy;Lspace/kscience/krig/assembly/ManifestValidationPolicy;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/assembly/DeviceCatalog : space/kscience/dataforge/context/AbstractPlugin {
+	public static final field Companion Lspace/kscience/krig/assembly/DeviceCatalog$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun content (Ljava/lang/String;)Ljava/util/Map;
+	public final fun get (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public fun getSerializerModule ()Lkotlinx/serialization/modules/SerializersModule;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+	public final fun ids ()Ljava/util/Set;
+	public final fun register (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
+	public final fun remove (Lspace/kscience/dataforge/names/Name;)Z
+	public final fun replace (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
+}
+
+public final class space/kscience/krig/assembly/DeviceCatalog$Companion : space/kscience/dataforge/context/PluginFactory {
+	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
+	public fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/DeviceCatalog;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+	public final fun getTarget ()Lspace/kscience/krig/api/discovery/ContributionTarget;
+}
+
+public final class space/kscience/krig/assembly/DeviceCatalogKt {
+	public static final fun deviceCatalog (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/assembly/DeviceCatalog;
+	public static final fun findManifest (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public static final fun registerManifests (Lspace/kscience/dataforge/context/Context;Ljava/lang/Iterable;)V
 }
 
 public final class space/kscience/krig/assembly/DeviceFactoryPlugin : space/kscience/dataforge/context/AbstractPlugin {
@@ -406,28 +498,19 @@ public final class space/kscience/krig/assembly/DeviceFactoryPlugin : space/ksci
 	public final fun ids ()Ljava/util/Set;
 	public final fun register (Lspace/kscience/krig/api/factory/DeviceFactory;)V
 	public final fun remove (Lspace/kscience/dataforge/names/Name;)Z
+	public final fun replace (Lspace/kscience/krig/api/factory/DeviceFactory;)V
 }
 
 public final class space/kscience/krig/assembly/DeviceFactoryPlugin$Companion : space/kscience/dataforge/context/PluginFactory {
 	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
 	public fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/DeviceFactoryPlugin;
 	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
-	public final fun getTarget-2UET8hs ()Ljava/lang/String;
+	public final fun getTarget ()Lspace/kscience/krig/api/discovery/ContributionTarget;
 }
 
 public final class space/kscience/krig/assembly/DeviceFactoryPluginKt {
 	public static final fun deviceFactories (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/assembly/DeviceFactoryPlugin;
 	public static final fun findFactory (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/factory/DeviceFactory;
-}
-
-public final class space/kscience/krig/assembly/FeatureContract {
-	public static final field INSTANCE Lspace/kscience/krig/assembly/FeatureContract;
-	public final fun validate (Lspace/kscience/krig/core/features/Feature;)Lspace/kscience/krig/api/result/OperationOutcome;
-}
-
-public final class space/kscience/krig/assembly/FeatureContractKt {
-	public static final fun gatherFeatureCatalog (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/core/features/FeatureCatalog;
-	public static final fun gatherFeatureCatalogOutcome (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/api/result/OperationOutcome;
 }
 
 public final class space/kscience/krig/assembly/InstalledDataPlatform {
@@ -439,11 +522,30 @@ public final class space/kscience/krig/assembly/InstalledDataPlatform {
 	public final fun copy (Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Ljava/util/Map;)Lspace/kscience/krig/assembly/InstalledDataPlatform;
 	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/InstalledDataPlatform;Lspace/kscience/krig/assembly/DataPlatformConfiguration;Ljava/util/Map;Ljava/util/Map;ILjava/lang/Object;)Lspace/kscience/krig/assembly/InstalledDataPlatform;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBlueprints ()Ljava/util/Map;
 	public final fun getConfig ()Lspace/kscience/krig/assembly/DataPlatformConfiguration;
 	public final fun getDevices ()Ljava/util/Map;
+	public final fun getManifests ()Ljava/util/Map;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/ManifestValidationPolicy : java/lang/Enum {
+	public static final field FailOnError Lspace/kscience/krig/assembly/ManifestValidationPolicy;
+	public static final field Skip Lspace/kscience/krig/assembly/ManifestValidationPolicy;
+	public static final field Strict Lspace/kscience/krig/assembly/ManifestValidationPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/assembly/ManifestValidationPolicy;
+	public static fun values ()[Lspace/kscience/krig/assembly/ManifestValidationPolicy;
+}
+
+public final class space/kscience/krig/assembly/PipelineFeatureContract {
+	public static final field INSTANCE Lspace/kscience/krig/assembly/PipelineFeatureContract;
+	public final fun validate (Lspace/kscience/krig/core/features/PipelineFeature;)Lspace/kscience/krig/api/result/OperationOutcome;
+}
+
+public final class space/kscience/krig/assembly/PipelineFeatureContractKt {
+	public static final fun gatherPipelineFeatureCatalog (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/core/features/PipelineFeatureCatalog;
+	public static final fun gatherPipelineFeatureCatalogOutcome (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/api/result/OperationOutcome;
 }
 
 public final class space/kscience/krig/assembly/PlatformObservation {
@@ -541,14 +643,14 @@ public final class space/kscience/krig/assembly/ReductionSpec$MinMaxMean : space
 
 public final class space/kscience/krig/assembly/ReductionSpec$Named : space/kscience/krig/assembly/ReductionSpec {
 	public static final field Companion Lspace/kscience/krig/assembly/ReductionSpec$Named$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/ReductionSpec$Named;
-	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/ReductionSpec$Named;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/assembly/ReductionSpec$Named;
+	public final fun component2 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/ReductionSpec$Named;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/ReductionSpec$Named;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/ReductionSpec$Named;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getConfig ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
 	public fun getId ()Lspace/kscience/dataforge/names/Name;
 	public final fun getName ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
@@ -572,17 +674,17 @@ public final class space/kscience/krig/assembly/ReductionSpec$Named$Companion {
 
 public final class space/kscience/krig/assembly/SourceSpec {
 	public static final field Companion Lspace/kscience/krig/assembly/SourceSpec$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component3 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/assembly/SourceSpec;
-	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/SourceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/assembly/SourceSpec;
+	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/SourceSpec;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/SourceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/SourceSpec;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getBlueprintId ()Lspace/kscience/dataforge/names/Name;
-	public final fun getConfig ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
 	public final fun getId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifestId ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

@@ -19,9 +19,10 @@ public interface DeviceEnvironment {
     public val clock: Clock
 
     /**
-     * Monotonic source used for operation-duration measurements. This is intentionally
-     * separate from [clock]: [Clock] answers "what event time is it?", while
-     * [TimeSource] answers "how long did this operation take?".
+     * Monotonic source used for operation-duration measurements.
+     *
+     * Keep this separate from [clock]: [Clock] answers "what event time is it?",
+     * while [TimeSource] answers "how long did this operation take?".
      */
     public val timeSource: TimeSource
         get() = TimeSource.Monotonic

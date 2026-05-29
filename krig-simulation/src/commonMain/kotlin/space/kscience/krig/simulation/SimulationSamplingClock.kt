@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.withContext
+import space.kscience.krig.dsl.ClockState
 import space.kscience.krig.dsl.SamplingClock
 import space.kscience.krig.dsl.fixedRateTicks as runtimeFixedRateTicks
 import space.kscience.krig.dsl.sharedTicks as runtimeSharedTicks
@@ -21,6 +22,10 @@ public fun ClockManager.asSamplingClock(): SamplingClock = object : SamplingCloc
         }
     }
 }
+
+/** [ClockState] backed by this [ClockManager]'s clock, time source, and dispatcher. */
+public fun ClockManager.asClockState(): ClockState =
+    ClockState(clock = clock, samplingClock = asSamplingClock())
 
 /** Cold fixed-rate tick stream using [ClockManager.simulationDispatcher]. */
 public fun ClockManager.fixedRateTicks(tick: Duration): Flow<Unit> =

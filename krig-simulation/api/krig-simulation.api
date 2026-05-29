@@ -179,12 +179,8 @@ public final class space/kscience/krig/concurrency/ResourceState {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class space/kscience/krig/concurrency/Signal {
-	public fun <init> (Ljava/lang/Object;)V
-	public final fun getFlow ()Lkotlinx/coroutines/flow/StateFlow;
-	public final fun getValue ()Ljava/lang/Object;
-	public final fun set (Ljava/lang/Object;)V
-	public final fun waitUntil (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+public final class space/kscience/krig/concurrency/StateFlowWaitKt {
+	public static final fun waitUntil (Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public class space/kscience/krig/simulation/ClockManager : space/kscience/dataforge/context/AbstractPlugin {
@@ -274,13 +270,13 @@ public final class space/kscience/krig/simulation/ProcessDslKt {
 	public static synthetic fun runProcess$default (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
 	public static final fun simulationScope (Lspace/kscience/krig/simulation/DeterministicScheduler;)Lkotlinx/coroutines/CoroutineScope;
 	public static final fun waitUntil (Lspace/kscience/krig/simulation/ProcessScope;Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun waitUntil (Lspace/kscience/krig/simulation/ProcessScope;Lspace/kscience/krig/concurrency/Signal;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract interface class space/kscience/krig/simulation/ProcessScope : kotlinx/coroutines/CoroutineScope {
 }
 
 public final class space/kscience/krig/simulation/SimulationSamplingClockKt {
+	public static final fun asClockState (Lspace/kscience/krig/simulation/ClockManager;)Lspace/kscience/krig/dsl/ClockState;
 	public static final fun asSamplingClock (Lspace/kscience/krig/simulation/ClockManager;)Lspace/kscience/krig/dsl/SamplingClock;
 	public static final fun fixedRateTicks-HG0u8IE (Lspace/kscience/krig/simulation/ClockManager;J)Lkotlinx/coroutines/flow/Flow;
 	public static final fun sharedTicks-exY8QGI (Lspace/kscience/krig/simulation/ClockManager;Lkotlinx/coroutines/CoroutineScope;JLkotlinx/coroutines/flow/SharingStarted;)Lkotlinx/coroutines/flow/SharedFlow;

@@ -4,15 +4,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.provider.Provider
 
 /** Read-only topology node. A folder node may have no [device]. */
-public interface DeviceNode {
+public interface DeviceNode : Provider {
     public val device: Device?
 
     public val children: Map<Name, DeviceNode>
 
     public val childrenFlow: StateFlow<Map<Name, DeviceNode>>
         get() = EmptyDeviceNodeChildren
+
+    override fun content(target: String): Map<Name, Any> =
+        if (target == defaultTarget) children else emptyMap()
 }
 
 /** Immutable topology node. */

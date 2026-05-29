@@ -19,7 +19,9 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.SubscribeOptions
@@ -27,7 +29,6 @@ import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.meta.DevicePropertyContract
-import space.kscience.krig.core.meta.DevicePropertySpec
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
@@ -51,8 +52,8 @@ private class SamplerOnlyDevice : AbstractDevice(
 ) {
     val sampler: RingDoubleSampler = doubleSampler(capacity = 16)
 
-    val valueSpec: DevicePropertySpec<SamplerOnlyDevice, Double> =
-        object : DevicePropertySpec<SamplerOnlyDevice, Double> {
+    val valueSpec: DevicePropertyContract<Double> =
+        object : DevicePropertyContract<Double> {
             override val name: Name = "value".asName()
             override val descriptor: PropertyDescriptor =
                 PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
@@ -61,17 +62,21 @@ private class SamplerOnlyDevice : AbstractDevice(
                 override fun readOrNull(source: Meta): Double =
                     error("typedSamples must use sampler flow before Meta: $source")
             }
-            override suspend fun read(device: SamplerOnlyDevice): Double = error("typedSamples must not call read")
         }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         if (spec === valueSpec) sampler as TypedSampler<T> else null
 
-    override suspend fun subscribe(principal: Principal): Flow<MessageEnvelope<DeviceMessage>> = messageFlow
-    override suspend fun readProperty(propertyName: Name): Meta = error("typedSamples must not call readProperty")
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun subscribe(principal: Principal): Flow<DeviceMessageEnvelope<DeviceMessage>> = messageFlow
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        runCatchingOperation { error("typedSamples must not call readProperty") }
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 
     suspend fun publish(value: Double) {
         sampler.publishDouble(value)

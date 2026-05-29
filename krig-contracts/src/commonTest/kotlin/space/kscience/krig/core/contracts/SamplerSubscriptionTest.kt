@@ -95,11 +95,10 @@ class SamplerSubscriptionTest {
     @Test
     fun samplerReturnsNullForUnknownSpec() {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
-        val alien = object : space.kscience.krig.core.meta.DevicePropertySpec<SimulatedDoubleSource, Double> {
+        val alien = object : space.kscience.krig.core.meta.DevicePropertyContract<Double> {
             override val name = space.kscience.dataforge.names.Name.EMPTY
             override val descriptor = device.valueSpec.descriptor
             override val converter = device.valueSpec.converter
-            override suspend fun read(device: SimulatedDoubleSource): Double = 0.0
         }
         assertNull(device.sampler(alien), "drivers expose samplers only for owned specs")
     }

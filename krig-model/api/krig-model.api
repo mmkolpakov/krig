@@ -1,25 +1,24 @@
-public abstract interface annotation class space/kscience/krig/api/annotations/KrigFeatureSpec : java/lang/annotation/Annotation {
+public abstract interface annotation class space/kscience/krig/api/annotations/KrigPipelineFeatureSpec : java/lang/annotation/Annotation {
 	public abstract fun id ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/api/descriptors/ActionDescriptor : space/kscience/krig/api/descriptors/OperationDescriptor {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/ActionDescriptor$Companion;
 	public static final field TYPE Ljava/lang/String;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun component3 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
-	public final fun component4 ()Ljava/util/Set;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;)Lspace/kscience/krig/api/descriptors/ActionDescriptor;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/ActionDescriptor;
+	public final fun component4 ()Lspace/kscience/attributes/Attributes;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/descriptors/ActionDescriptor;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/ActionDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAttributes ()Ljava/util/Set;
+	public fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public final fun getInputMetaDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
 	public final fun getOutputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -38,34 +37,72 @@ public final class space/kscience/krig/api/descriptors/ActionDescriptor$Companio
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract interface class space/kscience/krig/api/descriptors/OperationAttribute : space/kscience/dataforge/meta/MetaRepr {
+public final class space/kscience/krig/api/descriptors/AttributeDelegatesKt {
+	public static final fun attr (Lspace/kscience/attributes/Attribute;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
+	public static final fun attr (ZLspace/kscience/attributes/Attribute;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
 }
 
-public abstract interface class space/kscience/krig/api/descriptors/OperationDescriptor : space/kscience/dataforge/meta/MetaRepr {
-	public abstract fun getAttributes ()Ljava/util/Set;
+public final class space/kscience/krig/api/descriptors/OperationAttributeEntry {
+	public fun <init> (Lspace/kscience/attributes/Attribute;Ljava/lang/Object;)V
+	public final fun component1 ()Lspace/kscience/attributes/Attribute;
+	public final fun component2 ()Ljava/lang/Object;
+	public final fun copy (Lspace/kscience/attributes/Attribute;Ljava/lang/Object;)Lspace/kscience/krig/api/descriptors/OperationAttributeEntry;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/OperationAttributeEntry;Lspace/kscience/attributes/Attribute;Ljava/lang/Object;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/OperationAttributeEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKey ()Lspace/kscience/attributes/Attribute;
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class space/kscience/krig/api/descriptors/OperationAttributeKey : space/kscience/attributes/serialization/SerializableAttribute {
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/KSerializer;)V
+}
+
+public final class space/kscience/krig/api/descriptors/OperationAttributesKt {
+	public static final fun of (Lspace/kscience/attributes/Attribute;Ljava/lang/Object;)Lspace/kscience/krig/api/descriptors/OperationAttributeEntry;
+	public static final fun operationAttributes (Lkotlin/jvm/functions/Function1;)Lspace/kscience/attributes/Attributes;
+	public static final fun operationAttributesOf ([Lspace/kscience/krig/api/descriptors/OperationAttributeEntry;)Lspace/kscience/attributes/Attributes;
+}
+
+public final class space/kscience/krig/api/descriptors/OperationAttributesSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/OperationAttributesSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/attributes/Attributes;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/attributes/Attributes;)V
+}
+
+public abstract interface class space/kscience/krig/api/descriptors/OperationDescriptor {
+	public abstract fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public abstract fun getName ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/api/descriptors/OperationDescriptorKt {
+	public static final fun attribute (Lspace/kscience/krig/api/descriptors/OperationDescriptor;Lspace/kscience/attributes/Attribute;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/api/descriptors/PropertyDescriptor : space/kscience/krig/api/descriptors/OperationDescriptor {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/PropertyDescriptor$Companion;
 	public static final field TYPE Ljava/lang/String;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/krig/api/descriptors/PropertyKind;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
-	public final fun component5 ()Ljava/util/Set;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public final fun component5 ()Lspace/kscience/attributes/Attributes;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getAttributes ()Ljava/util/Set;
+	public final fun findAttribute (Lspace/kscience/attributes/Attribute;)Ljava/lang/Object;
+	public fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public final fun getKind ()Lspace/kscience/krig/api/descriptors/PropertyKind;
 	public final fun getMetaDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
 	public final fun getValueTypeId ()Ljava/lang/String;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -110,6 +147,7 @@ public final class space/kscience/krig/api/descriptors/PropertyKind$PHYSICAL : s
 
 public final class space/kscience/krig/api/descriptors/TypeIds {
 	public static final field BOOLEAN Ljava/lang/String;
+	public static final field BYTES Ljava/lang/String;
 	public static final field DOUBLE Ljava/lang/String;
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/TypeIds;
 	public static final field INT Ljava/lang/String;
@@ -122,7 +160,7 @@ public final class space/kscience/krig/api/descriptors/TypeIdsKt {
 	public static final fun typeIdOf (Lkotlinx/serialization/KSerializer;)Ljava/lang/String;
 }
 
-public final class space/kscience/krig/api/descriptors/attributes/AccessAttribute : space/kscience/krig/api/descriptors/OperationAttribute {
+public final class space/kscience/krig/api/descriptors/attributes/AccessAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/AccessAttribute$Companion;
 	public fun <init> ()V
 	public fun <init> (ZZLjava/util/Set;Ljava/util/Set;)V
@@ -139,7 +177,6 @@ public final class space/kscience/krig/api/descriptors/attributes/AccessAttribut
 	public final fun getReadable ()Z
 	public final fun getWritePermissions ()Ljava/util/Set;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -158,7 +195,7 @@ public final class space/kscience/krig/api/descriptors/attributes/AccessAttribut
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/descriptors/attributes/BehaviorAttribute : space/kscience/krig/api/descriptors/OperationAttribute {
+public final class space/kscience/krig/api/descriptors/attributes/BehaviorAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute$Companion;
 	public synthetic fun <init> (Lkotlin/time/Duration;Lkotlin/time/Duration;Ljava/util/List;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Ljava/lang/Double;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lkotlin/time/Duration;Lkotlin/time/Duration;Ljava/util/List;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Ljava/lang/Double;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -178,7 +215,6 @@ public final class space/kscience/krig/api/descriptors/attributes/BehaviorAttrib
 	public final fun getTimeout-FghU774 ()Lkotlin/time/Duration;
 	public final fun getTolerance ()Ljava/lang/Double;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -197,7 +233,7 @@ public final class space/kscience/krig/api/descriptors/attributes/BehaviorAttrib
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/descriptors/attributes/BindingsAttribute : space/kscience/krig/api/descriptors/OperationAttribute {
+public final class space/kscience/krig/api/descriptors/attributes/BindingsAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/BindingsAttribute$Companion;
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;)V
@@ -208,7 +244,6 @@ public final class space/kscience/krig/api/descriptors/attributes/BindingsAttrib
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBindings ()Ljava/util/Map;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -245,7 +280,7 @@ public final class space/kscience/krig/api/descriptors/attributes/GeneralAttribu
 	public static final fun getWritePermissions (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/util/Set;
 }
 
-public final class space/kscience/krig/api/descriptors/attributes/MetadataAttribute : space/kscience/krig/api/descriptors/OperationAttribute {
+public final class space/kscience/krig/api/descriptors/attributes/MetadataAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute$Companion;
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
@@ -258,7 +293,6 @@ public final class space/kscience/krig/api/descriptors/attributes/MetadataAttrib
 	public final fun getDescription ()Ljava/lang/String;
 	public final fun getHelp ()Ljava/lang/String;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -275,6 +309,27 @@ public final synthetic class space/kscience/krig/api/descriptors/attributes/Meta
 
 public final class space/kscience/krig/api/descriptors/attributes/MetadataAttribute$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys;
+	public final fun getStandard ()Ljava/util/Set;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Access : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Access;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Behavior : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Behavior;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Bindings : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Bindings;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Metadata : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Metadata;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/ResourceLock {
@@ -502,15 +557,7 @@ public final class space/kscience/krig/api/expressions/Unary$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract interface class space/kscience/krig/api/features/FeatureSpec : space/kscience/dataforge/meta/MetaRepr {
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
-}
-
-public final class space/kscience/krig/api/features/FeatureSpec$DefaultImpls {
-	public static fun toMeta (Lspace/kscience/krig/api/features/FeatureSpec;)Lspace/kscience/dataforge/meta/Meta;
-}
-
-public final class space/kscience/krig/api/features/MetadataFeature : space/kscience/krig/api/features/FeatureSpec {
+public final class space/kscience/krig/api/features/MetadataFeature : space/kscience/krig/api/features/PipelineFeatureSpec {
 	public static final field Companion Lspace/kscience/krig/api/features/MetadataFeature$Companion;
 	public static final field ID Ljava/lang/String;
 	public fun <init> ()V
@@ -522,7 +569,6 @@ public final class space/kscience/krig/api/features/MetadataFeature : space/ksci
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDescription ()Ljava/lang/String;
 	public fun hashCode ()I
-	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -540,6 +586,9 @@ public final synthetic class space/kscience/krig/api/features/MetadataFeature$$s
 public final class space/kscience/krig/api/features/MetadataFeature$Companion {
 	public final fun getNAME ()Lspace/kscience/dataforge/names/Name;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/api/features/PipelineFeatureSpec {
 }
 
 public abstract interface class space/kscience/krig/api/meta/AdapterBinding {

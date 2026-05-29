@@ -49,7 +49,10 @@ class JournalCodecTest {
                 )
             }
         }
-        val codec = MessageJournalCodec(json, JournalMigrations(migration))
+        val codec = MessageJournalCodec(
+            payloadCodec = KotlinxJsonJournalPayloadCodec(json),
+            migrations = JournalMigrations(migration),
+        )
         val raw = JournalEntry(
             subject = source,
             messageType = "demo.counter",

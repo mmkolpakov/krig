@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
@@ -15,9 +15,10 @@ import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.double
@@ -29,8 +30,8 @@ import space.kscience.krig.api.descriptors.PropertyKind
 
 /**
  * Minimal in-tree fixture: one atomic `Double` cell reachable through the typed reader /
- * writer surface (zero-allocation [GenericTypedReader]<Double> / [GenericTypedWriter]<Double>) and the legacy
- * Meta-boxed path. Test-only; lives in `commonTest` and is not published.
+ * writer surface and the legacy Meta-boxed path. Test-only; lives in `commonTest`
+ * and is not published.
  */
 class SimulatedDoubleSource(
     name: Name = "simulated-double-source".asName(),
@@ -47,8 +48,8 @@ class SimulatedDoubleSource(
     private val valueSampler: RingDoubleSampler = doubleSampler(capacity = 256)
 
     /** The single [Double] property this fixture exposes. */
-    val valueSpec: MutableDevicePropertySpec<SimulatedDoubleSource, Double> =
-        object : MutableDevicePropertySpec<SimulatedDoubleSource, Double> {
+    val valueSpec: MutableDevicePropertyContract<Double> =
+        object : MutableDevicePropertyContract<Double> {
             override val name: Name = "value".asName()
             override val descriptor: PropertyDescriptor = PropertyDescriptor(
                 name = this.name,
@@ -56,10 +57,6 @@ class SimulatedDoubleSource(
                 valueTypeId = TypeIds.DOUBLE,
             )
             override val converter: MetaConverter<Double> = MetaConverter.double
-            override suspend fun read(device: SimulatedDoubleSource): Double = device.cell.value
-            override suspend fun write(device: SimulatedDoubleSource, value: Double) {
-                device.cell.value = value
-            }
         }
 
     @Suppress("UNCHECKED_CAST")
@@ -83,17 +80,20 @@ class SimulatedDoubleSource(
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
         if (propertyName == valueSpec.name) valueSpec else null
 
-    override suspend fun readProperty(propertyName: Name): Meta =
-        if (propertyName == valueSpec.name) MetaConverter.double.convert(cell.value)
-        else error("Unknown property '$propertyName'")
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        runCatchingOperation {
+            if (propertyName == valueSpec.name) MetaConverter.double.convert(cell.value)
+            else error("Unknown property '$propertyName'")
+        }
 
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {
-        check(propertyName == valueSpec.name) { "Unknown property '$propertyName'" }
-        val v = value.double ?: error("Property '$propertyName' expects a Double")
-        cell.value = v
-        valueSampler.publishDouble(v)
-    }
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        runCatchingOperation {
+            check(propertyName == valueSpec.name) { "Unknown property '$propertyName'" }
+            val v = value.double ?: error("Property '$propertyName' expects a Double")
+            cell.value = v
+            valueSampler.publishDouble(v)
+        }
 
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta =
-        error("SimulatedDoubleSource has no actions")
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        runCatchingOperation { error("SimulatedDoubleSource has no actions") }
 }

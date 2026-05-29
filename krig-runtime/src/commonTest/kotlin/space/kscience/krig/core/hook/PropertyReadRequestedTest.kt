@@ -15,10 +15,11 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
-import space.kscience.krig.core.meta.DevicePropertySpec
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.pipeline.PipelineBuilder
 import space.kscience.krig.core.pipeline.wrapWithPipeline
 import kotlin.concurrent.atomics.AtomicInt
@@ -34,19 +35,23 @@ private fun freshContext(prefix: String): Context =
 class PropertyReadRequestedTest {
 
     private class StubDevice : AbstractDevice("stub".asName(), DeviceRuntime(freshContext("stub"))) {
-        override suspend fun readProperty(propertyName: Name): Meta = Meta(1)
-        override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: Meta?) = null
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            OperationOutcome.Ok(Meta(1))
+
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(null)
     }
 
-    private fun specOf(name: Name): DevicePropertySpec<*, Int> =
-        object : DevicePropertySpec<AbstractDevice, Int> {
+    private fun specOf(name: Name): DevicePropertyContract<Int> =
+        object : DevicePropertyContract<Int> {
             override val name: Name = name
             override val descriptor = PropertyDescriptor(
                 name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.INT,
             )
             override val converter: MetaConverter<Int> = MetaConverter.int
-            override suspend fun read(device: AbstractDevice): Int = 1
         }
 
     @Test

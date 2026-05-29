@@ -1,31 +1,31 @@
 package space.kscience.krig.core.pipeline
 
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.features.FeatureSpec
+import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.InternalKrigApi
-import space.kscience.krig.core.features.featureCatalogOf
-import space.kscience.krig.dsl.feature
+import space.kscience.krig.core.features.pipelineFeatureCatalogOf
+import space.kscience.krig.dsl.pipelineFeature
 import space.kscience.dataforge.names.asName
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-private class ExpectedFeatureSpec : FeatureSpec
+private class ExpectedPipelineFeatureSpec : PipelineFeatureSpec
 
-private class WrongFeatureSpec : FeatureSpec
+private class WrongPipelineFeatureSpec : PipelineFeatureSpec
 
 private class AssemblyFeatureConfig
 
 class PipelineAssemblyTest {
     @Test
-    fun mismatchedFeatureSpecReturnsValidationFault() {
-        val demoFeature = feature("demo.feature", ExpectedFeatureSpec::class, ::AssemblyFeatureConfig) {}
+    fun mismatchedPipelineFeatureSpecReturnsValidationFault() {
+        val demoFeature = pipelineFeature("demo.feature", ExpectedPipelineFeatureSpec::class, ::AssemblyFeatureConfig) {}
 
         val outcome = materializePipelineOutcome(
-            features = mapOf("demo.feature".asName() to WrongFeatureSpec()),
-            catalog = featureCatalogOf(demoFeature),
+            features = mapOf("demo.feature".asName() to WrongPipelineFeatureSpec()),
+            catalog = pipelineFeatureCatalogOf(demoFeature),
         )
 
         val failure = assertIs<OperationOutcome.Fail>(outcome)
@@ -34,15 +34,15 @@ class PipelineAssemblyTest {
 
     @OptIn(InternalKrigApi::class)
     @Test
-    fun featureScopeConfiguresOperationSpecificTimeouts() {
-        val demoFeature = feature("demo.feature", ::AssemblyFeatureConfig) {
+    fun pipelineFeatureScopeConfiguresOperationSpecificTimeouts() {
+        val demoFeature = pipelineFeature("demo.feature", ::AssemblyFeatureConfig) {
             timeout(OperationKinds.Read, 10.milliseconds)
             timeout(OperationKinds.Write, 20.milliseconds)
         }
 
         val builder = materializePipeline(
-            features = mapOf("demo.feature".asName() to object : FeatureSpec {}),
-            catalog = featureCatalogOf(demoFeature),
+            features = mapOf("demo.feature".asName() to object : PipelineFeatureSpec {}),
+            catalog = pipelineFeatureCatalogOf(demoFeature),
         )
 
         assertEquals(10.milliseconds, builder.operationSpec(OperationKinds.Read).defaultTimeout)

@@ -1,9 +1,16 @@
 package space.kscience.krig.core.contracts
 
+import space.kscience.dataforge.io.Binary
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.dataforge.meta.Meta
+import space.kscience.krig.api.result.map
 
 /**
  * Runtime side of a [Device]: reads hardware, drives a simulation, or forwards to a
@@ -23,8 +30,80 @@ public interface DeviceBackend : AutoCloseable {
     context(device: DeviceEnvironment)
     public suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta>
 
+    /**
+     * Reads a property together with measurement quality.
+     *
+     * Default preserves the legacy Meta path and marks a successful transport read as GOOD.
+     * Protocol integrations that can surface sensor/protocol status codes override this
+     * method so acquisition and expressions do not overwrite UNCERTAIN/BAD observations.
+     */
+    context(device: DeviceEnvironment)
+    public suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> =
+        read(property).map { value ->
+            ObservedValue(value = value, time = device.clock.now(), quality = DataQuality.GOOD)
+        }
+
+    /**
+     * Reads several properties as one acquisition unit when the backend can coalesce them.
+     *
+     * The default falls back to sequential [readObserved] calls. Batch-capable backends
+     * override this directly to preserve native quality information for protocols such
+     * as OPC UA or Modbus block reads.
+     */
+    context(device: DeviceEnvironment)
+    public suspend fun readBatchObserved(
+        properties: Collection<PropertyDescriptor>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
+        properties.associate { property ->
+            property.name to readObserved(property)
+        }
+
+    /** Reads opaque binary payload without forcing it through a Meta tree. */
+    context(device: DeviceEnvironment)
+    public suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> =
+        OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = "Backend does not support binary read for property '${property.name}'.",
+            ),
+        )
+
+    /** Reads several opaque binary payloads. Default is sequential and non-coalescing. */
+    context(device: DeviceEnvironment)
+    public suspend fun readBatchBinary(
+        properties: Collection<PropertyDescriptor>,
+    ): Map<Name, OperationOutcome<Binary>> =
+        properties.associate { property ->
+            property.name to readBinary(property)
+        }
+
     context(device: DeviceEnvironment)
     public suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit>
+
+    /**
+     * Writes several Meta values. Default is sequential and not atomic; protocol backends
+     * override this for one physical transaction such as Modbus FC 15/16.
+     *
+     * If a physical transaction fails before per-property statuses are known, return the
+     * same [OperationOutcome.Fail] for every requested property.
+     */
+    context(device: DeviceEnvironment)
+    public suspend fun writeBatch(
+        values: Map<PropertyDescriptor, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        values.entries.associate { (property, value) ->
+            property.name to write(property, value)
+        }
+
+    /** Writes opaque binary payload without forcing it through Meta. */
+    context(device: DeviceEnvironment)
+    public suspend fun writeBinary(property: PropertyDescriptor, value: Binary): OperationOutcome<Unit> =
+        OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = "Backend does not support binary write for property '${property.name}'.",
+            ),
+        )
 
     context(device: DeviceEnvironment)
     public suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?>

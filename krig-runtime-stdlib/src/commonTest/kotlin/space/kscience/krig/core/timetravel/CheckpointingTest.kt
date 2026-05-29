@@ -106,7 +106,7 @@ class CheckpointingTest {
 
         // Cold flow: collector subscribes at launchIn and receives every value deterministically.
         val events = (1..4).map { event(100L + it, it) }
-        val feed = flowOf(*events.toTypedArray()).onEach { counter.applyEvent(it) }
+        val feed = flowOf(*events.toTypedArray()).onEach { counter.applyEvent(it) }.testEnvelopes()
 
         val job = counter.runCheckpointing(
             subject = devName,
@@ -133,7 +133,7 @@ class CheckpointingTest {
         val scope = detachedScope()
         val devName = "counter".asName()
 
-        val feed = flowOf(event(1, 42)).onEach { counter.applyEvent(it) }
+        val feed = flowOf(event(1, 42)).onEach { counter.applyEvent(it) }.testEnvelopes()
         val job = counter.runCheckpointing(
             subject = devName,
             messageFlow = feed,
@@ -160,7 +160,7 @@ class CheckpointingTest {
 
         val job = counter.runCheckpointing(
             subject = devName,
-            messageFlow = flowOf(),
+            messageFlow = flowOf<DeviceMessage>().testEnvelopes(),
             snapshotStore = store,
             strategy = CheckpointStrategy.everyDuration(10.milliseconds),
             scope = scope,

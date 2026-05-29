@@ -7,15 +7,16 @@ import kotlinx.io.IOException
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.DefaultQualityPolicy
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.data.QualityCode
-import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.api.data.QualityPolicy
+import space.kscience.krig.api.data.QualityNamespaces
+import space.kscience.krig.api.data.toDataQuality
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.TransportFault
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.Device
 import kotlin.time.Clock
 
@@ -24,6 +25,7 @@ public class DataPlatformRuntime(
     public val config: DataPlatformConfiguration,
     public val devices: Map<Name, Device>,
     public val clock: Clock = Clock.System,
+    public val qualityPolicy: QualityPolicy = DefaultQualityPolicy,
 ) {
     public fun propertiesForTimer(timerId: Name): List<PropertySpec> = config.propertiesForTimer(timerId)
 
@@ -42,10 +44,13 @@ public data class PlatformObservation(
 public fun DataPlatformConfiguration.runtime(
     devices: Map<Name, Device>,
     clock: Clock = Clock.System,
-): DataPlatformRuntime = DataPlatformRuntime(this, devices, clock)
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
+): DataPlatformRuntime = DataPlatformRuntime(this, devices, clock, qualityPolicy)
 
-public fun InstalledDataPlatform.runtime(clock: Clock = Clock.System): DataPlatformRuntime =
-    config.runtime(devices, clock)
+public fun InstalledDataPlatform.runtime(
+    clock: Clock = Clock.System,
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
+): DataPlatformRuntime = config.runtime(devices, clock, qualityPolicy)
 
 public fun DataPlatformConfiguration.propertiesForTimer(timerId: Name): List<PropertySpec> {
     val timer = timers.singleOrNull { it.id == timerId }
@@ -65,8 +70,14 @@ public fun DataPlatformRuntime.pollTimer(
 ): Flow<PlatformObservation> {
     val timerProperties = propertiesForTimer(timerId)
     return ticks.transform {
+        val observationsById = LinkedHashMap<Name, PlatformObservation>()
+        for ((sourceId, properties) in timerProperties.groupBy { it.sourceId }) {
+            observeSource(sourceId, properties).forEach { observation ->
+                observationsById[observation.property.id] = observation
+            }
+        }
         for (property in timerProperties) {
-            emit(observe(property))
+            emit(observationsById.getValue(property.id))
         }
     }
 }
@@ -76,51 +87,63 @@ public fun DataPlatformRuntime.pollTimer(
     ticks: Flow<Unit>,
 ): Flow<PlatformObservation> = pollTimer(timerId.asName(), ticks)
 
-@OptIn(PerformancePitfall::class)
-private suspend fun DataPlatformRuntime.observe(property: PropertySpec): PlatformObservation = try {
-    val device = devices[property.sourceId]
-        ?: return property.failed(clock, GenericOperationFault(message = "Unknown data platform source '${property.sourceId}'."))
-    PlatformObservation(
-        property = property,
-        observed = ObservedValue(
-            value = device.readProperty(property.property),
-            time = clock.now(),
-            quality = DataQuality.GOOD,
-        ),
-    )
+private suspend fun DataPlatformRuntime.observeSource(
+    sourceId: Name,
+    properties: List<PropertySpec>,
+): List<PlatformObservation> = try {
+    val device = devices[sourceId]
+    if (device == null) {
+        properties.map { property ->
+            property.failed(
+                clock,
+                GenericOperationFault(message = "Unknown data platform source '$sourceId'."),
+                qualityPolicy,
+            )
+        }
+    } else {
+        val outcomes = device.readBatchOutcome(properties.map { it.property })
+        properties.map { property ->
+            when (val outcome = outcomes[property.property]) {
+                is OperationOutcome.Ok -> PlatformObservation(property = property, observed = outcome.value)
+                is OperationOutcome.Fail -> property.failed(clock, outcome.fault, qualityPolicy)
+                null -> property.failed(
+                    clock,
+                    GenericOperationFault(
+                        message = "Device '$sourceId' did not return data platform property '${property.property}'.",
+                    ),
+                    qualityPolicy,
+                )
+            }
+        }
+    }
 } catch (e: CancellationException) {
     throw e
 } catch (e: OperationFaultException) {
-    property.failed(clock, e.fault)
+    properties.map { property -> property.failed(clock, e.fault, qualityPolicy) }
 } catch (e: IOException) {
-    property.failed(
-        clock,
-        TransportFault(
-            causeType = e::class.simpleName ?: "IOException",
-            message = e.message ?: "I/O failure while sampling data platform property '${property.id}'.",
-        ),
+    val fault = TransportFault(
+        causeType = e::class.simpleName ?: "IOException",
+        message = e.message ?: "I/O failure while sampling data platform source '$sourceId'.",
     )
+    properties.map { property -> property.failed(clock, fault, qualityPolicy) }
 } catch (e: RuntimeException) {
-    property.failed(
-        clock,
-        GenericOperationFault(
-            message = e.message ?: "Runtime failure while sampling data platform property '${property.id}'.",
-        ),
+    val fault = GenericOperationFault(
+        message = e.message ?: "Runtime failure while sampling data platform source '$sourceId'.",
     )
+    properties.map { property -> property.failed(clock, fault, qualityPolicy) }
 }
 
-private fun PropertySpec.failed(clock: Clock, fault: OperationFault): PlatformObservation =
+private fun PropertySpec.failed(
+    clock: Clock,
+    fault: OperationFault,
+    qualityPolicy: QualityPolicy,
+): PlatformObservation =
     PlatformObservation(
         property = this,
-        observed = ObservedValue(value = null, time = clock.now(), quality = fault.toPlatformQuality()),
+        observed = ObservedValue(
+            value = null,
+            time = clock.now(),
+            quality = fault.toDataQuality(QualityNamespaces.DataPlatform, qualityPolicy),
+        ),
         fault = fault,
     )
-
-private fun OperationFault.toPlatformQuality(): DataQuality {
-    val qualityCode = faultType.toString().replace('.', '-')
-    return DataQuality(
-        severity = QualitySeverity.BAD,
-        code = QualityCode("krig.data-platform.${qualityCode.lowercase()}"),
-        detail = message,
-    )
-}

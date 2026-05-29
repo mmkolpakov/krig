@@ -2,21 +2,21 @@ package space.kscience.krig.assembly
 
 import space.kscience.krig.api.factory.DeviceFactory
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.DeviceBlueprint
-import space.kscience.krig.core.features.FeatureCatalog
-import space.kscience.krig.core.features.UnknownFeaturePolicy
-import space.kscience.krig.core.operations.BlueprintValidationFailedException
-import space.kscience.krig.core.operations.BlueprintValidationMessage
-import space.kscience.krig.core.operations.validateBlueprint
+import space.kscience.krig.core.contracts.DeviceManifest
+import space.kscience.krig.core.features.PipelineFeatureCatalog
+import space.kscience.krig.core.features.UnknownPipelineFeaturePolicy
+import space.kscience.krig.core.operations.ManifestValidationFailedException
+import space.kscience.krig.core.operations.ManifestValidationMessage
+import space.kscience.krig.core.operations.validateManifest
 import space.kscience.krig.core.pipeline.PipelineBuilder
 import space.kscience.krig.core.pipeline.materializePipeline
 import space.kscience.krig.core.pipeline.wrapWithPipeline
 import space.kscience.dataforge.context.Context
 
 /**
- * Strategy for handling [BlueprintValidationMessage]s produced before materialization.
+ * Strategy for handling [ManifestValidationMessage]s produced before materialization.
  */
-public enum class BlueprintValidationPolicy {
+public enum class ManifestValidationPolicy {
     /** Ignore validation entirely. Useful for tests and raw spikes. */
     Skip,
 
@@ -48,52 +48,52 @@ public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDevice(
 }
 
 /**
- * End-to-end materialization: [DeviceFactory] → validated blueprint → running [Device].
- * Features from the blueprint are matched by id against [features]. Unknown ids fail by
- * default. Validation runs via [BlueprintValidationHook][space.kscience.krig.core.operations.BlueprintValidationHook]s
- * registered in [context] per [validationPolicy]; absence of a validation FeatureSpec module
- * on the classpath is equivalent to [BlueprintValidationPolicy.Skip].
+ * End-to-end materialization: [DeviceFactory] → validated Manifest → running [Device].
+ * Features from the Manifest are matched by id against [features]. Unknown ids fail by
+ * default. Validation runs via [ManifestValidationHook][space.kscience.krig.core.operations.ManifestValidationHook]s
+ * registered in [context] per [validationPolicy]; absence of a validation PipelineFeatureSpec module
+ * on the classpath is equivalent to [ManifestValidationPolicy.Skip].
  */
-public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDeviceFromBlueprint(
+public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDeviceFromManifest(
     context: Context,
     config: C,
-    features: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
-    validationPolicy: BlueprintValidationPolicy = BlueprintValidationPolicy.FailOnError,
+    features: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    validationPolicy: ManifestValidationPolicy = ManifestValidationPolicy.FailOnError,
     configure: PipelineBuilder.() -> Unit = {},
 ): Device {
     this.validateOrThrow(context, validationPolicy)
-    val builder = materializePipeline(this, features, unknownFeaturePolicy).apply(configure)
+    val builder = materializePipeline(this, features, unknownPipelineFeaturePolicy).apply(configure)
     val device = create(context, config)
     return wrapWithPipeline(device, builder, id.toString())
 }
 
 /** Validates [this] and wraps an externally-constructed [device] with its operation pipeline. */
-public suspend fun DeviceBlueprint<*>.assemblePipeline(
+public suspend fun DeviceManifest.assemblePipeline(
     device: Device,
     context: Context,
-    features: FeatureCatalog = FeatureCatalog.Empty,
-    unknownFeaturePolicy: UnknownFeaturePolicy = UnknownFeaturePolicy.Fail,
-    validationPolicy: BlueprintValidationPolicy = BlueprintValidationPolicy.FailOnError,
+    features: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
+    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    validationPolicy: ManifestValidationPolicy = ManifestValidationPolicy.FailOnError,
     configure: PipelineBuilder.() -> Unit = {},
 ): Device {
     validateOrThrow(context, validationPolicy)
-    val builder = materializePipeline(this, features, unknownFeaturePolicy).apply(configure)
+    val builder = materializePipeline(this, features, unknownPipelineFeaturePolicy).apply(configure)
     return wrapWithPipeline(device, builder, id.toString())
 }
 
-private fun DeviceBlueprint<*>.validateOrThrow(
+private fun DeviceManifest.validateOrThrow(
     context: Context,
-    policy: BlueprintValidationPolicy,
+    policy: ManifestValidationPolicy,
 ) {
-    if (policy == BlueprintValidationPolicy.Skip) return
-    val messages = context.validateBlueprint(this)
+    if (policy == ManifestValidationPolicy.Skip) return
+    val messages = context.validateManifest(this)
     val hasFailure = when (policy) {
-        BlueprintValidationPolicy.FailOnError -> messages.any {
-            it.severity == BlueprintValidationMessage.Severity.ERROR
+        ManifestValidationPolicy.FailOnError -> messages.any {
+            it.severity == ManifestValidationMessage.Severity.ERROR
         }
-        BlueprintValidationPolicy.Strict -> messages.isNotEmpty()
-        BlueprintValidationPolicy.Skip -> false
+        ManifestValidationPolicy.Strict -> messages.isNotEmpty()
+        ManifestValidationPolicy.Skip -> false
     }
-    if (hasFailure) throw BlueprintValidationFailedException(this, messages)
+    if (hasFailure) throw ManifestValidationFailedException(this, messages)
 }

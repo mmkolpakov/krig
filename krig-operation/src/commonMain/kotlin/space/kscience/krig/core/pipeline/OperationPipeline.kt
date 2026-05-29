@@ -25,6 +25,13 @@ public object OperationKinds {
     public val Poll: OperationKind = OperationKind("poll".asName())
 }
 
+/** Standard operation names for synthetic pipeline invocations. */
+public object OperationNames {
+    public val BatchRead: Name = "batch.read".asName()
+    public val BatchReadBinary: Name = "batch.read.binary".asName()
+    public val BatchWrite: Name = "batch.write".asName()
+}
+
 /** Runtime description of one operation flowing through a pipeline. */
 public data class OperationContext(
     public val kind: OperationKind,

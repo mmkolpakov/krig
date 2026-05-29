@@ -34,6 +34,42 @@ public object OperationFaultTypes {
     public val FatalSystem: Name = "fault.fatal-system".asName()
 }
 
+/** Common detail keys for operation faults. */
+public object OperationFaultDetails {
+    public val MESSAGE: Name = "message".asName()
+    public val KIND: Name = "kind".asName()
+    public val NAME: Name = "name".asName()
+    public val DEVICE: Name = "device".asName()
+    public val PROPERTY: Name = "property".asName()
+    public val ACTION: Name = "action".asName()
+    public val OPERATION: Name = "operation".asName()
+    public val FAULT: Name = "fault".asName()
+    public val EXPECTED_TYPE: Name = "expectedType".asName()
+    public val CAUSE_TYPE: Name = "causeType".asName()
+    public val CAUSE_MESSAGE: Name = "causeMessage".asName()
+}
+
+public fun faultDetails(
+    message: String,
+    kind: String? = null,
+    name: Name? = null,
+    property: Name? = null,
+    action: Name? = null,
+    expectedType: String? = null,
+    cause: Throwable? = null,
+): Meta = Meta {
+    OperationFaultDetails.MESSAGE put message
+    kind?.let { OperationFaultDetails.KIND put it }
+    name?.let { OperationFaultDetails.NAME put it.toString() }
+    property?.let { OperationFaultDetails.PROPERTY put it.toString() }
+    action?.let { OperationFaultDetails.ACTION put it.toString() }
+    expectedType?.let { OperationFaultDetails.EXPECTED_TYPE put it }
+    cause?.let {
+        OperationFaultDetails.CAUSE_TYPE put (it::class.simpleName ?: "Exception")
+        OperationFaultDetails.CAUSE_MESSAGE put (it.message ?: it.toString())
+    }
+}
+
 /**
  * A generic fault implementation for errors that do not have a specialized schema but require
  * structured reporting.

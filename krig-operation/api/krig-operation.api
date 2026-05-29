@@ -1,3 +1,49 @@
+public final class space/kscience/krig/api/data/DefaultQualityPolicy : space/kscience/krig/api/data/QualityPolicy {
+	public static final field INSTANCE Lspace/kscience/krig/api/data/DefaultQualityPolicy;
+	public fun qualityForFault-8CeJ5do (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/String;)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/api/data/QualityNamespace {
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/api/data/QualityNamespace;
+	public static final fun code-PP-SMAo (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/data/QualityNamespaces {
+	public static final field INSTANCE Lspace/kscience/krig/api/data/QualityNamespaces;
+	public final fun getAcquisition-fqu16Tg ()Ljava/lang/String;
+	public final fun getDataPlatform-fqu16Tg ()Ljava/lang/String;
+	public final fun getExpression-fqu16Tg ()Ljava/lang/String;
+	public final fun getOperation-fqu16Tg ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/api/data/QualityPolicy {
+	public abstract fun qualityForFault-8CeJ5do (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/String;)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/api/data/QualityPolicyKt {
+	public static final fun staleDataQuality-2vsHyQ0 (Ljava/lang/String;Ljava/lang/String;I)Lspace/kscience/krig/api/data/DataQuality;
+	public static synthetic fun staleDataQuality-2vsHyQ0$default (Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lspace/kscience/krig/api/data/DataQuality;
+	public static final fun toDataQuality-JiRYGso (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/String;Lspace/kscience/krig/api/data/QualityPolicy;)Lspace/kscience/krig/api/data/DataQuality;
+	public static synthetic fun toDataQuality-JiRYGso$default (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/String;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/api/data/StandardQualityCodes {
+	public static final field INSTANCE Lspace/kscience/krig/api/data/StandardQualityCodes;
+	public final fun getExpressionMissing-0SYOLzU ()Ljava/lang/String;
+	public final fun getExpressionUnavailable-0SYOLzU ()Ljava/lang/String;
+	public final fun getStale-0SYOLzU ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/faults/AuthorizationFault : space/kscience/krig/api/faults/OperationFault {
 	public static final field Companion Lspace/kscience/krig/api/faults/AuthorizationFault$Companion;
 	public fun <init> ()V
@@ -138,10 +184,29 @@ public final class space/kscience/krig/api/faults/OperationFault$DefaultImpls {
 	public static fun getMessage (Lspace/kscience/krig/api/faults/OperationFault;)Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/faults/OperationFaultDetails {
+	public static final field INSTANCE Lspace/kscience/krig/api/faults/OperationFaultDetails;
+	public final fun getACTION ()Lspace/kscience/dataforge/names/Name;
+	public final fun getCAUSE_MESSAGE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getCAUSE_TYPE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getDEVICE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getEXPECTED_TYPE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getFAULT ()Lspace/kscience/dataforge/names/Name;
+	public final fun getKIND ()Lspace/kscience/dataforge/names/Name;
+	public final fun getMESSAGE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getNAME ()Lspace/kscience/dataforge/names/Name;
+	public final fun getOPERATION ()Lspace/kscience/dataforge/names/Name;
+	public final fun getPROPERTY ()Lspace/kscience/dataforge/names/Name;
+}
+
 public final class space/kscience/krig/api/faults/OperationFaultException : space/kscience/krig/api/faults/OperationException {
 	public fun <init> (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/Throwable;)V
 	public synthetic fun <init> (Lspace/kscience/krig/api/faults/OperationFault;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+}
+
+public final class space/kscience/krig/api/faults/OperationFaultKt {
+	public static final fun getDisplayType (Lspace/kscience/krig/api/faults/OperationFault;)Ljava/lang/String;
 }
 
 public final class space/kscience/krig/api/faults/OperationFaultTypes {
@@ -157,6 +222,11 @@ public final class space/kscience/krig/api/faults/OperationFaultTypes {
 	public final fun getUnknownProperty ()Lspace/kscience/dataforge/names/Name;
 	public final fun getUnsupportedValue ()Lspace/kscience/dataforge/names/Name;
 	public final fun getValidation ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/api/faults/OperationFaultsKt {
+	public static final fun faultDetails (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;)Lspace/kscience/dataforge/meta/Meta;
+	public static synthetic fun faultDetails$default (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lspace/kscience/dataforge/meta/Meta;
 }
 
 public final class space/kscience/krig/api/faults/SerializableOperationFailure {
@@ -434,6 +504,13 @@ public final class space/kscience/krig/core/pipeline/OperationKinds {
 	public final fun getPoll-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
 	public final fun getRead-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
 	public final fun getWrite-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationNames {
+	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/OperationNames;
+	public final fun getBatchRead ()Lspace/kscience/dataforge/names/Name;
+	public final fun getBatchReadBinary ()Lspace/kscience/dataforge/names/Name;
+	public final fun getBatchWrite ()Lspace/kscience/dataforge/names/Name;
 }
 
 public abstract interface class space/kscience/krig/core/pipeline/OperationObserver {

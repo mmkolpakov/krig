@@ -18,6 +18,7 @@ import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.capabilities.CapabilityKey
 import space.kscience.krig.core.capabilities.InMemoryMetadataCapability
 import space.kscience.krig.core.capabilities.MetadataCapability
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -49,9 +50,14 @@ private class CapSnapshotTestDevice : AbstractDevice(
     "snapshot-host".asName(),
     DeviceRuntime(Context("cap-snapshot-${csSeq.addAndFetch(1)}")),
 ) {
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {}
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 }
 
 class CapabilitySnapshottingTest {

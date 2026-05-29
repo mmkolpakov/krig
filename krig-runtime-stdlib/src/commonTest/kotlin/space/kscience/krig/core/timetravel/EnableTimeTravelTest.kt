@@ -17,7 +17,10 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -48,10 +51,14 @@ class EnableTimeTravelTest {
     @OptIn(space.kscience.krig.core.InternalKrigApi::class)
     private class ReplayingDevice(name: Name, context: Context) :
         AbstractDevice(name, DeviceRuntime(context)) {
-        override suspend fun readProperty(propertyName: Name): Meta =
-            error("Not used in test")
-        override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            runCatchingOperation { error("Not used in test") }
+
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(null)
     }
 
     private class CounterReplay : DeviceReconstructible<Device> {
@@ -82,7 +89,7 @@ class EnableTimeTravelTest {
         override fun now(): Instant = instant
     }
 
-    private fun testMessages(): MutableSharedFlow<DeviceMessage> =
+    private fun testMessages(): MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>> =
         MutableSharedFlow(extraBufferCapacity = 16)
 
     /**
@@ -121,11 +128,11 @@ class EnableTimeTravelTest {
         // emits can race each other if the pump's channelFlow-backed merge is still
         // draining an earlier message. advanceUntilIdle between emits keeps the virtual
         // clock-driven test deterministic.
-        messages.emit(event(100, 1))
+        messages.emit(event(100, 1).testEnvelope())
         advanceUntilIdle()
-        messages.emit(event(200, 2))
+        messages.emit(event(200, 2).testEnvelope())
         advanceUntilIdle()
-        messages.emit(event(300, 3))
+        messages.emit(event(300, 3).testEnvelope())
         advanceUntilIdle()
 
         assertEquals(3, eventSink.size())
@@ -157,9 +164,9 @@ class EnableTimeTravelTest {
         // Drive the replay state via event publication. CounterReplay folds each event
         // into its `value`; captureSnapshot reads that value off the fold.
         replay.applyEvent(event(100, 5))
-        messages.emit(event(100, 5))
+        messages.emit(event(100, 5).testEnvelope())
         replay.applyEvent(event(200, 7))
-        messages.emit(event(200, 7))
+        messages.emit(event(200, 7).testEnvelope())
         advanceUntilIdle()
 
         // EveryNEvents(2) fires once after two events; the pump and the checkpointer
@@ -192,7 +199,7 @@ class EnableTimeTravelTest {
         )
         advanceUntilIdle()  // let the pump coroutine subscribe before the first emit
 
-        messages.emit(event(100, 1))
+        messages.emit(event(100, 1).testEnvelope())
         advanceUntilIdle()
         assertEquals(1, eventSink.size())
 
@@ -200,7 +207,7 @@ class EnableTimeTravelTest {
         advanceUntilIdle()
 
         // Post-cancel events must not reach the sink.
-        messages.emit(event(200, 2))
+        messages.emit(event(200, 2).testEnvelope())
         advanceUntilIdle()
         assertEquals(1, eventSink.size())
         assertTrue(job.isCancelled)
@@ -224,7 +231,7 @@ class EnableTimeTravelTest {
         )
         advanceUntilIdle()  // let the pump coroutine subscribe before the first emit
 
-        messages.emit(event(100, 1))
+        messages.emit(event(100, 1).testEnvelope())
         advanceUntilIdle()
         // assertIs carries the contract `returns() implies (value is T)`, so the
         // subsequent `replayLog.size()` smart-casts through without an explicit `as`.

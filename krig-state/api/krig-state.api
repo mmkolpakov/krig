@@ -15,6 +15,7 @@ public final class space/kscience/krig/api/data/DataQuality {
 	public final fun getCode-DUyD1u4 ()Ljava/lang/String;
 	public final fun getDetail ()Ljava/lang/String;
 	public final fun getSeverity-cyedemc ()I
+	public final fun getShortLabel ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -93,26 +94,17 @@ public final class space/kscience/krig/api/data/ObservedValue$Companion {
 }
 
 public final class space/kscience/krig/api/data/ObservedValueKt {
+	public static final fun getHasValue (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun getUsableValue (Lspace/kscience/krig/api/data/ObservedValue;)Ljava/lang/Object;
 	public static final fun isGood (Lspace/kscience/krig/api/data/ObservedValue;)Z
+	public static final fun isReliable (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun isUsable (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun observed (Ljava/lang/Object;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static final fun observed (Lkotlin/time/Clock;Ljava/lang/Object;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static synthetic fun observed$default (Ljava/lang/Object;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static synthetic fun observed$default (Lkotlin/time/Clock;Ljava/lang/Object;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static final fun requireUsableValue (Lspace/kscience/krig/api/data/ObservedValue;)Ljava/lang/Object;
-}
-
-public final class space/kscience/krig/api/data/ProtocolValueKey {
-	public fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)V
-	public final fun getDecode ()Lkotlin/jvm/functions/Function1;
-	public final fun getEncode ()Lkotlin/jvm/functions/Function1;
-	public final fun getTypeId ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/api/data/ProtocolValueKeyKt {
-	public static final fun decode (Lspace/kscience/krig/api/data/RawValue$Ext;Lspace/kscience/krig/api/data/ProtocolValueKey;)Ljava/lang/Object;
-	public static final fun of (Lspace/kscience/krig/api/data/RawValue$Companion;Lspace/kscience/krig/api/data/ProtocolValueKey;Ljava/lang/Object;)Lspace/kscience/krig/api/data/RawValue$Ext;
+	public static final fun valueIfQualityAtMost-Hib2M5Q (Lspace/kscience/krig/api/data/ObservedValue;I)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/api/data/QualityCode {
@@ -155,6 +147,7 @@ public final class space/kscience/krig/api/data/QualitySeverity : java/lang/Comp
 	public fun equals (Ljava/lang/Object;)Z
 	public static fun equals-impl (ILjava/lang/Object;)Z
 	public static final fun equals-impl0 (II)Z
+	public static final fun getLabel-impl (I)Ljava/lang/String;
 	public final fun getRank ()I
 	public fun hashCode ()I
 	public static fun hashCode-impl (I)I
@@ -178,217 +171,6 @@ public final class space/kscience/krig/api/data/QualitySeverity$Companion {
 	public final fun getBAD-cyedemc ()I
 	public final fun getGOOD-cyedemc ()I
 	public final fun getUNCERTAIN-cyedemc ()I
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public abstract interface class space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Companion;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Bool : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Bool$Companion;
-	public static final synthetic fun box-impl (Z)Lspace/kscience/krig/api/data/RawValue$Bool;
-	public static fun constructor-impl (Z)Z
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (ZLjava/lang/Object;)Z
-	public static final fun equals-impl0 (ZZ)Z
-	public final fun getValue ()Z
-	public fun hashCode ()I
-	public static fun hashCode-impl (Z)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (Z)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()Z
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$Bool$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$Bool$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize-wDLJJeI (Lkotlinx/serialization/encoding/Decoder;)Z
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize-Stnk07s (Lkotlinx/serialization/encoding/Encoder;Z)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Bool$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Dbl : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Dbl$Companion;
-	public static final synthetic fun box-impl (D)Lspace/kscience/krig/api/data/RawValue$Dbl;
-	public static fun constructor-impl (D)D
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (DLjava/lang/Object;)Z
-	public static final fun equals-impl0 (DD)Z
-	public final fun getValue ()D
-	public fun hashCode ()I
-	public static fun hashCode-impl (D)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (D)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()D
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$Dbl$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$Dbl$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize-__JJ1TU (Lkotlinx/serialization/encoding/Decoder;)D
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize-81x2X-M (Lkotlinx/serialization/encoding/Encoder;D)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Dbl$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$DblArr : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$DblArr$Companion;
-	public fun <init> ([D)V
-	public final fun component1 ()[D
-	public final fun copy ([D)Lspace/kscience/krig/api/data/RawValue$DblArr;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/data/RawValue$DblArr;[DILjava/lang/Object;)Lspace/kscience/krig/api/data/RawValue$DblArr;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getValue ()[D
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$DblArr$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$DblArr$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/data/RawValue$DblArr;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/data/RawValue$DblArr;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$DblArr$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Ext : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Ext$Companion;
-	public fun <init> ([BLjava/lang/String;)V
-	public final fun component1 ()[B
-	public final fun component2 ()Ljava/lang/String;
-	public final fun copy ([BLjava/lang/String;)Lspace/kscience/krig/api/data/RawValue$Ext;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/data/RawValue$Ext;[BLjava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/api/data/RawValue$Ext;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getTypeId ()Ljava/lang/String;
-	public final fun getValue ()[B
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$Ext$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$Ext$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/data/RawValue$Ext;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/data/RawValue$Ext;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Ext$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Lng : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Lng$Companion;
-	public static final synthetic fun box-impl (J)Lspace/kscience/krig/api/data/RawValue$Lng;
-	public static fun constructor-impl (J)J
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (JLjava/lang/Object;)Z
-	public static final fun equals-impl0 (JJ)Z
-	public final fun getValue ()J
-	public fun hashCode ()I
-	public static fun hashCode-impl (J)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (J)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()J
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$Lng$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$Lng$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize-GgwuG0I (Lkotlinx/serialization/encoding/Decoder;)J
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize-ksDMlT0 (Lkotlinx/serialization/encoding/Encoder;J)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Lng$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$MetaVal : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$MetaVal$Companion;
-	public fun <init> (Lspace/kscience/dataforge/meta/Meta;)V
-	public final fun component1 ()Lspace/kscience/dataforge/meta/Meta;
-	public final fun copy (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/api/data/RawValue$MetaVal;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/data/RawValue$MetaVal;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/api/data/RawValue$MetaVal;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getValue ()Lspace/kscience/dataforge/meta/Meta;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$MetaVal$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$MetaVal$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/data/RawValue$MetaVal;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/data/RawValue$MetaVal;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$MetaVal$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Str : space/kscience/krig/api/data/RawValue {
-	public static final field Companion Lspace/kscience/krig/api/data/RawValue$Str$Companion;
-	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/api/data/RawValue$Str;
-	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
-	public fun equals (Ljava/lang/Object;)Z
-	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
-	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
-	public final fun getValue ()Ljava/lang/String;
-	public fun hashCode ()I
-	public static fun hashCode-impl (Ljava/lang/String;)I
-	public fun toString ()Ljava/lang/String;
-	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
-	public final synthetic fun unbox-impl ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/api/data/RawValue$Str$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/api/data/RawValue$Str$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize-INO3Pis (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize-HXxLTKM (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/String;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/data/RawValue$Str$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

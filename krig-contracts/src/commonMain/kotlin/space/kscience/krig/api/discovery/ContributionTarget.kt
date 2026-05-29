@@ -1,10 +1,17 @@
-﻿package space.kscience.krig.api.discovery
+package space.kscience.krig.api.discovery
 
-import kotlin.jvm.JvmInline
+import kotlin.reflect.KClass
 
 /**
- * Typed discovery target — zero-overhead wrapper over DataForge's string `target`.
- * Compile-time type-inferred consumer signatures (see `Context.gather(target)`).
+ * Typed discovery target over DataForge's string `target`.
+ *
+ * [type] lets `Context.gather(target)` keep DataForge runtime type checks instead
+ * of relying on unchecked map casts.
  */
-@JvmInline
-public value class ContributionTarget<out T : Any>(public val id: String)
+public data class ContributionTarget<T : Any>(
+    public val id: String,
+    public val type: KClass<out T>,
+)
+
+public inline fun <reified T : Any> ContributionTarget(id: String): ContributionTarget<T> =
+    ContributionTarget(id, T::class)

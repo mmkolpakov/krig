@@ -10,6 +10,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import space.kscience.dataforge.io.asBinary
+import space.kscience.dataforge.io.toByteArray
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.PluginFactory
@@ -42,7 +46,6 @@ import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -51,15 +54,11 @@ import kotlin.test.assertTrue
 class BackendDeviceTypedBackendTest {
     private val valueName: Name = "value".asName()
 
-    private val valueSpec = object : MutableDevicePropertySpec<BackendDevice, Double> {
+    private val valueSpec = object : MutableDevicePropertyContract<Double> {
         override val name: Name = valueName
         override val converter: MetaConverter<Double> = MetaConverter.double
         override val descriptor: PropertyDescriptor =
             PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
-
-        override suspend fun read(device: BackendDevice): Double = error("not used")
-        override suspend fun write(device: BackendDevice, value: Double): Unit =
-            error("not used: ${device.name} = $value")
     }
 
     private object TestAuthorizationService : PluginFactory<AuthorizationService> {
@@ -111,6 +110,70 @@ class BackendDeviceTypedBackendTest {
 
         val failure = assertIs<OperationOutcome.Fail>(outcome)
         assertIs<ValidationFault>(failure.fault)
+    }
+
+    @Test
+    fun backendDeviceDelegatesBatchBinaryAndWriteBatch() = runTest {
+        val payload = byteArrayOf(13, 0)
+        var binaryRequests: List<Name> = emptyList()
+        var writeRequests: Map<Name, Meta> = emptyMap()
+        val backend = backend {
+            batchBinaryReader { descriptors ->
+                binaryRequests = descriptors.map { it.name }
+                descriptors.associate { descriptor ->
+                    descriptor.name to OperationOutcome.Ok(payload.asBinary())
+                }
+            }
+            batchWriter { values ->
+                writeRequests = values.mapKeys { (descriptor, _) -> descriptor.name }
+                values.keys.associate { descriptor ->
+                    descriptor.name to okUnit()
+                }
+            }
+        }
+        val device = BackendDevice(
+            backend = backend,
+            name = "typed-device-batch".asName(),
+            context = Context("typed-backend-batch-test"),
+            descriptorSource = DescriptorSource.of(mapOf(valueSpec.name to valueSpec.descriptor)),
+        )
+
+        val binaryOutcome = device.readBatchBinaryOutcome(listOf(valueSpec.name)).getValue(valueSpec.name)
+        val binaryOk = assertIs<OperationOutcome.Ok<space.kscience.dataforge.io.Binary>>(binaryOutcome)
+        assertEquals(payload.toList(), binaryOk.value.toByteArray().toList())
+        assertEquals(listOf(valueSpec.name), binaryRequests)
+
+        val writeOutcome = device.writeBatchOutcome(mapOf(valueSpec.name to metaOf(9.0))).getValue(valueSpec.name)
+        assertIs<OperationOutcome.Ok<Unit>>(writeOutcome)
+        assertEquals(9.0, writeRequests.getValue(valueSpec.name).doubleValue)
+    }
+
+    @Test
+    fun backendDeviceUsesTypedBackendSpecsForBatchWithoutDescriptorSource() = runTest {
+        var batchRequests: List<Name> = emptyList()
+        val backend = backend {
+            reader(valueSpec) { 7.0 }
+            batchObservedReader { descriptors ->
+                batchRequests = descriptors.map { it.name }
+                descriptors.associate { descriptor ->
+                    descriptor.name to OperationOutcome.Ok(
+                        ObservedValue(metaOf(17.0), clock.now(), DataQuality.GOOD),
+                    )
+                }
+            }
+        }
+        val device = BackendDevice(
+            backend = backend,
+            name = "typed-device-batch-no-manifest".asName(),
+            context = Context("typed-backend-batch-no-manifest-test"),
+            descriptorSource = DescriptorSource.Empty,
+        )
+
+        val outcome = device.readBatchOutcome(listOf(valueSpec.name)).getValue(valueSpec.name)
+        val observed = assertIs<OperationOutcome.Ok<ObservedValue<Meta?>>>(outcome)
+
+        assertEquals(17.0, observed.value.value?.doubleValue)
+        assertEquals(listOf(valueSpec.name), batchRequests)
     }
 
     @Test

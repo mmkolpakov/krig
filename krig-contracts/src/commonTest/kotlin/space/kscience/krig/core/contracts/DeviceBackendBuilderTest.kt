@@ -6,13 +6,19 @@
 package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.test.runTest
+import space.kscience.dataforge.io.toByteArray
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
@@ -21,19 +27,30 @@ import space.kscience.dataforge.names.asName
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.DurationUnit
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 
 /** Minimal stub [Device] purely to satisfy the `context(device)` contract on backend calls. */
 private fun stubDevice(): Device = object : AbstractDevice(
     "stub".asName(),
     DeviceRuntime(Context("backend-builder-test-${kotlin.random.Random.nextInt()}")),
 ) {
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {}
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
+}
+
+private object BackendSpec : DeviceContractBuilder() {
+    val value by property(MetaConverter.double, TypeIds.DOUBLE)
 }
 
 /**
@@ -177,5 +194,42 @@ class DeviceBackendBuilderTest {
         }
         device.close()
         assertTrue(closed, "onClose callback should fire on close()")
+    }
+
+    @Test
+    fun observedReaderPreservesQuality() = runTest {
+        val time = Instant.fromEpochMilliseconds(5)
+        val quality = DataQuality(QualitySeverity.UNCERTAIN)
+        val backend = deviceBackend {
+            readObserved(BackendSpec.value) { ObservedValue(12.5, time, quality) }
+        }
+        val device = stubDevice()
+
+        val observed = context(device) {
+            backend.readObserved(BackendSpec.value.descriptor).getOrThrow()
+        }
+        val meta = context(device) {
+            backend.read(BackendSpec.value.descriptor).getOrThrow()
+        }
+
+        assertEquals(12.5, observed.value?.doubleValue)
+        assertEquals(time, observed.time)
+        assertEquals(quality, observed.quality)
+        assertEquals(12.5, meta.doubleValue)
+    }
+
+    @Test
+    fun binaryReaderUsesBinaryPath() = runTest {
+        val payload = byteArrayOf(9, 8, 7)
+        val backend = deviceBackend {
+            readBytes(BackendSpec.value) { payload }
+        }
+        val device = stubDevice()
+
+        val binary = context(device) {
+            backend.readBinaryOutcome(BackendSpec.value.descriptor).getOrThrow().toByteArray()
+        }
+
+        assertContentEquals(payload, binary)
     }
 }

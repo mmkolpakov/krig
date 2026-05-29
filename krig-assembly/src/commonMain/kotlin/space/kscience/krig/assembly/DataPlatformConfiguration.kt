@@ -1,28 +1,19 @@
 package space.kscience.krig.assembly
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.Serializable
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.core.contracts.DeviceBlueprint
+import space.kscience.krig.core.contracts.DeviceManifest
 
 /**
  * Declarative runtime topology: devices to instantiate, timers to attach, properties to sample.
  *
- * This is an assembly descriptor for krig blueprints. External protocol acquisition
- * plans use [DataAcquisitionConfiguration], which keeps connector-specific addressing
- * outside the SDK core.
- *
- * ```json
- * {
- *   "sources":    [{ "id": "motor.x", "blueprintId": "simulated.motor", "config": {} }],
- *   "timers":     [{ "id": "fast", "intervalMs": 50, "properties": ["motor.x.position"] }],
- *   "properties": [{ "id": "motor.x.position", "sourceId": "motor.x", "property": "pv" }]
- * }
- * ```
+ * Assembly descriptor for KRig manifests. External protocol acquisition plans use
+ * [DataAcquisitionConfiguration], which keeps connector-specific addressing outside
+ * the SDK core.
  */
 @Serializable
 public data class DataPlatformConfiguration(
@@ -30,31 +21,36 @@ public data class DataPlatformConfiguration(
     val timers: List<TimerSpec> = emptyList(),
     val properties: List<PropertySpec> = emptyList(),
 ) {
-    public companion object {
-        /**
-         * Decodes a configuration document from [text]. Unknown keys are rejected by
-         * default so deployment typos fail during validation, not on a running stand.
-         */
-        public fun parse(text: String, json: Json = StrictJson): DataPlatformConfiguration =
-            json.decodeFromString(serializer(), text)
-
-        /** Decodes with unknown-key tolerance for explicit migration tooling only. */
-        public fun parseLenient(text: String): DataPlatformConfiguration =
-            parse(text, LenientJson)
-
-        internal val StrictJson: Json = Json {
-            ignoreUnknownKeys = false
-            encodeDefaults = false
-            explicitNulls = false
-        }
-
-        internal val LenientJson: Json = Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = false
-            explicitNulls = false
-        }
-    }
+    public companion object
 }
+
+public sealed interface DataPlatformLoadResult {
+    public data class Valid(public val config: DataPlatformConfiguration) : DataPlatformLoadResult
+    public data class Invalid(public val errors: List<String>) : DataPlatformLoadResult
+}
+
+/** Decodes [DataPlatformConfiguration] from a DataForge [Meta] document. */
+public fun DataPlatformConfiguration.Companion.fromMeta(
+    meta: Meta,
+    lenient: Boolean = false,
+): DataPlatformConfiguration =
+    decodeConfigurationMeta(DataPlatformConfiguration.serializer(), meta, lenient)
+
+/** Encodes this configuration into a DataForge [Meta] document. */
+public fun DataPlatformConfiguration.toMeta(): Meta =
+    encodeConfigurationMeta(DataPlatformConfiguration.serializer(), this)
+
+/** Decodes and validates a [DataPlatformConfiguration] from [meta]. */
+public fun DataPlatformConfiguration.Companion.load(meta: Meta, lenient: Boolean = false): DataPlatformLoadResult =
+    runCatching { fromMeta(meta, lenient) }
+        .fold(
+            onSuccess = { config ->
+                val errors = config.validate()
+                if (errors.isEmpty()) DataPlatformLoadResult.Valid(config)
+                else DataPlatformLoadResult.Invalid(errors)
+            },
+            onFailure = { error -> DataPlatformLoadResult.Invalid(listOf(error.message ?: error.toString())) },
+        )
 
 /** Reduction applied when a collector has to collapse several values into one grid bin. */
 @Serializable
@@ -83,31 +79,28 @@ public sealed interface ReductionSpec {
     @SerialName("named")
     public data class Named(
         val name: Name,
-        val config: JsonObject = JsonObject(emptyMap()),
+        val config: Meta = Meta.EMPTY,
     ) : ReductionSpec {
         override val id: Name get() = name
     }
 }
 
 /**
- * Describes a device instance to be created from a registered [DeviceBlueprint].
+ * Describes a device instance to be created from a registered [DeviceManifest].
  *
  * @property id Runtime name of the instance within the hub's device tree.
- * @property blueprintId Matches a [DeviceBlueprint.id] registered in the [BlueprintPlugin].
- * @property config Opaque per-instance configuration, threaded to the blueprint's builder.
+ * @property manifestId Matches a [DeviceManifest.id] registered in the [DeviceCatalog].
+ * @property config Opaque per-instance configuration, threaded to the Manifest's builder.
  */
 @Serializable
 public data class SourceSpec(
     val id: Name,
-    val blueprintId: Name,
-    val config: JsonObject = JsonObject(emptyMap()),
+    val manifestId: Name,
+    val config: Meta = Meta.EMPTY,
 ) {
     init {
         require(id != Name.EMPTY) { "SourceSpec id must not be empty" }
-        require(blueprintId != Name.EMPTY) { "SourceSpec '$id' blueprintId must not be empty" }
-        config.keys.forEach { key ->
-            require(key.isNotBlank()) { "SourceSpec '$id' config key must not be blank" }
-        }
+        require(manifestId != Name.EMPTY) { "SourceSpec '$id' manifestId must not be empty" }
     }
 }
 
@@ -178,23 +171,23 @@ public fun DataPlatformConfiguration.validate(): List<String> = buildList {
 }
 
 /**
- * Resolves every [SourceSpec.blueprintId] against the installed [BlueprintPlugin] and
- * returns the matching blueprint map. Missing blueprints surface as an exception so the
+ * Resolves every [SourceSpec.manifestId] against the installed [DeviceCatalog] and
+ * returns the matching Manifest map. Missing manifests surface as an exception so the
  * caller can short-circuit before starting any device.
  */
-public fun Context.resolveBlueprints(
+public fun Context.resolveManifests(
     config: DataPlatformConfiguration,
-): Map<Name, DeviceBlueprint<*>> {
-    val plugin = blueprints()
+): Map<Name, DeviceManifest> {
+    val catalog = deviceCatalog()
     val missing = mutableListOf<Name>()
     val resolved = buildMap {
         config.sources.forEach { spec ->
-            val bp = plugin[spec.blueprintId]
-            if (bp == null) missing += spec.blueprintId else put(spec.id, bp)
+            val manifest = catalog[spec.manifestId]
+            if (manifest == null) missing += spec.manifestId else put(spec.id, manifest)
         }
     }
     if (missing.isNotEmpty()) {
-        error("DataPlatformConfiguration references blueprints that are not registered: $missing")
+        error("DataPlatformConfiguration references manifests that are not registered: $missing")
     }
     return resolved
 }

@@ -14,10 +14,10 @@ import space.kscience.krig.dsl.device
 suspend fun deviceTreeDemo() {
     val ctx = demoContext("device-tree-demo")
     val mainPump = device("mainPump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
     val reservePump = device("reservePump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
 
     mainPump.write(PumpSpec.rpm, 1_100.0)

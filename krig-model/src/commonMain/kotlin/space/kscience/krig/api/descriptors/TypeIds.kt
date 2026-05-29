@@ -10,6 +10,7 @@ public object TypeIds {
     public const val BOOLEAN: String = "kotlin.Boolean"
     public const val STRING: String = "kotlin.String"
     public const val META: String = "space.kscience.dataforge.meta.Meta"
+    public const val BYTES: String = "kotlin.ByteArray"
 }
 
 /** Type id supplied by kotlinx.serialization metadata. */

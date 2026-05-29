@@ -16,7 +16,7 @@ public class KrigSymbolProcessor(
 
     private val generators: List<Generator> by lazy {
         listOf(
-            FeatureSpecContractValidator(environment),
+            PipelineFeatureSpecContractValidator(environment),
             ContributesAggregator(environment),
             SerializersModuleGenerator(environment),
         )

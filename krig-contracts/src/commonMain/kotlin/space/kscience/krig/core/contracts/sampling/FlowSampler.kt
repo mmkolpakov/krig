@@ -8,7 +8,9 @@ import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import space.kscience.attributes.SafeType
 import space.kscience.attributes.safeTypeOf
+import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.typed.DoubleSampler
+import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.contracts.typed.PrimitiveTypedSampler
 import space.kscience.krig.core.contracts.typed.TypedSampler
 
@@ -101,3 +103,11 @@ public class RingDoubleSampler(
 }
 
 public fun doubleSampler(capacity: Int = 256): RingDoubleSampler = RingDoubleSampler(capacity)
+
+/** Returns the primitive double sampler exposed for [spec], or `null` when the device has no such sampler. */
+public fun Device.doubleSampler(spec: DevicePropertyContract<Double>): DoubleSampler? =
+    sampler(spec) as? DoubleSampler
+
+/** Returns the primitive double sampler exposed for [spec]. */
+public fun Device.requireDoubleSampler(spec: DevicePropertyContract<Double>): DoubleSampler =
+    doubleSampler(spec) ?: error("Device '$name' does not expose a double sampler for '${spec.name}'.")

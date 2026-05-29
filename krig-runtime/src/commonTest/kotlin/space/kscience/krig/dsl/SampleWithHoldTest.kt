@@ -226,7 +226,7 @@ class SampleWithHoldTest {
     }
 
     @Test
-    fun withStalenessFallbackEmitsBadLastValueOnCompletion() = runTest {
+    fun withStalenessFallbackEmitsUncertainLastValueOnCompletion() = runTest {
         val values = flowOf(
             ObservedValue(
                 value = 42,
@@ -237,6 +237,6 @@ class SampleWithHoldTest {
 
         assertEquals(2, values.size)
         assertEquals(42, values[1].value)
-        assertEquals(QualitySeverity.BAD, values[1].quality.severity)
+        assertEquals(QualitySeverity.UNCERTAIN, values[1].quality.severity)
     }
 }

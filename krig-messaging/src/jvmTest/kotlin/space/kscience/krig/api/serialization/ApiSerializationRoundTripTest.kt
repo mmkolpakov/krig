@@ -1,13 +1,18 @@
 package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.json.Json
-import space.kscience.krig.api.features.FeatureSpec
+import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.krig.api.features.MetadataFeature
+import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.hub.HubEvent
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceOfflineMessage
 import space.kscience.krig.api.messages.DeviceOnlineMessage
+import space.kscience.krig.api.messages.PropertyReadResponse
+import space.kscience.krig.api.messages.PropertyWriteResponse
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
@@ -37,7 +42,7 @@ class ApiSerializationRoundTripTest {
 
     @Test
     fun metadataFeatureRoundTrip() {
-        roundTrip<FeatureSpec>(
+        roundTrip<PipelineFeatureSpec>(
             MetadataFeature(
                 description = "Cryostat #3",
             ),
@@ -96,7 +101,7 @@ class ApiSerializationRoundTripTest {
         roundTrip<DeviceMessage>(
             DeviceOnlineMessage(
                 time = Instant.fromEpochMilliseconds(1),
-                blueprintId = "com.example.sensor".parseAsName(),
+                manifestId = "com.example.sensor".parseAsName(),
                 sourceDevice = "lab.sensor".asName(),
             ),
         )
@@ -109,6 +114,34 @@ class ApiSerializationRoundTripTest {
                 time = Instant.fromEpochMilliseconds(2),
                 cause = DeviceDepartureReason.Graceful,
                 sourceDevice = "lab.sensor".asName(),
+            ),
+        )
+    }
+
+    @Test
+    fun propertyReadResponsePreservesQuality() {
+        roundTrip<DeviceMessage>(
+            PropertyReadResponse(
+                time = Instant.fromEpochMilliseconds(3),
+                property = "temperature",
+                value = MetaConverter.double.convert(273.15),
+                sourceDevice = "lab.sensor".asName(),
+                targetDevice = "client".asName(),
+                quality = DataQuality(QualitySeverity.UNCERTAIN),
+            ),
+        )
+    }
+
+    @Test
+    fun propertyWriteResponsePreservesObservedQuality() {
+        roundTrip<DeviceMessage>(
+            PropertyWriteResponse(
+                time = Instant.fromEpochMilliseconds(4),
+                property = "setpoint",
+                observedValue = MetaConverter.double.convert(42.0),
+                sourceDevice = "lab.sensor".asName(),
+                targetDevice = "client".asName(),
+                observedQuality = DataQuality(QualitySeverity.BAD),
             ),
         )
     }

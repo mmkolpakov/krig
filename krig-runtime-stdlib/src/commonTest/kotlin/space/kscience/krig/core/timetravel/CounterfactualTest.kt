@@ -55,7 +55,7 @@ class CounterfactualTest {
 
     @Test
     fun replayUntilStopsAtPredicateMatch() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 5), event(400, 4)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 5), event(400, 4)).testEnvelopes())
         val replay = CounterReplay()
         replay.replayUntil(log = log) { msg ->
             msg is PropertyChangedMessage && (msg.value.int ?: 0) >= 5
@@ -66,7 +66,7 @@ class CounterfactualTest {
 
     @Test
     fun counterfactualMutatesEveryEvent() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val replay = CounterReplay()
         replay.counterfactual(
             log = log,
@@ -83,7 +83,7 @@ class CounterfactualTest {
     fun branchAtAndWhatIfProducesDivergentFuture() = runTest {
         val history = listOf(event(100, 1), event(200, 2))
         val log = InMemoryReplayLog()
-        history.forEach { log.record(it) }
+        history.forEach { log.record(it.testEnvelope()) }
         val replay = CounterReplay()
 
         val branch = replay.branchAt(log, at = Instant.fromEpochMilliseconds(200))
@@ -102,7 +102,7 @@ class CounterfactualTest {
 
     @Test
     fun duplicatePropertyInjectionFailsFast() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1)))
+        val log = ReplayLog(flowOf(event(100, 1)).testEnvelopes())
         val replay = CounterReplay()
 
         assertFailsWith<IllegalArgumentException> {
@@ -126,8 +126,8 @@ class CounterfactualTest {
     @Test
     fun cursorMutationTargetsOneRecordWhenTimestampsCollide() = runTest {
         val log = InMemoryReplayLog()
-        log.record(event(100, 1))
-        log.record(event(100, 2))
+        log.record(event(100, 1).testEnvelope())
+        log.record(event(100, 2).testEnvelope())
         val replay = CounterReplay()
 
         replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(100)) {
@@ -141,7 +141,7 @@ class CounterfactualTest {
 
     @Test
     fun timeWindowMutationSurvivesTimestampRounding() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(101, 2), event(200, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(101, 2), event(200, 3)).testEnvelopes())
         val replay = CounterReplay()
 
         replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(200)) {
@@ -158,7 +158,7 @@ class CounterfactualTest {
 
     @Test
     fun cursorOperationsRequireCursorReplayLog() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1)))
+        val log = ReplayLog(flowOf(event(100, 1)).testEnvelopes())
         val replay = CounterReplay()
 
         assertFailsWith<IllegalArgumentException> {

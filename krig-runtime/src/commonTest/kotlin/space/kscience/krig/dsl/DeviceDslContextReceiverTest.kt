@@ -25,9 +25,8 @@ import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.DeviceEnvironment
-import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.dataforge.meta.MetaConverter
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicLong
@@ -162,15 +161,13 @@ class DeviceDslContextReceiverTest {
 
     @Test
     fun declarativeTypedWriteMismatchBecomesValidationFault() = runTest {
-        val forgedSpec = object : MutableDevicePropertySpec<Device, String> {
+        val forgedSpec = object : MutableDevicePropertyContract<String> {
             override val name = "setpoint".asName()
             override val descriptor: PropertyDescriptor = synthesizeProperty(name, mutable = true)
             override val converter: MetaConverter<String> = object : MetaConverter<String> {
                 override fun convert(obj: String): Meta = Meta(obj)
                 override fun readOrNull(source: Meta): String? = source["never".asName()]?.string
             }
-            override suspend fun read(device: Device): String? = null
-            override suspend fun write(device: Device, value: String) = Unit
         }
         val device = device("typed-mismatch", permissiveContext("dsl-typed-mismatch")) {
             mutableProperty("setpoint", initial = 20.0)

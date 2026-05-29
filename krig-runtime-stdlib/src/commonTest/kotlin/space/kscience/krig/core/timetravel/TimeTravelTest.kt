@@ -50,7 +50,7 @@ class TimeTravelTest {
 
     @Test
     fun replayFromScratchReachesFinalValue() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val replay = CounterReplay()
         replay.timeTravel(at = Instant.fromEpochMilliseconds(300), log = log)
         assertEquals(3, replay.value)
@@ -58,7 +58,7 @@ class TimeTravelTest {
 
     @Test
     fun pointInTimeStopsAtBoundary() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val replay = CounterReplay()
         replay.timeTravel(at = Instant.fromEpochMilliseconds(200), log = log)
         assertEquals(2, replay.value, "Events after `at` must not be applied")
@@ -66,7 +66,7 @@ class TimeTravelTest {
 
     @Test
     fun snapshotBaselineSkipsPriorReplay() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val baseline = DeviceSnapshot(
             at = Instant.fromEpochMilliseconds(200),
             state = Meta(2.asValue()),
@@ -82,7 +82,7 @@ class TimeTravelTest {
 
     @Test
     fun reverseTravelRewindsState() = runTest {
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)))
+        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
         val replay = CounterReplay()
         // Forward to t=300 > value=3.
         replay.timeTravel(at = Instant.fromEpochMilliseconds(300), log = log)

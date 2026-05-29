@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.0-RC"
+kotlin = "2.4.0-RC2"
 
 # Core runtime
 atomicfu = "0.32.1"
@@ -28,7 +28,7 @@ kotest = "6.1.11"
 lincheck = "2.39"
 
 # Code Generation (used by krig-ksp-processor + buildSrc convention plugin)
-ksp = "2.3.8"
+ksp = "2.3.9"
 kctfork = "0.13.0-alpha01"
 
 # Static Analysis

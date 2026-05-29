@@ -8,13 +8,11 @@ import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.descriptors.ActionDescriptor
-import space.kscience.krig.api.descriptors.OperationAttribute
 import space.kscience.krig.api.descriptors.OperationDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.descriptors.attributes.*
 import space.kscience.krig.api.faults.*
-import space.kscience.krig.api.features.FeatureSpec
 import space.kscience.krig.api.features.MetadataFeature
+import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.messages.ActionFaultMessage
 import space.kscience.krig.api.messages.ActionRequestMessage
 import space.kscience.krig.api.messages.ActionResponseMessage
@@ -37,13 +35,6 @@ import space.kscience.krig.api.meta.AdapterBinding
  */
 public val krigApiSerializersModule: SerializersModule = SerializersModule {
     polymorphic(TransportAddress::class)
-
-    polymorphic(OperationAttribute::class) {
-        subclass(MetadataAttribute::class)
-        subclass(BehaviorAttribute::class)
-        subclass(AccessAttribute::class)
-        subclass(BindingsAttribute::class)
-    }
 
     polymorphic(OperationFault::class) {
         subclass(AuthorizationFault::class)
@@ -71,7 +62,7 @@ public val krigApiSerializersModule: SerializersModule = SerializersModule {
         subclass(ActionResponseMessage::class)
     }
 
-    polymorphic(FeatureSpec::class) {
+    polymorphic(PipelineFeatureSpec::class) {
         subclass(MetadataFeature::class)
     }
 

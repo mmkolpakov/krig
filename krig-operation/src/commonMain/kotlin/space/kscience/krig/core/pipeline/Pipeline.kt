@@ -29,7 +29,7 @@ import kotlin.time.Duration
  * once at reader/writer/action creation time. Each interceptor wraps the next call;
  * the hot path invokes the pre-built chain with zero GC pressure.
  *
- * Analogue of Ktor's pipeline model, minimalised for krig.
+ * Minimal suspend operation pipeline for control-plane policies.
  */
 public class Pipeline<I, O> {
     private val interceptors: MutableList<suspend (I, suspend (I) -> O) -> O> = mutableListOf()

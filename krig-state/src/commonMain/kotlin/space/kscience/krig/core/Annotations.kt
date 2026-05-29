@@ -6,23 +6,22 @@
  * They are exposed publicly for technical reasons such as inline-function bodies or
  * cross-module access from runtime implementations.
  */
-@RequiresOptIn("This is an internal API of the krig and is not stable.", RequiresOptIn.Level.WARNING)
+@RequiresOptIn("KRig internal API; not stable.", RequiresOptIn.Level.WARNING)
 @Retention(AnnotationRetention.BINARY)
 public annotation class InternalKrigApi
 
 /**
- * Marks public APIs that are intentionally usable by downstream projects but whose
- * shape or production guarantees are still being validated. Opt in at the call site
- * to make that choice explicit.
+ * Marks public APIs whose shape or production guarantees are still being validated.
+ * Opt in at the call site to make that choice explicit.
  */
-@RequiresOptIn("This krig API is experimental and may change before a stable release.", RequiresOptIn.Level.WARNING)
+@RequiresOptIn("KRig experimental API; may change before a stable release.", RequiresOptIn.Level.WARNING)
 @Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalKrigApi
 
 /**
- * Marker for interfaces whose *use* is stable but whose *subclassing* ties the implementor
- * to our ABI evolution. Downstream opts in with `@OptIn` on a concrete class or
- * `@SubclassOptInRequired` on an abstract one.
+ * Marker for interfaces whose *use* is stable but whose *subclassing* ties the
+ * implementor to KRig ABI evolution. Opt in with `@OptIn` on a concrete class
+ * or `@SubclassOptInRequired` on an abstract one.
  */
 @RequiresOptIn(
     message = "Subclassing this krig interface requires explicit opt-in. " +

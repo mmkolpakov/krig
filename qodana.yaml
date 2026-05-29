@@ -3,6 +3,7 @@
 #             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
 #-------------------------------------------------------------------------------#
 version: "1.0"
+linter: qodana-jvm-community
 
 profile:
   name: Default
@@ -14,9 +15,11 @@ exclude:
   - name: UnnecessaryModuleDependencyInspection
   - name: unused
   - name: UnusedReceiverParameter
+  - name: SameParameterValue
+  - name: SameReturnValue
   - name: UnusedSymbol
     paths:
-      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/FeatureSpecContractValidatorTest.kt
+      - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/PipelineFeatureSpecContractValidatorTest.kt
       - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/KspIncrementalRegressionTest.kt
       - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/SerializersModuleGeneratorTest.kt
   - name: All

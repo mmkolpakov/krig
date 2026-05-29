@@ -29,15 +29,17 @@ public final class space/kscience/magix/api/MagixEndpointKt {
 
 public final class space/kscience/magix/api/MagixEnvelope {
 	public static final field Companion Lspace/kscience/magix/api/MagixEnvelope$Companion;
-	public fun <init> (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)V
-	public synthetic fun <init> (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Object;
 	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component3 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun copy (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/magix/api/MagixEnvelope;
-	public static synthetic fun copy$default (Lspace/kscience/magix/api/MagixEnvelope;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/magix/api/MagixEnvelope;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lspace/kscience/magix/api/MagixEnvelope;
+	public static synthetic fun copy$default (Lspace/kscience/magix/api/MagixEnvelope;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/magix/api/MagixEnvelope;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getData ()Ljava/lang/Object;
+	public final fun getFormat ()Ljava/lang/String;
 	public final fun getHeaders ()Lkotlinx/serialization/json/JsonObject;
 	public final fun getTopic ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
@@ -61,10 +63,10 @@ public final class space/kscience/magix/api/MagixEnvelope$Companion {
 
 public final class space/kscience/magix/api/MagixEnvelopeKt {
 	public static final fun decodeEnvelopeOrNull (Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/Json;Lkotlinx/serialization/KSerializer;)Lspace/kscience/magix/api/MagixEnvelope;
-	public static final fun encodeEnvelope (Lkotlinx/serialization/json/JsonElement$Companion;Lkotlinx/serialization/json/Json;Lkotlinx/serialization/KSerializer;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)Lkotlinx/serialization/json/JsonElement;
-	public static synthetic fun encodeEnvelope$default (Lkotlinx/serialization/json/JsonElement$Companion;Lkotlinx/serialization/json/Json;Lkotlinx/serialization/KSerializer;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
-	public static final fun envelopeOf (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/magix/api/MagixEnvelope;
-	public static synthetic fun envelopeOf$default (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/magix/api/MagixEnvelope;
+	public static final fun encodeEnvelope (Lkotlinx/serialization/json/JsonElement$Companion;Lkotlinx/serialization/json/Json;Lkotlinx/serialization/KSerializer;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+	public static synthetic fun encodeEnvelope$default (Lkotlinx/serialization/json/JsonElement$Companion;Lkotlinx/serialization/json/Json;Lkotlinx/serialization/KSerializer;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonElement;
+	public static final fun envelopeOf (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;)Lspace/kscience/magix/api/MagixEnvelope;
+	public static synthetic fun envelopeOf$default (Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonObject;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/magix/api/MagixEnvelope;
 }
 
 public abstract interface class space/kscience/magix/api/MagixFlowPlugin {
@@ -186,5 +188,53 @@ public final class space/kscience/magix/api/MagixMessageKt {
 }
 
 public abstract interface annotation class space/kscience/magix/api/UnstableMagixEndpoint : java/lang/annotation/Annotation {
+}
+
+public final class space/kscience/magix/api/WaltzRfc1Message {
+	public static final field Companion Lspace/kscience/magix/api/WaltzRfc1Message$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lspace/kscience/magix/api/WaltzRfc1Message;
+	public static synthetic fun copy$default (Lspace/kscience/magix/api/WaltzRfc1Message;Lspace/kscience/dataforge/names/Name;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lspace/kscience/magix/api/WaltzRfc1Message;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFormat ()Ljava/lang/String;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getOrigin ()Lspace/kscience/dataforge/names/Name;
+	public final fun getParentId ()Ljava/lang/String;
+	public final fun getPayload ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getTarget ()Lspace/kscience/dataforge/names/Name;
+	public final fun getUser ()Lkotlinx/serialization/json/JsonElement;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/magix/api/WaltzRfc1Message$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/magix/api/WaltzRfc1Message$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/magix/api/WaltzRfc1Message;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/magix/api/WaltzRfc1Message;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/magix/api/WaltzRfc1Message$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/magix/api/WaltzRfc1MessageKt {
+	public static final field KRIG_ENVELOPE_FORMAT Ljava/lang/String;
+	public static final fun toMagixMessage (Lspace/kscience/magix/api/WaltzRfc1Message;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;)Lspace/kscience/magix/api/MagixMessage;
+	public static synthetic fun toMagixMessage$default (Lspace/kscience/magix/api/WaltzRfc1Message;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lspace/kscience/magix/api/MagixMessage;
+	public static final fun toWaltzRfc1 (Lspace/kscience/magix/api/MagixMessage;ZLjava/lang/String;)Lspace/kscience/magix/api/WaltzRfc1Message;
+	public static synthetic fun toWaltzRfc1$default (Lspace/kscience/magix/api/MagixMessage;ZLjava/lang/String;ILjava/lang/Object;)Lspace/kscience/magix/api/WaltzRfc1Message;
 }
 

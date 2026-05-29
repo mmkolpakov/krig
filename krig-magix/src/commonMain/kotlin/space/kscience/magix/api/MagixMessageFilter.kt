@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.toStringUnescaped
+import space.kscience.dataforge.names.NameToken
 
 /**
  * A declarative filter for [MagixMessage]s, used to specify subscription criteria.
@@ -60,74 +60,41 @@ public fun Flow<MagixMessage>.filter(filter: MagixMessageFilter): Flow<MagixMess
     if (filter == MagixMessageFilter.ALL) this else filter(filter::accepts)
 
 private class CompiledTopicPattern(pattern: Name) {
-    private val tokens: List<String> = tokenizePattern(pattern.toStringUnescaped())
+    private val tokens = pattern.tokens
 
-    fun matches(topic: Name): Boolean = matchesAt(topic.toStringUnescaped(), 0, 0)
+    fun matches(topic: Name): Boolean = matchesAt(topic.tokens, 0, 0)
 
-    private fun matchesAt(topic: String, topicIndex: Int, patternIndex: Int): Boolean {
-        if (patternIndex == tokens.size) return nextSegment(topic, topicIndex) == NO_SEGMENT
+    private fun matchesAt(topic: List<NameToken>, topicIndex: Int, patternIndex: Int): Boolean {
+        if (patternIndex == tokens.size) return topicIndex == topic.size
 
-        return when (val token = tokens[patternIndex]) {
-            "**" -> {
+        val token = tokens[patternIndex]
+        return when {
+            token.isAllWildcard -> {
                 if (patternIndex == tokens.lastIndex) return true
                 if (matchesAt(topic, topicIndex, patternIndex + 1)) return true
-                var bounds = nextSegment(topic, topicIndex)
-                while (bounds != NO_SEGMENT) {
-                    val nextIndex = segmentEnd(bounds) + 1
+                var nextIndex = topicIndex
+                while (nextIndex < topic.size) {
+                    nextIndex++
                     if (matchesAt(topic, nextIndex, patternIndex + 1)) return true
-                    bounds = nextSegment(topic, nextIndex)
                 }
                 false
             }
 
-            "*" -> {
-                val bounds = nextSegment(topic, topicIndex)
-                bounds != NO_SEGMENT && matchesAt(topic, segmentEnd(bounds) + 1, patternIndex + 1)
+            token.isAnyWildcard -> {
+                topicIndex < topic.size && matchesAt(topic, topicIndex + 1, patternIndex + 1)
             }
 
             else -> {
-                val bounds = nextSegment(topic, topicIndex)
-                bounds != NO_SEGMENT &&
-                        segmentEquals(topic, segmentStart(bounds), segmentEnd(bounds), token) &&
-                        matchesAt(topic, segmentEnd(bounds) + 1, patternIndex + 1)
+                topicIndex < topic.size &&
+                        topic[topicIndex] == token &&
+                        matchesAt(topic, topicIndex + 1, patternIndex + 1)
             }
         }
     }
 }
 
-private const val NO_SEGMENT: Long = -1L
+private val NameToken.isAnyWildcard: Boolean
+    get() = body == "*" && index == null
 
-private fun tokenizePattern(pattern: String): List<String> = buildList {
-    var index = 0
-    while (true) {
-        val bounds = nextSegment(pattern, index)
-        if (bounds == NO_SEGMENT) break
-        add(pattern.substring(segmentStart(bounds), segmentEnd(bounds)))
-        index = segmentEnd(bounds) + 1
-    }
-}
-
-private fun nextSegment(value: String, fromIndex: Int): Long {
-    var start = fromIndex
-    while (start < value.length && value[start] == '.') start++
-    if (start >= value.length) return NO_SEGMENT
-
-    var end = start
-    while (end < value.length && value[end] != '.') end++
-    return packSegment(start, end)
-}
-
-private fun packSegment(start: Int, end: Int): Long =
-    (start.toLong() shl 32) or (end.toLong() and 0xffffffffL)
-
-private fun segmentStart(bounds: Long): Int = (bounds shr 32).toInt()
-
-private fun segmentEnd(bounds: Long): Int = bounds.toInt()
-
-private fun segmentEquals(value: String, start: Int, end: Int, token: String): Boolean {
-    if (end - start != token.length) return false
-    for (offset in token.indices) {
-        if (value[start + offset] != token[offset]) return false
-    }
-    return true
-}
+private val NameToken.isAllWildcard: Boolean
+    get() = body == "**" && index == null

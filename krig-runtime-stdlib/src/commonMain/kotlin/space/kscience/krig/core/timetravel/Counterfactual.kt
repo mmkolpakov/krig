@@ -29,7 +29,8 @@ public suspend fun Reconstructible.replayUntil(
     val from = snapshot?.at ?: Instant.DISTANT_PAST
     if (snapshot != null) restoreSnapshot(snapshot)
     var matched: DeviceMessage? = null
-    log.replay(from, until).transformWhile { event ->
+    log.replay(from, until).transformWhile { envelope ->
+        val event = envelope.payload
         emit(event)
         if (predicate(event)) {
             matched = event
@@ -53,7 +54,7 @@ public suspend fun Reconstructible.counterfactual(
 ) {
     val from = snapshot?.at ?: Instant.DISTANT_PAST
     if (snapshot != null) restoreSnapshot(snapshot)
-    log.replay(from, at).map(mutator).collect { applyEvent(it) }
+    log.replay(from, at).map { mutator(it.payload) }.collect { applyEvent(it) }
 }
 
 /** Captured divergence point: snapshot at [at] and the exact storage [cursor]. */
@@ -94,10 +95,7 @@ public suspend fun Reconstructible.branchAt(
     )
 }
 
-/**
- * Replays the canonical continuation after this [BranchPoint].
- * Returns a cold [Flow] to prevent memory exhaustion on large event logs.
- */
+/** Replays the recorded continuation after this [BranchPoint]. */
 public fun BranchPoint.replayHistory(
     log: CursorReplayLog,
 ): Flow<DeviceMessage> = log.replayFrom(cursor).map { it.message }

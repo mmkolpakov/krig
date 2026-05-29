@@ -14,6 +14,8 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.attributes.BehaviorAttribute
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.operationAttributes
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.faults.GenericOperationFault
@@ -251,7 +253,9 @@ class PipelineExecutorTest {
             name = "value".asName(),
             kind = PropertyKind.LOGICAL,
             valueTypeId = "kotlin.Double",
-            attributes = setOf(BehaviorAttribute(requiredCapabilities = setOf(capabilityId))),
+            attributes = operationAttributes {
+                OperationAttributeKeys.Behavior(BehaviorAttribute(requiredCapabilities = setOf(capabilityId)))
+            },
         )
         val context = OperationContext(OperationKinds.Read, descriptor.name, descriptor, "device".asName())
 

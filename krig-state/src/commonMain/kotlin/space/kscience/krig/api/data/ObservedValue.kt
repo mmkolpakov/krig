@@ -44,13 +44,25 @@ public fun <T> observed(
 public val ObservedValue<*>.isGood: Boolean
     get() = quality.severity == QualitySeverity.GOOD
 
+/** `true` when this observation carries a non-null value regardless of quality. */
+public val ObservedValue<*>.hasValue: Boolean
+    get() = value != null
+
 /** `true` when the sample value is present and its quality is [DataQuality.GOOD]. */
 public val ObservedValue<*>.isUsable: Boolean
-    get() = value != null && isGood
+    get() = hasValue && isGood
+
+/** `true` when the value is present and its quality is exactly [DataQuality.GOOD]. */
+public val ObservedValue<*>.isReliable: Boolean
+    get() = isUsable
 
 /** Returns the sample value only when [isUsable], otherwise `null`. */
 public val <T> ObservedValue<T>.usableValue: T?
     get() = if (isUsable) value else null
+
+/** Returns the value when its quality is not worse than [maxSeverity]. */
+public fun <T> ObservedValue<T>.valueIfQualityAtMost(maxSeverity: QualitySeverity): T? =
+    if (hasValue && quality.severity <= maxSeverity) value else null
 
 /** Returns [usableValue] or throws when the sample is absent or has degraded quality. */
 public fun <T> ObservedValue<T>.requireUsableValue(): T =

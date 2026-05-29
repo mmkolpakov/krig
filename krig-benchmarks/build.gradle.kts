@@ -32,6 +32,7 @@ dependencies {
     implementation(project(":krig-contracts"))
     implementation(project(":krig-messaging"))
     implementation(project(":krig-operation"))
+    implementation(project(":krig-runtime"))
     implementation(project(":krig-runtime-stdlib"))
     implementation(project(":krig-storage"))
     implementation(libs.dataforge.meta)

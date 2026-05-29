@@ -1,8 +1,7 @@
-﻿package space.kscience.krig.core.meta
+package space.kscience.krig.core.meta
 
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import kotlin.jvm.JvmName
@@ -10,8 +9,7 @@ import kotlin.jvm.JvmName
 /**
  * Pure read-only property contract: serializable [descriptor] plus typed conversion metadata.
  *
- * This is the stable blueprint side of the SDK. Driver logic belongs to a backend or to
- * [DevicePropertySpec] only when using the legacy/executable spec builder.
+ * Manifest-side contract. Driver logic belongs to a backend.
  */
 public interface DevicePropertyContract<T> {
     public val name: Name
@@ -33,22 +31,6 @@ public interface DeviceActionContract<I, O> {
     public val descriptor: ActionDescriptor
     public val inputConverter: MetaConverter<I>
     public val outputConverter: MetaConverter<O>
-}
-
-/** Read-only executable property spec: [DevicePropertyContract] + read logic bound to a [Device] of type [D]. */
-public interface DevicePropertySpec<in D : Device, T> : DevicePropertyContract<T> {
-
-    public suspend fun read(device: D): T?
-}
-
-/** Mutable property spec — adds write logic to [DevicePropertySpec]. */
-public interface MutableDevicePropertySpec<in D : Device, T> : DevicePropertySpec<D, T>, MutableDevicePropertyContract<T> {
-    public suspend fun write(device: D, value: T)
-}
-
-/** Executable action spec: [DeviceActionContract] + execute logic binding input [I] to output [O] on [D]. */
-public interface DeviceActionSpec<in D : Device, I, O> : DeviceActionContract<I, O> {
-    public suspend fun execute(device: D, input: I): O?
 }
 
 @JvmName("propertyDescriptorMap")

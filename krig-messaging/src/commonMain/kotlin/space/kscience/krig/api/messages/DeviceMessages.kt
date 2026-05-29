@@ -22,7 +22,7 @@ public data class PropertyChangedMessage(
     public val value: Meta,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-    public val quality: DataQuality? = null,
+    public val quality: DataQuality = DataQuality.GOOD,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.PropertyChanged
 
@@ -70,7 +70,7 @@ public data class ActionFaultMessage(
 public data class DeviceAttachedMessage(
     override val time: Instant,
     public val deviceName: Name,
-    public val blueprintId: Name,
+    public val manifestId: Name,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
 ) : DeviceMessage {
@@ -129,6 +129,7 @@ public data class PropertyReadResponse(
     public val value: Meta,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
+    public val quality: DataQuality = DataQuality.GOOD,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyReadResponse
 
@@ -165,6 +166,7 @@ public data class PropertyWriteResponse(
     public val observedValue: Meta? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
+    public val observedQuality: DataQuality? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyWriteResponse
 
@@ -233,8 +235,8 @@ public data class ActionResponseMessage(
 
 /**
  * Optional descriptor payload for [DeviceOnlineMessage]. Most consumers should resolve
- * [DeviceOnlineMessage.blueprintId] through a registry; this snapshot is a bootstrap hint
- * for peers that do not have the blueprint cached yet.
+ * [DeviceOnlineMessage.manifestId] through a registry; this snapshot is a bootstrap hint
+ * for peers that do not have the Manifest cached yet.
  */
 @Serializable
 public data class DeviceDescriptorSnapshot(
@@ -255,7 +257,7 @@ public data class DeviceDescriptorSnapshot(
 @SerialName(DeviceMessageType.DeviceOnline)
 public data class DeviceOnlineMessage(
     override val time: Instant,
-    public val blueprintId: Name,
+    public val manifestId: Name,
     public val descriptorSnapshot: DeviceDescriptorSnapshot? = null,
     public val initialValues: Map<String, Meta> = emptyMap(),
     override val sourceDevice: Name,

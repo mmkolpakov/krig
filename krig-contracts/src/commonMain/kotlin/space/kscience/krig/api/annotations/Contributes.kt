@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.annotations
+package space.kscience.krig.api.annotations
 
 import kotlin.reflect.KClass
 
@@ -9,7 +9,7 @@ public enum class EmissionStrategy {
 
     /**
      * Invoke the contributor object as a factory function: `"id".asName() to MyObject()`.
-     * Used for blueprint factories whose `object` implements `() -> DeviceBlueprint<*>`.
+     * Used for Manifest factories whose `object` implements `() -> DeviceManifest`.
      */
     INVOKE_AS_FACTORY,
 }

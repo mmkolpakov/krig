@@ -1,18 +1,17 @@
 ﻿package space.kscience.krig.simulation
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
 import space.kscience.dataforge.misc.DFBuilder
 import space.kscience.krig.concurrency.Resource
 import space.kscience.krig.concurrency.ResourcePriority
-import space.kscience.krig.concurrency.Signal
+import space.kscience.krig.concurrency.waitUntil
 import space.kscience.krig.core.contracts.Device
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.time.Duration
 
 /**
  * Process-oriented simulation DSL on `kotlinx.coroutines` + [DeterministicScheduler].
- * `hold` = `delay`, `waitUntil` = `Signal.waitUntil`, `request` = [Resource.use]. No
+ * `hold` = `delay`, `waitUntil` = `StateFlow.waitUntil`, `request` = [Resource.use]. No
  * `sequence/yield` sentinels — plain `suspend fun` under structured concurrency.
  *
  * ```kotlin
@@ -38,7 +37,7 @@ internal class ProcessScopeImpl(parent: CoroutineScope) : ProcessScope, Coroutin
  * or supervise it like any other coroutine.
  *
  * The provided [block] runs in a [ProcessScope]; inside, [hold], [waitUntil], [request] and
- * [Signal.waitUntil] work on the scope's dispatcher (typically [DeterministicScheduler]).
+ * StateFlow waiting work on the scope's dispatcher (typically [DeterministicScheduler]).
  */
 public fun CoroutineScope.process(
     name: String = "process",
@@ -60,17 +59,6 @@ public suspend fun ProcessScope.hold(duration: Duration) {
 }
 
 /**
- * Suspends until [signal]'s current value satisfies [predicate], returning that value.
- * Observing the signal is conflated: intermediate values that match but are superseded
- * before collection may be missed. This mirrors `StateFlow` semantics.
- */
-@Suppress("UnusedReceiverParameter")
-public suspend fun <T> ProcessScope.waitUntil(
-    signal: Signal<T>,
-    predicate: (T) -> Boolean,
-): T = signal.waitUntil(predicate)
-
-/**
  * Convenience overload: wait until an arbitrary `kotlinx.coroutines.flow.StateFlow` satisfies
  * a predicate. Useful with device state flows exposed by `DeviceState<T>`.
  */
@@ -78,7 +66,7 @@ public suspend fun <T> ProcessScope.waitUntil(
 public suspend fun <T> ProcessScope.waitUntil(
     flow: kotlinx.coroutines.flow.StateFlow<T>,
     predicate: (T) -> Boolean,
-): T = flow.first(predicate)
+): T = flow.waitUntil(predicate)
 
 /**
  * Claims [amount] units of [resource], runs [block], and releases the units on exit

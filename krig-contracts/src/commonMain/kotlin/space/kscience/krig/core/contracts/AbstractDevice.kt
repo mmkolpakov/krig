@@ -8,20 +8,29 @@ import kotlinx.coroutines.flow.*
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.meta.ObservableMutableMeta
 import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.identifiers.ControlsPermissions
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.envelope
 import space.kscience.krig.api.messages.withHlcStamp
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.api.result.map
 import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.auditService
 import space.kscience.krig.api.services.authorizationService
@@ -36,7 +45,7 @@ import kotlin.time.TimeSource
 
 /**
  * Base [Device] implementation. Owns the two-plane message flows and the lifecycle state;
- * subclasses implement [readProperty], [writeProperty] and [execute].
+ * subclasses implement the protected `do*Outcome` hooks for I/O.
  */
 @OptIn(InternalKrigApi::class, PerformancePitfall::class)
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
@@ -84,29 +93,159 @@ public abstract class AbstractDevice(
     override fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
         capabilityRegistry.capability(key)
 
+    // --- Operation API ---
+
+    final override suspend fun readProperty(propertyName: Name): Meta =
+        readPropertyOutcome(propertyName).getOrThrow()
+
+    final override suspend fun writeProperty(propertyName: Name, value: Meta) {
+        writePropertyOutcome(propertyName, value).getOrThrow()
+    }
+
+    final override suspend fun execute(actionName: Name, argument: Meta?): Meta? =
+        executeOutcome(actionName, argument).getOrThrow()
+
+    final override suspend fun readPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        trackedOperationOutcome { doReadPropertyOutcome(propertyName) }
+
+    final override suspend fun writePropertyOutcome(
+        propertyName: Name,
+        value: Meta,
+    ): OperationOutcome<Unit> =
+        trackedOperationOutcome { doWritePropertyOutcome(propertyName, value) }
+
+    final override suspend fun executeOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        trackedOperationOutcome { doExecuteOutcome(actionName, argument) }
+
+    final override suspend fun readObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
+        trackedOperationOutcome { doReadObservedOutcome(propertyName) }
+
+    final override suspend fun readBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
+        trackedBatchOutcome(properties) { doReadBatchOutcome(properties) }
+
+    final override suspend fun readBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
+        trackedOperationOutcome { doReadBinaryOutcome(propertyName) }
+
+    final override suspend fun readBatchBinaryOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<Binary>> =
+        trackedBatchOutcome(properties) { doReadBatchBinaryOutcome(properties) }
+
+    final override suspend fun writeBinaryOutcome(propertyName: Name, value: Binary): OperationOutcome<Unit> =
+        trackedOperationOutcome { doWriteBinaryOutcome(propertyName, value) }
+
+    final override suspend fun writeBatchOutcome(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        trackedBatchOutcome(values.keys) { doWriteBatchOutcome(values) }
+
+    protected open suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Fail(
+            GenericOperationFault(message = "Read of property '$propertyName' is not implemented by device '$name'."),
+        )
+
+    protected open suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.Fail(
+            GenericOperationFault(message = "Write of property '$propertyName' is not implemented by device '$name'."),
+        )
+
+    protected open suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Fail(
+            GenericOperationFault(message = "Action '$actionName' is not implemented by device '$name'."),
+        )
+
+    protected open suspend fun doReadObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
+        doReadPropertyOutcome(propertyName).map { value ->
+            ObservedValue(value = value, time = clock.now(), quality = DataQuality.GOOD)
+        }
+
+    protected open suspend fun doReadBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
+        properties.associateWith { propertyName -> doReadObservedOutcome(propertyName) }
+
+    protected open suspend fun doReadBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
+        OperationOutcome.Fail(
+            GenericOperationFault(message = "Binary read of property '$propertyName' is not implemented by device '$name'."),
+        )
+
+    protected open suspend fun doReadBatchBinaryOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<Binary>> =
+        properties.associateWith { propertyName -> doReadBinaryOutcome(propertyName) }
+
+    protected open suspend fun doWriteBinaryOutcome(propertyName: Name, value: Binary): OperationOutcome<Unit> =
+        OperationOutcome.Fail(
+            GenericOperationFault(message = "Binary write of property '$propertyName' is not implemented by device '$name'."),
+        )
+
+    protected open suspend fun doWriteBatchOutcome(
+        values: Map<Name, Meta>,
+    ): Map<Name, OperationOutcome<Unit>> =
+        values.mapValues { (propertyName, value) -> doWritePropertyOutcome(propertyName, value) }
+
+    private suspend inline fun <T> trackedOperationOutcome(
+        crossinline block: suspend () -> OperationOutcome<T>,
+    ): OperationOutcome<T> = try {
+        enterOperation()
+        try {
+            block()
+        } finally {
+            exitOperation()
+        }
+    } catch (e: OperationFaultException) {
+        OperationOutcome.Fail(e.fault)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: RuntimeException) {
+        updateLifecycleState(LifecycleState.Failed(e))
+        throw e
+    }
+
+    private suspend inline fun <T> trackedBatchOutcome(
+        properties: Collection<Name>,
+        crossinline block: suspend () -> Map<Name, OperationOutcome<T>>,
+    ): Map<Name, OperationOutcome<T>> = try {
+        enterOperation()
+        try {
+            block()
+        } finally {
+            exitOperation()
+        }
+    } catch (e: OperationFaultException) {
+        properties.associateWith { OperationOutcome.Fail(e.fault) }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: RuntimeException) {
+        updateLifecycleState(LifecycleState.Failed(e))
+        throw e
+    }
+
     // --- Two-plane message flows ---
 
-    private val mutableControlFlow: MutableSharedFlow<MessageEnvelope<DeviceMessage>> = MutableSharedFlow(
+    private val mutableControlFlow: MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>> = MutableSharedFlow(
         replay = messaging.replay,
         extraBufferCapacity = messaging.controlBufferCapacity,
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
-    private val mutableDataFlow: MutableSharedFlow<MessageEnvelope<DeviceMessage>> = MutableSharedFlow(
+    private val mutableDataFlow: MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>> = MutableSharedFlow(
         replay = 0,
         extraBufferCapacity = messaging.dataBufferCapacity,
         onBufferOverflow = messaging.toDataBufferOverflow(),
     )
 
-    final override val controlFlow: SharedFlow<MessageEnvelope<DeviceMessage>> = mutableControlFlow.asSharedFlow()
-    final override val dataFlow: SharedFlow<MessageEnvelope<DeviceMessage>> = mutableDataFlow.asSharedFlow()
+    final override val controlFlow: SharedFlow<DeviceMessageEnvelope<DeviceMessage>> = mutableControlFlow.asSharedFlow()
+    final override val dataFlow: SharedFlow<DeviceMessageEnvelope<DeviceMessage>> = mutableDataFlow.asSharedFlow()
 
-    private val controlMailbox: Channel<MessageEnvelope<DeviceMessage>> = Channel(
+    private val controlMailbox: Channel<DeviceMessageEnvelope<DeviceMessage>> = Channel(
         capacity = messaging.controlBufferCapacity,
         onBufferOverflow = BufferOverflow.SUSPEND,
     )
 
-    private val dataMailbox: Channel<MessageEnvelope<DeviceMessage>> = Channel(
+    private val dataMailbox: Channel<DeviceMessageEnvelope<DeviceMessage>> = Channel(
         capacity = mailboxCapacity(messaging.dataBufferCapacity, messaging.toDataBufferOverflow()),
         onBufferOverflow = messaging.toDataBufferOverflow(),
     )
@@ -128,7 +267,7 @@ public abstract class AbstractDevice(
     }
 
     @InternalKrigApi
-    protected suspend fun emit(envelope: MessageEnvelope<DeviceMessage>) {
+    protected suspend fun emit(envelope: DeviceMessageEnvelope<DeviceMessage>) {
         mailboxFor(envelope).send(envelope)
     }
 
@@ -143,13 +282,13 @@ public abstract class AbstractDevice(
     }
 
     @InternalKrigApi
-    protected fun tryEmit(envelope: MessageEnvelope<DeviceMessage>): Boolean {
+    protected fun tryEmit(envelope: DeviceMessageEnvelope<DeviceMessage>): Boolean {
         return mailboxFor(envelope).trySend(envelope).isSuccess
     }
 
     private suspend fun pumpMessages(
-        mailbox: ReceiveChannel<MessageEnvelope<DeviceMessage>>,
-        target: MutableSharedFlow<MessageEnvelope<DeviceMessage>>,
+        mailbox: ReceiveChannel<DeviceMessageEnvelope<DeviceMessage>>,
+        target: MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>>,
     ) {
         for (envelope in mailbox) {
             val stamped = runtime.hlc?.let { envelope.withHlcStamp(it.tick()) } ?: envelope
@@ -157,7 +296,7 @@ public abstract class AbstractDevice(
         }
     }
 
-    private fun mailboxFor(envelope: MessageEnvelope<DeviceMessage>): Channel<MessageEnvelope<DeviceMessage>> = when (
+    private fun mailboxFor(envelope: DeviceMessageEnvelope<DeviceMessage>): Channel<DeviceMessageEnvelope<DeviceMessage>> = when (
         envelope.payload
     ) {
         is PropertyChangedMessage -> dataMailbox
@@ -191,24 +330,21 @@ public abstract class AbstractDevice(
     // --- Subscription with auth + audit ---
 
     /**
-     * Authorization checked once at subscription time. Returned flow is buffered with
-     * DROP_OLDEST so a slow external consumer drops its own messages instead of blocking
-     * the hardware polling loop. For guaranteed delivery route through a persistent broker.
+     * Authorization checked once at subscription time. Returned flow preserves the
+     * source-side control/data-plane buffering policy. Consumers that prefer a best-effort
+     * UI stream can add their own Flow buffer or use the higher-level subscription DSL.
      */
-    override suspend fun subscribe(principal: Principal): Flow<MessageEnvelope<DeviceMessage>> {
+    override suspend fun subscribe(principal: Principal): Flow<DeviceMessageEnvelope<DeviceMessage>> {
         val permission = ControlsPermissions.deviceSubscribe(name.toString())
         context.authorizationService.checkPermission(principal, permission)
         if (context.auditService.isActive) {
             context.auditService.record(
                 principal,
                 AuditAction.DeviceSubscribe,
-                Meta { "device" put name.toString() },
+                Meta { OperationFaultDetails.DEVICE put name.toString() },
             )
         }
-        return messageFlow.buffer(
-            capacity = messaging.controlBufferCapacity,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST,
-        )
+        return messageFlow
     }
 
     override suspend fun shutdown() {

@@ -1,7 +1,6 @@
 @file:OptIn(
     space.kscience.krig.core.ExperimentalKrigApi::class,
     space.kscience.krig.core.PerformancePitfall::class,
-    space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
 package space.kscience.krig.demo
@@ -14,16 +13,14 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import space.kscience.dataforge.context.Context
-import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.hub.HubEvent
 import space.kscience.krig.api.messages.DeviceDepartureReason
-import space.kscience.krig.core.contracts.AbstractDevice
-import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.runtime.awaitChildren
 import space.kscience.krig.core.runtime.deviceHub
 import space.kscience.krig.core.runtime.reconcile
+import space.kscience.krig.dsl.device
 
 /**
  * Device hub walkthrough: attach, detach, reconcile, hub events.
@@ -31,7 +28,7 @@ import space.kscience.krig.core.runtime.reconcile
  * Run: `./gradlew :krig-demo:jvmRun`
  */
 suspend fun deviceHubDemo(): Unit = coroutineScope {
-    val hubCtx = Context("hub-demo")
+    val hubCtx = demoContext("hub-demo")
     val hub = deviceHub("hub", hubCtx)
 
     println("=== 1. Attach devices ===")
@@ -45,8 +42,8 @@ suspend fun deviceHubDemo(): Unit = coroutineScope {
             .take(2).toList(attached)
     }
 
-    hub.attach("a".asName(), childA)
-    hub.attach("b".asName(), childB)
+    hub.attach("a".asName(), childA.device)
+    hub.attach("b".asName(), childB.device)
 
     collector.join()
     println("  attached: ${attached.map { it.name }}")
@@ -56,7 +53,7 @@ suspend fun deviceHubDemo(): Unit = coroutineScope {
 
     hub.detach("a".asName(), DeviceDepartureReason.Evicted)
     println("  devices after detach: ${hub.devices.keys}")
-    println("  detached device remains caller-owned: ${!childA.closed}")
+    println("  detached device shut down by hub: ${childA.closed}")
 
     println("\n=== 3. Reconcile loop ===")
 
@@ -64,7 +61,7 @@ suspend fun deviceHubDemo(): Unit = coroutineScope {
     val loop = hub.reconcile(
         context = hubCtx,
         desired = desired,
-        produce = { name -> trackingDevice(name.toString(), hubCtx) },
+        produce = { name -> trackingDevice(name.toString(), hubCtx).device },
         scope = this,
     )
 
@@ -80,17 +77,18 @@ suspend fun deviceHubDemo(): Unit = coroutineScope {
     println("\nDone - device hub demo complete.")
 }
 
-private class TrackingDevice(name: Name, context: Context) :
-    AbstractDevice(name, DeviceRuntime(context)) {
-    var closed: Boolean = false
-        private set
-    override fun close() { closed = true; super.close() }
-    override suspend fun readProperty(propertyName: Name): Meta = error("not used: $propertyName")
-    override suspend fun writeProperty(propertyName: Name, value: Meta): Unit =
-        error("not used: $propertyName = $value")
-    override suspend fun execute(actionName: Name, argument: Meta?) =
-        error("not used: $actionName($argument)")
+private class TrackingDeviceHandle(
+    val device: Device,
+    private val closedState: () -> Boolean,
+) {
+    val closed: Boolean get() = closedState()
 }
 
-private fun trackingDevice(name: String, parentCtx: Context) =
-    TrackingDevice(name.asName(), Context("${parentCtx.name}.$name"))
+private suspend fun trackingDevice(name: String, parentCtx: Context): TrackingDeviceHandle {
+    var closed = false
+    val child = device(name.asName(), parentCtx) {
+        propertyString("status") { "ok" }
+        onClose { closed = true }
+    }
+    return TrackingDeviceHandle(child) { closed }
+}

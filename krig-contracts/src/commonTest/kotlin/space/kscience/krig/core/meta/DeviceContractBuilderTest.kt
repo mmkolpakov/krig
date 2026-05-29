@@ -1,40 +1,54 @@
 package space.kscience.krig.core.meta
 
+import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.descriptors.attributes.access
 import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.names.parseAsName
+import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class DeviceContractBuilderTest {
-    private object PumpContract : DeviceContractBuilder() {
-        val rpm by mutableDoubleProperty()
-        val load by doubleProperty()
+    private object Contract : DeviceContractBuilder() {
+        val value by mutableProperty(MetaConverter.double, TypeIds.DOUBLE)
+        val load by property(MetaConverter.double, TypeIds.DOUBLE)
         val command by action(MetaConverter.string, MetaConverter.string)
     }
 
     @Test
-    fun pureContractsDoNotRequireExecutableDeviceLogic() {
-        assertEquals(2, PumpContract.propertyContracts.size)
-        assertEquals(1, PumpContract.actionContracts.size)
-        assertEquals("rpm", PumpContract.rpm.name.toString())
-        assertEquals("load", PumpContract.load.name.toString())
-        assertEquals("command", PumpContract.command.name.toString())
+    fun builderRecordsPurePropertyAndActionContracts() {
+        assertEquals(listOf(Contract.value, Contract.load), Contract.propertyContracts)
+        assertEquals(listOf(Contract.command), Contract.actionContracts)
+        assertEquals(true, Contract.value.descriptor.access?.mutable)
+        assertEquals(false, Contract.load.descriptor.access?.mutable)
     }
 
     @Test
-    fun duplicateContractsFailFast() {
-        val builder = object : DeviceContractBuilder() {}
-        val contract = devicePropertyContract(
-            name = "duplicate".parseAsName(),
-            converter = MetaConverter.meta,
-            kind = space.kscience.krig.api.descriptors.PropertyKind.LOGICAL,
-            valueTypeId = space.kscience.krig.api.descriptors.TypeIds.META,
-        )
-        builder.registerPropertyContract(contract).let { }
-
+    fun duplicatePropertyNameFailsEarly() {
         assertFailsWith<IllegalStateException> {
-            builder.registerPropertyContract(contract)
+            object : DeviceContractBuilder() {
+                init {
+                    val contract = devicePropertyContract(
+                        name = "value".asName(),
+                        converter = MetaConverter.double,
+                        kind = PropertyKind.PHYSICAL,
+                        valueTypeId = TypeIds.DOUBLE,
+                    )
+                    assertEquals(contract, registerPropertyContract(contract))
+                    assertEquals(contract, registerPropertyContract(contract))
+                }
+            }
         }
+    }
+
+    @Test
+    fun descriptorsCanBeExportedToMaps() {
+        val propertyMap = Contract.propertyContracts.descriptorMap()
+        val actionMap = Contract.actionContracts.descriptorMap()
+
+        assertEquals(Contract.value.descriptor, propertyMap.getValue(Contract.value.name))
+        assertEquals(Contract.load.descriptor, propertyMap.getValue(Contract.load.name))
+        assertEquals(Contract.command.descriptor, actionMap.getValue(Contract.command.name))
     }
 }

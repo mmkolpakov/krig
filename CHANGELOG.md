@@ -7,16 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+Current alpha-3 naming:
+
+- `DeviceManifest` is the serializable device description; execution lives in `DeviceBackend`
+  and typed contracts.
+- `DevicePropertyContract` / `DeviceActionContract` replace executable property/action specs.
+- `DeviceManifest` and `PipelineFeatureSpec` are kotlinx-serialization DTOs, not `MetaRepr`
+  documents.
+- KSP removes handwritten registries for generated contributors; DataForge `Context.gather`
+  remains the runtime composition mechanism.
+
 ### Added
 
 -   **New telemetry model:** `Timestamped<T>`, `ObservedValue<T>`, and flat
     `DataQuality` (Good/Uncertain/Bad) replace the old polymorphic hierarchy.
 -   **New typed access layer:** `TypedAction<I,O>`, `backend`,
-    `backendBuilder`, `FlowSampler` for zero-allocation typed read/write/sample/action.
+    `backendBuilder`, `FlowSampler` for typed read/write/sample/action paths.
 -   **New pipeline core:** `Pipeline.kt` replaces `PipelineExecutors.kt` — compiles
     gate/lock/timeout/retry/observer chain once and reuses on hot path via `foldRight`.
 -   **New simulation engine:** `SimulationScheduler`, `ProcessDsl` (`hold`,
-    `waitUntil`, `request`), `Resource<T>`, `Signal<T>` — virtual-time DES.
+    `waitUntil`, `request`), `Resource<T>`, and `StateFlow.waitUntil` — virtual-time DES.
 -   **New capability snapshotting:** `CapabilitySnapshotting` for stateful device
     checkpointing via the operation pipeline.
 -   **New KSP generators:** `KrigSymbolProcessor` with three independent passes —
@@ -51,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `ProcessDsl`, `Resource`, `Signal`.
 -   **ABI exclusion:** Changed from `@InternalControlsApi` to `@InternalKrigApi`.
     ABI validation runs on all modules.
--   **Gradle:** 9.5.0 → 9.5.1, Kotlin 2.4.0-RC (language/api version), KSP 2.3.8.
+-   **Gradle:** 9.5.0 → 9.5.1, Kotlin 2.4.0-RC2 (language/api version), KSP 2.3.9.
 -   **Jupyter integration:** Updated to new krig APIs; old `ControlsJupyterIntegration`
     deleted.
 
@@ -71,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   **Removed dependencies:** Arrow (`ArrowInterop.kt`), `ReadWriteMutex`,
     `PipelineExecutors`, `LockFreeSpscRings`, `PrimitiveSamplers`,
     `StoragePropertyHistory`, `StateValue`, `ValueWithTime`, polymorphic `Quality`.
--   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-RC).
+-   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-RC2).
 
 ## 1.0.0-alpha-1 - 2025-08-15
 
@@ -80,14 +90,14 @@ Initial release of the `krig` framework. This version represents an architectura
 ### Added
 
 -   **Core Model (`controls-model`)**:
-    -   Introduced `DeviceBlueprint`: A declarative, serializable, and versioned model for defining a device's complete structure, behavior, and features, separating the specification from the runtime implementation.
+    -   Introduced `DeviceManifest`: A declarative, serializable, and versioned model for defining a device's complete structure, behavior, and features, separating the specification from the runtime implementation.
     -   Formalized `Device` as a runtime contract with distinct `PropertyDevice` and `ActionDevice` capabilities.
     -   Established a standardized, serializable `DeviceMessage` sealed hierarchy for all system communication, including property changes, lifecycle events, and errors.
     -   Defined `DevicePropertySpec` and `DeviceActionSpec` for static, type-safe description of a device's public API.
     -   Introduced `DeviceState<T>` and `MutableDeviceState<T>`: A reactive, observable state model containing a `StateValue<T>` which includes the value, a high-precision timestamp, and a `Quality` enum (`OK`, `STALE`, `INVALID`, `ERROR`).
 
 -   **Domain-Specific Language (`controls-dsl`)**:
-    -   Created a type-safe Kotlin DSL for building `DeviceBlueprint` instances (`deviceBlueprint { ... }`) and reusable `DeviceSpecification` classes.
+    -   Created a type-safe Kotlin DSL for building `DeviceManifest` instances (`DeviceManifest { ... }`) and reusable `DeviceSpecification` classes.
     -   Implemented delegated properties for effortless declaration of properties (`property`, `mutableProperty`, `stateProperty`, `derived`) and actions (`action`, `unitAction`).
     -   Added `child` and `children` DSL for declarative composition of devices, including `bindings` blocks for reactive property connections (`bindsTo`).
     -   Introduced `standardLifecycle` and `lifecycle` blocks for defining a device's lifecycle as a formal Finite State Machine (FSM) using KStateMachine.
@@ -113,9 +123,9 @@ Initial release of the `krig` framework. This version represents an architectura
 
 ### Changed
 
--   **Architectural Shift: Separation of Specification and Logic**: The core paradigm has shifted. All executable logic for properties and actions is now defined exclusively in a `driverLogic { ... }` block, completely decoupling it from the `DeviceSpecification`. The `DeviceBlueprint` is now a pure, serializable data contract.
+-   **Architectural Shift: Separation of Specification and Logic**: The core paradigm has shifted. All executable logic for properties and actions is now defined exclusively in a `driverLogic { ... }` block, completely decoupling it from the `DeviceSpecification`. The `DeviceManifest` is now a pure, serializable data contract.
 -   **`TransactionPlan` as a Workflow Engine**: `TransactionPlan` has been evolved from a simple sequence of commands into a workflow engine. It now supports passing data between steps using a type-safe `ref()` mechanism, conditional execution (`condition`), loops (`forEach`), and pauses (`delay`, `await`).
--   **Validation Framework**: Introduced a pluggable, deep validation system. A new `CompositeSpecValidator` discovers and applies `FeatureValidator` plugins to recursively verify an entire blueprint hierarchy before runtime.
+-   **Validation Framework**: Introduced a pluggable, deep validation system. A new `CompositeSpecValidator` discovers and applies `FeatureValidator` plugins to recursively verify an entire Manifest hierarchy before runtime.
 -   **Persistence API**: The `SnapshotStore` interface has been updated to support storing and loading binary blobs in addition to `Meta`, enabling persistence for devices with file-based state.
 
 ### Added

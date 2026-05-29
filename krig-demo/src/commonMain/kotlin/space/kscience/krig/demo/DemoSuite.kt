@@ -3,9 +3,10 @@ package space.kscience.krig.demo
 import kotlinx.coroutines.runBlocking
 
 /**
- * Runs the curated alpha-3 demo set.
+ * Runs the full demo smoke suite.
  */
 fun main(): Unit = runBlocking {
+    alpha3Showcase()
     industrialAssemblyDemo()
     stateModelDemo()
     metaInteropDemo()
@@ -20,7 +21,17 @@ fun main(): Unit = runBlocking {
     simulationProcessDemo()
     deviceHubDemo()
     replayNavigationDemo()
-    timeTravelDemo()
     expressionDemo()
     deviceDslDemo()
+}
+
+/**
+ * Short alpha-3 showcase: quality-aware batch acquisition, raw binary, time-series
+ * analytics, and HLC/cursor replay.
+ */
+suspend fun alpha3Showcase() {
+    batchAcquisitionDemo()
+    binaryPayloadDemo()
+    telemetryAnalyticsDemo()
+    timeTravelDemo()
 }

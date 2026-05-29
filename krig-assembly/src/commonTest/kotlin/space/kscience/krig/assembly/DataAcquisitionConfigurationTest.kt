@@ -1,6 +1,8 @@
 package space.kscience.krig.assembly
 
 import kotlinx.serialization.SerializationException
+import space.kscience.dataforge.io.JsonMetaFormat
+import space.kscience.dataforge.io.parse
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.TypeIds
 import kotlin.test.Test
@@ -24,7 +26,7 @@ class DataAcquisitionConfigurationTest {
         }
 
         assertTrue(config.validate().isEmpty())
-        assertEquals("external.virtual", config.sources.single().connector)
+        assertEquals("external.virtual".asName(), config.sources.single().connector)
         assertEquals("engine.rpm", config.tags.single().address)
         assertEquals("pump".asName(), config.tags.single().target?.deviceId)
         assertEquals(250, config.tags.single().timeoutMs)
@@ -50,7 +52,7 @@ class DataAcquisitionConfigurationTest {
     @Test
     fun parseRejectsUnknownKeysByDefault() {
         assertFailsWith<SerializationException> {
-            DataAcquisitionConfiguration.parse("""{"sources":[],"typo":true}""")
+            DataAcquisitionConfiguration.fromMeta(JsonMetaFormat().parse("""{"sources":[],"typo":true}"""))
         }
     }
 }

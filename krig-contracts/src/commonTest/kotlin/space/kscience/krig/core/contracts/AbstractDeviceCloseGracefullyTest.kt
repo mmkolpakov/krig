@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.lifecycle.LifecycleState
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -37,9 +38,14 @@ private open class DrainTestDevice : AbstractDevice(
 ) {
     var shutdownCalls: Int = 0
 
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 
     override suspend fun shutdown() {
         shutdownCalls++
@@ -121,10 +127,10 @@ class AbstractDeviceCloseGracefullyTest {
         val started = CompletableDeferred<Unit>()
         val never = CompletableDeferred<Unit>()
         val device = object : DrainTestDevice() {
-            override suspend fun readProperty(propertyName: Name): Meta {
+            override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> {
                 started.complete(Unit)
                 never.await()
-                return Meta.EMPTY
+                return OperationOutcome.Ok(Meta.EMPTY)
             }
         }
 

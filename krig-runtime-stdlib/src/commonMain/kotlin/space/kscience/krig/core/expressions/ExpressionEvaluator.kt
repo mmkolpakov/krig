@@ -5,15 +5,19 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.DefaultQualityPolicy
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualityCode
+import space.kscience.krig.api.data.QualityNamespaces
 import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.api.data.StandardQualityCodes
 import space.kscience.krig.api.data.combineAll
+import space.kscience.krig.api.data.toDataQuality
 import space.kscience.krig.api.expressions.*
 import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuthorizationException
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.state.DeviceState
 import space.kscience.krig.core.state.combine
@@ -67,17 +71,26 @@ private suspend fun bindingState(
     deviceName: Name, propertyName: Name, ctx: ExpressionContext,
 ): DeviceState<Double> {
     val device = ctx.device(deviceName)
-    val unavailableQuality = expressionQuality("krig.expression.unavailable", "Binding '$deviceName.$propertyName' is unavailable")
+    val unavailableQuality = expressionQuality(
+        StandardQualityCodes.ExpressionUnavailable,
+        "Binding '$deviceName.$propertyName' is unavailable",
+    )
     // Eager initial read
-    val initial: Double? = try {
-        @OptIn(PerformancePitfall::class)
-        device.readProperty(propertyName).double
+    val initial = try {
+        when (val outcome = device.readObservedOutcome(propertyName)) {
+            is OperationOutcome.Ok -> outcome.value.map { meta -> meta?.double }
+            is OperationOutcome.Fail -> ObservedValue(
+                null,
+                device.clock.now(),
+                outcome.fault.toDataQuality(QualityNamespaces.Expression, DefaultQualityPolicy),
+            )
+        }
     } catch (e: CancellationException) {
         throw e
     } catch (_: OperationFaultException) {
-        null
+        ObservedValue<Double?>(null, device.clock.now(), unavailableQuality)
     } catch (_: AuthorizationException) {
-        null
+        ObservedValue<Double?>(null, device.clock.now(), unavailableQuality)
     }
 
     val messages = try {
@@ -96,9 +109,9 @@ private suspend fun bindingState(
         .filter { it.property == propertyName }
         .mapNotNull { msg ->
             val d = msg.value.double ?: return@mapNotNull null
-            ObservedValue<Double?>(d, msg.time, DataQuality.GOOD)
+            ObservedValue<Double?>(d, msg.time, msg.quality)
         }
-        .distinctUntilChanged { old, new -> old.value == new.value }
+        .distinctUntilChanged { old, new -> old.value == new.value && old.quality == new.quality }
         .catch { e ->
             when (e) {
                 is CancellationException -> throw e
@@ -110,7 +123,7 @@ private suspend fun bindingState(
         .stateIn(
             scope = ctx.scope(),
             started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
-            initialValue = ObservedValue(initial, device.clock.now(), if (initial == null) unavailableQuality else DataQuality.GOOD),
+            initialValue = initial,
         )
     return object : DeviceState<Double> {
         override val stateValue get() = state.value
@@ -134,28 +147,41 @@ private fun combineAll(
     states: List<DeviceState<Double>>,
     reducer: (List<Double>) -> Double,
 ): DeviceState<Double> = object : DeviceState<Double> {
-    override val stateValue get() = ObservedValue(cached, Instant.DISTANT_PAST, DataQuality.GOOD)
+    override val stateValue: ObservedValue<Double?>
+        get() {
+            val values = states.map { it.stateValue }
+            val time = values.maxOfOrNull { it.time } ?: Instant.DISTANT_PAST
+            val quality = values.map { it.quality }.combineAll()
+            val ds = values.mapNotNull { it.value }
+            return if (ds.size == states.size) {
+                ObservedValue(reducer(ds), time, quality)
+            } else {
+                ObservedValue(
+                    null,
+                    time,
+                    quality.combine(expressionQuality(StandardQualityCodes.ExpressionMissing, "One or more operands are missing")),
+                )
+            }
+        }
     override val stateFlow: Flow<ObservedValue<Double?>> = combine(states.map { it.stateFlow }) { values ->
         val time = values.maxOf { it.time }
         val quality = values.map { it.quality }.combineAll()
         val ds = values.mapNotNull { it.value }
         if (ds.size == states.size) {
-            cached = reducer(ds)
-            ObservedValue(cached, time, quality)
+            ObservedValue(reducer(ds), time, quality)
         } else {
             ObservedValue<Double?>(
                 null,
                 time,
-                quality.combine(expressionQuality("krig.expression.missing", "One or more operands are missing")),
+                    quality.combine(expressionQuality(StandardQualityCodes.ExpressionMissing, "One or more operands are missing")),
             )
         }
     }
-    private var cached: Double = Double.NaN
 }
 
-private fun expressionQuality(code: String, detail: String): DataQuality =
+private fun expressionQuality(code: QualityCode, detail: String): DataQuality =
     DataQuality(
         severity = QualitySeverity.BAD,
-        code = QualityCode(code),
+        code = code,
         detail = detail,
     )

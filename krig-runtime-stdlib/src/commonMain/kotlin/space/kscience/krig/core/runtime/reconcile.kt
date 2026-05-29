@@ -14,9 +14,9 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Suspends until this hub's current child-name set equals [expectedNames].
  *
- * This is a small DX helper for control loops, tests, and demos that need to wait for
- * asynchronous topology convergence without depending on dispatcher-specific `yield`
- * behavior. For custom predicates, collect [DeviceHub.devicesFlow] directly.
+ * Helper for control loops, tests, and demos that wait for asynchronous topology
+ * convergence without dispatcher-specific `yield` behavior. For custom predicates,
+ * collect [DeviceHub.devicesFlow] directly.
  */
 public suspend fun DeviceHub.awaitChildren(
     expectedNames: Set<Name>,

@@ -3,7 +3,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Core contracts: Device, DeviceBackend, DeviceBlueprint, feature, Capability"
+description = "Core contracts: Device, DeviceBackend, DeviceManifest, PipelineFeature, Capability"
 
 kotlin {
     sourceSets {
@@ -16,6 +16,7 @@ kotlin {
                 api(project(":krig-messaging"))
 
                 api(libs.dataforge.context)
+                api(libs.dataforge.io)
                 api(libs.dataforge.meta)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.atomicfu)

@@ -12,7 +12,7 @@ import kotlin.time.Instant
 
 /**
  * An observable, quality-aware state of a device property.
- * [stateValue] is the canonical source of truth, holding a potentially null value.
+ * [stateValue] holds the current value, timestamp, and quality.
  *
  * @param T The type of the state value.
  */

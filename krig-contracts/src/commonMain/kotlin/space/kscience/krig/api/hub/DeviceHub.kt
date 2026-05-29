@@ -6,7 +6,6 @@ import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceNode
-import space.kscience.krig.core.hook.HookRegistry
 import space.kscience.dataforge.names.Name
 
 /**
@@ -14,6 +13,9 @@ import space.kscience.dataforge.names.Name
  */
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
 public interface DeviceHub : Device, DeviceNode {
+
+    override fun content(target: String): Map<Name, Any> =
+        if (target == defaultTarget) children else emptyMap()
 
     /** Direct child devices owned by this hub. */
     public val devices: Map<Name, Device>
@@ -58,12 +60,6 @@ public interface DeviceHub : Device, DeviceNode {
     /** Hot observability flow; [devices] and [devicesFlow] are the topology source of truth. */
     public val hubEvents: Flow<HubEvent>
 
-    /**
-     * Topology-scope [HookRegistry] — carries handlers for [space.kscience.krig.core.hook.DeviceAttached]
-     * and [space.kscience.krig.core.hook.DeviceDetached]. Operation-pipeline hooks live on
-     * the device's operation pipeline builder instead. Registering such hooks here is a no-op.
-     */
-    public val hubHooks: HookRegistry
 }
 
 /** Thrown by [DeviceHub.attach] when the target name is already taken. */

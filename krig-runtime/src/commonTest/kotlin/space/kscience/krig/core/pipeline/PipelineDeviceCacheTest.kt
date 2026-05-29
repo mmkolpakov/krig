@@ -20,6 +20,8 @@ import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
@@ -34,11 +36,9 @@ import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
-import space.kscience.krig.core.meta.DeviceActionSpec
+import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
-import space.kscience.krig.core.meta.DevicePropertySpec
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.krig.core.meta.MutableDevicePropertySpec
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -53,29 +53,23 @@ private class CountingPipelineDevice : AbstractDevice(
     val writerBuilds = atomic(0)
     val readCalls = atomic(0)
     val writeCalls = atomic(0)
+    val batchReadCalls = atomic(0)
+    val batchWriteCalls = atomic(0)
     val actionCalls = atomic(0)
     val shutdownCalls = atomic(0)
 
-    val valueSpec = object : MutableDevicePropertySpec<CountingPipelineDevice, Double> {
+    val valueSpec = object : MutableDevicePropertyContract<Double> {
         override val name: Name = "value".asName()
         override val descriptor: PropertyDescriptor =
             PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
         override val converter: MetaConverter<Double> = MetaConverter.double
-        override suspend fun read(device: CountingPipelineDevice): Double = 1.0
-        override suspend fun write(device: CountingPipelineDevice, value: Double) {
-            check(value.isFinite()) { "unexpected non-finite value for ${device.name}" }
-        }
     }
 
-    val actionSpec = object : DeviceActionSpec<CountingPipelineDevice, Int, Int> {
+    val actionSpec = object : DeviceActionContract<Int, Int> {
         override val name: Name = "inc".asName()
         override val descriptor: ActionDescriptor = ActionDescriptor(name)
         override val inputConverter: MetaConverter<Int> = MetaConverter.int
         override val outputConverter: MetaConverter<Int> = MetaConverter.int
-        override suspend fun execute(device: CountingPipelineDevice, input: Int): Int {
-            check(device.name.toString() == "counting")
-            return input + 1
-        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -95,13 +89,35 @@ private class CountingPipelineDevice : AbstractDevice(
         }
     }
 
-    override suspend fun readProperty(propertyName: Name): Meta = MetaConverter.double.convert(42.0)
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta {
-        actionCalls.incrementAndGet()
-        val value = argument?.int ?: 0
-        return MetaConverter.int.convert(value + 1)
+    override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
+        if (propertyName == valueSpec.name) valueSpec else null
+
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(MetaConverter.double.convert(42.0))
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doReadBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+        batchReadCalls.incrementAndGet()
+        return properties.associateWith {
+            OperationOutcome.Ok(ObservedValue(MetaConverter.double.convert(42.0), clock.now(), DataQuality.GOOD))
+        }
     }
+
+    override suspend fun doWriteBatchOutcome(values: Map<Name, Meta>): Map<Name, OperationOutcome<Unit>> {
+        batchWriteCalls.incrementAndGet()
+        return values.keys.associateWith { OperationOutcome.OkUnit }
+    }
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(
+            MetaConverter.int.convert((argument?.int ?: 0) + 1).also {
+                actionCalls.incrementAndGet()
+            },
+        )
 
     override suspend fun shutdown() {
         shutdownCalls.incrementAndGet()
@@ -114,7 +130,7 @@ private class BadEncodeDevice : AbstractDevice(
     name = "bad-encode".asName(),
     runtime = DeviceRuntime(Context("typed-pipeline-bad-encode-${contextSeq.incrementAndGet()}")),
 ) {
-    val badSpec = object : DevicePropertySpec<BadEncodeDevice, Double> {
+    val badSpec = object : DevicePropertyContract<Double> {
         override val name: Name = "value".asName()
         override val descriptor: PropertyDescriptor =
             PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
@@ -122,8 +138,6 @@ private class BadEncodeDevice : AbstractDevice(
             override fun convert(obj: Double): Meta = throw ClassCastException("bad encode: $obj")
             override fun readOrNull(source: Meta): Double? = MetaConverter.double.readOrNull(source)
         }
-
-        override suspend fun read(device: BadEncodeDevice): Double = 1.0
     }
 
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
@@ -133,9 +147,14 @@ private class BadEncodeDevice : AbstractDevice(
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         GenericTypedReader { 1.0 as T }
 
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 }
 
 private class CancellableControlPlaneDevice : AbstractDevice(
@@ -145,12 +164,11 @@ private class CancellableControlPlaneDevice : AbstractDevice(
     val readStarted = CompletableDeferred<Unit>()
     private val never = CompletableDeferred<Unit>()
 
-    val valueSpec = object : DevicePropertySpec<CancellableControlPlaneDevice, Double> {
+    val valueSpec = object : DevicePropertyContract<Double> {
         override val name: Name = "value".asName()
         override val descriptor: PropertyDescriptor =
             PropertyDescriptor(name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
         override val converter: MetaConverter<Double> = MetaConverter.double
-        override suspend fun read(device: CancellableControlPlaneDevice): Double = error("not used")
     }
 
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
@@ -164,9 +182,14 @@ private class CancellableControlPlaneDevice : AbstractDevice(
             1.0 as T
         }
 
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 }
 
 class PipelineDeviceCacheTest {
@@ -258,12 +281,68 @@ class PipelineDeviceCacheTest {
     }
 
     @Test
+    fun batchReadOutcomePassesThroughPipeline() = runTest {
+        val delegate = CountingPipelineDevice()
+        val gateNames = mutableListOf<Name>()
+        var readObserved = 0
+        val device = PipelineDevice(
+            delegate = delegate,
+            operationSpecs = mapOf(
+                OperationKinds.Read to OperationPipelineSpec(
+                    gates = listOf(OperationGate { context ->
+                        gateNames += context.name
+                        okUnit()
+                    }),
+                    observers = listOf(OperationObserver { _, _, _ -> readObserved++ }),
+                ),
+            ),
+        )
+
+        val outcome = device.readBatchOutcome(listOf(delegate.valueSpec.name)).getValue(delegate.valueSpec.name)
+
+        assertTrue(outcome is OperationOutcome.Ok)
+        assertEquals(1, delegate.batchReadCalls.value)
+        assertTrue(delegate.valueSpec.name in gateNames)
+        assertTrue(OperationNames.BatchRead in gateNames)
+        assertEquals(1, readObserved)
+    }
+
+    @Test
+    fun batchWriteOutcomePassesThroughPipeline() = runTest {
+        val delegate = CountingPipelineDevice()
+        val gateNames = mutableListOf<Name>()
+        var writeObserved = 0
+        val device = PipelineDevice(
+            delegate = delegate,
+            operationSpecs = mapOf(
+                OperationKinds.Write to OperationPipelineSpec(
+                    gates = listOf(OperationGate { context ->
+                        gateNames += context.name
+                        okUnit()
+                    }),
+                    observers = listOf(OperationObserver { _, _, _ -> writeObserved++ }),
+                ),
+            ),
+        )
+
+        val outcome = device.writeBatchOutcome(
+            mapOf(delegate.valueSpec.name to MetaConverter.double.convert(9.0)),
+        ).getValue(delegate.valueSpec.name)
+
+        assertTrue(outcome is OperationOutcome.Ok)
+        assertEquals(1, delegate.batchWriteCalls.value)
+        assertTrue(delegate.valueSpec.name in gateNames)
+        assertTrue(OperationNames.BatchWrite in gateNames)
+        assertEquals(1, writeObserved)
+    }
+
+    @Test
     fun sameNameWithDifferentConverterIsRejected() {
         val delegate = CountingPipelineDevice()
         val device = PipelineDevice(delegate = delegate)
         val cached = device.reader(delegate.valueSpec)
         assertEquals(cached, cached)
-        val conflicting = object : DevicePropertySpec<CountingPipelineDevice, Double> by delegate.valueSpec {
+        val conflicting = object : DevicePropertyContract<Double> by delegate.valueSpec {
             override val converter: MetaConverter<Double> = object : MetaConverter<Double> {
                 override fun convert(obj: Double): Meta = MetaConverter.double.convert(obj)
                 override fun readOrNull(source: Meta): Double? = MetaConverter.double.readOrNull(source)

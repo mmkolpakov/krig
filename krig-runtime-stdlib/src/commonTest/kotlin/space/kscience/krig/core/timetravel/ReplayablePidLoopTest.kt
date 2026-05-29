@@ -77,7 +77,7 @@ class ReplayablePidLoopTest {
                 add(change(i * 100L, "output", output))
             }
         }
-        val log = ReplayLog(events.asFlow())
+        val log = ReplayLog(events.asFlow().testEnvelopes())
 
         val replay = PidReplay()
         // Forward to the end of the run.
@@ -92,7 +92,7 @@ class ReplayablePidLoopTest {
 
         // Counterfactual: truncate the log at t=500; the replay should freeze there.
         val truncated = events.takeWhile { it.time.toEpochMilliseconds() <= 500 }
-        val counterfactual = ReplayLog(truncated.asFlow())
+        val counterfactual = ReplayLog(truncated.asFlow().testEnvelopes())
         replay.timeTravel(at = Instant.fromEpochMilliseconds(1_000), log = counterfactual)
         assertTrue(
             replay.processVariable < 9.0,

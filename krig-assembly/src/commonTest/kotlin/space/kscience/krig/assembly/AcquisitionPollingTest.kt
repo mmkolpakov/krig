@@ -4,12 +4,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.QualityNamespaces
+import space.kscience.krig.api.data.QualityPolicy
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.TimeoutFault
-import space.kscience.krig.api.result.ok
 import space.kscience.krig.core.contracts.metaOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,7 +42,7 @@ class AcquisitionPollingTest {
             timerId = "fast",
             ticks = flowOf(Unit),
             clock = FixedAcquisitionClock,
-            reader = { tag -> ok(metaOf(values.getValue(tag.address))) },
+            reader = acquisitionTagReader(FixedAcquisitionClock) { tag -> metaOf(values.getValue(tag.address)) },
         ).toList()
 
         assertEquals(listOf("rpm".asName(), "temperature".asName()), observations.map { it.tag.id })
@@ -63,14 +65,44 @@ class AcquisitionPollingTest {
             timerId = "fast",
             ticks = flowOf(Unit),
             clock = FixedAcquisitionClock,
-            reader = {
+            reader = acquisitionTagReader(FixedAcquisitionClock) {
                 delay(100.milliseconds)
-                ok(metaOf(1.0))
+                metaOf(1.0)
             },
         ).toList().single()
 
         assertIs<TimeoutFault>(observation.fault)
         assertEquals(null, observation.observed.value)
         assertEquals(QualitySeverity.BAD, observation.observed.quality.severity)
+        assertEquals(QualityNamespaces.Acquisition.code("fault-timeout"), observation.observed.quality.code)
+    }
+
+    @Test
+    fun pollTimerUsesInjectedQualityPolicyForFailures() = runTest {
+        val config = dataAcquisition {
+            source("stand", connector = "external.virtual")
+            tag("rpm").from("stand", "rpm", TypeIds.DOUBLE, timeout = 10.milliseconds)
+            timer("fast", 10.milliseconds) {
+                samples("rpm")
+            }
+        }
+        val policy = QualityPolicy { _, namespace ->
+            DataQuality(QualitySeverity.UNCERTAIN, namespace.code("custom"))
+        }
+
+        val observation = config.pollTimer(
+            timerId = "fast",
+            ticks = flowOf(Unit),
+            clock = FixedAcquisitionClock,
+            reader = acquisitionTagReader(FixedAcquisitionClock) {
+                delay(100.milliseconds)
+                metaOf(1.0)
+            },
+            qualityPolicy = policy,
+        ).toList().single()
+
+        assertIs<TimeoutFault>(observation.fault)
+        assertEquals(QualitySeverity.UNCERTAIN, observation.observed.quality.severity)
+        assertEquals(QualityNamespaces.Acquisition.code("custom"), observation.observed.quality.code)
     }
 }

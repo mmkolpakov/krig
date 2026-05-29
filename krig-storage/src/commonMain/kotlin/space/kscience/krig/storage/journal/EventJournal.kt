@@ -24,7 +24,7 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.DeviceOfflineMessage
 import space.kscience.krig.api.messages.DeviceOnlineMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.PropertyFaultMessage
 import space.kscience.krig.api.messages.PropertyReadRequest
@@ -40,17 +40,17 @@ import space.kscience.krig.core.ExperimentalKrigApi
  */
 public interface EventJournal : AutoCloseable {
     /** Appends [event]. */
-    public suspend fun write(event: MessageEnvelope<DeviceMessage>)
+    public suspend fun write(event: DeviceMessageEnvelope<DeviceMessage>)
 
     /** Convenience payload overload; wraps [event] in an empty envelope context. */
     public suspend fun write(event: DeviceMessage): Unit = write(event.envelope())
 
     /** Appends every element of [events] in the same unit of work when the backend supports it. */
-    public suspend fun writeAll(events: Iterable<MessageEnvelope<DeviceMessage>>): Unit =
+    public suspend fun writeAll(events: Iterable<DeviceMessageEnvelope<DeviceMessage>>): Unit =
         events.forEach { write(it) }
 
     /** Replays every stored message. */
-    public fun readAll(): Flow<MessageEnvelope<DeviceMessage>>
+    public fun readAll(): Flow<DeviceMessageEnvelope<DeviceMessage>>
 
     /**
      * Replays messages whose [DeviceMessage.messageType] equals [messageType], matching
@@ -61,12 +61,12 @@ public interface EventJournal : AutoCloseable {
         range: ClosedRange<Instant>? = null,
         sourceDevice: Name? = null,
         targetDevice: Name? = null,
-    ): Flow<MessageEnvelope<DeviceMessage>>
+    ): Flow<DeviceMessageEnvelope<DeviceMessage>>
 
     /**
      * Hot tail flow of new appends. Emits subsequent writes, never the historical backlog.
      */
-    public fun observe(): Flow<MessageEnvelope<DeviceMessage>> = emptyFlow()
+    public fun observe(): Flow<DeviceMessageEnvelope<DeviceMessage>> = emptyFlow()
 
     override fun close(): Unit = Unit
 }
@@ -131,15 +131,15 @@ public class InMemoryEventJournal(
     }
 
     private val lock = SynchronizedObject()
-    private val events: ArrayDeque<MessageEnvelope<DeviceMessage>> = ArrayDeque(minOf(capacity, 1024))
-    private val pendingTail: ArrayDeque<MessageEnvelope<DeviceMessage>> = ArrayDeque()
+    private val events: ArrayDeque<DeviceMessageEnvelope<DeviceMessage>> = ArrayDeque(minOf(capacity, 1024))
+    private val pendingTail: ArrayDeque<DeviceMessageEnvelope<DeviceMessage>> = ArrayDeque()
     private var tailDraining: Boolean = false
-    private val tail = MutableSharedFlow<MessageEnvelope<DeviceMessage>>(
+    private val tail = MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>>(
         extraBufferCapacity = tailBufferCapacity,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
-    override suspend fun write(event: MessageEnvelope<DeviceMessage>) {
+    override suspend fun write(event: DeviceMessageEnvelope<DeviceMessage>) {
         val shouldDrain = synchronized(lock) {
             appendBounded(event)
             enqueueTailLocked(event)
@@ -147,7 +147,7 @@ public class InMemoryEventJournal(
         if (shouldDrain) drainTail()
     }
 
-    override suspend fun writeAll(events: Iterable<MessageEnvelope<DeviceMessage>>) {
+    override suspend fun writeAll(events: Iterable<DeviceMessageEnvelope<DeviceMessage>>) {
         val batch = events.toList()
         if (batch.isEmpty()) return
         val shouldDrain = synchronized(lock) {
@@ -160,7 +160,7 @@ public class InMemoryEventJournal(
         if (shouldDrain) drainTail()
     }
 
-    override fun readAll(): Flow<MessageEnvelope<DeviceMessage>> =
+    override fun readAll(): Flow<DeviceMessageEnvelope<DeviceMessage>> =
         snapshot().asFlow()
 
     override fun read(
@@ -168,24 +168,24 @@ public class InMemoryEventJournal(
         range: ClosedRange<Instant>?,
         sourceDevice: Name?,
         targetDevice: Name?,
-    ): Flow<MessageEnvelope<DeviceMessage>> = snapshot().asFlow()
+    ): Flow<DeviceMessageEnvelope<DeviceMessage>> = snapshot().asFlow()
         .filter { messageType == null || it.payload.messageType == messageType }
         .filter { range == null || it.payload.time in range }
         .filter { sourceDevice == null || it.payload.sourceDevice == sourceDevice }
         .filter { targetDevice == null || it.payload.targetDevice == targetDevice }
 
-    override fun observe(): Flow<MessageEnvelope<DeviceMessage>> = tail.asSharedFlow()
+    override fun observe(): Flow<DeviceMessageEnvelope<DeviceMessage>> = tail.asSharedFlow()
 
-    private fun snapshot(): List<MessageEnvelope<DeviceMessage>> = synchronized(lock) { events.toList() }
+    private fun snapshot(): List<DeviceMessageEnvelope<DeviceMessage>> = synchronized(lock) { events.toList() }
 
-    private fun appendBounded(event: MessageEnvelope<DeviceMessage>) {
+    private fun appendBounded(event: DeviceMessageEnvelope<DeviceMessage>) {
         if (events.size >= capacity) {
             events.removeFirst()
         }
         events.addLast(event)
     }
 
-    private fun enqueueTailLocked(event: MessageEnvelope<DeviceMessage>): Boolean {
+    private fun enqueueTailLocked(event: DeviceMessageEnvelope<DeviceMessage>): Boolean {
         pendingTail.addLast(event)
         return startTailDrainLocked()
     }
@@ -196,7 +196,7 @@ public class InMemoryEventJournal(
         return true
     }
 
-    private fun nextTailEventOrStop(): MessageEnvelope<DeviceMessage>? = synchronized(lock) {
+    private fun nextTailEventOrStop(): DeviceMessageEnvelope<DeviceMessage>? = synchronized(lock) {
         if (pendingTail.isEmpty()) {
             tailDraining = false
             null

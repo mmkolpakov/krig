@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.takeWhile
 import space.kscience.krig.api.data.Timestamped
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.InternalKrigApi
@@ -120,7 +120,7 @@ public fun <T> collectPropertyHistory(
 /** Envelope-flow variant preserving the device/runtime context for upstream collectors. */
 public fun <T> collectEnvelopePropertyHistory(
     scope: CoroutineScope,
-    messages: Flow<MessageEnvelope<DeviceMessage>>,
+    messages: Flow<DeviceMessageEnvelope<DeviceMessage>>,
     deviceName: Name,
     propertyName: Name,
     converter: MetaConverter<T>,

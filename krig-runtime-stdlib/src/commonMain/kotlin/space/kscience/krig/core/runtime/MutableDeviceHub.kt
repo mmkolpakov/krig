@@ -50,7 +50,7 @@ public open class MutableDeviceHub(
     context: Context,
 ) : DeviceGroup(name, context, emptyMap()), DeviceHub {
 
-    override val hubHooks: HookRegistry = HookRegistry.buffered()
+    private val hubHooks: HookRegistry = HookRegistry.buffered()
 
     private val topologyLock = SynchronizedObject()
     private var topologyState: HubState = HubState.Active(emptyMap())
@@ -76,6 +76,17 @@ public open class MutableDeviceHub(
         get() = devices.asNodeMap()
 
     override val childrenFlow: StateFlow<Map<Name, DeviceNode>> = mutableChildrenFlow.asStateFlow()
+
+    override fun content(target: String): Map<Name, Any> =
+        if (target == defaultTarget) children else super<DeviceGroup>.content(target)
+
+    /**
+     * Hot best-effort topology notifications for UI and local observers.
+     *
+     * [devicesFlow] / [childrenFlow] remain the source of truth. Persist topology
+     * transitions through a control-plane message or an event journal when the consumer
+     * needs audit-grade durability.
+     */
     override val hubEvents: Flow<HubEvent> = mutableHubEvents.asSharedFlow()
 
     override suspend fun attach(name: Name, device: Device) {

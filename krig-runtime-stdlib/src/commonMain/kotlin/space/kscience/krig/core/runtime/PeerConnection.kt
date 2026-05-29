@@ -2,13 +2,21 @@
 
 package space.kscience.krig.core.runtime
 
+import space.kscience.dataforge.io.Binary
+import space.kscience.dataforge.io.asBinary
+import space.kscience.dataforge.io.toByteArray
+import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
+import space.kscience.dataforge.names.plus
+
 /**
  * Envelope-oriented peer connection for content-addressable binary transfer.
  * Snapshots, files, offline state go through here. Flow-shaped, broker-less message
  * streams live in transport-adapter modules.
  */
 public interface BinaryPeerConnection : AutoCloseable {
-    public val peerId: String
+    public val peerId: Name
 
     /** Request a content blob by [contentId]. Returns `null` when absent. */
     public suspend fun receive(contentId: String): ByteArray?
@@ -25,15 +33,15 @@ public interface BinaryPeerConnection : AutoCloseable {
  * strings on the public API.
  */
 public sealed interface PeerRoutePrefix {
-    public val literal: String
+    public val name: Name
 
     public data object BinaryDefault : PeerRoutePrefix {
-        override val literal: String = "krig.peer.binary"
+        override val name: Name = "krig.peer.binary".parseAsName()
     }
 
-    public data class Custom(override val literal: String) : PeerRoutePrefix {
+    public data class Custom(override val name: Name) : PeerRoutePrefix {
         init {
-            require(literal.isNotBlank()) { "PeerRoutePrefix.Custom literal must not be blank" }
+            require(name != Name.EMPTY) { "PeerRoutePrefix.Custom name must not be empty" }
         }
     }
 }
@@ -43,20 +51,23 @@ public class DefaultBinaryPeerConnection(
     private val transport: PeerTransport,
     private val routePrefix: PeerRoutePrefix = PeerRoutePrefix.BinaryDefault,
 ) : BinaryPeerConnection {
-    public override val peerId: String get() = transport.peerId
+    public override val peerId: Name get() = transport.peerId
 
     public override suspend fun receive(
         contentId: String,
     ): ByteArray? = runCatching {
-        transport.requestResponse("${routePrefix.literal}/$contentId", ByteArray(0))
+        transport.requestResponse(route(contentId), Binary.EMPTY).toByteArray()
     }.getOrNull()
 
     public override suspend fun send(
         contentId: String,
         payload: ByteArray,
     ) {
-        transport.fireAndForget("${routePrefix.literal}/$contentId", payload)
+        transport.fireAndForget(route(contentId), payload.asBinary())
     }
 
     public override fun close(): Unit = transport.close()
+
+    private fun route(contentId: String): PeerRoute =
+        PeerRoute(routePrefix.name + contentId.asName())
 }

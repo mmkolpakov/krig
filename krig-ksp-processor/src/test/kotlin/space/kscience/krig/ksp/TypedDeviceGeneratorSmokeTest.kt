@@ -60,9 +60,9 @@ class TypedDeviceGeneratorSmokeTest {
     @Test
     fun allDelegateGeneratorsAreLoadable() {
         // The dispatcher aggregates three generators. A deleted/renamed file would silently
-        // drop its corresponding FeatureSpec — this assertion makes the drop loud.
+        // drop its corresponding PipelineFeatureSpec — this assertion makes the drop loud.
         val expected = listOf(
-            "space.kscience.krig.ksp.FeatureSpecContractValidator",
+            "space.kscience.krig.ksp.PipelineFeatureSpecContractValidator",
             "space.kscience.krig.ksp.ContributesAggregator",
             "space.kscience.krig.ksp.SerializersModuleGenerator",
         )

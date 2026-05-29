@@ -6,6 +6,8 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.operationAttributes
 import space.kscience.krig.api.descriptors.typeIdOf
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.dataforge.meta.MetaConverter
@@ -15,10 +17,10 @@ import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 
 /**
- * Pure contract builder for device blueprints.
+ * Pure contract builder for device manifests.
  *
- * Unlike [DeviceSpecBuilder], this builder records only contracts: descriptors and typed
- * converters. Hardware/simulation logic is supplied by a backend such as
+ * This builder records only contracts: descriptors and typed converters.
+ * Hardware/simulation logic is supplied by a backend such as
  * [backend][space.kscience.krig.core.contracts.typed.backend].
  */
 public abstract class DeviceContractBuilder {
@@ -168,7 +170,9 @@ private fun propertyDescriptor(
     name = name,
     kind = kind,
     valueTypeId = valueTypeId,
-    attributes = setOf(AccessAttribute(readable = true, mutable = mutable)),
+    attributes = operationAttributes {
+        OperationAttributeKeys.Access(AccessAttribute(readable = true, mutable = mutable))
+    },
 )
 
 private data class SimpleDevicePropertyContract<T>(

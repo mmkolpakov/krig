@@ -14,6 +14,7 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.messages.envelope
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.timetravel.ExperimentalTimeTravelApi
 import space.kscience.krig.core.timetravel.InMemoryReplayLog
@@ -27,7 +28,7 @@ suspend fun replayNavigationDemo() {
     val source = "nav.counter".asName()
     val log = InMemoryReplayLog()
     for (value in 0..3) {
-        log.record(counterEvent(source, value + 1, value))
+        log.record(counterEvent(source, value + 1, value).envelope())
     }
 
     val model = NavigationCounter()

@@ -2,9 +2,9 @@
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.concurrency.Resource
-import space.kscience.krig.concurrency.Signal
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
@@ -27,13 +27,13 @@ class ProcessDslTest {
 
     @Test
     fun waitUntilResumesOnSignalMatch() = runTest {
-        val signal = Signal(0)
+        val signal = MutableStateFlow(0)
         val result = mutableListOf<Int>()
         val waiter = process("waiter") {
             val v = waitUntil(signal) { it >= 3 }
             result += v
         }
-        signal.set(1); signal.set(2); signal.set(3)
+        signal.value = 1; signal.value = 2; signal.value = 3
         waiter.join()
         assertEquals(listOf(3), result)
     }

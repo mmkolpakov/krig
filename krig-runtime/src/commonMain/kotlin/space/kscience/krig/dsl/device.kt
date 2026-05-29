@@ -5,8 +5,11 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.operationAttributes
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
@@ -77,13 +80,13 @@ public suspend fun device(
 
 /**
  * Builds a device from a pre-constructed [DeviceBackend] (protocol adapter, physics
- * simulation, Wasm/FMI slave). Inside [builder] only FeatureSpec installation and
+ * simulation, Wasm/FMI slave). Inside [builder] only PipelineFeatureSpec installation and
  * descriptor sources are available — `property` / `action` declarations are
  * a compile-time error, which is the whole point of the split form.
  *
  * ```kotlin
  * val reactor = device("reactor", ReactorConnection(protocolEngine), productionContext) {
- *     blueprint(ReactorBlueprint)
+ *     manifest(ReactorManifest)
  *     install(Caching) { defaultTtl = 100.milliseconds }
  * }
  * ```
@@ -424,16 +427,18 @@ internal fun synthesizeProperty(name: Name, mutable: Boolean): PropertyDescripto
     kind = PropertyKind.LOGICAL,
     valueTypeId = TypeIds.META,
     metaDescriptor = MetaDescriptor(),
-    attributes = setOf(AccessAttribute(readable = true, mutable = mutable)),
+    attributes = operationAttributes {
+        OperationAttributeKeys.Access(AccessAttribute(readable = true, mutable = mutable))
+    },
 )
 
 internal fun writeTypeError(property: String, expected: String, got: Meta): Nothing =
     throw OperationFaultException(
         ValidationFault(
             details = Meta {
-                "property" put property
-                "expected" put expected
-                "message" put "Property '$property' write requires a scalar $expected value."
+                OperationFaultDetails.PROPERTY put property
+                OperationFaultDetails.EXPECTED_TYPE put expected
+                OperationFaultDetails.MESSAGE put "Property '$property' write requires a scalar $expected value."
                 "actual" put got.toString()
             },
         ),
@@ -446,8 +451,8 @@ private fun validationFault(property: Name, message: String): OperationOutcome.F
     OperationOutcome.Fail(
         ValidationFault(
             details = Meta {
-                "property" put property.toString()
-                "message" put message
+                OperationFaultDetails.PROPERTY put property.toString()
+                OperationFaultDetails.MESSAGE put message
             },
         ),
     )
@@ -467,9 +472,9 @@ private fun readTypeError(property: Name, expected: String, got: Any): Nothing =
     throw OperationFaultException(
         ValidationFault(
             details = Meta {
-                "property" put property.toString()
-                "expected" put expected
-                "message" put "Property '$property' read requires a scalar $expected value."
+                OperationFaultDetails.PROPERTY put property.toString()
+                OperationFaultDetails.EXPECTED_TYPE put expected
+                OperationFaultDetails.MESSAGE put "Property '$property' read requires a scalar $expected value."
                 "actual" put (got::class.simpleName ?: got.toString())
             },
         ),
@@ -481,8 +486,8 @@ private fun writeTypeError(property: Name, value: Any?, cause: Exception): Opera
 private fun writeFault(property: Name, value: Any?, cause: Exception): ValidationFault =
     ValidationFault(
         details = Meta {
-            "property" put property.toString()
-            "message" put "Property '$property' write received a value incompatible with its typed spec."
+            OperationFaultDetails.PROPERTY put property.toString()
+            OperationFaultDetails.MESSAGE put "Property '$property' write received a value incompatible with its typed spec."
             "actual" put (value?.let { it::class.simpleName ?: it.toString() } ?: "null")
             "cause" put (cause.message ?: cause::class.simpleName.orEmpty())
         },

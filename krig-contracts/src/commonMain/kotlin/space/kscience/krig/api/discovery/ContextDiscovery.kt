@@ -7,10 +7,8 @@ import space.kscience.dataforge.context.gather as gatherContributions
 import space.kscience.dataforge.names.Name
 
 /** Typed `gather` — returns `Map<Name, T>` for the element type encoded on [target]. */
-public fun <T : Any> Context.gather(target: ContributionTarget<T>): Map<Name, T> {
-    @Suppress("UNCHECKED_CAST")
-    return gatherContributions<Any>(target.id) as Map<Name, T>
-}
+public fun <T : Any> Context.gather(target: ContributionTarget<T>): Map<Name, T> =
+    gatherContributions(target.id, target.type)
 
 /** Returns the plugin produced by [factory] if installed, else `null`. */
 public inline fun <reified P : Plugin> Context.pluginOrNull(factory: PluginFactory<P>): P? =

@@ -1,9 +1,9 @@
 package space.kscience.krig.api.discovery
 
-/** `Feature<*, *>` objects — target of `ContributesFeature`. */
-@TargetId("krig.feature")
-public object FeatureContributions {
-    public val Target: ContributionTarget<Any> = ContributionTarget("krig.feature")
+/** `PipelineFeature<*, *>` objects — target of `ContributesPipelineFeature`. */
+@TargetId("krig.pipeline-feature")
+public object PipelineFeatureContributions {
+    public val Target: ContributionTarget<Any> = ContributionTarget("krig.pipeline-feature")
 }
 
 /** `ProtocolEngineFactory<*, *>` — target of `ContributesProtocol`. */

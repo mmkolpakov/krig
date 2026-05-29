@@ -41,190 +41,6 @@ abstract interface <#A: out kotlin/Any?> space.kscience.krig.api.data/Timed { //
         abstract fun <get-value>(): #A // space.kscience.krig.api.data/Timed.value.<get-value>|<get-value>(){}[0]
 }
 
-sealed interface space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue|null[0]
-    final class DblArr : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.DblArr|null[0]
-        constructor <init>(kotlin/DoubleArray) // space.kscience.krig.api.data/RawValue.DblArr.<init>|<init>(kotlin.DoubleArray){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.DblArr.value|{}value[0]
-            final fun <get-value>(): kotlin/DoubleArray // space.kscience.krig.api.data/RawValue.DblArr.value.<get-value>|<get-value>(){}[0]
-
-        final fun component1(): kotlin/DoubleArray // space.kscience.krig.api.data/RawValue.DblArr.component1|component1(){}[0]
-        final fun copy(kotlin/DoubleArray = ...): space.kscience.krig.api.data/RawValue.DblArr // space.kscience.krig.api.data/RawValue.DblArr.copy|copy(kotlin.DoubleArray){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.DblArr.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.DblArr.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.DblArr.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.DblArr> { // space.kscience.krig.api.data/RawValue.DblArr.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.DblArr.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.DblArr.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.DblArr.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.DblArr // space.kscience.krig.api.data/RawValue.DblArr.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.DblArr) // space.kscience.krig.api.data/RawValue.DblArr.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.DblArr){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.DblArr.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.DblArr> // space.kscience.krig.api.data/RawValue.DblArr.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final class Ext : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.Ext|null[0]
-        constructor <init>(kotlin/ByteArray, kotlin/String) // space.kscience.krig.api.data/RawValue.Ext.<init>|<init>(kotlin.ByteArray;kotlin.String){}[0]
-
-        final val typeId // space.kscience.krig.api.data/RawValue.Ext.typeId|{}typeId[0]
-            final fun <get-typeId>(): kotlin/String // space.kscience.krig.api.data/RawValue.Ext.typeId.<get-typeId>|<get-typeId>(){}[0]
-        final val value // space.kscience.krig.api.data/RawValue.Ext.value|{}value[0]
-            final fun <get-value>(): kotlin/ByteArray // space.kscience.krig.api.data/RawValue.Ext.value.<get-value>|<get-value>(){}[0]
-
-        final fun component1(): kotlin/ByteArray // space.kscience.krig.api.data/RawValue.Ext.component1|component1(){}[0]
-        final fun component2(): kotlin/String // space.kscience.krig.api.data/RawValue.Ext.component2|component2(){}[0]
-        final fun copy(kotlin/ByteArray = ..., kotlin/String = ...): space.kscience.krig.api.data/RawValue.Ext // space.kscience.krig.api.data/RawValue.Ext.copy|copy(kotlin.ByteArray;kotlin.String){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Ext.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.Ext.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.Ext.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.Ext> { // space.kscience.krig.api.data/RawValue.Ext.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.Ext.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.Ext.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.Ext.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.Ext // space.kscience.krig.api.data/RawValue.Ext.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.Ext) // space.kscience.krig.api.data/RawValue.Ext.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.Ext){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.Ext.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.Ext> // space.kscience.krig.api.data/RawValue.Ext.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final class MetaVal : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.MetaVal|null[0]
-        constructor <init>(space.kscience.dataforge.meta/Meta) // space.kscience.krig.api.data/RawValue.MetaVal.<init>|<init>(space.kscience.dataforge.meta.Meta){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.MetaVal.value|{}value[0]
-            final fun <get-value>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.data/RawValue.MetaVal.value.<get-value>|<get-value>(){}[0]
-
-        final fun component1(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.data/RawValue.MetaVal.component1|component1(){}[0]
-        final fun copy(space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.api.data/RawValue.MetaVal // space.kscience.krig.api.data/RawValue.MetaVal.copy|copy(space.kscience.dataforge.meta.Meta){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.MetaVal.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.MetaVal.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.MetaVal.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.MetaVal> { // space.kscience.krig.api.data/RawValue.MetaVal.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.MetaVal.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.MetaVal.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.MetaVal.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.MetaVal // space.kscience.krig.api.data/RawValue.MetaVal.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.MetaVal) // space.kscience.krig.api.data/RawValue.MetaVal.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.MetaVal){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.MetaVal.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.MetaVal> // space.kscience.krig.api.data/RawValue.MetaVal.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final value class Bool : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.Bool|null[0]
-        constructor <init>(kotlin/Boolean) // space.kscience.krig.api.data/RawValue.Bool.<init>|<init>(kotlin.Boolean){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.Bool.value|{}value[0]
-            final fun <get-value>(): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Bool.value.<get-value>|<get-value>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Bool.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.Bool.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.Bool.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.Bool> { // space.kscience.krig.api.data/RawValue.Bool.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.Bool.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.Bool.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.Bool.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.Bool // space.kscience.krig.api.data/RawValue.Bool.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.Bool) // space.kscience.krig.api.data/RawValue.Bool.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.Bool){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.Bool.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.Bool> // space.kscience.krig.api.data/RawValue.Bool.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final value class Dbl : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.Dbl|null[0]
-        constructor <init>(kotlin/Double) // space.kscience.krig.api.data/RawValue.Dbl.<init>|<init>(kotlin.Double){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.Dbl.value|{}value[0]
-            final fun <get-value>(): kotlin/Double // space.kscience.krig.api.data/RawValue.Dbl.value.<get-value>|<get-value>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Dbl.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.Dbl.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.Dbl.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.Dbl> { // space.kscience.krig.api.data/RawValue.Dbl.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.Dbl.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.Dbl.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.Dbl.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.Dbl // space.kscience.krig.api.data/RawValue.Dbl.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.Dbl) // space.kscience.krig.api.data/RawValue.Dbl.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.Dbl){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.Dbl.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.Dbl> // space.kscience.krig.api.data/RawValue.Dbl.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final value class Lng : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.Lng|null[0]
-        constructor <init>(kotlin/Long) // space.kscience.krig.api.data/RawValue.Lng.<init>|<init>(kotlin.Long){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.Lng.value|{}value[0]
-            final fun <get-value>(): kotlin/Long // space.kscience.krig.api.data/RawValue.Lng.value.<get-value>|<get-value>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Lng.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.Lng.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.Lng.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.Lng> { // space.kscience.krig.api.data/RawValue.Lng.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.Lng.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.Lng.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.Lng.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.Lng // space.kscience.krig.api.data/RawValue.Lng.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.Lng) // space.kscience.krig.api.data/RawValue.Lng.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.Lng){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.Lng.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.Lng> // space.kscience.krig.api.data/RawValue.Lng.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final value class Str : space.kscience.krig.api.data/RawValue { // space.kscience.krig.api.data/RawValue.Str|null[0]
-        constructor <init>(kotlin/String) // space.kscience.krig.api.data/RawValue.Str.<init>|<init>(kotlin.String){}[0]
-
-        final val value // space.kscience.krig.api.data/RawValue.Str.value|{}value[0]
-            final fun <get-value>(): kotlin/String // space.kscience.krig.api.data/RawValue.Str.value.<get-value>|<get-value>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/RawValue.Str.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/RawValue.Str.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.api.data/RawValue.Str.toString|toString(){}[0]
-
-        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/RawValue.Str> { // space.kscience.krig.api.data/RawValue.Str.$serializer|null[0]
-            final val descriptor // space.kscience.krig.api.data/RawValue.Str.$serializer.descriptor|{}descriptor[0]
-                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/RawValue.Str.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/RawValue.Str.$serializer.childSerializers|childSerializers(){}[0]
-            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/RawValue.Str // space.kscience.krig.api.data/RawValue.Str.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/RawValue.Str) // space.kscience.krig.api.data/RawValue.Str.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.RawValue.Str){}[0]
-        }
-
-        final object Companion { // space.kscience.krig.api.data/RawValue.Str.Companion|null[0]
-            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue.Str> // space.kscience.krig.api.data/RawValue.Str.Companion.serializer|serializer(){}[0]
-        }
-    }
-
-    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.data/RawValue.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/RawValue> // space.kscience.krig.api.data/RawValue.Companion.serializer|serializer(){}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.data/RawValue.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
-}
-
 sealed interface space.kscience.krig.api.lifecycle/ConnectionState { // space.kscience.krig.api.lifecycle/ConnectionState|null[0]
     final object Connected : space.kscience.krig.api.lifecycle/ConnectionState { // space.kscience.krig.api.lifecycle/ConnectionState.Connected|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.lifecycle/ConnectionState.Connected.equals|equals(kotlin.Any?){}[0]
@@ -307,17 +123,6 @@ sealed interface space.kscience.krig.api.lifecycle/LifecycleState { // space.ksc
     }
 }
 
-final class <#A: kotlin/Any?> space.kscience.krig.api.data/ProtocolValueKey { // space.kscience.krig.api.data/ProtocolValueKey|null[0]
-    constructor <init>(kotlin/String, kotlin/Function1<#A, kotlin/ByteArray>, kotlin/Function1<kotlin/ByteArray, #A>) // space.kscience.krig.api.data/ProtocolValueKey.<init>|<init>(kotlin.String;kotlin.Function1<1:0,kotlin.ByteArray>;kotlin.Function1<kotlin.ByteArray,1:0>){}[0]
-
-    final val decode // space.kscience.krig.api.data/ProtocolValueKey.decode|{}decode[0]
-        final fun <get-decode>(): kotlin/Function1<kotlin/ByteArray, #A> // space.kscience.krig.api.data/ProtocolValueKey.decode.<get-decode>|<get-decode>(){}[0]
-    final val encode // space.kscience.krig.api.data/ProtocolValueKey.encode|{}encode[0]
-        final fun <get-encode>(): kotlin/Function1<#A, kotlin/ByteArray> // space.kscience.krig.api.data/ProtocolValueKey.encode.<get-encode>|<get-encode>(){}[0]
-    final val typeId // space.kscience.krig.api.data/ProtocolValueKey.typeId|{}typeId[0]
-        final fun <get-typeId>(): kotlin/String // space.kscience.krig.api.data/ProtocolValueKey.typeId.<get-typeId>|<get-typeId>(){}[0]
-}
-
 final class <#A: out kotlin/Any?> space.kscience.krig.api.data/ObservedValue : space.kscience.krig.api.data/Timed<#A> { // space.kscience.krig.api.data/ObservedValue|null[0]
     constructor <init>(#A, kotlin.time/Instant, space.kscience.krig.api.data/DataQuality) // space.kscience.krig.api.data/ObservedValue.<init>|<init>(1:0;kotlin.time.Instant;space.kscience.krig.api.data.DataQuality){}[0]
 
@@ -372,6 +177,8 @@ final class space.kscience.krig.api.data/DataQuality { // space.kscience.krig.ap
         final fun <get-detail>(): kotlin/String? // space.kscience.krig.api.data/DataQuality.detail.<get-detail>|<get-detail>(){}[0]
     final val severity // space.kscience.krig.api.data/DataQuality.severity|{}severity[0]
         final fun <get-severity>(): space.kscience.krig.api.data/QualitySeverity // space.kscience.krig.api.data/DataQuality.severity.<get-severity>|<get-severity>(){}[0]
+    final val shortLabel // space.kscience.krig.api.data/DataQuality.shortLabel|{}shortLabel[0]
+        final fun <get-shortLabel>(): kotlin/String // space.kscience.krig.api.data/DataQuality.shortLabel.<get-shortLabel>|<get-shortLabel>(){}[0]
 
     final fun combine(space.kscience.krig.api.data/DataQuality): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.data/DataQuality.combine|combine(space.kscience.krig.api.data.DataQuality){}[0]
     final fun component1(): space.kscience.krig.api.data/QualitySeverity // space.kscience.krig.api.data/DataQuality.component1|component1(){}[0]
@@ -490,6 +297,8 @@ final value class space.kscience.krig.api.data/QualityCode { // space.kscience.k
 final value class space.kscience.krig.api.data/QualitySeverity : kotlin/Comparable<space.kscience.krig.api.data/QualitySeverity> { // space.kscience.krig.api.data/QualitySeverity|null[0]
     constructor <init>(kotlin/Int) // space.kscience.krig.api.data/QualitySeverity.<init>|<init>(kotlin.Int){}[0]
 
+    final val label // space.kscience.krig.api.data/QualitySeverity.label|{}label[0]
+        final fun <get-label>(): kotlin/String // space.kscience.krig.api.data/QualitySeverity.label.<get-label>|<get-label>(){}[0]
     final val rank // space.kscience.krig.api.data/QualitySeverity.rank|{}rank[0]
         final fun <get-rank>(): kotlin/Int // space.kscience.krig.api.data/QualitySeverity.rank.<get-rank>|<get-rank>(){}[0]
 
@@ -519,8 +328,12 @@ final value class space.kscience.krig.api.data/QualitySeverity : kotlin/Comparab
     }
 }
 
+final val space.kscience.krig.api.data/hasValue // space.kscience.krig.api.data/hasValue|@space.kscience.krig.api.data.ObservedValue<*>{}hasValue[0]
+    final fun (space.kscience.krig.api.data/ObservedValue<*>).<get-hasValue>(): kotlin/Boolean // space.kscience.krig.api.data/hasValue.<get-hasValue>|<get-hasValue>@space.kscience.krig.api.data.ObservedValue<*>(){}[0]
 final val space.kscience.krig.api.data/isGood // space.kscience.krig.api.data/isGood|@space.kscience.krig.api.data.ObservedValue<*>{}isGood[0]
     final fun (space.kscience.krig.api.data/ObservedValue<*>).<get-isGood>(): kotlin/Boolean // space.kscience.krig.api.data/isGood.<get-isGood>|<get-isGood>@space.kscience.krig.api.data.ObservedValue<*>(){}[0]
+final val space.kscience.krig.api.data/isReliable // space.kscience.krig.api.data/isReliable|@space.kscience.krig.api.data.ObservedValue<*>{}isReliable[0]
+    final fun (space.kscience.krig.api.data/ObservedValue<*>).<get-isReliable>(): kotlin/Boolean // space.kscience.krig.api.data/isReliable.<get-isReliable>|<get-isReliable>@space.kscience.krig.api.data.ObservedValue<*>(){}[0]
 final val space.kscience.krig.api.data/isUsable // space.kscience.krig.api.data/isUsable|@space.kscience.krig.api.data.ObservedValue<*>{}isUsable[0]
     final fun (space.kscience.krig.api.data/ObservedValue<*>).<get-isUsable>(): kotlin/Boolean // space.kscience.krig.api.data/isUsable.<get-isUsable>|<get-isUsable>@space.kscience.krig.api.data.ObservedValue<*>(){}[0]
 final val space.kscience.krig.api.data/usableValue // space.kscience.krig.api.data/usableValue|@space.kscience.krig.api.data.ObservedValue<0:0>{0§<kotlin.Any?>}usableValue[0]
@@ -532,8 +345,7 @@ final fun (kotlin.collections/Iterable<space.kscience.krig.api.data/DataQuality>
 final fun <#A: kotlin/Any?> (context(kotlin.time/Clock)).space.kscience.krig.api.data/observed(#A, space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.api.data/ObservedValue<#A> // space.kscience.krig.api.data/observed|observed(kotlin.time.Clock)(0:0;space.kscience.krig.api.data.DataQuality){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (context(kotlin.time/Clock)).space.kscience.krig.api.data/timestamped(#A): space.kscience.krig.api.data/Timestamped<#A> // space.kscience.krig.api.data/timestamped|timestamped(kotlin.time.Clock)(0:0){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/ObservedValue<#A>).space.kscience.krig.api.data/requireUsableValue(): #A // space.kscience.krig.api.data/requireUsableValue|requireUsableValue@space.kscience.krig.api.data.ObservedValue<0:0>(){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/RawValue.Companion).space.kscience.krig.api.data/of(space.kscience.krig.api.data/ProtocolValueKey<#A>, #A): space.kscience.krig.api.data/RawValue.Ext // space.kscience.krig.api.data/of|of@space.kscience.krig.api.data.RawValue.Companion(space.kscience.krig.api.data.ProtocolValueKey<0:0>;0:0){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/RawValue.Ext).space.kscience.krig.api.data/decode(space.kscience.krig.api.data/ProtocolValueKey<#A>): #A // space.kscience.krig.api.data/decode|decode@space.kscience.krig.api.data.RawValue.Ext(space.kscience.krig.api.data.ProtocolValueKey<0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/ObservedValue<#A>).space.kscience.krig.api.data/valueIfQualityAtMost(space.kscience.krig.api.data/QualitySeverity): #A? // space.kscience.krig.api.data/valueIfQualityAtMost|valueIfQualityAtMost@space.kscience.krig.api.data.ObservedValue<0:0>(space.kscience.krig.api.data.QualitySeverity){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/Timed<#A>).space.kscience.krig.api.data/inRange(kotlin.ranges/ClosedRange<kotlin.time/Instant>): kotlin/Boolean // space.kscience.krig.api.data/inRange|inRange@space.kscience.krig.api.data.Timed<0:0>(kotlin.ranges.ClosedRange<kotlin.time.Instant>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.data/observed(#A, kotlin.time/Clock = ..., space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.api.data/ObservedValue<#A> // space.kscience.krig.api.data/observed|observed(0:0;kotlin.time.Clock;space.kscience.krig.api.data.DataQuality){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.data/timestamped(#A, kotlin.time/Clock = ...): space.kscience.krig.api.data/Timestamped<#A> // space.kscience.krig.api.data/timestamped|timestamped(0:0;kotlin.time.Clock){0§<kotlin.Any?>}[0]

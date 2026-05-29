@@ -1,7 +1,8 @@
-﻿package space.kscience.krig.assembly
+package space.kscience.krig.assembly
 
-import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.misc.DFBuilder
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.MutableMeta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.time.Duration
@@ -17,13 +18,12 @@ public class DataPlatformBuilder internal constructor() {
     private val timers = mutableListOf<TimerSpec>()
     private val properties = mutableListOf<PropertySpec>()
 
-    /** Declares a device instance. Returns a handle for chaining with `from blueprint(...)`. */
+    /** Declares a device instance. Returns a handle for chaining with `from manifest(...)`. */
     public fun source(id: Name): SourceHandle = SourceHandle(id)
 
     public fun source(id: String): SourceHandle = source(id.asName())
 
     /** Declares a timer driving property sampling. */
-    @Suppress("SameParameterValue")
     public fun timer(
         id: Name,
         interval: Duration,
@@ -33,7 +33,6 @@ public class DataPlatformBuilder internal constructor() {
         timers += TimerSpec(id = id, intervalMs = interval.inWholeMilliseconds, properties = builder.propertyIds)
     }
 
-    @Suppress("SameParameterValue")
     public fun timer(
         id: String,
         interval: Duration,
@@ -62,24 +61,29 @@ public class DataPlatformBuilder internal constructor() {
         return spec
     }
 
-    /** Fluent handle completed by `from blueprint(...)` or `with(config)`. */
+    /** Fluent handle completed by `from manifest(...)` or `with(config)`. */
     @DFBuilder
     public inner class SourceHandle internal constructor(private val id: Name) {
-        /** Binds [blueprintId] to this source. */
+        /** Binds [manifestId] to this source. */
         @IgnorableReturnValue
-        public infix fun from(blueprintId: Name): SourceSpec =
-            this@DataPlatformBuilder.appendSource(SourceSpec(id = id, blueprintId = blueprintId))
+        public infix fun from(manifestId: Name): SourceSpec =
+            this@DataPlatformBuilder.appendSource(SourceSpec(id = id, manifestId = manifestId))
 
         @IgnorableReturnValue
-        public infix fun from(blueprintId: String): SourceSpec = from(blueprintId.asName())
+        public infix fun from(manifestId: String): SourceSpec = from(manifestId.asName())
 
         /** Attaches opaque [config]. Typically chained after `from`. */
         @IgnorableReturnValue
-        public infix fun SourceSpec.with(config: JsonObject): SourceSpec {
+        public infix fun SourceSpec.with(config: Meta): SourceSpec {
             val replacement = copy(config = config)
             this@DataPlatformBuilder.replaceSource(this, replacement)
             return replacement
         }
+
+        /** Attaches opaque [Meta] config using a DataForge Meta builder. */
+        @IgnorableReturnValue
+        public fun SourceSpec.withMeta(block: MutableMeta.() -> Unit): SourceSpec =
+            with(Meta(block))
     }
 
     /** Fluent handle for a property collector. */

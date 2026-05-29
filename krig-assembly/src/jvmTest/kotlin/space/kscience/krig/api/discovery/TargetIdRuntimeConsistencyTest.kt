@@ -1,6 +1,6 @@
-﻿package space.kscience.krig.api.discovery
+package space.kscience.krig.api.discovery
 
-import space.kscience.krig.assembly.BlueprintPlugin
+import space.kscience.krig.assembly.DeviceCatalog
 import space.kscience.krig.assembly.DeviceFactoryPlugin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
@@ -26,7 +26,7 @@ class TargetIdRuntimeConsistencyTest {
 
     @Test
     fun featureContributions() =
-        assertAnchor(FeatureContributions::class, FeatureContributions.Target.id)
+        assertAnchor(PipelineFeatureContributions::class, PipelineFeatureContributions.Target.id)
 
     @Test
     fun protocolContributions() =
@@ -37,8 +37,8 @@ class TargetIdRuntimeConsistencyTest {
         assertAnchor(ActionHandlerContributions::class, ActionHandlerContributions.Target.id)
 
     @Test
-    fun blueprintPluginCompanion() =
-        assertAnchor(BlueprintPlugin.Companion::class, BlueprintPlugin.Target.id)
+    fun deviceCatalogCompanion() =
+        assertAnchor(DeviceCatalog.Companion::class, DeviceCatalog.Target.id)
 
     @Test
     fun deviceFactoryPluginCompanion() =

@@ -10,8 +10,9 @@ Transport implementations (RSocket, Ktor WebSocket, MQTT, in-process) live in th
 
 ## Key Features
 
-- **`MagixMessage`**: A serializable data class for all messages, compatible with Waltz-Controls RFC1. Source/target endpoints are typed `Name` and serialise as plain strings via DataForge `NameSerializer`.
-- **`MagixEnvelope`**: Wraps a `MagixMessage` inside the payload so RFC1-strict relays preserve `topic` and `headers` fields through heterogeneous mesh hops.
+- **`MagixMessage`**: Runtime DTO for the DataForge/controls-kt Magix dialect (`sourceEndpoint`, `targetEndpoint`). Endpoints are typed `Name` and serialise as plain strings via DataForge `NameSerializer`.
+- **`WaltzRfc1Message`**: Boundary DTO for canonical Waltz-Controls RFC1 (`origin`, `target`, `format`, `payload`) plus adapters to/from `MagixMessage`.
+- **`MagixEnvelope`**: Wraps KRig metadata inside the payload so strict RFC1 relays preserve `topic`, `headers`, and the original payload `format` through heterogeneous mesh hops.
 - **`MagixEndpoint`**: A universal interface (`subscribe` + `broadcast`) abstracting the underlying transport protocol.
 - **`MagixMessageFilter`**: Declarative server-side filtering by source, target, topic, and format.
 - **`MagixFlowPlugin`** (`@ExperimentalMagixApi`): Server-side SPI for extending an in-process Magix message loop.

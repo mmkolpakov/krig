@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
 class KspConsumerSmokeTest {
 
     @Test
-    fun `processor compiles a minimal @ContributesBlueprint without errors`() {
+    fun `processor compiles a minimal @ContributesManifest without errors`() {
         // Verify that the SPI-resolved provider is loadable.
         // Full KCT Fork compilation test requires a separate consumer module
         // with krig-mpp-ksp plugin applied — this test confirms SPI integrity.

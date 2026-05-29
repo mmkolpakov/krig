@@ -19,6 +19,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import kotlin.test.Test
@@ -36,9 +37,14 @@ private open class GroupDrainTestDevice : AbstractDevice(
 ) {
     var shutdownCalls: Int = 0
 
-    override suspend fun readProperty(propertyName: Name): Meta = Meta.EMPTY
-    override suspend fun writeProperty(propertyName: Name, value: Meta) = Unit
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? = null
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        OperationOutcome.Ok(Meta.EMPTY)
+
+    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+        OperationOutcome.OkUnit
+
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+        OperationOutcome.Ok(null)
 
     override suspend fun shutdown() {
         shutdownCalls++

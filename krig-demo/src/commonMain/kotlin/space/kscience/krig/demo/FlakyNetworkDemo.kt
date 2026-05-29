@@ -16,7 +16,7 @@ suspend fun flakyNetworkDemo() {
     val ctx = demoContext("flaky-network-demo")
     val driver = FlakyPumpDriver()
     val pump = device("flakyPump", driver.backend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
         install(DemoRetry) {
             policy = RetryPolicy(maxAttempts = 2, initialDelay = 5.milliseconds)
         }

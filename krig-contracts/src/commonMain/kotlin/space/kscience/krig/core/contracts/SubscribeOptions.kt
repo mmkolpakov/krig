@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.core.contracts
+package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.sample
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.MessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -42,7 +42,7 @@ public data class SubscribeOptions(
 public suspend fun Device.subscribe(
     principal: Principal,
     options: SubscribeOptions,
-): Flow<MessageEnvelope<DeviceMessage>> {
+): Flow<DeviceMessageEnvelope<DeviceMessage>> {
     val base = subscribe(principal)
     if (options === SubscribeOptions.Unthrottled) return base
 

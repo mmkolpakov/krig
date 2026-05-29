@@ -9,14 +9,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlin.time.Instant
 import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.DeviceMessageEnvelope
 import space.kscience.krig.core.ExperimentalKrigApi
 
 /**
- * Write-only sink for [DeviceMessage]s. The producer side of event sourcing: implemented
+ * Write-only sink for [DeviceMessage] envelopes. The producer side of event sourcing: implemented
  * by persistence integrations (SQLite audit log, file journal, …).
  */
 public fun interface ReplaySink {
-    public suspend fun record(message: DeviceMessage)
+    public suspend fun record(message: DeviceMessageEnvelope<DeviceMessage>)
 }
 
 /**
@@ -44,10 +45,11 @@ public value class SequenceCursor(public val sequence: Long) : EventCursor {
  * over persistent collections: this store is for tests and HIL runs, where
  * predictable append cost beats retrying tree rebuilds under contention.
  *
- * Time-range reads take a snapshot, filter, and sort by `(message.time, sequence)`.
- * Arrival sequence is not a valid time index in distributed systems, even with
- * HLC timestamps. Use a durable implementation overriding [CursorReplayLog.replayRecords]
- * with a database/B-tree time index for production-scale history queries.
+ * Time-range reads take a snapshot, filter by payload event time, and sort by
+ * envelope causal order when both records have HLC stamps; otherwise they fall back to
+ * `(message.time, sequence)`. Use a durable implementation overriding
+ * [CursorReplayLog.replayRecords] with a database/B-tree time index for
+ * production-scale history queries.
  *
  * @param capacity maximum number of events retained; oldest events are dropped
  *                 when exceeded. Default 10 000 protects against OOM in HIL runs.
@@ -62,7 +64,7 @@ public class InMemoryReplayLog(
     private val log = ArrayDeque<ReplayRecord>(capacity)
     private var nextSequence: Long = 0
 
-    override suspend fun record(message: DeviceMessage) {
+    override suspend fun record(message: DeviceMessageEnvelope<DeviceMessage>) {
         synchronized(lock) {
             val record = ReplayRecord(SequenceCursor(nextSequence++), message)
             log.addLast(record)
@@ -72,10 +74,10 @@ public class InMemoryReplayLog(
         }
     }
 
-    override fun replay(from: Instant, until: Instant): Flow<DeviceMessage> =
+    override fun replay(from: Instant, until: Instant): Flow<DeviceMessageEnvelope<DeviceMessage>> =
         timeSnapshot(from, until)
             .asSequence()
-            .map { it.message }
+            .map { it.envelope }
             .asFlow()
 
     override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> {
@@ -97,14 +99,14 @@ public class InMemoryReplayLog(
         if (until < from) return emptyList()
         return snapshot()
             .asSequence()
-            .filter { it.message.time in from..until }
+            .filter { it.envelope.payload.time in from..until }
             .sortedWith(::compareRecords)
             .toList()
     }
 
     private fun compareRecords(left: ReplayRecord, right: ReplayRecord): Int {
-        val byTime = left.message.time.compareTo(right.message.time)
-        if (byTime != 0) return byTime
+        val byEnvelope = compareEnvelopesByCausality(left.envelope, right.envelope)
+        if (byEnvelope != 0) return byEnvelope
         return (left.cursor as SequenceCursor).sequence.compareTo((right.cursor as SequenceCursor).sequence)
     }
 

@@ -13,6 +13,7 @@ import space.kscience.krig.api.context.ExecutionContext
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.context.executionContextOf
+import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuthorizationException
@@ -33,7 +34,7 @@ suspend fun authAuditDemo() {
     }
     val audit = ctx.auditService as RecordingAuditService
     val pump = device("securePump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
     val guest = SimplePrincipal("guest")
     val operator = SimplePrincipal("operator", roles = setOf("operator"))
@@ -98,5 +99,5 @@ private class RecordingAuditService private constructor(meta: Meta) :
 
 private fun OperationOutcome<*>.outcomeLabel(): String = when (this) {
     is OperationOutcome.Ok -> "ok"
-    is OperationOutcome.Fail -> "fail:${fault.faultType}"
+    is OperationOutcome.Fail -> "fail:${fault.displayType}"
 }

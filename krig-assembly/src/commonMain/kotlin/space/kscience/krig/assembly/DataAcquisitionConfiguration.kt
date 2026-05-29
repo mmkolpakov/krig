@@ -1,9 +1,9 @@
 package space.kscience.krig.assembly
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.TypeIds
 
 /**
@@ -18,40 +18,56 @@ public data class DataAcquisitionConfiguration(
     public val timers: List<AcquisitionTimerSpec> = emptyList(),
     public val tags: List<AcquisitionTagSpec> = emptyList(),
 ) {
-    public companion object {
-        public fun parse(text: String, json: Json = StrictJson): DataAcquisitionConfiguration =
-            json.decodeFromString(serializer(), text)
-
-        public fun parseLenient(text: String): DataAcquisitionConfiguration =
-            parse(text, LenientJson)
-
-        internal val StrictJson: Json = Json {
-            ignoreUnknownKeys = false
-            encodeDefaults = false
-            explicitNulls = false
-        }
-
-        internal val LenientJson: Json = Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = false
-            explicitNulls = false
-        }
-    }
+    public companion object
 }
+
+public sealed interface DataAcquisitionLoadResult {
+    public data class Valid(public val config: DataAcquisitionConfiguration) : DataAcquisitionLoadResult
+    public data class Invalid(public val errors: List<String>) : DataAcquisitionLoadResult
+}
+
+/** Decodes [DataAcquisitionConfiguration] from a DataForge [Meta] document. */
+public fun DataAcquisitionConfiguration.Companion.fromMeta(
+    meta: Meta,
+    lenient: Boolean = false,
+): DataAcquisitionConfiguration =
+    decodeConfigurationMeta(DataAcquisitionConfiguration.serializer(), meta, lenient)
+
+/** Encodes this configuration into a DataForge [Meta] document. */
+public fun DataAcquisitionConfiguration.toMeta(): Meta =
+    encodeConfigurationMeta(DataAcquisitionConfiguration.serializer(), this)
+
+/** Decodes and validates a [DataAcquisitionConfiguration] from [meta]. */
+public fun DataAcquisitionConfiguration.Companion.load(
+    meta: Meta,
+    lenient: Boolean = false,
+): DataAcquisitionLoadResult =
+    runCatching { fromMeta(meta, lenient) }
+        .fold(
+            onSuccess = { config ->
+                val errors = config.validate()
+                if (errors.isEmpty()) DataAcquisitionLoadResult.Valid(config)
+                else DataAcquisitionLoadResult.Invalid(errors)
+            },
+            onFailure = { error -> DataAcquisitionLoadResult.Invalid(listOf(error.message ?: error.toString())) },
+        )
 
 /** Opaque connector instance. [connector] is resolved by an external integration module. */
 @Serializable
 public data class AcquisitionSourceSpec(
     public val id: Name,
-    public val connector: String,
-    public val config: JsonObject = JsonObject(emptyMap()),
+    public val connector: Name,
+    public val config: Meta = Meta.EMPTY,
 ) {
+    public constructor(
+        id: Name,
+        connector: String,
+        config: Meta = Meta.EMPTY,
+    ) : this(id, connector.asName(), config)
+
     init {
         require(id != Name.EMPTY) { "AcquisitionSourceSpec id must not be empty" }
-        require(connector.isNotBlank()) { "AcquisitionSourceSpec '$id' connector must not be blank" }
-        config.keys.forEach { key ->
-            require(key.isNotBlank()) { "AcquisitionSourceSpec '$id' config key must not be blank" }
-        }
+        require(connector != Name.EMPTY) { "AcquisitionSourceSpec '$id' connector must not be empty" }
     }
 }
 

@@ -9,6 +9,8 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceNode
@@ -42,6 +44,9 @@ public open class DeviceGroup(
     override val children: Map<Name, DeviceNode>
         get() = devices.asNodeMap()
 
+    override fun content(target: String): Map<Name, Any> =
+        if (target == defaultTarget) children else super<AbstractDevice>.content(target)
+
     private fun tryResolveChild(fullName: Name): Pair<Device, Name>? {
         val tokens = fullName.tokens
         if (tokens.size < 2) return null // single token = own property, not child delegation
@@ -62,33 +67,36 @@ public open class DeviceGroup(
         error("Action '$actionName' not found on DeviceGroup '$name' for argument $argument.")
     }
 
-    override suspend fun readProperty(propertyName: Name): Meta {
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> {
         val resolved = tryResolveChild(propertyName)
         return if (resolved != null) {
             val (child, remaining) = resolved
-            child.readProperty(remaining)
+            child.readPropertyOutcome(remaining)
         } else {
-            readOwnProperty(propertyName)
+            runCatchingOperation { readOwnProperty(propertyName) }
         }
     }
 
-    override suspend fun writeProperty(propertyName: Name, value: Meta) {
+    override suspend fun doWritePropertyOutcome(
+        propertyName: Name,
+        value: Meta,
+    ): OperationOutcome<Unit> {
         val resolved = tryResolveChild(propertyName)
-        if (resolved != null) {
+        return if (resolved != null) {
             val (child, remaining) = resolved
-            child.writeProperty(remaining, value)
+            child.writePropertyOutcome(remaining, value)
         } else {
-            writeOwnProperty(propertyName, value)
+            runCatchingOperation { writeOwnProperty(propertyName, value) }
         }
     }
 
-    override suspend fun execute(actionName: Name, argument: Meta?): Meta? {
+    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> {
         val resolved = tryResolveChild(actionName)
         return if (resolved != null) {
             val (child, remaining) = resolved
-            child.execute(remaining, argument)
+            child.executeOutcome(remaining, argument)
         } else {
-            executeOwn(actionName, argument)
+            runCatchingOperation { executeOwn(actionName, argument) }
         }
     }
 

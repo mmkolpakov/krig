@@ -16,6 +16,7 @@ import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.hub.resolveDevice
 import space.kscience.krig.api.hub.resolveNode
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.asNode
@@ -38,13 +39,14 @@ class DeviceGroupTest {
         DeviceRuntime(Context("cd-${cdTestSeq.addAndFetch(1)}-$name")),
     ) {
 
-        override suspend fun readProperty(propertyName: Name): Meta =
-            properties[propertyName] ?: Meta { "stub".asName() put name.toString() }
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            OperationOutcome.Ok(properties[propertyName] ?: Meta { "stub".asName() put name.toString() })
 
-        override suspend fun writeProperty(propertyName: Name, value: Meta) {}
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            OperationOutcome.OkUnit
 
-        override suspend fun execute(actionName: Name, argument: Meta?): Meta =
-            Meta { "action".asName() put actionName.toString() }
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(Meta { "action".asName() put actionName.toString() })
     }
 
     @Test

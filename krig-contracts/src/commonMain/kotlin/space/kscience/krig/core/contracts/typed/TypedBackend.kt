@@ -1,14 +1,10 @@
 package space.kscience.krig.core.contracts.typed
 
-import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.DeviceBackend
-import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 
 /**
@@ -40,22 +36,4 @@ public interface TypedDeviceBackend : DeviceBackend, TypedBackend {
 
     /** Registered typed action spec by name, used to keep the Meta boundary converter-aware. */
     public fun actionSpec(name: Name): DeviceActionContract<*, *>? = null
-}
-
-/**
- * Optional batch-read SPI for backends that can acquire several properties in one physical transaction.
- *
- * The contract stays protocol-neutral: [properties] are SDK descriptors, while concrete
- * addresses, sockets, field buses, or vendor APIs live in external integration modules.
- */
-@OptIn(UnstableKrigForSubclassing::class)
-public interface BatchTypedDeviceBackend : TypedDeviceBackend {
-    /**
-     * Reads [properties] as one acquisition unit when possible.
-     *
-     * Implementations should return one [OperationOutcome] per requested property. Partial failures are
-     * values, not exceptions; cancellation must still propagate normally.
-     */
-    context(device: DeviceEnvironment)
-    public suspend fun readBatch(properties: Collection<PropertyDescriptor>): Map<Name, OperationOutcome<Meta>>
 }

@@ -6,13 +6,14 @@ import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.names.Name
 
 /**
- * Serializable Magix message, RFC1-compatible on the wire.
+ * Serializable KRig/DataForge Magix message.
  *
  * `sourceEndpoint` / `targetEndpoint` / `topic` are typed [Name] in Kotlin but serialise as
- * plain strings via dataforge's [NameSerializer].
+ * plain strings via dataforge's [NameSerializer]. Canonical Waltz RFC1 uses `origin` and
+ * `target`; use [WaltzRfc1Message] adapters at that boundary.
  *
- * @property topic Hierarchical routing key. Not part of RFC1; upstream relays that
- *                 `ignoreUnknownKeys` drop it. Prefer [MagixEnvelope] for interop traffic.
+ * @property topic Hierarchical routing key. Strict external relays that ignore unknown keys
+ *                 may drop it. Prefer [MagixEnvelope] or [toWaltzRfc1] for interop traffic.
  * @property headers Broker-level metadata (HLC, trace IDs). Same caveat as [topic].
  */
 @Serializable

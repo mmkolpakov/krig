@@ -10,15 +10,17 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.meta.Meta
 import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.DefaultQualityPolicy
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.data.QualityCode
-import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.api.data.QualityPolicy
+import space.kscience.krig.api.data.QualityNamespaces
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.fail
+import space.kscience.krig.api.data.toDataQuality
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -27,7 +29,27 @@ import kotlin.time.Duration.Companion.milliseconds
  * scheduling and mapping; the integration owns connector state and address syntax.
  */
 public fun interface AcquisitionTagReader {
-    public suspend fun read(tag: AcquisitionTagSpec): OperationOutcome<Meta>
+    public suspend fun read(tag: AcquisitionTagSpec): OperationOutcome<ObservedValue<Meta?>>
+}
+
+/**
+ * Builds an [AcquisitionTagReader] for integrations that can return a [Meta] sample
+ * directly. Use the function interface when the adapter owns protocol-level quality
+ * or needs to return [OperationOutcome.Fail][OperationOutcome.Fail].
+ */
+public fun acquisitionTagReader(
+    clock: Clock = Clock.System,
+    quality: DataQuality = DataQuality.GOOD,
+    read: suspend (AcquisitionTagSpec) -> Meta?,
+): AcquisitionTagReader = AcquisitionTagReader { tag ->
+    OperationOutcome.Ok(ObservedValue(value = read(tag), time = clock.now(), quality = quality))
+}
+
+/** Builds an [AcquisitionTagReader] from a source that already returns observed samples. */
+public fun observedAcquisitionTagReader(
+    read: suspend (AcquisitionTagSpec) -> ObservedValue<Meta?>,
+): AcquisitionTagReader = AcquisitionTagReader { tag ->
+    OperationOutcome.Ok(read(tag))
 }
 
 /** One polling result for a configured acquisition tag. */
@@ -62,11 +84,12 @@ public fun DataAcquisitionConfiguration.pollTimer(
     ticks: Flow<Unit>,
     clock: Clock = Clock.System,
     reader: AcquisitionTagReader,
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
 ): Flow<AcquisitionObservation> {
     val timerTags = tagsForTimer(timerId)
     return ticks.transform {
         for (tag in timerTags) {
-            emit(reader.observe(tag, clock))
+            emit(reader.observe(tag, clock, qualityPolicy))
         }
     }
 }
@@ -76,24 +99,30 @@ public fun DataAcquisitionConfiguration.pollTimer(
     ticks: Flow<Unit>,
     clock: Clock = Clock.System,
     reader: AcquisitionTagReader,
-): Flow<AcquisitionObservation> = pollTimer(timerId.asName(), ticks, clock, reader)
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
+): Flow<AcquisitionObservation> = pollTimer(timerId.asName(), ticks, clock, reader, qualityPolicy)
 
 private suspend fun AcquisitionTagReader.observe(
     tag: AcquisitionTagSpec,
     clock: Clock,
+    qualityPolicy: QualityPolicy,
 ): AcquisitionObservation = when (val outcome = readWithTimeout(tag)) {
     is OperationOutcome.Ok -> AcquisitionObservation(
         tag = tag,
-        observed = ObservedValue(value = outcome.value, time = clock.now(), quality = DataQuality.GOOD),
+        observed = outcome.value,
     )
     is OperationOutcome.Fail -> AcquisitionObservation(
         tag = tag,
-        observed = ObservedValue(value = null, time = clock.now(), quality = outcome.fault.toAcquisitionQuality()),
+        observed = ObservedValue(
+            value = null,
+            time = clock.now(),
+            quality = outcome.fault.toDataQuality(QualityNamespaces.Acquisition, qualityPolicy),
+        ),
         fault = outcome.fault,
     )
 }
 
-private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec): OperationOutcome<Meta> = try {
+private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec): OperationOutcome<ObservedValue<Meta?>> = try {
     val timeoutMs = tag.timeoutMs
     if (timeoutMs == null) {
         read(tag)
@@ -112,14 +141,5 @@ private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec
             causeType = e::class.simpleName ?: "IOException",
             message = e.message ?: "I/O failure while reading acquisition tag '${tag.id}'.",
         )
-    )
-}
-
-private fun OperationFault.toAcquisitionQuality(): DataQuality {
-    val qualityCode = faultType.toString().replace('.', '-')
-    return DataQuality(
-        severity = QualitySeverity.BAD,
-        code = QualityCode("krig.acquisition.${qualityCode.lowercase()}"),
-        detail = message,
     )
 }

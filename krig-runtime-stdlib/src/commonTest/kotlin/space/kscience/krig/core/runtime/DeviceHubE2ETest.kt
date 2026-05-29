@@ -21,6 +21,8 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.api.hub.HubConflictException
 import space.kscience.krig.api.hub.HubEvent
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -43,9 +45,20 @@ class DeviceHubE2ETest {
             super.close()
         }
 
-        override suspend fun readProperty(propertyName: Name) = error("not used")
-        override suspend fun writeProperty(propertyName: Name, value: space.kscience.dataforge.meta.Meta) = Unit
-        override suspend fun execute(actionName: Name, argument: space.kscience.dataforge.meta.Meta?) = null
+        override suspend fun doReadPropertyOutcome(
+            propertyName: Name,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta> =
+            runCatchingOperation { error("not used") }
+
+        override suspend fun doWritePropertyOutcome(
+            propertyName: Name,
+            value: space.kscience.dataforge.meta.Meta,
+        ): OperationOutcome<Unit> = OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(
+            actionName: Name,
+            argument: space.kscience.dataforge.meta.Meta?,
+        ): OperationOutcome<space.kscience.dataforge.meta.Meta?> = OperationOutcome.Ok(null)
     }
 
     /**

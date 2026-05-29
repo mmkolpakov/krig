@@ -78,18 +78,6 @@ sealed interface space.kscience.krig.simulation/ClockMode { // space.kscience.kr
     }
 }
 
-final class <#A: kotlin/Any?> space.kscience.krig.concurrency/Signal { // space.kscience.krig.concurrency/Signal|null[0]
-    constructor <init>(#A) // space.kscience.krig.concurrency/Signal.<init>|<init>(1:0){}[0]
-
-    final val flow // space.kscience.krig.concurrency/Signal.flow|{}flow[0]
-        final fun <get-flow>(): kotlinx.coroutines.flow/StateFlow<#A> // space.kscience.krig.concurrency/Signal.flow.<get-flow>|<get-flow>(){}[0]
-    final val value // space.kscience.krig.concurrency/Signal.value|{}value[0]
-        final fun <get-value>(): #A // space.kscience.krig.concurrency/Signal.value.<get-value>|<get-value>(){}[0]
-
-    final fun set(#A) // space.kscience.krig.concurrency/Signal.set|set(1:0){}[0]
-    final suspend fun waitUntil(kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.concurrency/Signal.waitUntil|waitUntil(kotlin.Function1<1:0,kotlin.Boolean>){}[0]
-}
-
 final class space.kscience.krig.concurrency/Resource { // space.kscience.krig.concurrency/Resource|null[0]
     constructor <init>(kotlin/String, kotlin/Int, space.kscience.krig.concurrency/ResourcePreemptionPolicy = ..., space.kscience.krig.concurrency/ResourceEventSink = ...) // space.kscience.krig.concurrency/Resource.<init>|<init>(kotlin.String;kotlin.Int;space.kscience.krig.concurrency.ResourcePreemptionPolicy;space.kscience.krig.concurrency.ResourceEventSink){}[0]
 
@@ -367,11 +355,12 @@ final fun (space.kscience.dataforge.context/Context).space.kscience.krig.simulat
 final fun (space.kscience.dataforge.context/ContextBuilder).space.kscience.krig.simulation/withTimeCompression(kotlin/Double) // space.kscience.krig.simulation/withTimeCompression|withTimeCompression@space.kscience.dataforge.context.ContextBuilder(kotlin.Double){}[0]
 final fun (space.kscience.dataforge.context/ContextBuilder).space.kscience.krig.simulation/withVirtualTime(kotlin.time/Instant = ...) // space.kscience.krig.simulation/withVirtualTime|withVirtualTime@space.kscience.dataforge.context.ContextBuilder(kotlin.time.Instant){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.simulation/runProcess(kotlin/String = ..., kotlin.coroutines/SuspendFunction1<space.kscience.krig.simulation/ProcessScope, kotlin/Unit>): kotlinx.coroutines/Job // space.kscience.krig.simulation/runProcess|runProcess@space.kscience.krig.core.contracts.Device(kotlin.String;kotlin.coroutines.SuspendFunction1<space.kscience.krig.simulation.ProcessScope,kotlin.Unit>){}[0]
+final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asClockState(): space.kscience.krig.dsl/ClockState // space.kscience.krig.simulation/asClockState|asClockState@space.kscience.krig.simulation.ClockManager(){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asSamplingClock(): space.kscience.krig.dsl/SamplingClock // space.kscience.krig.simulation/asSamplingClock|asSamplingClock@space.kscience.krig.simulation.ClockManager(){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/fixedRateTicks(kotlin.time/Duration): kotlinx.coroutines.flow/Flow<kotlin/Unit> // space.kscience.krig.simulation/fixedRateTicks|fixedRateTicks@space.kscience.krig.simulation.ClockManager(kotlin.time.Duration){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/sharedTicks(kotlinx.coroutines/CoroutineScope, kotlin.time/Duration, kotlinx.coroutines.flow/SharingStarted = ...): kotlinx.coroutines.flow/SharedFlow<kotlin/Unit> // space.kscience.krig.simulation/sharedTicks|sharedTicks@space.kscience.krig.simulation.ClockManager(kotlinx.coroutines.CoroutineScope;kotlin.time.Duration;kotlinx.coroutines.flow.SharingStarted){}[0]
 final fun space.kscience.krig.simulation/simulationScope(space.kscience.krig.simulation/DeterministicScheduler): kotlinx.coroutines/CoroutineScope // space.kscience.krig.simulation/simulationScope|simulationScope(space.kscience.krig.simulation.DeterministicScheduler){}[0]
 final suspend fun (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/hold(kotlin.time/Duration) // space.kscience.krig.simulation/hold|hold@space.kscience.krig.simulation.ProcessScope(kotlin.time.Duration){}[0]
+final suspend fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/StateFlow<#A>).space.kscience.krig.concurrency/waitUntil(kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.concurrency/waitUntil|waitUntil@kotlinx.coroutines.flow.StateFlow<0:0>(kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/request(space.kscience.krig.concurrency/Resource, kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ..., kotlin.coroutines/SuspendFunction0<#A>): #A // space.kscience.krig.simulation/request|request@space.kscience.krig.simulation.ProcessScope(space.kscience.krig.concurrency.Resource;kotlin.Int;space.kscience.krig.concurrency.ResourcePriority;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/waitUntil(kotlinx.coroutines.flow/StateFlow<#A>, kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.simulation/waitUntil|waitUntil@space.kscience.krig.simulation.ProcessScope(kotlinx.coroutines.flow.StateFlow<0:0>;kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
-final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/waitUntil(space.kscience.krig.concurrency/Signal<#A>, kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.simulation/waitUntil|waitUntil@space.kscience.krig.simulation.ProcessScope(space.kscience.krig.concurrency.Signal<0:0>;kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]

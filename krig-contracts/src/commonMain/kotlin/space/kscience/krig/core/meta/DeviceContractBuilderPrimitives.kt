@@ -37,6 +37,16 @@ public fun DeviceContractBuilder.metaProperty(
 ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Meta>>> =
     property(MetaConverter.meta, TypeIds.META, kind)
 
+/**
+ * Declares a binary property in the manifest. The typed contract uses [Meta] only as
+ * a control-plane placeholder; protocol backends should serve this through the binary
+ * backend path to avoid forcing bytes into a Meta tree.
+ */
+public fun DeviceContractBuilder.binaryProperty(
+    kind: PropertyKind = PropertyKind.PHYSICAL,
+): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<Meta>>> =
+    property(MetaConverter.meta, TypeIds.BYTES, kind)
+
 public fun DeviceContractBuilder.mutableDoubleProperty(
     kind: PropertyKind = PropertyKind.PHYSICAL,
 ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<Double>>> =

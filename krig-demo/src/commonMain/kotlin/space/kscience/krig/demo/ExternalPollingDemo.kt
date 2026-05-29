@@ -8,10 +8,9 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.yield
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.data.isUsable
+import space.kscience.krig.api.data.requireUsableValue
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.api.result.ok
-import space.kscience.krig.assembly.AcquisitionTagReader
+import space.kscience.krig.assembly.acquisitionTagReader
 import space.kscience.krig.assembly.dataAcquisition
 import space.kscience.krig.assembly.pollTimer
 import space.kscience.krig.core.contracts.metaOf
@@ -27,7 +26,7 @@ import kotlin.time.Duration.Companion.milliseconds
 suspend fun externalPollingDemo(): Unit = supervisorScope {
     val ctx = demoContext("external-polling-demo")
     val pump = device("pollingPump", pumpBackend(), ctx) {
-        blueprint(PumpBlueprint)
+        manifest(PumpManifest)
     }
     val registers = mutableMapOf(
         "rpm" to 1_000.0,
@@ -46,8 +45,8 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
         }
     }
     val ticks = sharedTicks(pump.deviceScope, 10.milliseconds)
-    val reader = AcquisitionTagReader { tag ->
-        ok(metaOf(registers.getValue(tag.address)))
+    val reader = acquisitionTagReader(pump.clock) { tag ->
+        metaOf(registers.getValue(tag.address))
     }
 
     println("=== External polling ===")
@@ -60,10 +59,12 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
                     val target = observation.tag.target
                     if (
                         target?.deviceId == pump.name &&
-                        target.property == PumpSpec.rpm.name &&
-                        observation.observed.isUsable
+                        target.property == PumpSpec.rpm.name
                     ) {
-                        pump.write(PumpSpec.rpm, MetaConverter.double.read(observation.observed.value!!))
+                        val value = requireNotNull(observation.observed.requireUsableValue()) {
+                            "rpm observation passed quality checks with null payload"
+                        }
+                        pump.write(PumpSpec.rpm, MetaConverter.double.read(value))
                     }
                 }
             }

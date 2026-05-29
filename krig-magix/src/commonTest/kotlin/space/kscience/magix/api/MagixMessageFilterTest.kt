@@ -34,9 +34,18 @@ class MagixMessageFilterTest {
     }
 
     @Test
-    fun emptyTopicSegmentsAreIgnoredLikeBefore() {
+    fun literalDottedNameIsNotTreatedAsPatternPath() {
         val filter = MagixMessageFilter(topicPattern = "actions..*".asName())
-        assertTrue(filter.accepts(message("actions.car")))
+        assertFalse(filter.accepts(message("actions.car")))
         assertFalse(filter.accepts(message("actions.car.speed")))
+    }
+
+    @Test
+    fun doubleStarMatchesMiddleSegments() {
+        val filter = MagixMessageFilter(topicPattern = "actions.**.speed".parseAsName())
+        assertTrue(filter.accepts(message("actions.speed")))
+        assertTrue(filter.accepts(message("actions.car.speed")))
+        assertTrue(filter.accepts(message("actions.car.motor.speed")))
+        assertFalse(filter.accepts(message("actions.car.motor.rpm")))
     }
 }

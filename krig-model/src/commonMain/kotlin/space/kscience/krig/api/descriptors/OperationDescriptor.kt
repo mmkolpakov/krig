@@ -2,7 +2,7 @@ package space.kscience.krig.api.descriptors
 
 import kotlinx.serialization.Polymorphic
 import space.kscience.krig.api.annotations.PolymorphicBase
-import space.kscience.dataforge.meta.MetaRepr
+import space.kscience.attributes.Attribute
 import space.kscience.dataforge.names.Name
 
 /**
@@ -12,7 +12,7 @@ import space.kscience.dataforge.names.Name
  */
 @Polymorphic
 @PolymorphicBase
-public interface OperationDescriptor : MetaRepr {
+public interface OperationDescriptor {
     /**
      * The unique, potentially hierarchical operation name.
      */
@@ -21,13 +21,10 @@ public interface OperationDescriptor : MetaRepr {
     /**
      * Attributes defining behavior, metadata, and policies.
      */
-    public val attributes: Set<OperationAttribute>
+    public val attributes: OperationAttributes
 }
 
 /**
- * Universal accessor for attributes.
- * Usage: `descriptor.attribute<MetadataAttribute>()?.description`
+ * Universal typed-key accessor for operation attributes.
  */
-public inline fun <reified A : OperationAttribute> OperationDescriptor.attribute(): A? {
-    return attributes.filterIsInstance<A>().firstOrNull()
-}
+public fun <T> OperationDescriptor.attribute(key: Attribute<T>): T? = attributes[key]
