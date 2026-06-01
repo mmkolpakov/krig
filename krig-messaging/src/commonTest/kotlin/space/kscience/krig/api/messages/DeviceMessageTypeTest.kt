@@ -1,32 +1,54 @@
-﻿package space.kscience.krig.api.messages
+package space.kscience.krig.api.messages
 
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.modules.SerializersModuleCollector
+import space.kscience.krig.api.serialization.krigApiSerializersModule
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalSerializationApi::class)
 class DeviceMessageTypeTest {
+    private fun registeredDeviceMessageTypeNames(): Set<String> {
+        val names = mutableSetOf<String>()
+
+        krigApiSerializersModule.dumpTo(object : SerializersModuleCollector {
+            override fun <T : Any> contextual(
+                kClass: KClass<T>,
+                provider: (typeArgumentsSerializers: List<KSerializer<*>>) -> KSerializer<*>,
+            ) = Unit
+
+            override fun <Base : Any, Sub : Base> polymorphic(
+                baseClass: KClass<Base>,
+                actualClass: KClass<Sub>,
+                actualSerializer: KSerializer<Sub>,
+            ) {
+                if (baseClass == DeviceMessage::class) {
+                    names += actualSerializer.descriptor.serialName
+                }
+            }
+
+            override fun <Base : Any> polymorphicDefaultSerializer(
+                baseClass: KClass<Base>,
+                defaultSerializerProvider: (value: Base) -> SerializationStrategy<Base>?,
+            ) = Unit
+
+            override fun <Base : Any> polymorphicDefaultDeserializer(
+                baseClass: KClass<Base>,
+                defaultDeserializerProvider: (className: String?) -> DeserializationStrategy<Base>?,
+            ) = Unit
+        })
+
+        return names
+    }
 
     @Test
-    fun allDeviceMessageTypeNamesAreUnique() {
-        val values = listOf(
-            DeviceMessageType.PropertyChanged,
-            DeviceMessageType.DeviceError,
-            DeviceMessageType.ActionFault,
-            DeviceMessageType.DeviceAttached,
-            DeviceMessageType.DeviceDetached,
-            DeviceMessageType.PropertyReadRequest,
-            DeviceMessageType.PropertyReadResponse,
-            DeviceMessageType.PropertyWriteRequest,
-            DeviceMessageType.PropertyWriteResponse,
-            DeviceMessageType.PropertyFault,
-            DeviceMessageType.ActionExecuteRequest,
-            DeviceMessageType.ActionExecuteResponse,
-            DeviceMessageType.DeviceOnline,
-            DeviceMessageType.DeviceOffline,
-        )
-
-        assertEquals(values.size, values.toSet().size)
-        assertEquals(values.toSet(), DeviceMessageType.all)
+    fun allDeviceMessageTypeNamesMatchRegisteredSerializers() {
+        assertEquals(registeredDeviceMessageTypeNames(), DeviceMessageType.all)
     }
 
     @Test

@@ -500,12 +500,9 @@ public final class space/kscience/krig/core/contracts/DeviceBackendExtensionsKt 
 	public static final fun readBinaryOutcome (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBytes (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBytesOutcome (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun readObservedOrThrow (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun write (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/meta/DevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun writeBytes (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class space/kscience/krig/core/contracts/DeviceBackendReadExtensionsKt {
-	public static final fun readWithResult (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceCoreKt {

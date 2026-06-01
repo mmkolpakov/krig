@@ -32,9 +32,12 @@ import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
+import space.kscience.krig.core.contracts.typed.DoubleSampler
 import space.kscience.krig.core.contracts.typed.GenericTypedReader
 import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedReader
+import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
@@ -42,6 +45,7 @@ import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 
@@ -57,6 +61,9 @@ private class CountingPipelineDevice : AbstractDevice(
     val batchWriteCalls = atomic(0)
     val actionCalls = atomic(0)
     val shutdownCalls = atomic(0)
+    val operationEntries = atomic(0)
+    val operationExits = atomic(0)
+    val valueSampler = RingDoubleSampler(capacity = 4)
 
     val valueSpec = object : MutableDevicePropertyContract<Double> {
         override val name: Name = "value".asName()
@@ -88,6 +95,10 @@ private class CountingPipelineDevice : AbstractDevice(
             writeCalls.incrementAndGet()
         }
     }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
+        if (spec.name == valueSpec.name) valueSampler as TypedSampler<T> else null
 
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? =
         if (propertyName == valueSpec.name) valueSpec else null
@@ -121,6 +132,16 @@ private class CountingPipelineDevice : AbstractDevice(
 
     override suspend fun shutdown() {
         shutdownCalls.incrementAndGet()
+    }
+
+    override fun enterOperation() {
+        operationEntries.incrementAndGet()
+        super.enterOperation()
+    }
+
+    override fun exitOperation() {
+        operationExits.incrementAndGet()
+        super.exitOperation()
     }
 }
 
@@ -241,6 +262,25 @@ class PipelineDeviceCacheTest {
 
         assertEquals(2, delegate.actionCalls.value)
         assertEquals(2, actionObserved)
+    }
+
+    @Test
+    fun samplerBypassesOperationAccounting() = runTest {
+        val delegate = CountingPipelineDevice()
+        val device = PipelineDevice(delegate = delegate)
+
+        val sampler = assertIs<DoubleSampler>(device.sampler(delegate.valueSpec))
+        sampler.publishDouble(7.0)
+
+        assertEquals(7.0, sampler.latestDoubleOrNaN())
+        assertEquals(1, sampler.snapshotDoubleArray().size)
+        assertEquals(0, delegate.operationEntries.value)
+        assertEquals(0, delegate.operationExits.value)
+
+        assertEquals(42.0, device.reader(delegate.valueSpec).read())
+
+        assertEquals(1, delegate.operationEntries.value)
+        assertEquals(1, delegate.operationExits.value)
     }
 
     @Test

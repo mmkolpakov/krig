@@ -23,6 +23,20 @@ import kotlin.time.Clock
  */
 
 /**
+ * Reads [property] through the observed-value path and throws on failure.
+ *
+ * Protocol backends that expose native timestamps or quality should implement
+ * [DeviceBackend.readObserved].
+ *
+ * @throws space.kscience.krig.api.faults.OperationFaultException on read failure.
+ */
+context(device: DeviceEnvironment)
+public suspend fun DeviceBackend.readObservedOrThrow(
+    property: PropertyDescriptor,
+): ObservedValue<Meta?> =
+    this.readObserved(property).getOrThrow()
+
+/**
  * Reads a property as raw binary data.
  * @return The property value decoded as [ByteArray], or a failure when the raw value is not binary.
  */

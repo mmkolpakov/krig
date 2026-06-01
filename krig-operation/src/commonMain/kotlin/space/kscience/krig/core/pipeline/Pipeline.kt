@@ -182,6 +182,13 @@ public fun <I, O> Pipeline<I, OperationOutcome<O>>.wrapWithIoRetry(
     prepend { input, next -> withIoRetry(retry) { next(input) } }
 }
 
+/**
+ * Compiles policy middleware shared by typed readers, writers, and actions.
+ *
+ * The payload is erased here because gates, locks, timeouts, retries, and observers
+ * operate on [OperationPlan]. Typed facades validate descriptors and converters before
+ * values cross this boundary.
+ */
 @InternalKrigApi
 public fun compileOperationExecutor(
     gates: List<OperationGate>,

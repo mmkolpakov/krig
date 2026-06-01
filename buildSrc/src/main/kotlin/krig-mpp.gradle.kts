@@ -76,7 +76,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.findLibrary("kotlinx-coroutines-test").get())
                 implementation(libs.findLibrary("turbine").get())
-                implementation(libs.findLibrary("kotest-assertions-core").get())
             }
         }
         named("jvmTest") {

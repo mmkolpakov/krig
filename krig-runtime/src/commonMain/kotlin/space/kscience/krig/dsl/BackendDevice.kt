@@ -148,6 +148,10 @@ public class BackendDevice @InternalKrigApi constructor(
             is OperationOutcome.Ok -> backend.write(descriptor.value, value)
         }
 
+    /**
+     * Emits every successful write. Thinning and compression are storage/acquisition
+     * policies, not hidden transport gates in the device primitive.
+     */
     private suspend fun emitPropertyChanged(propertyName: Name, value: Meta) {
         emit(
             PropertyChangedMessage(

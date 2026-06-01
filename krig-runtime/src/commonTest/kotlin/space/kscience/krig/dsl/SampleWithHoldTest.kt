@@ -2,6 +2,7 @@
 
 package space.kscience.krig.dsl
 
+import app.cash.turbine.test
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -206,23 +207,18 @@ class SampleWithHoldTest {
     fun sampleWithHoldUsesExternalTicks() = runTest {
         val source = MutableSharedFlow<Int>(replay = 1)
         val ticks = MutableSharedFlow<Unit>()
-        val values = mutableListOf<Int>()
         source.emit(1)
 
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            source.sampleWithHold(ticks)
-                .take(2)
-                .toList(values)
-        }
-        runCurrent()
-        ticks.emit(Unit)
-        source.emit(2)
-        runCurrent()
-        ticks.emit(Unit)
-        runCurrent()
+        source.sampleWithHold(ticks).test {
+            ticks.emit(Unit)
+            assertEquals(1, awaitItem())
 
-        assertEquals(listOf(1, 2), values)
-        job.cancel()
+            source.emit(2)
+            ticks.emit(Unit)
+            assertEquals(2, awaitItem())
+
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test

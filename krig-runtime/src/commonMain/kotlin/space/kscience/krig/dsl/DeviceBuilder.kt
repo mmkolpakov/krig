@@ -42,8 +42,11 @@ public sealed interface DeviceBuilder {
     public val deviceContext: Context
 
     /**
-     * Allows string/Meta property calls not declared by a Manifest or DSL property.
-     * Keep `false` for contract-checked devices; set `true` for legacy adapters and notebooks.
+     * Allows string/Meta property calls not declared by a manifest or DSL property.
+     *
+     * When this flag is `true`, unknown calls are served through synthetic descriptors.
+     * Keep it `false` for contract-checked devices; enable it only for legacy adapters,
+     * probes, and notebook experiments where the schema is intentionally open.
      */
     public var allowAdHocProperties: Boolean
 
@@ -51,11 +54,11 @@ public sealed interface DeviceBuilder {
     public fun manifest(manifest: DeviceManifest)
 
     /**
-     * Installs a PipelineFeatureSpec and configures its runtime block.
-     * ```
-     * install(Caching) { defaultTtl = 1.seconds }
-     * install(Retry)   { maxAttempts = 5 }
-     * ```
+     * Installs a [PipelineFeature] and configures its runtime block.
+     *
+     * Feature objects are supplied by integrations and demos. Common IO policies such as
+     * timeouts, retries, and locks usually live on operation descriptors and are applied
+     * by the pipeline around backend calls.
     */
     public fun <C : Any> install(
         pipelineFeature: PipelineFeature<C, *>,

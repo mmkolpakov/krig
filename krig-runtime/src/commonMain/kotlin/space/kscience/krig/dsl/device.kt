@@ -82,12 +82,11 @@ public suspend fun device(
  * Builds a device from a pre-constructed [DeviceBackend] (protocol adapter, physics
  * simulation, Wasm/FMI slave). Inside [builder] only PipelineFeatureSpec installation and
  * descriptor sources are available — `property` / `action` declarations are
- * a compile-time error, which is the whole point of the split form.
+ * a compile-time error, so declarations stay in the explicit backend.
  *
  * ```kotlin
  * val reactor = device("reactor", ReactorConnection(protocolEngine), productionContext) {
  *     manifest(ReactorManifest)
- *     install(Caching) { defaultTtl = 100.milliseconds }
  * }
  * ```
  */

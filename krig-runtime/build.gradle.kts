@@ -13,15 +13,9 @@ kotlin {
                 api(project(":krig-contracts"))
                 api(project(":krig-operation"))
                 api(project(":krig-runtime-stdlib"))
-                implementation(libs.arrow.core)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.atomicfu)
                 implementation(libs.kotlinx.coroutines.core)
-            }
-        }
-        named("jvmTest") {
-            dependencies {
-                implementation(libs.lincheck)
             }
         }
     }

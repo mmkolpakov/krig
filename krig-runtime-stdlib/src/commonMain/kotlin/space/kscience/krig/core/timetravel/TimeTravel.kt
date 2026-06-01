@@ -185,6 +185,8 @@ public fun Device.replayLog(): ReplayLog = ReplayLog(messageFlow)
  * [applyEvent] advances deterministically, [captureSnapshot] / [restoreSnapshot] checkpoint
  * the fold. Real hardware cannot implement this; simulations, digital twins, and recording
  * wrappers opt in.
+ * It reconstructs model state, not physical hardware state. After reconnecting a real
+ * device, the backend remains the source of truth and state is refreshed by reads.
  *
  * Typed form [DeviceReconstructible] provides compile-time binding to a specific [Device] for
  * use with [enableTimeTravel].

@@ -54,7 +54,6 @@ public class DeviceGroupBuilder {
      *     device("motor") {
      *         mutableProperty("setpoint", initial = 0.0)
      *         onStep { dt -> … }
-     *         install(Caching) { ttl = 500.milliseconds }
      *     }
      * }
      * ```

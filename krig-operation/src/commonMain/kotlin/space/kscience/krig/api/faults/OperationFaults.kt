@@ -1,23 +1,11 @@
 package space.kscience.krig.api.faults
 
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.toMeta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-
-/**
- * Local helper for converting `@Serializable` fault instances to [Meta].
- * Duplicates the trivial logic from `meta.serializableToMeta` to avoid a
- * circular dependency: krig-state must not depend on krig-model.
- */
-private val faultJson: Json = Json { ignoreUnknownKeys = true; encodeDefaults = true; prettyPrint = false }
-
-private fun <T> faultToMeta(serializer: KSerializer<T>, obj: T): Meta =
-    faultJson.encodeToJsonElement(serializer, obj).toMeta()
+import space.kscience.krig.api.meta.serializableToMeta
 
 /** Standard krig operation-fault types. Integrations can add their own [Name]s. */
 public object OperationFaultTypes {
@@ -85,7 +73,7 @@ public data class GenericOperationFault(
     override val message: String,
     val details: Meta = Meta.EMPTY
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /**
@@ -100,7 +88,7 @@ public data class ValidationFault(
     override val message: String = OperationFaultTypes.Validation.toString(),
     override val faultType: Name = OperationFaultTypes.Validation,
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /**
@@ -112,7 +100,7 @@ public data class ValidationFault(
 public data class TimeoutFault(
     override val faultType: Name = OperationFaultTypes.Timeout,
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /** Transport or I/O failure at an adapter boundary. */
@@ -124,7 +112,7 @@ public data class TransportFault(
     val details: Meta = Meta.EMPTY,
     override val faultType: Name = OperationFaultTypes.Transport,
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /**
@@ -140,7 +128,7 @@ public data class AuthorizationFault(
     val requiredPermission: String = "Unknown",
     override val faultType: Name = OperationFaultTypes.Authorization,
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }
 
 /**
@@ -158,5 +146,5 @@ public data class InvalidStateFault(
     val operation: String = "Unknown",
     override val faultType: Name = OperationFaultTypes.InvalidState,
 ) : OperationFault {
-    override fun toMeta(): Meta = faultToMeta(serializer(), this)
+    override fun toMeta(): Meta = serializableToMeta(serializer(), this)
 }

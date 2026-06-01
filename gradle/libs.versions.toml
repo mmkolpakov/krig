@@ -14,18 +14,11 @@ postgresql = "42.7.11"
 testcontainers = "2.0.5"
 exposed = "1.1.1"
 
-# Arrow (typed errors)
-arrow = "2.2.2.1"
-
 # Immutable collections
 kotlinx-collections-immutable = "0.4.0"
 
 # Testing
 turbine = "1.2.1"
-kotest = "6.1.11"
-
-# Formal verification
-lincheck = "2.39"
 
 # Code Generation (used by krig-ksp-processor + buildSrc convention plugin)
 ksp = "2.3.9"
@@ -89,12 +82,8 @@ testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgr
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
 
-# Arrow
-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
-
 # Testing
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 
 # KSP
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
@@ -104,9 +93,6 @@ kctfork-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kctfork" }
 
 # Jupyter
 kotlin-jupyter-api = { module = "org.jetbrains.kotlinx:kotlin-jupyter-api", version.ref = "kotlin-jupyter" }
-
-# Lincheck
-lincheck = { module = "org.jetbrains.kotlinx:lincheck", version.ref = "lincheck" }
 
 [plugins]
 kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
