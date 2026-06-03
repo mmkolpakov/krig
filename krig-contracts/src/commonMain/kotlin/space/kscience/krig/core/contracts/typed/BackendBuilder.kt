@@ -6,20 +6,24 @@ import space.kscience.dataforge.io.asBinary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
-import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFaultException
-import space.kscience.krig.api.faults.GenericOperationFault
-import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.faultDetails
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.contracts.BackendCore
+import space.kscience.krig.core.contracts.BackendHandlers
+import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceBackendDsl
 import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.toBinaryReaders
+import space.kscience.krig.core.contracts.toMetaActions
+import space.kscience.krig.core.contracts.toMetaReaders
+import space.kscience.krig.core.contracts.toMetaWriters
+import space.kscience.krig.core.contracts.toObservedReaders
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -46,7 +50,7 @@ public class BackendBuilder internal constructor() {
     /** Registers a typed reader for [spec]. */
     public fun <T> reader(spec: DevicePropertyContract<T>, body: suspend () -> T) {
         checkReaderSlot(spec.name)
-        readers[spec.name] = ReaderEntry(spec, GenericTypedReader(body))
+        readers[spec.name] = ReaderEntry(spec, TypedReader(body))
     }
 
     /** Registers a typed reader that can provide sample quality and timestamp. */
@@ -71,7 +75,7 @@ public class BackendBuilder internal constructor() {
 
     /** Registers a typed writer for [spec]. */
     public fun <T> writer(spec: MutableDevicePropertyContract<T>, body: suspend (T) -> Unit) {
-        writers[spec.name] = WriterEntry(spec, GenericTypedWriter(body))
+        writers[spec.name] = WriterEntry(spec, TypedWriter(body))
     }
 
     /** Registers a typed sampler for [spec]. */
@@ -81,7 +85,7 @@ public class BackendBuilder internal constructor() {
 
     /** Registers a typed action for [spec]. */
     public fun <I, O> action(spec: DeviceActionContract<I, O>, body: suspend (I) -> O?) {
-        actions[spec.name] = ActionEntry(spec, GenericTypedAction(body))
+        actions[spec.name] = ActionEntry(spec, TypedAction(body))
     }
 
     /**
@@ -129,19 +133,29 @@ public class BackendBuilder internal constructor() {
         closeBody = block
     }
 
-    internal fun build(): TypedDeviceBackend = BuiltTypedBackend(
-        readers = readers.toMap(),
-        observedReaders = observedReaders.toMap(),
-        binaryReaders = binaryReaders.toMap(),
-        writers = writers.toMap(),
-        samplers = samplers.toMap(),
-        actions = actions.toMap(),
-        batchMetaReadBody = batchMetaReadBody,
-        batchObservedReadBody = batchObservedReadBody,
-        batchBinaryReadBody = batchBinaryReadBody,
-        batchWriteBody = batchWriteBody,
-        closeBody = closeBody,
-    )
+    internal fun build(): TypedDeviceBackend {
+        val readerEntries = readers.toMap()
+        val observedEntries = observedReaders.toMap()
+        val binaryEntries = binaryReaders.toMap()
+        val writerEntries = writers.toMap()
+        val samplerEntries = samplers.toMap()
+        val actionEntries = actions.toMap()
+        val core = BackendCore(
+            BackendHandlers(
+                metaReaders = readerEntries.toMetaReaders(::readEntryAsMeta),
+                observedReaders = observedEntries.toObservedReaders(::readObservedEntryAsMeta),
+                binaryReaders = binaryEntries.toBinaryReaders { it.reader() },
+                writers = writerEntries.toMetaWriters(::writeEntry),
+                actions = actionEntries.toMetaActions { name, entry, argument -> executeEntry(entry, name, argument) },
+                batchObserved = batchObservedReadBody,
+                batchMeta = batchMetaReadBody,
+                batchBinary = batchBinaryReadBody,
+                batchWrite = batchWriteBody,
+                onClose = closeBody,
+            ),
+        )
+        return BuiltTypedBackend(readerEntries, observedEntries, binaryEntries, writerEntries, samplerEntries, actionEntries, core)
+    }
 
     private fun checkReaderSlot(name: Name) {
         check(name !in readers && name !in observedReaders && name !in binaryReaders) {
@@ -199,6 +213,11 @@ private data class ActionEntry<I, O>(
     val action: TypedAction<I, O>,
 )
 
+/**
+ * Concrete [TypedDeviceBackend]: owns only the typed data-plane handles and spec introspection.
+ * The Meta control plane is delegated to a [BackendCore] built from the same entries, so dispatch,
+ * faults, and batch fallbacks live in one place.
+ */
 @OptIn(UnstableKrigForSubclassing::class)
 private class BuiltTypedBackend(
     private val readers: Map<Name, ReaderEntry<*>>,
@@ -207,12 +226,8 @@ private class BuiltTypedBackend(
     private val writers: Map<Name, WriterEntry<*>>,
     private val samplers: Map<Name, SamplerEntry<*>>,
     private val actions: Map<Name, ActionEntry<*, *>>,
-    private val batchMetaReadBody: BatchMetaReadBody?,
-    private val batchObservedReadBody: BatchObservedReadBody?,
-    private val batchBinaryReadBody: BatchBinaryReadBody?,
-    private val batchWriteBody: BatchWriteBody?,
-    private val closeBody: (() -> Unit)?,
-) : TypedDeviceBackend {
+    core: BackendCore,
+) : TypedDeviceBackend, DeviceBackend by core {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>? {
@@ -224,40 +239,7 @@ private class BuiltTypedBackend(
 
         val observedEntry = observedReaders[spec.name] ?: return null
         checkCompatible(observedEntry.spec, spec)
-        return GenericTypedReader { (observedEntry as ObservedReaderEntry<T>).reader().value }
-    }
-
-    private suspend fun readObservedEntryAsMeta(entry: ObservedReaderEntry<*>): ObservedValue<Meta?> {
-        val typed = entry.asObservedAnyEntry()
-        val observed = typed.reader()
-        return ObservedValue(
-            value = typed.spec.converter.convert(observed.value),
-            time = observed.time,
-            quality = observed.quality,
-        )
-    }
-
-    private suspend fun readEntryAsMeta(entry: ReaderEntry<*>): Meta {
-        val typed = entry.asAnyEntry()
-        return typed.spec.converter.convert(typed.reader.read())
-    }
-
-    private suspend fun writeEntry(entry: WriterEntry<*>, value: Meta): OperationOutcome<Unit> {
-        val typed = entry.asAnyEntry()
-        return when (val decoded = decodeMeta(typed.spec.converter, value, "property", typed.spec.name)) {
-            is OperationOutcome.Fail -> decoded
-            is OperationOutcome.Ok -> runCatchingOperation { typed.writer.write(decoded.value) }
-        }
-    }
-
-    private suspend fun executeEntry(entry: ActionEntry<*, *>, action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
-        val typed = entry.asAnyEntry()
-        return when (val decoded = decodeMeta(typed.spec.inputConverter, argument ?: Meta.EMPTY, "action", action.name)) {
-            is OperationOutcome.Fail -> decoded
-            is OperationOutcome.Ok -> runCatchingOperation {
-                typed.action.execute(decoded.value)?.let(typed.spec.outputConverter::convert)
-            }
-        }
+        return TypedReader { (observedEntry as ObservedReaderEntry<T>).reader().value }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -286,100 +268,38 @@ private class BuiltTypedBackend(
 
     override fun actionSpec(name: Name): DeviceActionContract<*, *>? =
         actions[name]?.spec
+}
 
-    context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
-        readers[property.name]?.let { entry ->
-            return runCatchingOperation { readEntryAsMeta(entry) }
+private suspend fun readObservedEntryAsMeta(entry: ObservedReaderEntry<*>): ObservedValue<Meta?> {
+    val typed = entry.asObservedAnyEntry()
+    val observed = typed.reader()
+    return ObservedValue(
+        value = typed.spec.converter.convert(observed.value),
+        time = observed.time,
+        quality = observed.quality,
+    )
+}
+
+private suspend fun readEntryAsMeta(entry: ReaderEntry<*>): Meta {
+    val typed = entry.asAnyEntry()
+    return typed.spec.converter.convert(typed.reader.read())
+}
+
+private suspend fun writeEntry(entry: WriterEntry<*>, value: Meta): OperationOutcome<Unit> {
+    val typed = entry.asAnyEntry()
+    return when (val decoded = decodeMeta(typed.spec.converter, value, "property", typed.spec.name)) {
+        is OperationOutcome.Fail -> decoded
+        is OperationOutcome.Ok -> runCatchingOperation { typed.writer.write(decoded.value) }
+    }
+}
+
+private suspend fun executeEntry(entry: ActionEntry<*, *>, name: Name, argument: Meta?): OperationOutcome<Meta?> {
+    val typed = entry.asAnyEntry()
+    return when (val decoded = decodeMeta(typed.spec.inputConverter, argument ?: Meta.EMPTY, "action", name)) {
+        is OperationOutcome.Fail -> decoded
+        is OperationOutcome.Ok -> runCatchingOperation {
+            typed.action.execute(decoded.value)?.let(typed.spec.outputConverter::convert)
         }
-        observedReaders[property.name]?.let { entry ->
-            return when (val outcome = runCatchingOperation { readObservedEntryAsMeta(entry) }) {
-                is OperationOutcome.Ok -> outcome.value.value?.let { OperationOutcome.Ok(it) }
-                    ?: validationFault("read", property.name, "Observed property '${property.name}' has no Meta value")
-                is OperationOutcome.Fail -> outcome
-            }
-        }
-        return backendFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        observedReaders[property.name]?.let { entry ->
-            return runCatchingOperation { readObservedEntryAsMeta(entry) }
-        }
-        return when (val outcome = read(property)) {
-            is OperationOutcome.Ok -> OperationOutcome.Ok(
-                ObservedValue(
-                    value = outcome.value,
-                    time = device.clock.now(),
-                    quality = DataQuality.GOOD,
-                )
-            )
-            is OperationOutcome.Fail -> outcome
-        }
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> {
-        binaryReaders[property.name]?.let { entry ->
-            return runCatchingOperation { entry.reader() }
-        }
-        return backendFault(OperationFaultTypes.UnsupportedValue, "Property '${property.name}' has no binary reader")
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        val entry = writers[property.name]
-            ?: return validationFault("write", property.name, "Property '${property.name}' is not writable")
-        return writeEntry(entry, value)
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
-        val entry = actions[action.name]
-            ?: return backendFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}'")
-        return executeEntry(entry, action, argument)
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchObserved(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
-        val custom = batchObservedReadBody
-        if (custom != null) return custom.invoke(device, properties)
-        val metaCustom = batchMetaReadBody
-        if (metaCustom != null) {
-            return metaCustom.invoke(device, properties).mapValues { (_, outcome) ->
-                outcomeToObserved(outcome, device)
-            }
-        }
-        return buildMap(properties.size) {
-            properties.forEach { property ->
-                put(property.name, readObserved(property))
-            }
-        }
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchBinary(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<Binary>> {
-        val custom = batchBinaryReadBody
-        if (custom != null) return custom.invoke(device, properties)
-        return super.readBatchBinary(properties)
-    }
-
-    context(device: DeviceEnvironment)
-    override suspend fun writeBatch(
-        values: Map<PropertyDescriptor, Meta>,
-    ): Map<Name, OperationOutcome<Unit>> {
-        val custom = batchWriteBody
-        if (custom != null) return custom.invoke(device, values)
-        return super.writeBatch(values)
-    }
-
-    override fun close() {
-        closeBody?.invoke()
     }
 }
 
@@ -397,19 +317,6 @@ private fun checkCompatible(registered: DeviceActionContract<*, *>, requested: D
     ) {
         "Action '${requested.name}' was requested with a different descriptor or converter instance."
     }
-}
-
-private fun backendFault(type: Name, message: String): OperationOutcome.Fail =
-    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
-
-private fun outcomeToObserved(
-    outcome: OperationOutcome<Meta>,
-    device: DeviceEnvironment,
-): OperationOutcome<ObservedValue<Meta?>> = when (outcome) {
-    is OperationOutcome.Ok -> OperationOutcome.Ok(
-        ObservedValue(value = outcome.value, time = device.clock.now(), quality = DataQuality.GOOD),
-    )
-    is OperationOutcome.Fail -> outcome
 }
 
 private fun <T> decodeMeta(converter: MetaConverter<T>, value: Meta, kind: String, name: Name): OperationOutcome<T> {

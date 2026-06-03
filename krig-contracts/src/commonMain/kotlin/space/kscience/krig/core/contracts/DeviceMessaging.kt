@@ -34,21 +34,5 @@ public data class DeviceMessaging(
     public companion object {
         /** Back-pressure default — no data loss on either plane. */
         public val Default: DeviceMessaging = DeviceMessaging()
-
-        /** Streaming default — data plane drops oldest, control plane never drops. */
-        public val Streaming: DeviceMessaging = DeviceMessaging(
-            controlBufferCapacity = 256,
-            dataBufferCapacity = 256,
-            dataStrategy = Strategy.DropOldest,
-            replay = 0,
-        )
-
-        /** Safety-critical — both planes suspend, large buffers. */
-        public val SafetyCritical: DeviceMessaging = DeviceMessaging(
-            controlBufferCapacity = 1024,
-            dataBufferCapacity = 1024,
-            dataStrategy = Strategy.Suspend,
-            replay = 0,
-        )
     }
 }

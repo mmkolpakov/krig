@@ -1,26 +1,11 @@
 package space.kscience.krig.demo
 
-import space.kscience.krig.api.context.Principal
-import space.kscience.krig.api.identifiers.Permission
-import space.kscience.krig.api.services.AuthorizationService
-import space.kscience.krig.api.services.AuditService
-import space.kscience.dataforge.context.*
-import space.kscience.dataforge.meta.Meta
-
-/** INSECURE - demo and test only. Permits every permission check. */
-class PermitAllAuthorizationService private constructor(meta: Meta) :
-    AbstractPlugin(meta), AuthorizationService {
-    override val tag: PluginTag get() = AuthorizationService.tag
-    override suspend fun checkPermission(principal: Principal, permission: Permission): Unit = Unit
-
-    companion object : PluginFactory<PermitAllAuthorizationService> {
-        override val tag: PluginTag = AuthorizationService.tag
-        override fun build(context: Context, meta: Meta) = PermitAllAuthorizationService(meta)
-    }
-}
+import space.kscience.krig.api.services.AllowAllAuthorizationService
+import space.kscience.krig.api.services.NoOpAuditService
+import space.kscience.dataforge.context.Context
 
 /** Minimal Context for SDK demos with permissive auth + no-op audit. */
 fun demoContext(name: String? = null): Context = Context(name) {
-    plugin(PermitAllAuthorizationService)
-    plugin(AuditService)
+    plugin(AllowAllAuthorizationService)
+    plugin(NoOpAuditService)
 }

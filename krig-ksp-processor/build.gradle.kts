@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
 }
 
-description = "KSP2 symbol processor for krig: device accessors, compile-time Manifest validation, SerializersModule auto-generation, and Data Plane Accessor generation."
+description = "KSP2 symbol processor for krig: compile-time Manifest/PipelineFeature validation, SerializersModule auto-generation, and @Contributes plugin aggregation."
 
 dependencies {
     implementation(libs.ksp.api)

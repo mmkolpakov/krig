@@ -97,7 +97,6 @@ public final class space/kscience/krig/api/data/ObservedValueKt {
 	public static final fun getHasValue (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun getUsableValue (Lspace/kscience/krig/api/data/ObservedValue;)Ljava/lang/Object;
 	public static final fun isGood (Lspace/kscience/krig/api/data/ObservedValue;)Z
-	public static final fun isReliable (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun isUsable (Lspace/kscience/krig/api/data/ObservedValue;)Z
 	public static final fun observed (Ljava/lang/Object;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static final fun observed (Lkotlin/time/Clock;Ljava/lang/Object;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
@@ -214,28 +213,13 @@ public final class space/kscience/krig/api/data/TimestampedKt {
 	public static synthetic fun timestamped$default (Ljava/lang/Object;Lkotlin/time/Clock;ILjava/lang/Object;)Lspace/kscience/krig/api/data/Timestamped;
 }
 
-public abstract interface class space/kscience/krig/api/lifecycle/ConnectionState {
-}
-
-public final class space/kscience/krig/api/lifecycle/ConnectionState$Connected : space/kscience/krig/api/lifecycle/ConnectionState {
-	public static final field INSTANCE Lspace/kscience/krig/api/lifecycle/ConnectionState$Connected;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/api/lifecycle/ConnectionState$Connecting : space/kscience/krig/api/lifecycle/ConnectionState {
-	public static final field INSTANCE Lspace/kscience/krig/api/lifecycle/ConnectionState$Connecting;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/api/lifecycle/ConnectionState$Disconnected : space/kscience/krig/api/lifecycle/ConnectionState {
-	public static final field INSTANCE Lspace/kscience/krig/api/lifecycle/ConnectionState$Disconnected;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
+public final class space/kscience/krig/api/lifecycle/ConnectionState : java/lang/Enum {
+	public static final field Connected Lspace/kscience/krig/api/lifecycle/ConnectionState;
+	public static final field Connecting Lspace/kscience/krig/api/lifecycle/ConnectionState;
+	public static final field Disconnected Lspace/kscience/krig/api/lifecycle/ConnectionState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/api/lifecycle/ConnectionState;
+	public static fun values ()[Lspace/kscience/krig/api/lifecycle/ConnectionState;
 }
 
 public abstract interface class space/kscience/krig/api/lifecycle/LifecycleState {

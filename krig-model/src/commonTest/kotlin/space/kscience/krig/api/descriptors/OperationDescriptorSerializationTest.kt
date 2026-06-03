@@ -59,7 +59,7 @@ class OperationDescriptorSerializationTest {
         val descriptor = ActionDescriptor(
             name = "pump.start".asName(),
             attributes = operationAttributesOf(
-                OperationAttributeKeys.Metadata of MetadataAttribute(help = "Starts the pump"),
+                OperationAttributeKeys.Metadata of MetadataAttribute(description = "Starts the pump"),
                 OperationAttributeKeys.Access of AccessAttribute(readable = true, mutable = false),
             ),
         )
@@ -67,7 +67,7 @@ class OperationDescriptorSerializationTest {
         val decoded = json.decodeFromString<ActionDescriptor>(json.encodeToString(descriptor))
 
         assertEquals(descriptor.name, decoded.name)
-        assertEquals("Starts the pump", decoded.metadata?.help)
+        assertEquals("Starts the pump", decoded.metadata?.description)
         assertTrue(decoded.readable)
         assertEquals(false, decoded.mutable)
     }

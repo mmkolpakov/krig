@@ -17,7 +17,6 @@ import space.kscience.krig.api.descriptors.attributes.latencyBudget
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.displayType
-import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.AuditService
 
 /** Reports a warning when an operation exceeds its descriptor/default latency budget. */
@@ -42,7 +41,7 @@ private const val DEFAULT_AUDIT_BUFFER_CAPACITY: Int = 1024
 
 private data class AuditRecord(
     val principal: Principal,
-    val action: AuditAction,
+    val action: String,
     val details: Meta,
 )
 
@@ -75,7 +74,7 @@ public class BufferedAuditSink(
         }
     }
 
-    public fun record(principal: Principal, action: AuditAction, details: Meta) {
+    public fun record(principal: Principal, action: String, details: Meta) {
         if (auditService.isActive) records.tryEmit(AuditRecord(principal, action, details))
     }
 }
@@ -111,11 +110,9 @@ public class BufferedAuditObserver(
     }
 }
 
-private fun OperationContext.auditAction(): AuditAction? =
+private fun OperationContext.auditAction(): String? =
     when (kind) {
-        OperationKinds.Read -> AuditAction.DeviceRead
-        OperationKinds.Write -> AuditAction.DeviceWrite
-        OperationKinds.Action -> AuditAction.DeviceExecute
+        OperationKinds.Read, OperationKinds.Write, OperationKinds.Action -> "device.${kind.name}"
         else -> null
     }
 

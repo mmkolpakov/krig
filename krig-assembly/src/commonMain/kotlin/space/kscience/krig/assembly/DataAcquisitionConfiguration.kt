@@ -21,11 +21,6 @@ public data class DataAcquisitionConfiguration(
     public companion object
 }
 
-public sealed interface DataAcquisitionLoadResult {
-    public data class Valid(public val config: DataAcquisitionConfiguration) : DataAcquisitionLoadResult
-    public data class Invalid(public val errors: List<String>) : DataAcquisitionLoadResult
-}
-
 /** Decodes [DataAcquisitionConfiguration] from a DataForge [Meta] document. */
 public fun DataAcquisitionConfiguration.Companion.fromMeta(
     meta: Meta,
@@ -41,16 +36,17 @@ public fun DataAcquisitionConfiguration.toMeta(): Meta =
 public fun DataAcquisitionConfiguration.Companion.load(
     meta: Meta,
     lenient: Boolean = false,
-): DataAcquisitionLoadResult =
-    runCatching { fromMeta(meta, lenient) }
-        .fold(
-            onSuccess = { config ->
-                val errors = config.validate()
-                if (errors.isEmpty()) DataAcquisitionLoadResult.Valid(config)
-                else DataAcquisitionLoadResult.Invalid(errors)
-            },
-            onFailure = { error -> DataAcquisitionLoadResult.Invalid(listOf(error.message ?: error.toString())) },
-        )
+): ConfigurationLoadResult<DataAcquisitionConfiguration> =
+    loadConfigurationMeta(DataAcquisitionConfiguration.serializer(), meta, lenient) { it.validate() }
+
+/** Built-in acquisition connector ids shipped by the SDK. */
+public object AcquisitionConnectors {
+    /**
+     * Device-tree connector: each tag [address][AcquisitionTagSpec.address] names a property on the
+     * source device. Resolved by [deviceTreeAcquisitionReader].
+     */
+    public val KrigDevice: Name = "krig.device".asName()
+}
 
 /** Opaque connector instance. [connector] is resolved by an external integration module. */
 @Serializable
@@ -99,6 +95,7 @@ public data class AcquisitionTagSpec(
     public val target: AcquisitionTargetSpec? = null,
     public val timeoutMs: Long? = null,
     public val bufferCapacity: Int = 1024,
+    public val reduction: ReductionSpec = ReductionSpec.Last,
 ) {
     init {
         require(id != Name.EMPTY) { "AcquisitionTagSpec id must not be empty" }

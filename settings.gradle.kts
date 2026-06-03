@@ -65,6 +65,9 @@ include(
     // Jupyter integration — JVM-only convenience module for notebook demos.
     ":krig-jupyter",
 
+    // Analytics interop — JVM-only export of dense telemetry to Apache Arrow / Feather V2.
+    ":krig-arrow",
+
     // Build Tools.
     ":krig-ksp-processor",
 

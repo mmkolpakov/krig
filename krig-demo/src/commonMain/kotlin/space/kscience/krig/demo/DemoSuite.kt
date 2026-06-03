@@ -7,11 +7,12 @@ import kotlinx.coroutines.runBlocking
  */
 fun main(): Unit = runBlocking {
     alpha3Showcase()
+    goldenPathDemo()
     industrialAssemblyDemo()
     stateModelDemo()
     metaInteropDemo()
     deviceTreeDemo()
-    dataPlatformDemo()
+    deviceTreeAcquisitionDemo()
     externalPollingDemo()
     streamingDemo()
     sharedTimerControlDemo()
@@ -19,6 +20,7 @@ fun main(): Unit = runBlocking {
     policyFaultsDemo()
     authAuditDemo()
     simulationProcessDemo()
+    digitalTwinDemo()
     deviceHubDemo()
     replayNavigationDemo()
     expressionDemo()

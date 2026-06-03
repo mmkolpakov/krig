@@ -3,12 +3,11 @@ package space.kscience.krig.api.descriptors.attributes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.attributes.serialization.SerializableAttribute
-import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.descriptors.OperationAttributeKey
 import space.kscience.krig.api.descriptors.OperationDescriptor
 import space.kscience.krig.api.descriptors.attr
 import space.kscience.krig.api.descriptors.attribute
-import space.kscience.krig.api.meta.AdapterBinding
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Duration
 
@@ -23,7 +22,6 @@ import kotlin.time.Duration
 @SerialName("attr.metadata")
 public data class MetadataAttribute(
     val description: String? = null,
-    val help: String? = null,
 )
 
 public object OperationAttributeKeys {
@@ -65,7 +63,7 @@ public val OperationDescriptor.description: String? by attr(
  * Every field has a paired runtime hook: [timeout] → timeout wrapper, [latencyBudget] →
  * `LatencyBudgetObserver`, [retryPolicy] → retry wrapper, [requiredLocks] →
  * [acquireAllLocks][space.kscience.krig.core.pipeline.acquireAllLocks],
- * [requiredCapabilities] → capability toggle gates.
+ * [requiredCapabilityIds] → capability toggle gates.
  *
  * Specialised behavior (caching, persistence, time-series storage, streaming) lives in dedicated
  * attribute key/value pairs contributed by their FeatureSpec integration — keeping this
@@ -77,9 +75,8 @@ public data class BehaviorAttribute(
     val timeout: Duration? = null,
     val latencyBudget: Duration? = null,
     val requiredLocks: List<ResourceLock> = emptyList(),
-    val requiredCapabilities: Set<Name> = emptySet(),
+    val requiredCapabilityIds: Set<Name> = emptySet(),
     val retryPolicy: RetryPolicy? = null,
-    val tolerance: Double? = null,
 )
 
 public val OperationDescriptor.behavior: BehaviorAttribute?
@@ -94,30 +91,21 @@ public val OperationDescriptor.latencyBudget: Duration? by attr(
 )
 public val OperationDescriptor.requiredLocks: List<ResourceLock>
     get() = behavior?.requiredLocks ?: emptyList()
-public val OperationDescriptor.requiredCapabilities: Set<Name>
-    get() = behavior?.requiredCapabilities ?: emptySet()
+public val OperationDescriptor.requiredCapabilityIds: Set<Name>
+    get() = behavior?.requiredCapabilityIds ?: emptySet()
 public val OperationDescriptor.retryPolicy: RetryPolicy?
     get() = behavior?.retryPolicy
-public val OperationDescriptor.tolerance: Double? by attr(
-    OperationAttributeKeys.Behavior,
-    BehaviorAttribute::tolerance,
-)
 
 /**
- * Attributes defining security and access control.
- *
- * [readPermissions] and [writePermissions] are metadata for introspection.
- * Current RBAC gates use device-backed defaults via
- * [ControlsPermissions][space.kscience.krig.api.identifiers.ControlsPermissions].
- * Descriptor-level enforcement is planned for a future release.
+ * Attributes defining read/write access. RBAC is enforced at runtime via
+ * [ControlsPermissions][space.kscience.krig.api.identifiers.ControlsPermissions];
+ * descriptor-level permission metadata is intentionally not modelled here.
  */
 @Serializable
 @SerialName("attr.access")
 public data class AccessAttribute(
     val readable: Boolean = true,
     val mutable: Boolean = false,
-    val readPermissions: Set<Permission> = emptySet(),
-    val writePermissions: Set<Permission> = emptySet()
 )
 
 public val OperationDescriptor.access: AccessAttribute?
@@ -133,20 +121,21 @@ public val OperationDescriptor.mutable: Boolean by attr(
     OperationAttributeKeys.Access,
     AccessAttribute::mutable,
 )
-public val OperationDescriptor.readPermissions: Set<Permission>
-    get() = access?.readPermissions ?: emptySet()
-public val OperationDescriptor.writePermissions: Set<Permission>
-    get() = access?.writePermissions ?: emptySet()
 
 /**
- * Attributes for protocol-specific bindings. [AdapterBinding] is a polymorphic extension
- * point: protocol modules contribute their own subtypes (Modbus address, OPC UA NodeId, …).
+ * Protocol-specific binding configuration, keyed by adapter id (`"modbus"`, `"opcua"`, …).
+ * Values are schemaless [Meta]: protocol modules project them to/from their own typed binding
+ * at the adapter boundary (DataForge `MetaConverter`/`Scheme`). The core carries no protocol
+ * type ontology — the seam is a Meta key convention, not a polymorphic class hierarchy.
  */
 @Serializable
 @SerialName("attr.bindings")
 public data class BindingsAttribute(
-    val bindings: Map<String, AdapterBinding> = emptyMap()
+    val bindings: Map<String, Meta> = emptyMap()
 )
 
-public val OperationDescriptor.bindings: Map<String, AdapterBinding>
+public val OperationDescriptor.bindings: Map<String, Meta>
     get() = attribute(OperationAttributeKeys.Bindings)?.bindings ?: emptyMap()
+
+/** Protocol binding [Meta] for [adapterId], or `null` when the adapter declares none. */
+public fun OperationDescriptor.binding(adapterId: String): Meta? = bindings[adapterId]

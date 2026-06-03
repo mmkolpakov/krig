@@ -14,32 +14,27 @@ import space.kscience.dataforge.io.asBinary
 import space.kscience.dataforge.io.toByteArray
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context
-import space.kscience.dataforge.context.PluginFactory
-import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.context.Principal
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.okUnit
+import space.kscience.krig.api.services.AllowAllAuthorizationService
 import space.kscience.krig.api.services.AuditService
-import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.backend
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -61,17 +56,8 @@ class BackendDeviceTypedBackendTest {
             PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
     }
 
-    private object TestAuthorizationService : PluginFactory<AuthorizationService> {
-        override val tag: PluginTag get() = AuthorizationService.tag
-
-        override fun build(context: Context, meta: Meta): AuthorizationService =
-            object : AbstractPlugin(meta), AuthorizationService {
-                override suspend fun checkPermission(principal: Principal, permission: Permission) = Unit
-            }
-    }
-
     private fun permissiveContext(): Context = Context("loose-meta-test") {
-        plugin(TestAuthorizationService)
+        plugin(AllowAllAuthorizationService)
         plugin(AuditService)
     }
 
@@ -256,12 +242,12 @@ class BackendDeviceTypedBackendTest {
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>? =
-            if (spec.name == valueName) GenericTypedReader { 7.0 } as TypedReader<T> else null
+            if (spec.name == valueName) TypedReader { 7.0 } as TypedReader<T> else null
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T>? =
             if (spec.name == valueName) {
-                GenericTypedWriter<Double> { value -> lastWritten = value } as TypedWriter<T>
+                TypedWriter<Double> { value -> lastWritten = value } as TypedWriter<T>
             } else {
                 null
             }

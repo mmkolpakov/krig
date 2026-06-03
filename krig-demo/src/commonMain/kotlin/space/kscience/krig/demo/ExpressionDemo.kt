@@ -14,6 +14,7 @@ import space.kscience.krig.api.expressions.Expression
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
+import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.expressions.ExpressionContext
 import space.kscience.krig.core.expressions.compile
 import space.kscience.krig.core.state.DeviceState

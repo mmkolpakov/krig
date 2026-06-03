@@ -17,7 +17,7 @@ import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.dsl.device
-import space.kscience.krig.dsl.sharedTicks
+import space.kscience.krig.core.operations.sharedTicks
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -56,7 +56,7 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
             .toList()
             .also { values ->
                 values.forEach { observation ->
-                    val target = observation.tag.target
+                    val target = observation.spec.target
                     if (
                         target?.deviceId == pump.name &&
                         target.property == PumpSpec.rpm.name
@@ -72,11 +72,11 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
     yield()
     val observed = observations.await()
     val temperatures = observed
-        .filter { it.tag.id == "temperature".asName() }
+        .filter { it.spec.id == "temperature".asName() }
         .mapNotNull { it.observed.value }
         .map { MetaConverter.double.read(it) }
 
-    println("  polled tags: ${observed.map { it.tag.id }}")
+    println("  polled tags: ${observed.map { it.spec.id }}")
     println("  pump rpm after polling: ${pump.read(PumpSpec.rpm)}")
     println("  external temperatures: $temperatures")
 

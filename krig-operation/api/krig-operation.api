@@ -97,6 +97,7 @@ public final class space/kscience/krig/api/faults/FaultRetryClassifier$Companion
 
 public final class space/kscience/krig/api/faults/GenericOperationFault : space/kscience/krig/api/faults/OperationFault {
 	public static final field Companion Lspace/kscience/krig/api/faults/GenericOperationFault$Companion;
+	public fun <init> ()V
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)V
 	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
@@ -171,6 +172,7 @@ public class space/kscience/krig/api/faults/OperationException : java/lang/Runti
 }
 
 public final class space/kscience/krig/api/faults/OperationFailureMappingKt {
+	public static final fun toOperationFault (Ljava/lang/Throwable;)Lspace/kscience/krig/api/faults/OperationFault;
 	public static final fun toSerializableOperationFailure (Ljava/lang/Throwable;Z)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
 	public static synthetic fun toSerializableOperationFailure$default (Ljava/lang/Throwable;ZILjava/lang/Object;)Lspace/kscience/krig/api/faults/SerializableOperationFailure;
 }
@@ -227,6 +229,9 @@ public final class space/kscience/krig/api/faults/OperationFaultTypes {
 public final class space/kscience/krig/api/faults/OperationFaultsKt {
 	public static final fun faultDetails (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;)Lspace/kscience/dataforge/meta/Meta;
 	public static synthetic fun faultDetails$default (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lspace/kscience/dataforge/meta/Meta;
+	public static final fun operationFault (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
+	public static final fun validationFault (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
+	public static synthetic fun validationFault$default (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome$Fail;
 }
 
 public final class space/kscience/krig/api/faults/SerializableOperationFailure {
@@ -501,7 +506,6 @@ public final class space/kscience/krig/core/pipeline/OperationKind {
 public final class space/kscience/krig/core/pipeline/OperationKinds {
 	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/OperationKinds;
 	public final fun getAction-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
-	public final fun getPoll-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
 	public final fun getRead-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
 	public final fun getWrite-EIzNlDM ()Lspace/kscience/dataforge/names/Name;
 }

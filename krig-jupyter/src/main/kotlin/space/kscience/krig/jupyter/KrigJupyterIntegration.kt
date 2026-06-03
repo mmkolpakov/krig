@@ -182,9 +182,9 @@ public class KrigJupyterIntegration : JupyterIntegration() {
 
         render<ConnectionState> { state ->
             val label = when (state) {
-                is ConnectionState.Connected -> "Connected" to "#2e8b57"
-                is ConnectionState.Disconnected -> "Disconnected" to "#aa4444"
-                is ConnectionState.Connecting -> "Connecting…" to "#aa8844"
+                ConnectionState.Connected -> "Connected" to "#2e8b57"
+                ConnectionState.Disconnected -> "Disconnected" to "#aa4444"
+                ConnectionState.Connecting -> "Connecting…" to "#aa8844"
             }
             HTML("""<span style="padding: 2px 6px; border-radius: 3px; background: ${label.second}; color: white;">${label.first}</span>""")
         }

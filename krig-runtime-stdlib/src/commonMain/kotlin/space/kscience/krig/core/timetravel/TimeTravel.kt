@@ -5,16 +5,16 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlin.jvm.JvmInline
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.storage.journal.ReplayLog
+import space.kscience.krig.storage.journal.compareEnvelopesByCausality
 import space.kscience.dataforge.names.Name
 import kotlin.time.Instant
 
@@ -24,30 +24,11 @@ import kotlin.time.Instant
  * [events] belong to a single device; use [Timeline.merge] for multi-device.
  */
 @JvmInline
-public value class Timeline(public val events: Flow<DeviceMessageEnvelope<DeviceMessage>>) {
+public value class Timeline(public val events: Flow<DeviceMessageFrame<DeviceMessage>>) {
     /** Extract the logical time of [message] in this timeline (default: payload event time). */
-    public fun timeOf(message: DeviceMessageEnvelope<DeviceMessage>): Instant = message.payload.time
+    public fun timeOf(message: DeviceMessageFrame<DeviceMessage>): Instant = message.payload.time
 
     public companion object
-}
-
-/**
- * Replay ordering for envelopes from distributed devices.
- *
- * When both envelopes carry HLC stamps, causal time wins. Otherwise ordering falls back
- * to payload event time, which is the only comparable clock available for local-only logs.
- */
-public fun compareEnvelopesByCausality(
-    left: DeviceMessageEnvelope<DeviceMessage>,
-    right: DeviceMessageEnvelope<DeviceMessage>,
-): Int {
-    val leftHlc = left.context.hlcTimestamp
-    val rightHlc = right.context.hlcTimestamp
-    if (leftHlc != null && rightHlc != null) {
-        val byHlc = leftHlc.compareTo(rightHlc)
-        if (byHlc != 0) return byHlc
-    }
-    return left.payload.time.compareTo(right.payload.time)
 }
 
 /**
@@ -57,7 +38,7 @@ public fun compareEnvelopesByCausality(
  */
 public fun Timeline.merge(
     other: Timeline,
-    selector: (DeviceMessageEnvelope<DeviceMessage>, DeviceMessageEnvelope<DeviceMessage>) -> Int =
+    selector: (DeviceMessageFrame<DeviceMessage>, DeviceMessageFrame<DeviceMessage>) -> Int =
         ::compareEnvelopesByCausality,
 ): Timeline = Timeline(flow {
     coroutineScope {
@@ -90,10 +71,10 @@ public fun Timeline.merge(
     }
 })
 
-private fun Flow<DeviceMessageEnvelope<DeviceMessage>>.collectToChannel(
+private fun Flow<DeviceMessageFrame<DeviceMessage>>.collectToChannel(
     scope: CoroutineScope,
-): ReceiveChannel<DeviceMessageEnvelope<DeviceMessage>> {
-    val channel = Channel<DeviceMessageEnvelope<DeviceMessage>>(Channel.BUFFERED)
+): ReceiveChannel<DeviceMessageFrame<DeviceMessage>> {
+    val channel = Channel<DeviceMessageFrame<DeviceMessage>>(Channel.BUFFERED)
     scope.launch {
         try {
             collect { channel.send(it) }
@@ -105,7 +86,7 @@ private fun Flow<DeviceMessageEnvelope<DeviceMessage>>.collectToChannel(
     return channel
 }
 
-private suspend fun ReceiveChannel<DeviceMessageEnvelope<DeviceMessage>>.receiveOrThrow(): DeviceMessageEnvelope<DeviceMessage>? {
+private suspend fun ReceiveChannel<DeviceMessageFrame<DeviceMessage>>.receiveOrThrow(): DeviceMessageFrame<DeviceMessage>? {
     val result = receiveCatching()
     result.exceptionOrNull()?.let { throw it }
     return result.getOrNull()
@@ -117,62 +98,6 @@ private suspend fun ReceiveChannel<DeviceMessageEnvelope<DeviceMessage>>.receive
  */
 @OptIn(InternalKrigApi::class)
 public fun Device.timeline(): Timeline = Timeline(messageFlow)
-
-/**
- * Replay-capable ordered source of [DeviceMessage] envelopes for a single device.
- * In-memory logs tail `device.messageFlow`; persistent ones load from storage.
- */
-public fun interface ReplayLog {
-    /** Cold flow of messages with timestamps in `[from, until]`. */
-    public fun replay(from: Instant, until: Instant): Flow<DeviceMessageEnvelope<DeviceMessage>>
-}
-
-/**
- * Replay source with storage-assigned cursors. Required for deterministic branching:
- * database sequence IDs or offsets, not timestamps, define the exact log position.
- */
-public interface CursorReplayLog : ReplayLog {
-    /** Cold flow of records after [after], or from the beginning when [after] is `null`. */
-    public fun replayFrom(after: EventCursor? = null): Flow<ReplayRecord>
-
-    /**
-     * Cold flow of cursor records in `[from, until]`. Persistent stores should
-     * override this method and seek through their time index instead of scanning
-     * from the beginning.
-     */
-    public fun replayRecords(from: Instant, until: Instant): Flow<ReplayRecord> =
-        replayFrom(null)
-            .dropWhile { it.envelope.payload.time < from }
-            .takeWhile { it.envelope.payload.time <= until }
-}
-
-/**
- * Storage-assigned cursor pointing to a specific position in the event log.
- * Persistent backends implement with sequence IDs, database offsets, or Kafka offsets.
- * Not to be confused with device-generated HLC timestamps — the cursor is assigned
- * by the store at write time.
- */
-public interface EventCursor : Comparable<EventCursor>
-
-/**
- * A decoded [DeviceMessage] paired with its storage-assigned [cursor].
- * Returned by [CursorReplayLog.replayFrom]; subscribers can store the cursor
- * to resume replay deterministically later.
- */
-public data class ReplayRecord(
-    val cursor: EventCursor,
-    val envelope: DeviceMessageEnvelope<DeviceMessage>,
-) {
-    public val message: DeviceMessage get() = envelope.payload
-}
-
-/** Wraps an unbounded [messages] flow as a [ReplayLog]. */
-public fun ReplayLog(messages: Flow<DeviceMessageEnvelope<DeviceMessage>>): ReplayLog =
-    ReplayLog { from, until ->
-        messages
-            .dropWhile { it.payload.time < from }
-            .takeWhile { it.payload.time <= until }
-    }
 
 /**
  * Convenience: returns a [ReplayLog] that wraps this device's [Device.messageFlow].

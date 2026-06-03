@@ -7,23 +7,21 @@ package space.kscience.krig.dsl
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
-import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context
-import space.kscience.dataforge.context.PluginFactory
-import space.kscience.dataforge.context.PluginTag
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.double
 import space.kscience.dataforge.meta.long
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.context.Principal
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
+import space.kscience.krig.core.contracts.execute
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.services.AllowAllAuthorizationService
 import space.kscience.krig.api.services.AuditService
-import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -46,17 +44,8 @@ import kotlin.time.Clock
 class DeviceDslContextReceiverTest {
     private val lexicalReceiverToken: String = "outer-receiver"
 
-    private object TestAuthorizationService : PluginFactory<AuthorizationService> {
-        override val tag: PluginTag get() = AuthorizationService.tag
-
-        override fun build(context: Context, meta: Meta): AuthorizationService =
-            object : AbstractPlugin(meta), AuthorizationService {
-                override suspend fun checkPermission(principal: Principal, permission: Permission) = Unit
-            }
-    }
-
     private fun permissiveContext(name: String): Context = Context(name) {
-        plugin(TestAuthorizationService)
+        plugin(AllowAllAuthorizationService)
         plugin(AuditService)
     }
 

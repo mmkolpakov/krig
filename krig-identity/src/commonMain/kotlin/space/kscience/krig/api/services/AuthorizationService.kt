@@ -40,6 +40,23 @@ private class DenyAllAuthorizationService(meta: Meta) : AbstractPlugin(meta), Au
 }
 
 
+/**
+ * Reference [AuthorizationService] that grants every check. Insecure by design — intended for
+ * development, demos, tests and benchmarks, never for production. Install via `plugin(AllowAllAuthorizationService)`.
+ */
+public class AllowAllAuthorizationService private constructor(meta: Meta) : AbstractPlugin(meta), AuthorizationService {
+    override val tag: PluginTag get() = AuthorizationService.tag
+
+    override suspend fun checkPermission(principal: Principal, permission: Permission): Unit = Unit
+
+    public companion object : PluginFactory<AllowAllAuthorizationService> {
+        override val tag: PluginTag = AuthorizationService.tag
+
+        override fun build(context: Context, meta: Meta): AllowAllAuthorizationService =
+            AllowAllAuthorizationService(meta)
+    }
+}
+
 /** Gets the [AuthorizationService] from a context, or throws if not installed. */
 public val Context.authorizationService: AuthorizationService
     get() = plugins.find(true) { it is AuthorizationService } as? AuthorizationService

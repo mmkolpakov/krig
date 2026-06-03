@@ -1,11 +1,27 @@
-public abstract interface class space/kscience/krig/storage/journal/EventJournal : java/lang/AutoCloseable {
+public abstract interface class space/kscience/krig/storage/journal/CursorReplayLog : space/kscience/krig/storage/journal/ReplayLog {
+	public abstract fun replayFrom (Lspace/kscience/krig/storage/journal/EventCursor;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun replayFrom$default (Lspace/kscience/krig/storage/journal/CursorReplayLog;Lspace/kscience/krig/storage/journal/EventCursor;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public fun replayRecords (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class space/kscience/krig/storage/journal/CursorReplayLog$DefaultImpls {
+	public static synthetic fun replayFrom$default (Lspace/kscience/krig/storage/journal/CursorReplayLog;Lspace/kscience/krig/storage/journal/EventCursor;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static fun replayRecords (Lspace/kscience/krig/storage/journal/CursorReplayLog;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public abstract interface class space/kscience/krig/storage/journal/EventCursor : java/lang/Comparable {
+}
+
+public abstract interface class space/kscience/krig/storage/journal/EventJournal : java/lang/AutoCloseable, space/kscience/krig/storage/journal/CursorReplayLog, space/kscience/krig/storage/journal/ReplaySink {
 	public fun close ()V
 	public fun observe ()Lkotlinx/coroutines/flow/Flow;
 	public abstract fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun write (Lspace/kscience/krig/api/messages/DeviceMessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun write (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
@@ -13,6 +29,9 @@ public final class space/kscience/krig/storage/journal/EventJournal$DefaultImpls
 	public static fun close (Lspace/kscience/krig/storage/journal/EventJournal;)V
 	public static fun observe (Lspace/kscience/krig/storage/journal/EventJournal;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static fun record (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun replay (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public static fun replayRecords (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
 	public static fun write (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun writeAll (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
@@ -29,9 +48,58 @@ public final class space/kscience/krig/storage/journal/InMemoryEventJournal : sp
 	public fun observe ()Lkotlinx/coroutines/flow/Flow;
 	public fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public fun replayFrom (Lspace/kscience/krig/storage/journal/EventCursor;)Lkotlinx/coroutines/flow/Flow;
+	public fun replayRecords (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public final fun size ()I
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun write (Lspace/kscience/krig/api/messages/DeviceMessageEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class space/kscience/krig/storage/journal/ReplayLog {
+	public abstract fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class space/kscience/krig/storage/journal/ReplayLogKt {
+	public static final fun ReplayLog (Lkotlinx/coroutines/flow/Flow;)Lspace/kscience/krig/storage/journal/ReplayLog;
+	public static final fun compareEnvelopesByCausality (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lspace/kscience/krig/api/messages/DeviceMessageFrame;)I
+}
+
+public final class space/kscience/krig/storage/journal/ReplayRecord {
+	public fun <init> (Lspace/kscience/krig/storage/journal/EventCursor;Lspace/kscience/krig/api/messages/DeviceMessageFrame;)V
+	public final fun component1 ()Lspace/kscience/krig/storage/journal/EventCursor;
+	public final fun component2 ()Lspace/kscience/krig/api/messages/DeviceMessageFrame;
+	public final fun copy (Lspace/kscience/krig/storage/journal/EventCursor;Lspace/kscience/krig/api/messages/DeviceMessageFrame;)Lspace/kscience/krig/storage/journal/ReplayRecord;
+	public static synthetic fun copy$default (Lspace/kscience/krig/storage/journal/ReplayRecord;Lspace/kscience/krig/storage/journal/EventCursor;Lspace/kscience/krig/api/messages/DeviceMessageFrame;ILjava/lang/Object;)Lspace/kscience/krig/storage/journal/ReplayRecord;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCursor ()Lspace/kscience/krig/storage/journal/EventCursor;
+	public final fun getEnvelope ()Lspace/kscience/krig/api/messages/DeviceMessageFrame;
+	public final fun getMessage ()Lspace/kscience/krig/api/messages/DeviceMessage;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/storage/journal/ReplaySink {
+	public abstract fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/journal/SequenceCursor : space/kscience/krig/storage/journal/EventCursor {
+	public static final synthetic fun box-impl (J)Lspace/kscience/krig/storage/journal/SequenceCursor;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/storage/journal/EventCursor;)I
+	public static fun compareTo-impl (JLspace/kscience/krig/storage/journal/EventCursor;)I
+	public static fun constructor-impl (J)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public final fun getSequence ()J
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
 }
 
 public final class space/kscience/krig/storage/profile/StorageProfile {
@@ -60,8 +128,15 @@ public final class space/kscience/krig/storage/profile/StorageProfiles {
 
 public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk {
 	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public final fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun column-qFCK38E (I)[D
+	public final fun getRowCount ()I
 	public final fun getRows ()Ljava/util/List;
 	public final fun getSeries ()Ljava/util/List;
+	public final fun getTimes ()Ljava/util/List;
+	public final fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesRow;
+	public final fun value (II)D
 }
 
 public abstract interface class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunkSink {
@@ -77,7 +152,15 @@ public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesR
 	public final fun getQualityOverrides ()Ljava/util/Map;
 	public final fun getTime ()Lkotlin/time/Instant;
 	public final fun getValues ()[D
+	public final fun getValuesBuffer-E20IKn8 ()[D
 	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/storage/timeseries/Float64ReductionsKt {
+	public static final fun lastOrNaN-7vCc46M ([D)D
+	public static final fun maxOrNaN-7vCc46M ([D)D
+	public static final fun mean-7vCc46M ([D)D
+	public static final fun minOrNaN-7vCc46M ([D)D
 }
 
 public final class space/kscience/krig/storage/timeseries/RowsCompression {

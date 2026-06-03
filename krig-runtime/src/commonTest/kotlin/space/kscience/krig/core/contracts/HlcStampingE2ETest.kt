@@ -14,7 +14,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.operations.HlcTimestamp
@@ -88,7 +88,7 @@ class HlcStampingE2ETest {
      * the replay-0 data plane never races. Inside `runTest`'s deterministic
      * dispatcher this is reliable.
      */
-    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): DeviceMessageEnvelope<DeviceMessage> =
+    private suspend fun collectFirstFromDataFlow(device: StampedTestDevice): DeviceMessageFrame<DeviceMessage> =
         coroutineScope {
             val awaited = async(start = CoroutineStart.UNDISPATCHED) {
                 device.dataFlow.first()

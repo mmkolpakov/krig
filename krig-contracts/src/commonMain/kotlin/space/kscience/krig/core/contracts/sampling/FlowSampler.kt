@@ -9,9 +9,7 @@ import kotlinx.atomicfu.locks.synchronized
 import space.kscience.attributes.SafeType
 import space.kscience.attributes.safeTypeOf
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.typed.DoubleSampler
 import space.kscience.krig.core.meta.DevicePropertyContract
-import space.kscience.krig.core.contracts.typed.PrimitiveTypedSampler
 import space.kscience.krig.core.contracts.typed.TypedSampler
 
 /**
@@ -22,7 +20,7 @@ import space.kscience.krig.core.contracts.typed.TypedSampler
 public class FlowSampler<T>(
     override val type: SafeType<T>,
     override val capacity: Int,
-) : PrimitiveTypedSampler<T> {
+) : TypedSampler<T> {
     init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
 
     private val flow = MutableSharedFlow<T>(
@@ -43,71 +41,187 @@ public inline fun <reified T> sampler(capacity: Int = 256): FlowSampler<T> =
     FlowSampler(safeTypeOf(), capacity)
 
 /**
- * Bounded double sampler with an unboxed ring buffer for latest/snapshot reads.
- *
- * [flow] is still a boxed reactive view for UI/control-plane observers; the hot path is
- * [publishDouble], [latestDoubleOrNaN], [latestDoubleOr], and [snapshotDoubleArray].
+ * Shared bounded ring engine: holds the index/size bookkeeping, the latest-flag, and the boxed
+ * reactive [flow] view under one synchronized monitor. Primitive subclasses own an unboxed backing
+ * array and expose the unboxed publish/latest/snapshot surface — the duplicated, error-prone
+ * wrap-around arithmetic lives here only once. Also the extension point for custom unboxed samplers.
  */
-public class RingDoubleSampler(
-    override val capacity: Int = 256,
-) : DoubleSampler {
+public abstract class AbstractRingSampler<T>(
+    final override val capacity: Int,
+    final override val type: SafeType<T>,
+) : TypedSampler<T> {
     init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
 
-    override val type: SafeType<Double> = safeTypeOf<Double>()
-
-    private val lock = SynchronizedObject()
-    private val values = DoubleArray(capacity)
+    protected val lock: SynchronizedObject = SynchronizedObject()
     private var nextIndex: Int = 0
-    private var size: Int = 0
+    private var storedSize: Int = 0
     private var hasLatestValue: Boolean = false
-    private var latestValue: Double = 0.0
 
-    private val updates = MutableSharedFlow<Double>(
+    private val updates = MutableSharedFlow<T>(
         extraBufferCapacity = capacity,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
 
-    override fun publishDouble(value: Double) {
+    /** Whether any value has been published; safe to call without holding [lock]. */
+    public val hasLatest: Boolean get() = synchronized(lock) { hasLatestValue }
+
+    /** Under a held [lock]: reserves the next write slot and advances ring bookkeeping. */
+    protected fun reserveSlotLocked(): Int {
+        val slot = nextIndex
+        nextIndex = (nextIndex + 1) % capacity
+        if (storedSize < capacity) storedSize++
+        hasLatestValue = true
+        return slot
+    }
+
+    /** Under a held [lock]: number of stored elements. */
+    protected fun sizeLocked(): Int = storedSize
+
+    /** Under a held [lock]: ring index of the oldest stored element. */
+    protected fun oldestSlotLocked(): Int = if (storedSize == capacity) nextIndex else 0
+
+    /** Under a held [lock]: whether any value has been published. */
+    protected fun hasLatestLocked(): Boolean = hasLatestValue
+
+    /** Publishes [value] to the boxed reactive [flow] view; call outside [lock]. */
+    protected fun emitToFlow(value: T) { updates.tryEmit(value) }
+
+    final override fun flow(): Flow<T> = updates.asSharedFlow()
+}
+
+/**
+ * Bounded double sampler with an unboxed ring buffer for latest/snapshot reads.
+ *
+ * [flow] is still a boxed reactive view for UI/control-plane observers; the hot path is
+ * [publishDouble], [latestDoubleOr], and [snapshotDoubleArray].
+ */
+public class RingDoubleSampler(
+    capacity: Int = 256,
+) : AbstractRingSampler<Double>(capacity, safeTypeOf<Double>()) {
+    private val values = DoubleArray(capacity)
+    private var latestValue: Double = 0.0
+
+    public fun publishDouble(value: Double) {
         synchronized(lock) {
-            values[nextIndex] = value
-            nextIndex = (nextIndex + 1) % capacity
-            if (size < capacity) size++
+            values[reserveSlotLocked()] = value
             latestValue = value
-            hasLatestValue = true
         }
-        updates.tryEmit(value)
+        emitToFlow(value)
     }
 
     public fun publish(value: Double): Unit = publishDouble(value)
 
-    override val hasLatest: Boolean get() = synchronized(lock) { hasLatestValue }
-
-    override fun latestDoubleOrNaN(): Double = synchronized(lock) {
-        if (hasLatestValue) latestValue else Double.NaN
+    public fun latestDoubleOr(default: Double): Double = synchronized(lock) {
+        if (hasLatestLocked()) latestValue else default
     }
 
-    override fun latestDoubleOr(default: Double): Double = synchronized(lock) {
-        if (hasLatestValue) latestValue else default
+    /** Convenience: [latestDoubleOr] with the canonical NaN sentinel. */
+    public fun latestDoubleOrNaN(): Double = latestDoubleOr(Double.NaN)
+
+    public fun snapshotDoubleArray(): DoubleArray = synchronized(lock) {
+        val count = sizeLocked()
+        val start = oldestSlotLocked()
+        DoubleArray(count) { values[(start + it) % capacity] }
     }
 
-    override fun snapshotDoubleArray(): DoubleArray = synchronized(lock) {
-        val out = DoubleArray(size)
-        val start = if (size == capacity) nextIndex else 0
-        repeat(size) { index ->
-            out[index] = values[(start + index) % capacity]
+    override fun latest(): Double? = synchronized(lock) { if (hasLatestLocked()) latestValue else null }
+    override fun snapshot(): List<Double> = snapshotDoubleArray().asList()
+}
+
+/**
+ * Bounded int sampler with an unboxed ring buffer for latest/snapshot reads. Int has no NaN-style
+ * sentinel, so [latestIntOr] takes an explicit default; guard with [hasLatest] when needed.
+ */
+public class RingIntSampler(
+    capacity: Int = 256,
+) : AbstractRingSampler<Int>(capacity, safeTypeOf<Int>()) {
+    private val values = IntArray(capacity)
+    private var latestValue: Int = 0
+
+    public fun publishInt(value: Int) {
+        synchronized(lock) {
+            values[reserveSlotLocked()] = value
+            latestValue = value
         }
-        out
+        emitToFlow(value)
     }
 
-    override fun flow(): Flow<Double> = updates.asSharedFlow()
+    public fun publish(value: Int): Unit = publishInt(value)
+
+    public fun latestIntOr(default: Int): Int = synchronized(lock) {
+        if (hasLatestLocked()) latestValue else default
+    }
+
+    public fun snapshotIntArray(): IntArray = synchronized(lock) {
+        val count = sizeLocked()
+        val start = oldestSlotLocked()
+        IntArray(count) { values[(start + it) % capacity] }
+    }
+
+    override fun latest(): Int? = synchronized(lock) { if (hasLatestLocked()) latestValue else null }
+    override fun snapshot(): List<Int> = snapshotIntArray().asList()
+}
+
+/**
+ * Bounded long sampler with an unboxed ring buffer for latest/snapshot reads. Long has no NaN-style
+ * sentinel, so [latestLongOr] takes an explicit default; guard with [hasLatest] when needed.
+ */
+public class RingLongSampler(
+    capacity: Int = 256,
+) : AbstractRingSampler<Long>(capacity, safeTypeOf<Long>()) {
+    private val values = LongArray(capacity)
+    private var latestValue: Long = 0L
+
+    public fun publishLong(value: Long) {
+        synchronized(lock) {
+            values[reserveSlotLocked()] = value
+            latestValue = value
+        }
+        emitToFlow(value)
+    }
+
+    public fun publish(value: Long): Unit = publishLong(value)
+
+    public fun latestLongOr(default: Long): Long = synchronized(lock) {
+        if (hasLatestLocked()) latestValue else default
+    }
+
+    public fun snapshotLongArray(): LongArray = synchronized(lock) {
+        val count = sizeLocked()
+        val start = oldestSlotLocked()
+        LongArray(count) { values[(start + it) % capacity] }
+    }
+
+    override fun latest(): Long? = synchronized(lock) { if (hasLatestLocked()) latestValue else null }
+    override fun snapshot(): List<Long> = snapshotLongArray().asList()
 }
 
 public fun doubleSampler(capacity: Int = 256): RingDoubleSampler = RingDoubleSampler(capacity)
 
-/** Returns the primitive double sampler exposed for [spec], or `null` when the device has no such sampler. */
-public fun Device.doubleSampler(spec: DevicePropertyContract<Double>): DoubleSampler? =
-    sampler(spec) as? DoubleSampler
+public fun intSampler(capacity: Int = 256): RingIntSampler = RingIntSampler(capacity)
 
-/** Returns the primitive double sampler exposed for [spec]. */
-public fun Device.requireDoubleSampler(spec: DevicePropertyContract<Double>): DoubleSampler =
+public fun longSampler(capacity: Int = 256): RingLongSampler = RingLongSampler(capacity)
+
+/** Returns the unboxed double sampler exposed for [spec], or `null` when the device has no such sampler. */
+public fun Device.doubleSampler(spec: DevicePropertyContract<Double>): RingDoubleSampler? =
+    sampler(spec) as? RingDoubleSampler
+
+/** Returns the unboxed double sampler exposed for [spec]. */
+public fun Device.requireDoubleSampler(spec: DevicePropertyContract<Double>): RingDoubleSampler =
     doubleSampler(spec) ?: error("Device '$name' does not expose a double sampler for '${spec.name}'.")
+
+/** Returns the unboxed int sampler exposed for [spec], or `null` when the device has no such sampler. */
+public fun Device.intSampler(spec: DevicePropertyContract<Int>): RingIntSampler? =
+    sampler(spec) as? RingIntSampler
+
+/** Returns the unboxed int sampler exposed for [spec]. */
+public fun Device.requireIntSampler(spec: DevicePropertyContract<Int>): RingIntSampler =
+    intSampler(spec) ?: error("Device '$name' does not expose an int sampler for '${spec.name}'.")
+
+/** Returns the unboxed long sampler exposed for [spec], or `null` when the device has no such sampler. */
+public fun Device.longSampler(spec: DevicePropertyContract<Long>): RingLongSampler? =
+    sampler(spec) as? RingLongSampler
+
+/** Returns the unboxed long sampler exposed for [spec]. */
+public fun Device.requireLongSampler(spec: DevicePropertyContract<Long>): RingLongSampler =
+    longSampler(spec) ?: error("Device '$name' does not expose a long sampler for '${spec.name}'.")

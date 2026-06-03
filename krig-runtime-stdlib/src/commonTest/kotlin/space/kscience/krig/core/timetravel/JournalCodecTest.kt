@@ -12,6 +12,8 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigStorageJson
+import space.kscience.krig.storage.journal.EventCursor
+import space.kscience.krig.storage.journal.SequenceCursor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
@@ -31,7 +33,7 @@ class JournalCodecTest {
 
     @Test
     fun migrationCanUpcastOldEntryBeforeReplay() = runTest {
-        val oldSchema = JournalSchema("demo.counter.v0")
+        val oldSchema = StorageSchema("demo.counter.v0")
         val json = krigStorageJson()
         val serializer = PolymorphicSerializer(DeviceMessage::class)
         val migration = JournalMigration { entry ->
@@ -43,7 +45,7 @@ class JournalCodecTest {
                 sequenceOf(
                     entry.copy(
                         messageType = message.messageType,
-                        schema = JournalSchemas.deviceMessageV1,
+                        schema = StorageSchemas.deviceMessageV1,
                         payload = serializableToMeta(serializer, message, json),
                     ),
                 )

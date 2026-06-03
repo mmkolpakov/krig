@@ -25,7 +25,7 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.CapabilityToggles
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
+import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.operations.ResourceLockRegistry
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -43,7 +43,7 @@ class PipelineExecutorTest {
     fun pipeline_readsThroughGatesAndObservers_onSuccess() = runTest {
         var observed = false
         var observerFault: OperationFault? = null
-        val reader = GenericTypedReader { 42.0 }
+        val reader = TypedReader { 42.0 }
 
         val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
         pipeline.prepend { input, next -> // gate
@@ -254,7 +254,7 @@ class PipelineExecutorTest {
             kind = PropertyKind.LOGICAL,
             valueTypeId = "kotlin.Double",
             attributes = operationAttributes {
-                OperationAttributeKeys.Behavior(BehaviorAttribute(requiredCapabilities = setOf(capabilityId)))
+                OperationAttributeKeys.Behavior(BehaviorAttribute(requiredCapabilityIds = setOf(capabilityId)))
             },
         )
         val context = OperationContext(OperationKinds.Read, descriptor.name, descriptor, "device".asName())

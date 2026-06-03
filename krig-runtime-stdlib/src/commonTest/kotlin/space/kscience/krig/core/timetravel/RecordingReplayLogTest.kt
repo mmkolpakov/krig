@@ -8,6 +8,8 @@ import space.kscience.krig.api.messages.DeviceAttachedMessage
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.journal.SequenceCursor
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,7 +26,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun replayFiltersByTimeBounds() = runTest {
-        val store = InMemoryReplayLog()
+        val store = InMemoryEventJournal()
         listOf(100L, 200L, 300L, 400L).forEach { store.record(attached(it).testEnvelope()) }
 
         val window = store.replay(
@@ -36,7 +38,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun replaySortsByTimeRegardlessOfArrivalOrder() = runTest {
-        val store = InMemoryReplayLog()
+        val store = InMemoryEventJournal()
         store.record(attached(300).testEnvelope())
         store.record(attached(100).testEnvelope())
         store.record(attached(200).testEnvelope())
@@ -50,7 +52,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun replayUsesHlcOrderingWhenBothEnvelopesCarryStamps() = runTest {
-        val store = InMemoryReplayLog()
+        val store = InMemoryEventJournal()
         store.record(attached(300).testEnvelope().withHlcStamp(HlcTimestamp(100, 0)))
         store.record(attached(100).testEnvelope().withHlcStamp(HlcTimestamp(300, 0)))
         store.record(attached(200).testEnvelope().withHlcStamp(HlcTimestamp(200, 0)))
@@ -65,7 +67,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun replayRecordsPreservesCursorPositions() = runTest {
-        val store = InMemoryReplayLog()
+        val store = InMemoryEventJournal()
         listOf(100L, 200L, 300L, 400L).forEach { store.record(attached(it).testEnvelope()) }
 
         val records = store.replayRecords(
@@ -79,7 +81,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun sizeReflectsRecordedEventCount() = runTest {
-        val store = InMemoryReplayLog()
+        val store = InMemoryEventJournal()
         assertEquals(0, store.size())
         store.record(attached(1).testEnvelope())
         store.record(attached(2).testEnvelope())
@@ -88,7 +90,7 @@ class RecordingReplayLogTest {
 
     @Test
     fun replayFromCursorRemainsStableAfterEviction() = runTest {
-        val store = InMemoryReplayLog(capacity = 3)
+        val store = InMemoryEventJournal(capacity = 3)
         listOf(100L, 200L, 300L).forEach { store.record(attached(it).testEnvelope()) }
 
         val cursor = store.replayRecords(

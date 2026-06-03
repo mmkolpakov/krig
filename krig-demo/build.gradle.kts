@@ -5,7 +5,7 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "Minimal demo device - proves KRig SDK builds and runs with zero external dependencies."
+description = "Demo devices and scenarios - prove the KRig SDK builds and runs using only KRig modules."
 
 kotlin {
     jvmToolchain(21)
@@ -27,6 +27,12 @@ kotlin {
         jvmMain {
             dependencies {
                 runtimeOnly(libs.slf4j.nop)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
     }

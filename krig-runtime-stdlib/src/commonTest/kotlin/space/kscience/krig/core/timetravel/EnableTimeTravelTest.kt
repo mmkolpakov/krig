@@ -17,13 +17,14 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
@@ -89,7 +90,7 @@ class EnableTimeTravelTest {
         override fun now(): Instant = instant
     }
 
-    private fun testMessages(): MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>> =
+    private fun testMessages(): MutableSharedFlow<DeviceMessageFrame<DeviceMessage>> =
         MutableSharedFlow(extraBufferCapacity = 16)
 
     /**
@@ -107,7 +108,7 @@ class EnableTimeTravelTest {
     @Test
     fun eventPumpForwardsControlFlowToSink() = runTest {
         val device = ReplayingDevice("counter".asName(), Context("test-event-pump"))
-        val eventSink = InMemoryReplayLog()
+        val eventSink = InMemoryEventJournal()
         val snapshotStore = InMemorySnapshotStore()
         val replay = CounterReplay()
         val messages = testMessages()
@@ -144,7 +145,7 @@ class EnableTimeTravelTest {
     @Test
     fun checkpointingEveryNEventsWritesSnapshotsToStore() = runTest {
         val device = ReplayingDevice("counter".asName(), Context("test-checkpoint-n"))
-        val eventSink = InMemoryReplayLog()
+        val eventSink = InMemoryEventJournal()
         val snapshotStore = InMemorySnapshotStore()
         val replay = CounterReplay()
         val messages = testMessages()
@@ -182,7 +183,7 @@ class EnableTimeTravelTest {
     @Test
     fun cancellingReturnedJobStopsBothChildren() = runTest {
         val device = ReplayingDevice("counter".asName(), Context("test-cancel"))
-        val eventSink = InMemoryReplayLog()
+        val eventSink = InMemoryEventJournal()
         val snapshotStore = InMemorySnapshotStore()
         val replay = CounterReplay()
         val messages = testMessages()
@@ -235,7 +236,7 @@ class EnableTimeTravelTest {
         advanceUntilIdle()
         // assertIs carries the contract `returns() implies (value is T)`, so the
         // subsequent `replayLog.size()` smart-casts through without an explicit `as`.
-        assertIs<InMemoryReplayLog>(replayLog)
+        assertIs<InMemoryEventJournal>(replayLog)
         assertEquals(1, replayLog.size())
 
         job.cancel()

@@ -25,9 +25,9 @@ import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.ignoreNonCancellationFailure
 import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedAction
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
+import space.kscience.krig.core.contracts.execute
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
@@ -104,10 +104,10 @@ public class BackendDevice @InternalKrigApi constructor(
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        contractBackend?.reader(spec) ?: GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
+        contractBackend?.reader(spec) ?: TypedReader { spec.converter.read(readProperty(spec.name)) }
 
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
-        contractBackend?.writer(spec) ?: GenericTypedWriter { value ->
+        contractBackend?.writer(spec) ?: TypedWriter { value ->
             writeProperty(spec.name, spec.converter.convert(value))
         }
 
@@ -115,7 +115,7 @@ public class BackendDevice @InternalKrigApi constructor(
         contractBackend?.sampler(spec)
 
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
-        contractBackend?.action(spec) ?: GenericTypedAction { input ->
+        contractBackend?.action(spec) ?: TypedAction { input ->
             val resultMeta = execute(spec.name, spec.inputConverter.convert(input))
             resultMeta?.let(spec.outputConverter::read)
         }

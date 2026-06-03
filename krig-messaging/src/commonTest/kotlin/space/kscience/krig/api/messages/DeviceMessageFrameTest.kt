@@ -1,0 +1,49 @@
+package space.kscience.krig.api.messages
+
+import kotlinx.serialization.PolymorphicSerializer
+import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.identifiers.CorrelationId
+import space.kscience.krig.api.serialization.krigStorageJson
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import kotlin.time.Instant
+
+class DeviceMessageFrameTest {
+
+    private val json = krigStorageJson()
+    private val messageSerializer = PolymorphicSerializer(DeviceMessage::class)
+    private val frameSerializer = DeviceMessageFrame.serializer(messageSerializer)
+
+    @Test
+    fun storageJsonOmitsDefaultFrameContext() {
+        val message = PropertyChangedMessage(
+            time = Instant.fromEpochMilliseconds(1),
+            property = "rpm".asName(),
+            value = MetaConverter.double.convert(1_200.0),
+            sourceDevice = "pump".asName(),
+        )
+
+        val encoded = json.encodeToString(frameSerializer, message.frame())
+
+        assertTrue("\"payload\"" in encoded)
+        assertFalse("\"context\"" in encoded)
+        assertFalse("\"correlationId\"" in encoded)
+    }
+
+    @Test
+    fun frameCarriesCorrelationOutsidePayload() {
+        val message = DeviceOnlineMessage(
+            time = Instant.fromEpochMilliseconds(1),
+            manifestId = "demo.pump".asName(),
+            sourceDevice = "pump".asName(),
+        )
+        val frame = message.frame(
+            MessageContext(correlationId = CorrelationId("trace-1")),
+        )
+
+        assertEquals(CorrelationId("trace-1"), frame.context.correlationId)
+    }
+}

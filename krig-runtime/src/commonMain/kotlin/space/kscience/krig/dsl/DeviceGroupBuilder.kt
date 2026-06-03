@@ -15,6 +15,8 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.runtime.DeviceGroup
 import space.kscience.krig.core.state.DeviceState
 import space.kscience.krig.core.state.MutableDeviceState

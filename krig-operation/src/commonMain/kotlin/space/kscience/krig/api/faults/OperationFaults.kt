@@ -6,6 +6,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.meta.serializableToMeta
+import space.kscience.krig.api.result.OperationOutcome
 
 /** Standard krig operation-fault types. Integrations can add their own [Name]s. */
 public object OperationFaultTypes {
@@ -59,6 +60,20 @@ public fun faultDetails(
 }
 
 /**
+ * Builds a generic [OperationOutcome.Fail] of [type] carrying [message]. The single fault-construction
+ * entry every device backend shares, so engines never re-derive [GenericOperationFault] wiring.
+ */
+public fun operationFault(type: Name, message: String): OperationOutcome.Fail =
+    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
+
+/**
+ * Builds a [ValidationFault] outcome for [message], optionally attributed to [property]. Shared by every
+ * backend engine instead of hand-rolling [ValidationFault] details.
+ */
+public fun validationFault(message: String, property: Name? = null): OperationOutcome.Fail =
+    OperationOutcome.Fail(ValidationFault(details = faultDetails(message, property = property)))
+
+/**
  * A generic fault implementation for errors that do not have a specialized schema but require
  * structured reporting.
  *
@@ -70,7 +85,7 @@ public fun faultDetails(
 @SerialName("fault.generic")
 public data class GenericOperationFault(
     override val faultType: Name = OperationFaultTypes.Generic,
-    override val message: String,
+    override val message: String = faultType.toString(),
     val details: Meta = Meta.EMPTY
 ) : OperationFault {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)

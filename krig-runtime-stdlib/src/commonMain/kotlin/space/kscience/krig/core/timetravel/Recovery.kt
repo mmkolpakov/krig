@@ -1,6 +1,7 @@
 package space.kscience.krig.core.timetravel
 
 import space.kscience.dataforge.names.Name
+import space.kscience.krig.storage.journal.ReplayLog
 import kotlin.time.Instant
 
 /** Declarative recovery inputs for replaying a reconstructible model. */

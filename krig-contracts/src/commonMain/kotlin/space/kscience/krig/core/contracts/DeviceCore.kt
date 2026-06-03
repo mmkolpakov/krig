@@ -23,7 +23,7 @@ import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.api.result.OperationOutcome
@@ -34,9 +34,6 @@ import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.capabilities.CapabilityKey
 import space.kscience.krig.core.capabilities.Capability
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedAction
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedDevice
 import space.kscience.krig.core.contracts.typed.TypedReader
@@ -71,41 +68,17 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     /** Control-plane action descriptors. Descriptors must match [actionSpec] registrations. */
     public val actionDescriptors: Map<Name, ActionDescriptor>
 
-    /**
-     * Reads a property through the serialization boundary. Implementations may perform I/O and
-     * emit [PropertyChangedMessage] on success.
-     *
-     * **Hot-path note.** This API allocates [Meta] on every call. Typed readers
-     * avoid that serialization boundary for high-frequency reads.
-     * `readProperty(Name): Meta` is preserved for control-plane
-     * operations: introspection, debug tools, and generic transports that must serialize.
-     */
-    @PerformancePitfall
-    public suspend fun readProperty(propertyName: Name): Meta =
-        readPropertyOutcome(propertyName).getOrThrow()
-
-    /** Writes a property through the serialization boundary. Prefer [writer] on the data plane. */
-    @PerformancePitfall
-    public suspend fun writeProperty(propertyName: Name, value: Meta) {
-        writePropertyOutcome(propertyName, value).getOrThrow()
-    }
-
-    /** Executes an action through the serialization boundary. Prefer [executeOutcome] for value-based error handling. */
-    @PerformancePitfall
-    public suspend fun execute(actionName: Name, argument: Meta? = null): Meta? =
-        executeOutcome(actionName, argument).getOrThrow()
-
     /** Control plane: lifecycle, faults, attach/detach. SUSPEND on buffer overflow — never dropped. */
     @InternalKrigApi
-    public val controlFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
+    public val controlFlow: Flow<DeviceMessageFrame<DeviceMessage>>
 
     /** Data plane: property and predicate changes. DROP_OLDEST on overflow. */
     @InternalKrigApi
-    public val dataFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
+    public val dataFlow: Flow<DeviceMessageFrame<DeviceMessage>>
 
     /** Cold merge of [controlFlow] and [dataFlow]. Each subscriber owns its back-pressure. */
     @InternalKrigApi
-    public val messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>
+    public val messageFlow: Flow<DeviceMessageFrame<DeviceMessage>>
         get() = merge(controlFlow, dataFlow)
 
     /** Payload-only view for scripts and legacy consumers that do not need envelope context. */
@@ -118,7 +91,20 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      * subsequent elements flow without per-element overhead. Throws
      * [space.kscience.krig.api.services.AuthorizationException] on missing permission.
      */
-    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<DeviceMessageEnvelope<DeviceMessage>>
+    public suspend fun subscribe(principal: space.kscience.krig.api.context.Principal): Flow<DeviceMessageFrame<DeviceMessage>>
+
+    /**
+     * Property-granular subscription: authorizes [principal] for [property] specifically and streams
+     * only that property's [PropertyChangedMessage]s. The default keeps the device-wide [subscribe]
+     * authorization and filters the stream; implementations with an authorization service (see
+     * `AbstractDevice`) override this with a per-property ACL that also accepts a property-scoped
+     * grant. Throws [space.kscience.krig.api.services.AuthorizationException] on missing permission.
+     */
+    public suspend fun subscribe(
+        principal: space.kscience.krig.api.context.Principal,
+        property: Name,
+    ): Flow<DeviceMessageFrame<DeviceMessage>> =
+        subscribe(principal).filter { (it.payload as? PropertyChangedMessage)?.property == property }
 
     /** Timestamping source; may be a virtual clock in simulations. */
     override val clock: Clock
@@ -143,12 +129,12 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      */
     @OptIn(PerformancePitfall::class)
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        GenericTypedReader { spec.converter.read(readProperty(spec.name)) }
+        TypedReader { spec.converter.read(readProperty(spec.name)) }
 
     /** Fallback [TypedWriter] — bridges through [writeProperty] + converter and may allocate. */
     @OptIn(PerformancePitfall::class)
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
-        GenericTypedWriter { value -> writeProperty(spec.name, spec.converter.convert(value)) }
+        TypedWriter { value -> writeProperty(spec.name, spec.converter.convert(value)) }
 
     /** Default returns `null`; drivers opt-in by overriding to expose lock-free streaming. */
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? = null
@@ -156,7 +142,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     /** Fallback [TypedAction] — bridges through [execute] + converters and may allocate. */
     @OptIn(PerformancePitfall::class)
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
-        GenericTypedAction { input ->
+        TypedAction { input ->
             val resultMeta = execute(spec.name, spec.inputConverter.convert(input))
             resultMeta?.let(spec.outputConverter::read)
         }
@@ -251,6 +237,26 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     }
 }
 
+/**
+ * Reads a property through the serialization boundary; convenience over [Device.readPropertyOutcome]
+ * that throws on failure. Allocates [Meta] per call — typed readers avoid that boundary on the hot path.
+ * Kept as an extension (not a member) to signal it is derived sugar, not part of the overridable contract.
+ */
+@PerformancePitfall
+public suspend fun Device.readProperty(propertyName: Name): Meta =
+    readPropertyOutcome(propertyName).getOrThrow()
+
+/** Writes a property through the serialization boundary; throwing convenience over [Device.writePropertyOutcome]. */
+@PerformancePitfall
+public suspend fun Device.writeProperty(propertyName: Name, value: Meta) {
+    writePropertyOutcome(propertyName, value).getOrThrow()
+}
+
+/** Executes an action through the serialization boundary; throwing convenience over [Device.executeOutcome]. */
+@PerformancePitfall
+public suspend fun Device.execute(actionName: Name, argument: Meta? = null): Meta? =
+    executeOutcome(actionName, argument).getOrThrow()
+
 @OptIn(PerformancePitfall::class)
 public suspend fun Device.readPropertyPath(path: String): Meta = readProperty(path.parseAsName())
 
@@ -278,7 +284,7 @@ public val Device.propertyNames: Set<Name> get() = propertyDescriptors.keys
 public val Device.actionNames: Set<Name> get() = actionDescriptors.keys
 
 /** Resolves the principal from the current coroutine context and delegates to [Device.subscribe]. */
-public suspend fun Device.subscribeFromContext(): Flow<DeviceMessageEnvelope<DeviceMessage>> =
+public suspend fun Device.subscribeFromContext(): Flow<DeviceMessageFrame<DeviceMessage>> =
     subscribe(currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal)
 
 /** Payload-only subscription helper for call sites that intentionally ignore envelope context. */

@@ -5,7 +5,7 @@ import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.executionContext
-import space.kscience.krig.api.descriptors.attributes.requiredCapabilities
+import space.kscience.krig.api.descriptors.attributes.requiredCapabilityIds
 import space.kscience.krig.api.faults.AuthorizationFault
 import space.kscience.krig.api.faults.InvalidStateFault
 import space.kscience.krig.api.identifiers.ControlsPermissions
@@ -87,7 +87,7 @@ public class CapabilityGate(
 ) : OperationGate {
     override suspend fun check(context: OperationContext): OperationOutcome<Unit> =
         checkRequiredCapabilities(
-            required = context.descriptor.requiredCapabilities,
+            required = context.descriptor.requiredCapabilityIds,
             toggles = toggles,
             operation = context.operationLabel(hostName),
         )

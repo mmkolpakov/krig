@@ -10,10 +10,10 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.isOk
-import space.kscience.krig.assembly.ReductionSpec
-import space.kscience.krig.assembly.dataPlatform
+import space.kscience.krig.assembly.AcquisitionConnectors
+import space.kscience.krig.assembly.dataAcquisition
+import space.kscience.krig.assembly.deviceTreeAcquisitionReader
 import space.kscience.krig.assembly.pollTimer
-import space.kscience.krig.assembly.runtime
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.manifestOf
 import space.kscience.krig.core.contracts.metaOf
@@ -34,21 +34,18 @@ suspend fun batchAcquisitionDemo() {
     val plc = device("batchPlc", stand.backend(), ctx) {
         manifest(BatchPlcManifest)
     }
-    val platform = dataPlatform {
-        source("batchPlc") from BatchPlcManifest.id.toString()
-        property("batch.rpm")
-            .from("batchPlc", BatchPlcSpec.rpm.name.toString(), reduction = ReductionSpec.Last)
-        property("batch.temperature")
-            .from("batchPlc", BatchPlcSpec.temperature.name.toString(), reduction = ReductionSpec.Last)
-        property("batch.pressure")
-            .from("batchPlc", BatchPlcSpec.pressure.name.toString(), reduction = ReductionSpec.Last)
+    val acquisition = dataAcquisition {
+        source("batchPlc", AcquisitionConnectors.KrigDevice)
+        tag("batch.rpm").from("batchPlc", BatchPlcSpec.rpm.name.toString())
+        tag("batch.temperature").from("batchPlc", BatchPlcSpec.temperature.name.toString())
+        tag("batch.pressure").from("batchPlc", BatchPlcSpec.pressure.name.toString())
         timer("fast", 10.milliseconds) {
             samples("batch.rpm", "batch.temperature", "batch.pressure")
         }
     }
 
-    val runtime = platform.runtime(mapOf("batchPlc".asName() to plc), clock = plc.clock)
-    val observations = runtime.pollTimer("fast", flowOf(Unit)).toList()
+    val reader = deviceTreeAcquisitionReader(mapOf("batchPlc".asName() to plc))
+    val observations = acquisition.pollTimer("fast", flowOf(Unit), reader = reader, clock = plc.clock).toList()
     val writeResults = plc.writeBatchOutcome(
         mapOf(
             BatchPlcSpec.rpm.name to metaOf(1_200.0),
@@ -60,7 +57,7 @@ suspend fun batchAcquisitionDemo() {
     println("  physical batch reads: ${stand.batchReads}")
     println(
         "  observed qualities: ${
-            observations.associate { it.property.property to it.observed.quality.severity.label }
+            observations.associate { it.spec.address to it.observed.quality.severity.label }
         }",
     )
     println("  physical batch writes: ${stand.batchWrites}")

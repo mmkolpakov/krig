@@ -1,8 +1,6 @@
 package space.kscience.krig.dsl
 
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -10,27 +8,20 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.executionContext
-import space.kscience.krig.api.data.DataQuality
-import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.data.staleDataQuality
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.lifecycle.LifecycleState
-import space.kscience.krig.api.messages.ActionFaultMessage
-import space.kscience.krig.api.messages.DeviceErrorMessage
+import space.kscience.krig.api.messages.FaultMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.messages.PropertyFaultMessage
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.SubscribeOptions
+import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.subscribe
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.meta.DevicePropertyContract
-import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.TimeMark
-import kotlin.time.TimeSource
 
 /**
  * Subscription sugar over principal-gated [Device.subscribe]. Authorisation runs once
@@ -48,6 +39,12 @@ public suspend fun Device.ensureAuthorized(principal: Principal) {
     subscribe(principal) // auth + audit happen inside; flow is cold and never collected
 }
 
+/** Property-granular variant: checks the per-property subscribe ACL (device-wide grant also passes). */
+@Suppress("RETURN_VALUE_NOT_USED", "UnusedFlow")
+public suspend fun Device.ensureAuthorized(principal: Principal, property: Name) {
+    subscribe(principal, property)
+}
+
 // --- property flows ------------------------------------------------------
 
 /** Filters the principal-gated message stream to [PropertyChangedMessage] for [propertyName]. */
@@ -56,7 +53,7 @@ public fun Device.propertyChangesFlow(
     propertyName: Name,
     options: SubscribeOptions = SubscribeOptions.Unthrottled,
 ): Flow<PropertyChangedMessage> = flow {
-    subscribe(principal, options)
+    subscribe(principal, propertyName, options)
         .map { it.payload }
         .filterIsInstance<PropertyChangedMessage>()
         .filter { it.property == propertyName }
@@ -83,6 +80,43 @@ public fun <T : Any> Device.typedPropertyFlow(
     options: SubscribeOptions = SubscribeOptions.Unthrottled,
 ): Flow<T> = propertyChangesFlow(principal, spec.name, options).map { spec.converter.read(it.value) }
 
+// --- config plane: live "current value + updates" state ------------------
+
+/**
+ * Authorised [StateFlow] of [spec]'s current value plus live updates — the "live config
+ * field" view (the role coroutines [StateFlow] / controls-kt `DeviceState` play). Unlike
+ * [typedPropertyFlow] (changes-only), this exposes the current value via [StateFlow.value]
+ * and replays it to new collectors.
+ *
+ * Two source paths, one contract:
+ *  - **Native** — if the driver overrides
+ *    [propertyState][space.kscience.krig.core.contracts.typed.TypedDevice.propertyState] for
+ *    [spec], its own state is returned after the subscribe ACL + audit run once. This is atomic
+ *    and race-free; [scope] / [options] do not apply (the state is device-owned).
+ *  - **Meta fallback** — otherwise the state is projected from [read] (seed) plus the
+ *    principal-gated change stream, shared on [scope] (defaults to [Device.deviceScope]).
+ *    Seeding is best-effort: a change racing the initial read converges on the next update.
+ *    Drivers that need exact semantics override `propertyState`.
+ *
+ * In both paths reconfiguration still flows through [write] /
+ * [writeProperty][space.kscience.krig.core.contracts.writeProperty]: every change is a
+ * journaled, authorised control-plane event. This is a read-side projection — it never
+ * bypasses the event journal nor affects deterministic replay.
+ */
+public suspend fun <T : Any> Device.typedPropertyState(
+    principal: Principal,
+    spec: DevicePropertyContract<T>,
+    scope: CoroutineScope = deviceScope,
+    options: SubscribeOptions = SubscribeOptions.Unthrottled,
+): StateFlow<T> {
+    propertyState(spec)?.let { native ->
+        ensureAuthorized(principal, spec.name)
+        return native
+    }
+    val initial = read(spec)
+    return typedPropertyFlow(principal, spec, options).stateIn(scope, SharingStarted.Eagerly, initial)
+}
+
 /**
  * Typed data-plane samples for [spec]. If the driver exposes a [TypedSampler][space.kscience.krig.core.contracts.typed.TypedSampler],
  * this returns the sampler flow directly and does not touch [Meta] conversion. Otherwise it
@@ -100,9 +134,9 @@ public suspend fun <T : Any> Device.typedSamples(
     val sampler = sampler(spec) ?: return typedPropertyFlow(principal, spec, options)
 
     require(options.typeFilter.isEmpty()) {
-        "SubscribeOptions.typeFilter filters DeviceMessage classes and cannot be applied to typed sample values."
+        "SubscribeOptions.typeFilter selects wire message types and cannot be applied to typed sample values."
     }
-    ensureAuthorized(principal)
+    ensureAuthorized(principal, spec.name)
     return sampler.flow().applyRateLimit(options)
 }
 
@@ -117,13 +151,11 @@ private fun <T> Flow<T>.applyRateLimit(options: SubscribeOptions): Flow<T> {
 
 // --- fault & lifecycle flows --------------------------------------------
 
-/** All faults from the control plane: [DeviceErrorMessage], [ActionFaultMessage], [PropertyFaultMessage]. */
+/** All faults from the control plane, carried by the unified [FaultMessage]. */
 public fun Device.faultFlow(principal: Principal): Flow<OperationFault> = flow {
     subscribe(principal).collect { envelope ->
         val fault: OperationFault? = when (val msg = envelope.payload) {
-            is DeviceErrorMessage -> msg.failure.fault
-            is ActionFaultMessage -> msg.fault
-            is PropertyFaultMessage -> msg.fault
+            is FaultMessage -> msg.fault
             else -> null
         }
         if (fault != null) emit(fault)
@@ -203,174 +235,3 @@ public suspend fun Device.onLifecycleChangeFromContext(
     scope: CoroutineScope = deviceScope,
     action: suspend (LifecycleState) -> Unit,
 ): Job = onLifecycleChange(currentPrincipal(), scope, action)
-
-// --- Zero-Order Hold --------------------------------------------------------
-
-/** Time source used by [sampleWithHold]. */
-public interface SamplingClock {
-    public fun markNow(): TimeMark
-    public suspend fun delay(duration: Duration)
-}
-
-/** Monotonic production clock for [sampleWithHold]. */
-public fun monotonicSamplingClock(): SamplingClock = object : SamplingClock {
-    override fun markNow(): TimeMark = TimeSource.Monotonic.markNow()
-    override suspend fun delay(duration: Duration) {
-        kotlinx.coroutines.delay(duration)
-    }
-}
-
-/**
- * Cold fixed-rate tick stream. Every collector owns its timer. Use [sharedTicks]
- * when several streams must sample from one timing source.
- */
-public fun fixedRateTicks(
-    tick: Duration,
-    clock: SamplingClock = monotonicSamplingClock(),
-): Flow<Unit> = flow {
-    require(tick > Duration.ZERO) { "tick must be positive, got $tick" }
-    val origin = clock.markNow()
-    var nextTick = tick
-    while (currentCoroutineContext().isActive) {
-        val remaining = nextTick - origin.elapsedNow()
-        if (remaining > Duration.ZERO) {
-            clock.delay(remaining)
-        }
-        emit(Unit)
-
-        val elapsed = origin.elapsedNow()
-        do {
-            nextTick += tick
-        } while (nextTick <= elapsed)
-    }
-}
-
-/**
- * Shared fixed-rate tick stream for multiple samplers or polling loops. Ticks are
- * live, non-replayed, conflated, and bound to [scope].
- */
-public fun sharedTicks(
-    scope: CoroutineScope,
-    tick: Duration,
-    clock: SamplingClock = monotonicSamplingClock(),
-    started: SharingStarted = SharingStarted.WhileSubscribed(),
-): SharedFlow<Unit> = fixedRateTicks(tick, clock)
-    .buffer(Channel.CONFLATED)
-    .shareIn(scope, started = started, replay = 0)
-
-/**
- * Emits the last known value at every [tick], holding the previous value when no
- * new events arrive. Mirrors the ZOH (Zero-Order Hold) behaviour of industrial
- * control systems — unlike [kotlinx.coroutines.flow.sample] which skips empty
- * periods, this operator guarantees a value at every tick boundary.
- *
- * Reactive/control-plane helper. On JVM, `Flow<Double>` and this generic
- * implementation still cross boxed `T` boundaries; hard real-time or DSP-style
- * loops should read the primitive sampler hot path directly
- * (`DoubleSampler.latestDoubleOrNaN()` / `snapshotDoubleArray()`) instead of routing
- * every numeric sample through `Flow`.
- *
- * ```kotlin
- * device.typedSamples(principal, spec)
- *     .sampleWithHold(100.milliseconds)
- *     .collect { v -> updateChart(v) }
- * ```
- */
-public fun <T> Flow<T>.sampleWithHold(
-    tick: Duration,
-    clock: SamplingClock = monotonicSamplingClock(),
-): Flow<T> = channelFlow {
-    require(tick > Duration.ZERO) { "tick must be positive, got $tick" }
-    val latest = atomic<Any?>(UninitializedSample)
-    val upstreamJob = launch(start = CoroutineStart.UNDISPATCHED) {
-        this@sampleWithHold.collect { value ->
-            latest.value = value
-        }
-    }
-    val origin = clock.markNow()
-    try {
-        var nextTick = tick
-        while (isActive && upstreamJob.isActive) {
-            val remaining = nextTick - origin.elapsedNow()
-            if (remaining > Duration.ZERO) {
-                clock.delay(remaining)
-            }
-            if (!upstreamJob.isActive) break
-
-            val snapshot = latest.value
-            if (snapshot !== UninitializedSample) {
-                @Suppress("UNCHECKED_CAST")
-                trySend(snapshot as T)
-            }
-
-            val elapsed = origin.elapsedNow()
-            do {
-                nextTick += tick
-            } while (nextTick <= elapsed)
-        }
-        upstreamJob.join()
-    } finally {
-        upstreamJob.cancel()
-    }
-}.buffer(Channel.RENDEZVOUS)
-
-/**
- * Emits the last known upstream value whenever [ticks] emits. Use this overload
- * when many streams should share one timing source instead of allocating one
- * timer per stream.
- */
-public fun <T> Flow<T>.sampleWithHold(ticks: Flow<Unit>): Flow<T> = channelFlow {
-    val latest = atomic<Any?>(UninitializedSample)
-    val upstreamJob = launch {
-        this@sampleWithHold.collect { value ->
-            latest.value = value
-        }
-        close()
-    }
-    try {
-        ticks.collect {
-            val snapshot = latest.value
-            if (snapshot !== UninitializedSample) {
-                @Suppress("UNCHECKED_CAST")
-                send(snapshot as T)
-            }
-        }
-    } finally {
-        upstreamJob.cancel()
-    }
-}
-
-/**
- * Emits one stale observation with the last known value when the upstream
- * observation stream completes or fails. Cancellation is propagated unchanged.
- */
-public fun <T> Flow<ObservedValue<T>>.withStalenessFallback(
-    clock: Clock = Clock.System,
-    staleQuality: DataQuality = staleDataQuality(),
-): Flow<ObservedValue<T>> = flow {
-    var latest: Any? = UninitializedSample
-    try {
-        collect { observed ->
-            latest = observed.value
-            emit(observed)
-        }
-    } catch (e: Exception) {
-        if (e is CancellationException) throw e
-        emitStale(latest, clock, staleQuality)
-        throw e
-    }
-    emitStale(latest, clock, staleQuality)
-}
-
-private suspend fun <T> FlowCollector<ObservedValue<T>>.emitStale(
-    latest: Any?,
-    clock: Clock,
-    staleQuality: DataQuality,
-) {
-    if (latest !== UninitializedSample) {
-        @Suppress("UNCHECKED_CAST")
-        emit(ObservedValue(latest as T, clock.now(), staleQuality))
-    }
-}
-
-private object UninitializedSample

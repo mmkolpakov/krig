@@ -4,33 +4,24 @@ package space.kscience.krig.core.timetravel
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.DeviceSnapshot
+import space.kscience.krig.api.serialization.krigStorageJson
 import space.kscience.krig.core.ExperimentalKrigApi
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
-import kotlin.jvm.JvmInline
 import kotlin.time.Instant
-
-/** Schema id for raw snapshot entries. */
-@JvmInline
-@Serializable
-public value class SnapshotSchema(public val value: String) {
-    init { require(value.isNotBlank()) { "SnapshotSchema must not be blank" } }
-}
-
-public object SnapshotSchemas {
-    public val deviceSnapshotV1: SnapshotSchema = SnapshotSchema("krig.device-snapshot.v1")
-}
 
 /** Raw snapshot row. Storage keeps this form; recovery decodes/migrates it. */
 @Serializable
 public data class SnapshotEntry(
     public val subject: Name,
     public val at: Instant,
-    public val schema: SnapshotSchema,
+    public val schema: StorageSchema,
     public val state: Meta,
     public val capabilitySnapshots: Map<String, Meta> = emptyMap(),
 )
@@ -55,7 +46,7 @@ public class SnapshotMigrations(
 
 public class SnapshotCodec(
     private val migrations: SnapshotMigrations = SnapshotMigrations.empty,
-    private val schema: SnapshotSchema = SnapshotSchemas.deviceSnapshotV1,
+    private val schema: StorageSchema = StorageSchemas.deviceSnapshotV1,
 ) {
     public fun encode(subject: Name, snapshot: DeviceSnapshot): SnapshotEntry =
         SnapshotEntry(
@@ -134,6 +125,82 @@ public class InMemorySnapshotStore : SnapshotStore {
 
     override fun read(subject: Name): Flow<SnapshotEntry> =
         state.load()[subject].orEmpty().asFlow()
+
+    override suspend fun delete(subject: Name, olderThan: Instant?) {
+        state.update { prev ->
+            val priorList = prev[subject] ?: return@update prev
+            val nextList = if (olderThan == null) emptyList() else priorList.filter { it.at >= olderThan }
+            if (nextList.isEmpty()) prev - subject else prev + (subject to nextList)
+        }
+    }
+}
+
+/**
+ * Durable medium for serialized snapshot rows, keyed by subject and instant.
+ *
+ * The persistence seam analogous to the journal's raw row store: durable integrations (file, SQL,
+ * key-value, object storage) implement these four operations over opaque [String] blobs, and
+ * [SerializingSnapshotStore] adapts the medium to a typed [SnapshotStore]. Backends never need to
+ * understand [SnapshotEntry] — only store, scan, and prune rows ordered by [at].
+ */
+public interface SnapshotBlobStore {
+    /** Persist [blob] for [subject] at [at]. A blob for the same subject and instant is overwritten. */
+    public suspend fun put(subject: Name, at: Instant, blob: String)
+
+    /** Closest blob for [subject] with `at <= threshold`, or `null` if none exist. */
+    public suspend fun latestBefore(subject: Name, threshold: Instant): String?
+
+    /** All retained blobs for [subject], oldest first. */
+    public fun list(subject: Name): Flow<String>
+
+    /** Remove blobs for [subject]; `null` [olderThan] deletes all, otherwise those with `at < olderThan`. */
+    public suspend fun delete(subject: Name, olderThan: Instant?)
+}
+
+/**
+ * [SnapshotStore] that persists entries as serialized rows in a durable [SnapshotBlobStore], using
+ * the same [krigStorageJson] line as the rest of krig storage. Pair this with the same backend that
+ * implements [space.kscience.krig.storage.journal.EventJournal] to keep events and snapshots durable
+ * together.
+ */
+public class SerializingSnapshotStore(
+    private val blobs: SnapshotBlobStore,
+    private val json: Json = krigStorageJson(),
+) : SnapshotStore {
+    override suspend fun save(snapshot: SnapshotEntry): Unit =
+        blobs.put(snapshot.subject, snapshot.at, json.encodeToString(SnapshotEntry.serializer(), snapshot))
+
+    override suspend fun latestBefore(subject: Name, threshold: Instant): SnapshotEntry? =
+        blobs.latestBefore(subject, threshold)?.let { json.decodeFromString(SnapshotEntry.serializer(), it) }
+
+    override fun read(subject: Name): Flow<SnapshotEntry> =
+        blobs.list(subject).map { json.decodeFromString(SnapshotEntry.serializer(), it) }
+
+    override suspend fun delete(subject: Name, olderThan: Instant?): Unit = blobs.delete(subject, olderThan)
+}
+
+/** CAS-backed in-memory [SnapshotBlobStore]; the reference durable medium for tests and embedding. */
+@ExperimentalKrigApi
+public class InMemorySnapshotBlobStore : SnapshotBlobStore {
+    private data class BlobRow(val at: Instant, val blob: String)
+
+    private val state: AtomicReference<Map<Name, List<BlobRow>>> = AtomicReference(emptyMap())
+
+    override suspend fun put(subject: Name, at: Instant, blob: String) {
+        state.update { prev ->
+            val priorList = prev[subject].orEmpty().filterNot { it.at == at }
+            prev + (subject to (priorList + BlobRow(at, blob)).sortedBy { it.at })
+        }
+    }
+
+    override suspend fun latestBefore(subject: Name, threshold: Instant): String? =
+        state.load()[subject]
+            ?.asReversed()
+            ?.firstOrNull { it.at <= threshold }
+            ?.blob
+
+    override fun list(subject: Name): Flow<String> =
+        state.load()[subject].orEmpty().map { it.blob }.asFlow()
 
     override suspend fun delete(subject: Name, olderThan: Instant?) {
         state.update { prev ->

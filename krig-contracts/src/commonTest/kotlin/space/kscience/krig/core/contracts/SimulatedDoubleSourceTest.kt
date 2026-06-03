@@ -7,8 +7,8 @@
 package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
+import space.kscience.krig.core.contracts.typed.TypedReader
+import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.double
 import kotlin.concurrent.atomics.AtomicInt
@@ -30,24 +30,24 @@ private fun freshContext(prefix: String): Context = Context("$prefix-${contextSe
 class SimulatedDoubleSourceTest {
 
     @Test
-    fun typedReaderReturnsGenericTypedReader() = runTest {
+    fun typedReaderReturnsTypedReader() = runTest {
         val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
         val reader = device.reader(device.valueSpec)
-        assertIs<GenericTypedReader<Double>>(reader)
+        assertIs<TypedReader<Double>>(reader)
     }
 
     @Test
-    fun typedWriterReturnsGenericTypedWriter() = runTest {
+    fun typedWriterReturnsTypedWriter() = runTest {
         val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
         val writer = device.writer(device.valueSpec)
-        assertIs<GenericTypedWriter<Double>>(writer)
+        assertIs<TypedWriter<Double>>(writer)
     }
 
     @Test
     fun typedAndMetaPathsShareTheSameCell() = runTest {
         val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
-        val writer = device.writer(device.valueSpec) as GenericTypedWriter<Double>
-        val reader = device.reader(device.valueSpec) as GenericTypedReader<Double>
+        val writer = device.writer(device.valueSpec)
+        val reader = device.reader(device.valueSpec)
 
         // Write via typed path, read via Meta path.
         writer.write(42.0)

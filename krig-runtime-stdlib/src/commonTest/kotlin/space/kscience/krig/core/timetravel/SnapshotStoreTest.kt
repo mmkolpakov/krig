@@ -89,8 +89,38 @@ class SnapshotStoreTest {
     }
 
     @Test
+    fun serializingStoreSurvivesRebindToSameBlobMedium() = runTest {
+        val dev = "dev".asName()
+        val blobs = InMemorySnapshotBlobStore()
+        SerializingSnapshotStore(blobs).apply {
+            save(dev, snap(atMs = 100, value = 1))
+            save(dev, snap(atMs = 200, value = 2))
+        }
+
+        // A fresh store over the same durable medium recovers the persisted snapshots.
+        val reopened = SerializingSnapshotStore(blobs)
+        assertEquals(2, reopened.latestSnapshotBefore(dev, Instant.fromEpochMilliseconds(250))?.state?.int)
+        assertNull(reopened.latestSnapshotBefore(dev, Instant.fromEpochMilliseconds(50)))
+    }
+
+    @Test
+    fun serializingStoreOverwritesAndDeletesByInstant() = runTest {
+        val dev = "dev".asName()
+        val store = SerializingSnapshotStore(InMemorySnapshotBlobStore())
+        store.save(dev, snap(atMs = 100, value = 1))
+        store.save(dev, snap(atMs = 100, value = 42))
+        store.save(dev, snap(atMs = 200, value = 2))
+
+        assertEquals(42, store.latestSnapshotBefore(dev, Instant.fromEpochMilliseconds(150))?.state?.int)
+
+        store.delete(dev, olderThan = Instant.fromEpochMilliseconds(200))
+        assertNull(store.latestSnapshotBefore(dev, Instant.fromEpochMilliseconds(199)))
+        assertEquals(2, store.latestSnapshotBefore(dev, Instant.fromEpochMilliseconds(250))?.state?.int)
+    }
+
+    @Test
     fun snapshotCodecMigratesStoredEntry() {
-        val oldSchema = SnapshotSchema("demo.snapshot.v0")
+        val oldSchema = StorageSchema("demo.snapshot.v0")
         val migration: SnapshotMigration = { entry ->
             if (entry.schema == oldSchema) {
                 entry.copy(state = Meta(11.asValue()))

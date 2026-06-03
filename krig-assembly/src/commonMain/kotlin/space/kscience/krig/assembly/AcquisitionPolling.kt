@@ -6,36 +6,46 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withTimeout
 import kotlinx.io.IOException
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import space.kscience.dataforge.meta.Meta
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.DefaultQualityPolicy
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.data.QualityPolicy
 import space.kscience.krig.api.data.QualityNamespaces
+import space.kscience.krig.api.data.QualityPolicy
+import space.kscience.krig.api.data.toDataQuality
+import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.fail
-import space.kscience.krig.api.data.toDataQuality
+import space.kscience.krig.core.contracts.Device
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Protocol-neutral reader used by external acquisition integrations. The SDK owns
- * scheduling and mapping; the integration owns connector state and address syntax.
+ * Reads every tag of one source in a single batch, keyed by [AcquisitionTagSpec.id]. This is the
+ * canonical integration point: connectors that read several addresses at once (device trees, batch
+ * PLCs) keep that efficiency, while simpler per-address connectors adapt through [bySource].
  */
+public fun interface AcquisitionSourceReader {
+    public suspend fun readSource(
+        source: AcquisitionSourceSpec,
+        tags: List<AcquisitionTagSpec>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>>
+}
+
+/** Reads one tag at a time. Use when a connector has no batch surface. */
 public fun interface AcquisitionTagReader {
     public suspend fun read(tag: AcquisitionTagSpec): OperationOutcome<ObservedValue<Meta?>>
 }
 
 /**
- * Builds an [AcquisitionTagReader] for integrations that can return a [Meta] sample
- * directly. Use the function interface when the adapter owns protocol-level quality
- * or needs to return [OperationOutcome.Fail][OperationOutcome.Fail].
+ * Builds an [AcquisitionTagReader] for integrations returning a [Meta] sample directly. Use the
+ * interface when the adapter owns protocol-level quality or returns [OperationOutcome.Fail].
  */
 public fun acquisitionTagReader(
     clock: Clock = Clock.System,
@@ -52,13 +62,40 @@ public fun observedAcquisitionTagReader(
     OperationOutcome.Ok(read(tag))
 }
 
-/** One polling result for a configured acquisition tag. */
-public data class AcquisitionObservation(
-    public val tag: AcquisitionTagSpec,
-    public val observed: ObservedValue<Meta?>,
-    public val fault: OperationFault? = null,
-) {
-    public val isOk: Boolean get() = fault == null
+/** Adapts a per-tag reader to the batch surface, honouring each tag's [timeoutMs][AcquisitionTagSpec.timeoutMs]. */
+public fun AcquisitionTagReader.bySource(): AcquisitionSourceReader =
+    AcquisitionSourceReader { _, tags -> tags.associate { tag -> tag.id to readWithTimeout(tag) } }
+
+/** Dispatches each source to the reader registered for its [connector][AcquisitionSourceSpec.connector]. */
+public fun connectorAcquisitionReader(
+    readers: Map<Name, AcquisitionSourceReader>,
+): AcquisitionSourceReader = AcquisitionSourceReader { source, tags ->
+    val reader = readers[source.connector]
+        ?: error("No acquisition reader registered for connector '${source.connector}'.")
+    reader.readSource(source, tags)
+}
+
+/**
+ * Reader for [AcquisitionConnectors.KrigDevice] sources: resolves the device by source id and reads
+ * the tagged properties in one [readBatchOutcome][Device.readBatchOutcome] call.
+ */
+public fun deviceTreeAcquisitionReader(
+    devices: Map<Name, Device>,
+): AcquisitionSourceReader = AcquisitionSourceReader { source, tags ->
+    val device = devices[source.id]
+        ?: return@AcquisitionSourceReader tags.failAll(
+            GenericOperationFault(message = "Unknown device-tree source '${source.id}'."),
+        )
+    val outcomes = device.readBatchOutcome(tags.map { it.address.asName() })
+    tags.associate { tag ->
+        tag.id to (
+            outcomes[tag.address.asName()] ?: fail(
+                GenericOperationFault(
+                    message = "Device '${source.id}' did not return property '${tag.address}'.",
+                ),
+            )
+            )
+    }
 }
 
 /** Resolves the configured tags sampled by [timerId], preserving timer order. */
@@ -75,60 +112,87 @@ public fun DataAcquisitionConfiguration.tagsForTimer(timerId: String): List<Acqu
     tagsForTimer(timerId.asName())
 
 /**
- * Polls all tags attached to [timerId] whenever [ticks] emits. Timeouts declared
- * on [AcquisitionTagSpec.timeoutMs] become degraded observations instead of
- * cancelling the whole polling loop. Parent cancellation still propagates.
+ * Polls every tag attached to [timerId] whenever [ticks] emits, grouped per source so batch-capable
+ * connectors read once per tick. Tag faults and source failures become degraded observations rather
+ * than cancelling the loop; parent cancellation still propagates. Emission preserves timer order.
  */
 public fun DataAcquisitionConfiguration.pollTimer(
     timerId: Name,
     ticks: Flow<Unit>,
+    reader: AcquisitionSourceReader,
     clock: Clock = Clock.System,
-    reader: AcquisitionTagReader,
     qualityPolicy: QualityPolicy = DefaultQualityPolicy,
-): Flow<AcquisitionObservation> {
+): Flow<SamplingObservation<AcquisitionTagSpec>> {
     val timerTags = tagsForTimer(timerId)
+    val sourcesById = sources.associateBy { it.id }
     return ticks.transform {
-        for (tag in timerTags) {
-            emit(reader.observe(tag, clock, qualityPolicy))
+        val byTagId = LinkedHashMap<Name, SamplingObservation<AcquisitionTagSpec>>(timerTags.size)
+        for ((sourceId, sourceTags) in timerTags.groupBy { it.sourceId }) {
+            val source = sourcesById[sourceId]
+                ?: error("Acquisition timer '$timerId' references unknown source '$sourceId'.")
+            val outcomes = reader.readSourceCatching(source, sourceTags)
+            sourceTags.forEach { tag -> byTagId[tag.id] = tag.toObservation(outcomes[tag.id], clock, qualityPolicy) }
         }
+        timerTags.forEach { tag -> emit(byTagId.getValue(tag.id)) }
     }
 }
 
 public fun DataAcquisitionConfiguration.pollTimer(
     timerId: String,
     ticks: Flow<Unit>,
+    reader: AcquisitionSourceReader,
     clock: Clock = Clock.System,
-    reader: AcquisitionTagReader,
     qualityPolicy: QualityPolicy = DefaultQualityPolicy,
-): Flow<AcquisitionObservation> = pollTimer(timerId.asName(), ticks, clock, reader, qualityPolicy)
+): Flow<SamplingObservation<AcquisitionTagSpec>> =
+    pollTimer(timerId.asName(), ticks, reader, clock, qualityPolicy)
 
-private suspend fun AcquisitionTagReader.observe(
-    tag: AcquisitionTagSpec,
-    clock: Clock,
-    qualityPolicy: QualityPolicy,
-): AcquisitionObservation = when (val outcome = readWithTimeout(tag)) {
-    is OperationOutcome.Ok -> AcquisitionObservation(
-        tag = tag,
-        observed = outcome.value,
-    )
-    is OperationOutcome.Fail -> AcquisitionObservation(
-        tag = tag,
-        observed = ObservedValue(
-            value = null,
-            time = clock.now(),
-            quality = outcome.fault.toDataQuality(QualityNamespaces.Acquisition, qualityPolicy),
+public fun DataAcquisitionConfiguration.pollTimer(
+    timerId: Name,
+    ticks: Flow<Unit>,
+    reader: AcquisitionTagReader,
+    clock: Clock = Clock.System,
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
+): Flow<SamplingObservation<AcquisitionTagSpec>> =
+    pollTimer(timerId, ticks, reader.bySource(), clock, qualityPolicy)
+
+public fun DataAcquisitionConfiguration.pollTimer(
+    timerId: String,
+    ticks: Flow<Unit>,
+    reader: AcquisitionTagReader,
+    clock: Clock = Clock.System,
+    qualityPolicy: QualityPolicy = DefaultQualityPolicy,
+): Flow<SamplingObservation<AcquisitionTagSpec>> =
+    pollTimer(timerId.asName(), ticks, reader.bySource(), clock, qualityPolicy)
+
+private suspend fun AcquisitionSourceReader.readSourceCatching(
+    source: AcquisitionSourceSpec,
+    tags: List<AcquisitionTagSpec>,
+): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = try {
+    readSource(source, tags)
+} catch (e: CancellationException) {
+    throw e
+} catch (e: OperationFaultException) {
+    tags.failAll(e.fault)
+} catch (e: IOException) {
+    tags.failAll(
+        TransportFault(
+            causeType = e::class.simpleName ?: "IOException",
+            message = e.message ?: "I/O failure while sampling acquisition source '${source.id}'.",
         ),
-        fault = outcome.fault,
+    )
+} catch (e: RuntimeException) {
+    tags.failAll(
+        GenericOperationFault(
+            message = e.message ?: "Runtime failure while sampling acquisition source '${source.id}'.",
+        ),
     )
 }
 
-private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec): OperationOutcome<ObservedValue<Meta?>> = try {
+private suspend fun AcquisitionTagReader.readWithTimeout(
+    tag: AcquisitionTagSpec,
+): OperationOutcome<ObservedValue<Meta?>> = try {
     val timeoutMs = tag.timeoutMs
-    if (timeoutMs == null) {
-        read(tag)
-    } else {
-        withTimeout(timeoutMs.milliseconds) { read(tag) }
-    }
+    if (timeoutMs == null) read(tag) else withTimeout(timeoutMs.milliseconds) { read(tag) }
 } catch (_: TimeoutCancellationException) {
     fail(TimeoutFault())
 } catch (e: CancellationException) {
@@ -140,6 +204,38 @@ private suspend fun AcquisitionTagReader.readWithTimeout(tag: AcquisitionTagSpec
         TransportFault(
             causeType = e::class.simpleName ?: "IOException",
             message = e.message ?: "I/O failure while reading acquisition tag '${tag.id}'.",
-        )
+        ),
     )
 }
+
+private fun AcquisitionTagSpec.toObservation(
+    outcome: OperationOutcome<ObservedValue<Meta?>>?,
+    clock: Clock,
+    qualityPolicy: QualityPolicy,
+): SamplingObservation<AcquisitionTagSpec> = when (outcome) {
+    is OperationOutcome.Ok -> SamplingObservation(spec = this, observed = outcome.value)
+    is OperationOutcome.Fail -> failed(clock, outcome.fault, qualityPolicy)
+    null -> failed(
+        clock,
+        GenericOperationFault(message = "No acquisition reader produced a result for tag '$id'."),
+        qualityPolicy,
+    )
+}
+
+private fun AcquisitionTagSpec.failed(
+    clock: Clock,
+    fault: OperationFault,
+    qualityPolicy: QualityPolicy,
+): SamplingObservation<AcquisitionTagSpec> = SamplingObservation(
+    spec = this,
+    observed = ObservedValue(
+        value = null,
+        time = clock.now(),
+        quality = fault.toDataQuality(QualityNamespaces.Acquisition, qualityPolicy),
+    ),
+    fault = fault,
+)
+
+private fun List<AcquisitionTagSpec>.failAll(
+    fault: OperationFault,
+): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = associate { it.id to fail(fault) }

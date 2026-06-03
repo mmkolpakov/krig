@@ -33,9 +33,6 @@ import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
-import space.kscience.krig.core.contracts.typed.DoubleSampler
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -82,7 +79,7 @@ private class CountingPipelineDevice : AbstractDevice(
     @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> {
         readerBuilds.incrementAndGet()
-        return GenericTypedReader {
+        return TypedReader {
             readCalls.incrementAndGet()
             42.0 as T
         }
@@ -91,7 +88,7 @@ private class CountingPipelineDevice : AbstractDevice(
     @Suppress("UNCHECKED_CAST")
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> {
         writerBuilds.incrementAndGet()
-        return GenericTypedWriter {
+        return TypedWriter {
             writeCalls.incrementAndGet()
         }
     }
@@ -166,7 +163,7 @@ private class BadEncodeDevice : AbstractDevice(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        GenericTypedReader { 1.0 as T }
+        TypedReader { 1.0 as T }
 
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         OperationOutcome.Ok(Meta.EMPTY)
@@ -197,7 +194,7 @@ private class CancellableControlPlaneDevice : AbstractDevice(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        GenericTypedReader {
+        TypedReader {
             readStarted.complete(Unit)
             never.await()
             1.0 as T
@@ -269,7 +266,7 @@ class PipelineDeviceCacheTest {
         val delegate = CountingPipelineDevice()
         val device = PipelineDevice(delegate = delegate)
 
-        val sampler = assertIs<DoubleSampler>(device.sampler(delegate.valueSpec))
+        val sampler = assertIs<RingDoubleSampler>(device.sampler(delegate.valueSpec))
         sampler.publishDouble(7.0)
 
         assertEquals(7.0, sampler.latestDoubleOrNaN())

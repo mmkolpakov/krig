@@ -16,4 +16,7 @@ public object ControlsPermissions {
 
     public fun deviceSubscribe(device: String): ControlsPermission =
         ControlsPermission.DeviceSubscribe(device)
+
+    public fun deviceSubscribe(device: String, property: String): ControlsPermission =
+        ControlsPermission.DevicePropertySubscribe(device, property)
 }

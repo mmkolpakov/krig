@@ -3,7 +3,13 @@
 import kotlinx.coroutines.flow.Flow
 import space.kscience.attributes.SafeType
 
-/** Streaming view of a typed property. */
+/**
+ * Streaming view of a typed property — the generic data-plane contract a device exposes.
+ *
+ * Unboxed access is a property of the concrete implementation, not of this interface: a primitive
+ * ring sampler (`RingDoubleSampler` / `RingIntSampler` / `RingLongSampler`) is reached by casting,
+ * mirroring how KMath exposes `Buffer<T>` and lets callers narrow to `Float64Buffer` for unboxed work.
+ */
 public interface TypedSampler<T> {
     public val type: SafeType<T>
     public val capacity: Int
@@ -19,22 +25,4 @@ public interface TypedSampler<T> {
 
     /** Cold flow that emits each newly published value; back-pressure handled by the sampler. */
     public fun flow(): Flow<T>
-}
-
-/** Marker for primitive or value-class sampler specialisations. */
-public interface PrimitiveTypedSampler<T> : TypedSampler<T>
-
-/** Primitive double sampler with unboxed latest/snapshot access for hot data-plane reads. */
-public interface DoubleSampler : PrimitiveTypedSampler<Double> {
-    public val hasLatest: Boolean
-
-    public fun publishDouble(value: Double)
-    public fun latestDoubleOrNaN(): Double
-    public fun latestDoubleOr(default: Double): Double =
-        if (hasLatest) latestDoubleOrNaN() else default
-
-    public fun snapshotDoubleArray(): DoubleArray
-
-    override fun latest(): Double? = if (hasLatest) latestDoubleOrNaN() else null
-    override fun snapshot(): List<Double> = snapshotDoubleArray().asList()
 }

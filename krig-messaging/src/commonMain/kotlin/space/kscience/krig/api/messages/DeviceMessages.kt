@@ -6,9 +6,9 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFault
-import space.kscience.krig.api.faults.SerializableOperationFailure
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.asName
 import kotlin.time.Instant
 
 /**
@@ -31,34 +31,33 @@ public data class PropertyChangedMessage(
 }
 
 /**
- * Indicates that an error occurred.
+ * The single fault carrier on the control plane — replaces the former device/action/property fault
+ * trio. The structured [fault] is the typed value-add; [scope] is loose DataForge [Meta] for optional
+ * routing context (originating property/action, request correlation hint). Adapt a raw throwable with
+ * `Throwable.toOperationFault`.
+ *
+ * Request/response correlation travels on the envelope ([MessageContext]), so a fault does not need a
+ * dedicated response subtype; build scope with [FaultScope] keys when the producer knows the origin.
  */
 @Serializable
-@SerialName(DeviceMessageType.DeviceError)
-public data class DeviceErrorMessage(
-    override val time: Instant,
-    public val failure: SerializableOperationFailure,
-    override val sourceDevice: Name,
-    override val targetDevice: Name? = null,
-) : DeviceMessage {
-    override val messageType: String get() = DeviceMessageType.DeviceError
-
-    override fun changeSource(block: (Name) -> Name): DeviceErrorMessage =
-        copy(sourceDevice = block(sourceDevice))
-}
-
-@Serializable
-@SerialName(DeviceMessageType.ActionFault)
-public data class ActionFaultMessage(
+@SerialName(DeviceMessageType.Fault)
+public data class FaultMessage(
     override val time: Instant,
     public val fault: OperationFault,
     override val sourceDevice: Name,
     override val targetDevice: Name? = null,
-) : ResponseMessage {
-    override val messageType: String get() = DeviceMessageType.ActionFault
+    public val scope: Meta = Meta.EMPTY,
+) : DeviceMessage {
+    override val messageType: String get() = DeviceMessageType.Fault
 
-    override fun changeSource(block: (Name) -> Name): ActionFaultMessage =
+    override fun changeSource(block: (Name) -> Name): FaultMessage =
         copy(sourceDevice = block(sourceDevice))
+}
+
+/** Conventional [FaultMessage.scope] keys for fault origin context. */
+public object FaultScope {
+    public val PROPERTY: Name = "property".asName()
+    public val ACTION: Name = "action".asName()
 }
 
 /**
@@ -99,14 +98,14 @@ public data class DeviceDetachedMessage(
 
 /**
  * Client-initiated request to read a property. Counterpart to the device-emitted
- * [PropertyChangedMessage] notification. Answered with [PropertyReadResponse] or
- * [PropertyFaultMessage].
+ * [PropertyChangedMessage] notification. Answered with [PropertyReadResponse] or a
+ * [FaultMessage].
  */
 @Serializable
 @SerialName(DeviceMessageType.PropertyReadRequest)
 public data class PropertyReadRequest(
     override val time: Instant,
-    public val property: String,
+    public val property: Name,
     public val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
@@ -125,7 +124,7 @@ public data class PropertyReadRequest(
 @SerialName(DeviceMessageType.PropertyReadResponse)
 public data class PropertyReadResponse(
     override val time: Instant,
-    public val property: String,
+    public val property: Name,
     public val value: Meta,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
@@ -142,7 +141,7 @@ public data class PropertyReadResponse(
 @SerialName(DeviceMessageType.PropertyWriteRequest)
 public data class PropertyWriteRequest(
     override val time: Instant,
-    public val property: String,
+    public val property: Name,
     public val value: Meta,
     public val callerIdentity: String? = null,
     override val sourceDevice: Name?,
@@ -162,7 +161,7 @@ public data class PropertyWriteRequest(
 @SerialName(DeviceMessageType.PropertyWriteResponse)
 public data class PropertyWriteResponse(
     override val time: Instant,
-    public val property: String,
+    public val property: Name,
     public val observedValue: Meta? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
@@ -172,22 +171,6 @@ public data class PropertyWriteResponse(
 
     override fun changeSource(block: (Name) -> Name): PropertyWriteResponse =
         copy(sourceDevice = sourceDevice?.let(block))
-}
-
-/** Fault response to [PropertyReadRequest] / [PropertyWriteRequest]. Mirrors [ActionFaultMessage]. */
-@Serializable
-@SerialName(DeviceMessageType.PropertyFault)
-public data class PropertyFaultMessage(
-    override val time: Instant,
-    public val property: String,
-    public val fault: OperationFault,
-    override val sourceDevice: Name,
-    override val targetDevice: Name? = null,
-) : ResponseMessage {
-    override val messageType: String get() = DeviceMessageType.PropertyFault
-
-    override fun changeSource(block: (Name) -> Name): PropertyFaultMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /**

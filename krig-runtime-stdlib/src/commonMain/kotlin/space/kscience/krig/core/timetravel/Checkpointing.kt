@@ -11,14 +11,14 @@ import kotlinx.coroutines.flow.onEach
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import kotlin.time.Clock
 import kotlin.time.Duration
 
 public class CheckpointContext(
     public val reconstructible: Reconstructible,
     public val subject: Name,
-    public val messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>,
+    public val messageFlow: Flow<DeviceMessageFrame<DeviceMessage>>,
     public val snapshotStore: SnapshotStore,
     public val scope: CoroutineScope,
     public val clock: Clock,
@@ -80,7 +80,7 @@ public fun interface CheckpointStrategy {
  */
 public fun Reconstructible.runCheckpointing(
     subject: Name,
-    messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>>,
+    messageFlow: Flow<DeviceMessageFrame<DeviceMessage>>,
     snapshotStore: SnapshotStore,
     strategy: CheckpointStrategy,
     scope: CoroutineScope,

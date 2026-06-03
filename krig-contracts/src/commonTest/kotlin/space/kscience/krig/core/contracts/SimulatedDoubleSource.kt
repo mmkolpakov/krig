@@ -9,8 +9,6 @@ package space.kscience.krig.core.contracts
 import kotlinx.atomicfu.atomic
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.typed.GenericTypedReader
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -61,12 +59,12 @@ class SimulatedDoubleSource(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
-        if (spec === valueSpec) GenericTypedReader { cell.value } as TypedReader<T>
+        if (spec === valueSpec) TypedReader { cell.value } as TypedReader<T>
         else super.reader(spec)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
-        if (spec === valueSpec) GenericTypedWriter<Double> { v ->
+        if (spec === valueSpec) TypedWriter<Double> { v ->
             cell.value = v
             valueSampler.publishDouble(v)
         } as TypedWriter<T>

@@ -2,14 +2,14 @@
 
 /**
  * Transport-level state of a device backend. Orthogonal to [LifecycleState]:
- * a `Running` device may have a `Disconnected` transport during a network partition.
- * Protocol adapters add their own states via [SerializationContributor][space.kscience.krig.api.serialization.SerializationContributor].
+ * a `Running` device may be `Disconnected` during a network partition. Closed vocabulary —
+ * transport semantics are universal, so exhaustiveness is preferred over extension.
  */
-public sealed interface ConnectionState {
-    public data object Connected : ConnectionState
+public enum class ConnectionState {
+    Connected,
 
     /** Transport is down; reads may return stale cached data. */
-    public data object Disconnected : ConnectionState
+    Disconnected,
 
-    public data object Connecting : ConnectionState
+    Connecting,
 }

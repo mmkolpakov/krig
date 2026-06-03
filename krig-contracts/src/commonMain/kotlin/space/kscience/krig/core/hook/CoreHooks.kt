@@ -8,6 +8,3 @@ public object DeviceAttached : Hook<suspend (Name, Device) -> Unit>
 
 /** Fired before a device is detached from a hub. */
 public object DeviceDetached : Hook<suspend (Name, Device) -> Unit>
-
-/** Fired at the head of the read pipeline before any interceptor runs. */
-public object PropertyReadRequested : Hook<suspend (Name) -> Unit>

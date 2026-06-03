@@ -14,8 +14,8 @@ import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.core.contracts.sampling.requireDoubleSampler
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.dsl.device
-import space.kscience.krig.dsl.sampleWithHold
-import space.kscience.krig.dsl.sharedTicks
+import space.kscience.krig.core.operations.sampleWithHold
+import space.kscience.krig.core.operations.sharedTicks
 import space.kscience.krig.dsl.typedSamples
 
 /**

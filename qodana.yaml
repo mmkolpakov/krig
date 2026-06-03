@@ -27,6 +27,8 @@ exclude:
       - build
       - buildSrc/build
       - krig-assembly/build
+      - krig-arrow/build
+      - krig-benchmarks/build
       - krig-contracts/build
       - krig-demo/build
       - krig-identity/build
@@ -36,6 +38,7 @@ exclude:
       - krig-magix/build
       - krig-messaging/build
       - krig-model/build
+      - krig-operation/build
       - krig-runtime-stdlib/build
       - krig-runtime/build
       - krig-simulation/build

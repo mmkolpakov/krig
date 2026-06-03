@@ -17,6 +17,14 @@ application {
 }
 
 benchmark {
+    configurations {
+        named("main") {
+            warmups = 2
+            iterations = 3
+            iterationTime = 1
+            iterationTimeUnit = "s"
+        }
+    }
     targets {
         register("main")
     }
@@ -34,7 +42,10 @@ dependencies {
     implementation(project(":krig-operation"))
     implementation(project(":krig-runtime"))
     implementation(project(":krig-runtime-stdlib"))
+    implementation(project(":krig-assembly"))
+    implementation(project(":krig-simulation"))
     implementation(project(":krig-storage"))
+    implementation(project(":krig-arrow"))
     implementation(libs.dataforge.meta)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.benchmark.runtime)

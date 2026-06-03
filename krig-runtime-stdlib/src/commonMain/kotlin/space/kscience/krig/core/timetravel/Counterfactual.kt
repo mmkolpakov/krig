@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.transformWhile
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.storage.journal.CursorReplayLog
+import space.kscience.krig.storage.journal.EventCursor
+import space.kscience.krig.storage.journal.ReplayLog
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import kotlin.time.Instant

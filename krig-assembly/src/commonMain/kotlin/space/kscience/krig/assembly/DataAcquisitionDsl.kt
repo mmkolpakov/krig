@@ -42,6 +42,13 @@ public class DataAcquisitionBuilder internal constructor() {
 
     @IgnorableReturnValue
     public fun source(
+        id: String,
+        connector: Name,
+        config: Meta = Meta.EMPTY,
+    ): AcquisitionSourceSpec = source(id.asName(), connector, config)
+
+    @IgnorableReturnValue
+    public fun source(
         id: Name,
         connector: Name,
         block: MutableMeta.() -> Unit,
@@ -103,6 +110,7 @@ public class DataAcquisitionBuilder internal constructor() {
             valueTypeId: String = space.kscience.krig.api.descriptors.TypeIds.META,
             timeout: Duration? = null,
             bufferCapacity: Int = 1024,
+            reduction: ReductionSpec = ReductionSpec.Last,
         ): AcquisitionTagBinding = this@DataAcquisitionBuilder.AcquisitionTagBinding(
             this@DataAcquisitionBuilder.appendTag(
                 AcquisitionTagSpec(
@@ -112,6 +120,7 @@ public class DataAcquisitionBuilder internal constructor() {
                     valueTypeId = valueTypeId,
                     timeoutMs = timeout?.inWholeMilliseconds,
                     bufferCapacity = bufferCapacity,
+                    reduction = reduction,
                 ),
             ),
         )
@@ -123,7 +132,8 @@ public class DataAcquisitionBuilder internal constructor() {
             valueTypeId: String = space.kscience.krig.api.descriptors.TypeIds.META,
             timeout: Duration? = null,
             bufferCapacity: Int = 1024,
-        ): AcquisitionTagBinding = from(sourceId.asName(), address, valueTypeId, timeout, bufferCapacity)
+            reduction: ReductionSpec = ReductionSpec.Last,
+        ): AcquisitionTagBinding = from(sourceId.asName(), address, valueTypeId, timeout, bufferCapacity, reduction)
     }
 
     /** Fluent continuation returned by [AcquisitionTagHandle.from]. */

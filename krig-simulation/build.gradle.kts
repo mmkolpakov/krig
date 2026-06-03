@@ -11,7 +11,6 @@ kotlin {
             dependencies {
                 api(project(":krig-contracts"))
                 api(project(":krig-runtime-stdlib"))
-                api(project(":krig-runtime"))
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)
                 implementation(libs.kotlinx.atomicfu)

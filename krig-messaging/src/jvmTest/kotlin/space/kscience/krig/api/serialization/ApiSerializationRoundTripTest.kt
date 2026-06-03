@@ -1,7 +1,11 @@
 package space.kscience.krig.api.serialization
 
 import kotlinx.serialization.json.Json
+import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.features.MetadataFeature
 import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.hub.HubEvent
@@ -17,6 +21,7 @@ import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.time.Instant
 
 /**
@@ -123,7 +128,7 @@ class ApiSerializationRoundTripTest {
         roundTrip<DeviceMessage>(
             PropertyReadResponse(
                 time = Instant.fromEpochMilliseconds(3),
-                property = "temperature",
+                property = "temperature".asName(),
                 value = MetaConverter.double.convert(273.15),
                 sourceDevice = "lab.sensor".asName(),
                 targetDevice = "client".asName(),
@@ -133,11 +138,21 @@ class ApiSerializationRoundTripTest {
     }
 
     @Test
+    fun unknownFaultTypeDegradesToGeneric() {
+        val encoded = json.encodeToString<OperationFault>(ValidationFault(details = Meta.EMPTY, message = "bad range"))
+        // Simulate a peer on a newer version emitting a faultType this build does not know.
+        val fromFuture = encoded.replace("fault.validation", "fault.vendor.future")
+        val decoded = json.decodeFromString<OperationFault>(fromFuture)
+        assertIs<GenericOperationFault>(decoded)
+        assertEquals("bad range", decoded.message)
+    }
+
+    @Test
     fun propertyWriteResponsePreservesObservedQuality() {
         roundTrip<DeviceMessage>(
             PropertyWriteResponse(
                 time = Instant.fromEpochMilliseconds(4),
-                property = "setpoint",
+                property = "setpoint".asName(),
                 observedValue = MetaConverter.double.convert(42.0),
                 sourceDevice = "lab.sensor".asName(),
                 targetDevice = "client".asName(),

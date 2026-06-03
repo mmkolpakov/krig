@@ -4,6 +4,7 @@ kotlin = "2.4.0-RC2"
 # Core runtime
 atomicfu = "0.32.1"
 dataforge = "0.11.0-dev-2"
+kmath = "0.5.0"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.10.0"
 kotlinx-io-core = "0.9.0"
@@ -33,6 +34,9 @@ dokka = "2.2.0"
 # Benchmarking
 kotlinx-benchmark = "0.4.17"
 
+# Analytics interop (JVM-only): Apache Arrow Java for Arrow IPC / Feather V2 export
+arrow = "18.3.0"
+
 # Jupyter
 kotlin-jupyter = "0.19.0-937-1"
 
@@ -48,6 +52,11 @@ dataforge-meta = { module = "space.kscience:dataforge-meta", version.ref = "data
 dataforge-context = { module = "space.kscience:dataforge-context", version.ref = "dataforge" }
 dataforge-data = { module = "space.kscience:dataforge-data", version.ref = "dataforge" }
 tables-kt = { module = "space.kscience:tables-kt", version.ref = "dataforge" }
+
+# KMath (numeric Data Plane: typed buffers / SoA structures / algebras)
+kmath-core = { module = "space.kscience:kmath-core", version.ref = "kmath" }
+kmath-coroutines = { module = "space.kscience:kmath-coroutines", version.ref = "kmath" }
+kmath-functions = { module = "space.kscience:kmath-functions", version.ref = "kmath" }
 
 # kscience
 attributes-kt = { module = "space.kscience:attributes-kt", version.ref = "attributes-kt" }
@@ -81,6 +90,11 @@ testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
 exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed" }
+
+# Apache Arrow (JVM-only, krig-arrow)
+arrow-vector = { module = "org.apache.arrow:arrow-vector", version.ref = "arrow" }
+arrow-memory-netty = { module = "org.apache.arrow:arrow-memory-netty", version.ref = "arrow" }
+arrow-compression = { module = "org.apache.arrow:arrow-compression", version.ref = "arrow" }
 
 # Testing
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }

@@ -22,7 +22,6 @@ public object OperationKinds {
     public val Read: OperationKind = OperationKind("read".asName())
     public val Write: OperationKind = OperationKind("write".asName())
     public val Action: OperationKind = OperationKind("action".asName())
-    public val Poll: OperationKind = OperationKind("poll".asName())
 }
 
 /** Standard operation names for synthetic pipeline invocations. */

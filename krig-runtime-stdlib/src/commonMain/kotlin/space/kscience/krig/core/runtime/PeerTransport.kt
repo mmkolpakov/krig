@@ -16,9 +16,10 @@ public value class PeerRoute(public val name: Name)
  * abstraction implemented in transport-adapter modules. Distinct from pub/sub bus
  * transports — this is direct device-to-device.
  *
- * The three primitives map directly to RSocket semantics (request-response, request-stream,
- * fire-and-forget) and also ride cleanly on gRPC (unary, server-streaming, one-way),
- * kotlinx-rpc and NATS.
+ * The four primitives map directly to RSocket semantics (request-response, request-stream,
+ * request-channel, fire-and-forget) and also ride cleanly on gRPC (unary, server-streaming,
+ * bidi-streaming, one-way), kotlinx-rpc (`suspend (Req) -> Resp`, `(Req) -> Flow<Resp>`,
+ * `(Flow<Req>) -> Flow<Resp>`) and NATS.
  */
 public interface PeerTransport : AutoCloseable {
     /** Stable peer identifier — typically `scheme://host:port/deviceId`. */
@@ -29,6 +30,13 @@ public interface PeerTransport : AutoCloseable {
 
     /** Hot server-push flow — basis for live message streaming. */
     public fun requestStream(route: PeerRoute): Flow<Binary>
+
+    /**
+     * Bidirectional stream: outbound [payloads] and inbound responses interleave over one channel.
+     * Basis for duplex sessions (live control + telemetry). Maps to RSocket request-channel, gRPC
+     * bidi-streaming, and kotlinx-rpc `(Flow<Req>) -> Flow<Resp>`.
+     */
+    public fun requestChannel(route: PeerRoute, payloads: Flow<Binary>): Flow<Binary>
 
     /** Fire-and-forget — basis for non-acked send. */
     public suspend fun fireAndForget(route: PeerRoute, payload: Binary)

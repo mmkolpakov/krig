@@ -15,12 +15,15 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.job
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.storage.journal.EventJournal
+import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.journal.ReplaySink
 import space.kscience.dataforge.names.Name
 
 /** Merge of [Device.controlFlow] and [Device.dataFlow]; the default source for [enableTimeTravel]. */
-public fun Device.defaultTimeTravelMessageFlow(): Flow<DeviceMessageEnvelope<DeviceMessage>> =
+public fun Device.defaultTimeTravelMessageFlow(): Flow<DeviceMessageFrame<DeviceMessage>> =
     merge(controlFlow, dataFlow)
 
 /**
@@ -38,7 +41,7 @@ public fun <D : Device> D.enableTimeTravel(
     snapshotStore: SnapshotStore,
     eventSink: ReplaySink,
     strategy: CheckpointStrategy,
-    messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>> = defaultTimeTravelMessageFlow(),
+    messageFlow: Flow<DeviceMessageFrame<DeviceMessage>> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
@@ -66,20 +69,20 @@ public fun <D : Device> D.enableTimeTravel(
     return supervisor
 }
 
-/** Overload that allocates a fresh [InMemoryReplayLog] and returns it alongside the [Job]. */
+/** Overload that allocates a fresh [InMemoryEventJournal] and returns it alongside the [Job]. */
 @ExperimentalTimeTravelApi
 public fun <D : Device> D.enableTimeTravel(
     reconstructible: DeviceReconstructible<D>,
     deviceName: Name,
     snapshotStore: SnapshotStore,
     strategy: CheckpointStrategy,
-    messageFlow: Flow<DeviceMessageEnvelope<DeviceMessage>> = defaultTimeTravelMessageFlow(),
+    messageFlow: Flow<DeviceMessageFrame<DeviceMessage>> = defaultTimeTravelMessageFlow(),
     scope: CoroutineScope = this.deviceScope,
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
     retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
-): Pair<Job, RecordingReplayLog> {
-    val store = InMemoryReplayLog()
+): Pair<Job, EventJournal> {
+    val store = InMemoryEventJournal()
     val job = enableTimeTravel(
         reconstructible = reconstructible,
         deviceName = deviceName,
@@ -98,20 +101,20 @@ public fun <D : Device> D.enableTimeTravel(
 // ── convenience: device.withTimeTravel(...) one-liner ──
 
 /**
- * Wires time-travel recording onto [this] device in one call — the returned
- * [Reconstructible] is backed by [replayLog] and [snapshotStore] so callers can
- * immediately call [Reconstructible.timeTravel] or [counterfactual].
+ * Wires time-travel recording onto [this] device in one call and returns a [TimeTravelSession]
+ * bound to [reconstructible], [replayLog], and [snapshotStore]. The session exposes replay,
+ * branching, and counterfactual navigation without re-threading those dependencies.
  *
  * ```
- * val tt = device.withTimeTravel(replayLog, snapshotStore)
- * tt.timeTravel(at, replayLog)
- * tt.counterfactual(replayLog, at, snapshot) { event -> /* mutate */ }
+ * val replay = device.withTimeTravel(reconstructible, replayLog, snapshotStore)
+ * replay.seek(at)
+ * replay.counterfactual(at) { event -> /* mutate */ }
  * ```
  */
 @ExperimentalTimeTravelApi
 public fun <D : Device> D.withTimeTravel(
     reconstructible: DeviceReconstructible<D>,
-    replayLog: RecordingReplayLog,
+    replayLog: EventJournal,
     snapshotStore: SnapshotStore = InMemorySnapshotStore(),
     deviceName: Name = this.name,
     strategy: CheckpointStrategy = CheckpointStrategy.manual,
@@ -119,7 +122,7 @@ public fun <D : Device> D.withTimeTravel(
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
     retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
-): Reconstructible {
+): TimeTravelSession {
     enableTimeTravel(
         reconstructible = reconstructible,
         deviceName = deviceName,
@@ -132,5 +135,11 @@ public fun <D : Device> D.withTimeTravel(
         snapshotCodec = snapshotCodec,
         retentionPolicy = retentionPolicy,
     ).let { }
-    return reconstructible
+    return TimeTravelSession(
+        model = reconstructible,
+        log = replayLog,
+        snapshotStore = snapshotStore,
+        deviceName = deviceName,
+        snapshotCodec = snapshotCodec,
+    )
 }

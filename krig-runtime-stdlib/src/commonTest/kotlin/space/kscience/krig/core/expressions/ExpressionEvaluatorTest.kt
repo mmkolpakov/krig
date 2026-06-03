@@ -31,9 +31,9 @@ import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.expressions.Binding
 import space.kscience.krig.api.expressions.NAry
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.frame
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.core.contracts.AbstractDevice
@@ -67,7 +67,7 @@ class ExpressionEvaluatorTest {
         name = "source".asName(),
         runtime = DeviceRuntime(Context("expression-quality")),
     ) {
-        private val messages = MutableSharedFlow<DeviceMessageEnvelope<DeviceMessage>>(replay = 1)
+        private val messages = MutableSharedFlow<DeviceMessageFrame<DeviceMessage>>(replay = 1)
 
         override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
             OperationOutcome.Ok(MetaConverter.double.convert(1.0))
@@ -77,7 +77,7 @@ class ExpressionEvaluatorTest {
 
         override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
             OperationOutcome.Ok(null)
-        override suspend fun subscribe(principal: Principal): Flow<DeviceMessageEnvelope<DeviceMessage>> = messages
+        override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = messages
 
         suspend fun publish(value: Double, quality: DataQuality) {
             messages.emit(
@@ -87,7 +87,7 @@ class ExpressionEvaluatorTest {
                     value = MetaConverter.double.convert(value),
                     sourceDevice = name,
                     quality = quality,
-                ).envelope()
+                ).frame()
             )
         }
     }
@@ -114,7 +114,7 @@ class ExpressionEvaluatorTest {
         override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
             OperationOutcome.Ok(null)
 
-        override suspend fun subscribe(principal: Principal): Flow<DeviceMessageEnvelope<DeviceMessage>> = emptyFlow()
+        override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = emptyFlow()
     }
 
     @Test

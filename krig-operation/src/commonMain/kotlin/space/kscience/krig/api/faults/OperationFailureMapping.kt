@@ -21,3 +21,20 @@ public fun Throwable.toSerializableOperationFailure(
         base
     }
 }
+
+/**
+ * Adapts a throwable to the canonical [OperationFault]. A structured fault from
+ * [OperationFaultException] passes through unchanged; any other throwable becomes a
+ * [GenericOperationFault] of type [OperationFaultTypes.System] with its cause captured in details.
+ */
+public fun Throwable.toOperationFault(): OperationFault = when (this) {
+    is OperationFaultException -> fault
+    else -> {
+        val text = message ?: this::class.simpleName ?: "error"
+        GenericOperationFault(
+            faultType = OperationFaultTypes.System,
+            message = text,
+            details = faultDetails(message = text, cause = this),
+        )
+    }
+}

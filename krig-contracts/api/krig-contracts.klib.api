@@ -1,5 +1,6 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Alias: native => [iosArm64, iosSimulatorArm64, iosX64, linuxX64, macosArm64, mingwX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -37,11 +38,19 @@ final enum class space.kscience.krig.api.annotations/EmissionStrategy : kotlin/E
     final fun values(): kotlin/Array<space.kscience.krig.api.annotations/EmissionStrategy> // space.kscience.krig.api.annotations/EmissionStrategy.values|values#static(){}[0]
 }
 
-abstract fun interface space.kscience.krig.core.hook/HookRegistration : kotlin/AutoCloseable // space.kscience.krig.core.hook/HookRegistration|null[0]
-
-abstract fun interface space.kscience.krig.core.pipeline/SamplingObserver { // space.kscience.krig.core.pipeline/SamplingObserver|null[0]
-    abstract suspend fun onSample(space.kscience.krig.core.meta/DevicePropertyContract<*>, kotlin/Any?, space.kscience.krig.api.faults/OperationFault?) // space.kscience.krig.core.pipeline/SamplingObserver.onSample|onSample(space.kscience.krig.core.meta.DevicePropertyContract<*>;kotlin.Any?;space.kscience.krig.api.faults.OperationFault?){}[0]
+abstract fun interface <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedAction { // space.kscience.krig.core.contracts.typed/TypedAction|null[0]
+    abstract suspend fun execute(#A): #B? // space.kscience.krig.core.contracts.typed/TypedAction.execute|execute(1:0){}[0]
 }
+
+abstract fun interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedReader { // space.kscience.krig.core.contracts.typed/TypedReader|null[0]
+    abstract suspend fun read(): #A // space.kscience.krig.core.contracts.typed/TypedReader.read|read(){}[0]
+}
+
+abstract fun interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedWriter { // space.kscience.krig.core.contracts.typed/TypedWriter|null[0]
+    abstract suspend fun write(#A) // space.kscience.krig.core.contracts.typed/TypedWriter.write|write(1:0){}[0]
+}
+
+abstract fun interface space.kscience.krig.core.hook/HookRegistration : kotlin/AutoCloseable // space.kscience.krig.core.hook/HookRegistration|null[0]
 
 abstract interface <#A: kotlin/Any> space.kscience.krig.core.capabilities/Capability { // space.kscience.krig.core.capabilities/Capability|null[0]
     abstract val key // space.kscience.krig.core.capabilities/Capability.key|{}key[0]
@@ -55,10 +64,6 @@ abstract interface <#A: kotlin/Any> space.kscience.krig.core.capabilities/Capabi
 
 abstract interface <#A: kotlin/Any> space.kscience.krig.core.hook/Hook // space.kscience.krig.core.hook/Hook|null[0]
 
-abstract interface <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedAction { // space.kscience.krig.core.contracts.typed/TypedAction|null[0]
-    abstract suspend fun execute(#A): #B? // space.kscience.krig.core.contracts.typed/TypedAction.execute|execute(1:0){}[0]
-}
-
 abstract interface <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.meta/DeviceActionContract { // space.kscience.krig.core.meta/DeviceActionContract|null[0]
     abstract val descriptor // space.kscience.krig.core.meta/DeviceActionContract.descriptor|{}descriptor[0]
         abstract fun <get-descriptor>(): space.kscience.krig.api.descriptors/ActionDescriptor // space.kscience.krig.core.meta/DeviceActionContract.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
@@ -70,12 +75,6 @@ abstract interface <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.m
         abstract fun <get-outputConverter>(): space.kscience.dataforge.meta/MetaConverter<#B> // space.kscience.krig.core.meta/DeviceActionContract.outputConverter.<get-outputConverter>|<get-outputConverter>(){}[0]
 }
 
-abstract interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/PrimitiveTypedSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> // space.kscience.krig.core.contracts.typed/PrimitiveTypedSampler|null[0]
-
-abstract interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedReader { // space.kscience.krig.core.contracts.typed/TypedReader|null[0]
-    abstract suspend fun read(): #A // space.kscience.krig.core.contracts.typed/TypedReader.read|read(){}[0]
-}
-
 abstract interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedSampler { // space.kscience.krig.core.contracts.typed/TypedSampler|null[0]
     abstract val capacity // space.kscience.krig.core.contracts.typed/TypedSampler.capacity|{}capacity[0]
         abstract fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.typed/TypedSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
@@ -85,10 +84,6 @@ abstract interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/Ty
     abstract fun flow(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.core.contracts.typed/TypedSampler.flow|flow(){}[0]
     abstract fun latest(): #A? // space.kscience.krig.core.contracts.typed/TypedSampler.latest|latest(){}[0]
     abstract fun snapshot(): kotlin.collections/List<#A> // space.kscience.krig.core.contracts.typed/TypedSampler.snapshot|snapshot(){}[0]
-}
-
-abstract interface <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedWriter { // space.kscience.krig.core.contracts.typed/TypedWriter|null[0]
-    abstract suspend fun write(#A) // space.kscience.krig.core.contracts.typed/TypedWriter.write|write(1:0){}[0]
 }
 
 abstract interface <#A: kotlin/Any?> space.kscience.krig.core.meta/DevicePropertyContract { // space.kscience.krig.core.meta/DevicePropertyContract|null[0]
@@ -129,21 +124,6 @@ abstract interface space.kscience.krig.core.capabilities/LifecycleManagingCapabi
         open fun <get-state>() // space.kscience.krig.core.capabilities/LifecycleManagingCapability.state.<get-state>|<get-state>(){}[0]
 }
 
-abstract interface space.kscience.krig.core.capabilities/LiveReconfigurationCapability : space.kscience.krig.core.capabilities/Capability<space.kscience.krig.core.capabilities/LiveReconfigurationState> { // space.kscience.krig.core.capabilities/LiveReconfigurationCapability|null[0]
-    open val key // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.key|{}key[0]
-        open fun <get-key>(): space.kscience.krig.core.capabilities/CapabilityKey<*> // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.key.<get-key>|<get-key>(){}[0]
-
-    abstract suspend fun apply(space.kscience.krig.core.capabilities/ReconfigurationPlan): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.apply|apply(space.kscience.krig.core.capabilities.ReconfigurationPlan){}[0]
-    abstract suspend fun validate(space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.core.capabilities/ReconfigurationPlan> // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.validate|validate(space.kscience.dataforge.meta.Meta){}[0]
-    open suspend fun reconfigure(space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.reconfigure|reconfigure(space.kscience.dataforge.meta.Meta){}[0]
-    open suspend fun rollback(space.kscience.krig.core.capabilities/ReconfigurationPlan, kotlin/Throwable?): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.rollback|rollback(space.kscience.krig.core.capabilities.ReconfigurationPlan;kotlin.Throwable?){}[0]
-
-    final object Key : space.kscience.krig.core.capabilities/CapabilityKey<space.kscience.krig.core.capabilities/LiveReconfigurationCapability> { // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.Key|null[0]
-        final val id // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.Key.id|{}id[0]
-            final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.capabilities/LiveReconfigurationCapability.Key.id.<get-id>|<get-id>(){}[0]
-    }
-}
-
 abstract interface space.kscience.krig.core.capabilities/MetadataCapability : space.kscience.krig.core.capabilities/Capability<kotlin/Unit> { // space.kscience.krig.core.capabilities/MetadataCapability|null[0]
     abstract val description // space.kscience.krig.core.capabilities/MetadataCapability.description|{}description[0]
         abstract fun <get-description>(): kotlin/String? // space.kscience.krig.core.capabilities/MetadataCapability.description.<get-description>|<get-description>(){}[0]
@@ -158,18 +138,6 @@ abstract interface space.kscience.krig.core.capabilities/MetadataCapability : sp
     }
 }
 
-abstract interface space.kscience.krig.core.contracts.typed/DoubleSampler : space.kscience.krig.core.contracts.typed/PrimitiveTypedSampler<kotlin/Double> { // space.kscience.krig.core.contracts.typed/DoubleSampler|null[0]
-    abstract val hasLatest // space.kscience.krig.core.contracts.typed/DoubleSampler.hasLatest|{}hasLatest[0]
-        abstract fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.typed/DoubleSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
-
-    abstract fun latestDoubleOrNaN(): kotlin/Double // space.kscience.krig.core.contracts.typed/DoubleSampler.latestDoubleOrNaN|latestDoubleOrNaN(){}[0]
-    abstract fun publishDouble(kotlin/Double) // space.kscience.krig.core.contracts.typed/DoubleSampler.publishDouble|publishDouble(kotlin.Double){}[0]
-    abstract fun snapshotDoubleArray(): kotlin/DoubleArray // space.kscience.krig.core.contracts.typed/DoubleSampler.snapshotDoubleArray|snapshotDoubleArray(){}[0]
-    open fun latest(): kotlin/Double? // space.kscience.krig.core.contracts.typed/DoubleSampler.latest|latest(){}[0]
-    open fun latestDoubleOr(kotlin/Double): kotlin/Double // space.kscience.krig.core.contracts.typed/DoubleSampler.latestDoubleOr|latestDoubleOr(kotlin.Double){}[0]
-    open fun snapshot(): kotlin.collections/List<kotlin/Double> // space.kscience.krig.core.contracts.typed/DoubleSampler.snapshot|snapshot(){}[0]
-}
-
 abstract interface space.kscience.krig.core.contracts.typed/TypedBackend { // space.kscience.krig.core.contracts.typed/TypedBackend|null[0]
     abstract fun <#A1: kotlin/Any?> reader(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedReader<#A1>? // space.kscience.krig.core.contracts.typed/TypedBackend.reader|reader(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
     abstract fun <#A1: kotlin/Any?> writer(space.kscience.krig.core.meta/MutableDevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedWriter<#A1>? // space.kscience.krig.core.contracts.typed/TypedBackend.writer|writer(space.kscience.krig.core.meta.MutableDevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
@@ -181,6 +149,7 @@ abstract interface space.kscience.krig.core.contracts.typed/TypedDevice { // spa
     abstract fun <#A1: kotlin/Any?> reader(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedReader<#A1> // space.kscience.krig.core.contracts.typed/TypedDevice.reader|reader(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
     abstract fun <#A1: kotlin/Any?> writer(space.kscience.krig.core.meta/MutableDevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedWriter<#A1> // space.kscience.krig.core.contracts.typed/TypedDevice.writer|writer(space.kscience.krig.core.meta.MutableDevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
     open fun <#A1: kotlin/Any?, #B1: kotlin/Any?> action(space.kscience.krig.core.meta/DeviceActionContract<#A1, #B1>): space.kscience.krig.core.contracts.typed/TypedAction<#A1, #B1> // space.kscience.krig.core.contracts.typed/TypedDevice.action|action(space.kscience.krig.core.meta.DeviceActionContract<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+    open fun <#A1: kotlin/Any?> propertyState(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): kotlinx.coroutines.flow/StateFlow<#A1>? // space.kscience.krig.core.contracts.typed/TypedDevice.propertyState|propertyState(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
     open fun <#A1: kotlin/Any?> sampler(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedSampler<#A1>? // space.kscience.krig.core.contracts.typed/TypedDevice.sampler|sampler(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
     open suspend fun <#A1: kotlin/Any?, #B1: kotlin/Any?> executeOutcome(space.kscience.krig.core.meta/DeviceActionContract<#A1, #B1>, #A1): space.kscience.krig.api.result/OperationOutcome<#B1?> // space.kscience.krig.core.contracts.typed/TypedDevice.executeOutcome|executeOutcome(space.kscience.krig.core.meta.DeviceActionContract<0:0,0:1>;0:0){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
     open suspend fun <#A1: kotlin/Any?> readOutcome(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): space.kscience.krig.api.result/OperationOutcome<#A1> // space.kscience.krig.core.contracts.typed/TypedDevice.readOutcome|readOutcome(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
@@ -210,7 +179,7 @@ abstract interface space.kscience.krig.core.contracts/Device : kotlin/AutoClosea
 
     abstract suspend fun executeOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta? = ...): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.core.contracts/Device.executeOutcome|executeOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
     abstract suspend fun readPropertyOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.contracts/Device.readPropertyOutcome|readPropertyOutcome(space.kscience.dataforge.names.Name){}[0]
-    abstract suspend fun subscribe(space.kscience.krig.api.context/Principal): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/Device.subscribe|subscribe(space.kscience.krig.api.context.Principal){}[0]
+    abstract suspend fun subscribe(space.kscience.krig.api.context/Principal): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/Device.subscribe|subscribe(space.kscience.krig.api.context.Principal){}[0]
     abstract suspend fun writePropertyOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/Device.writePropertyOutcome|writePropertyOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
     open fun <#A1: kotlin/Any?, #B1: kotlin/Any?> action(space.kscience.krig.core.meta/DeviceActionContract<#A1, #B1>): space.kscience.krig.core.contracts.typed/TypedAction<#A1, #B1> // space.kscience.krig.core.contracts/Device.action|action(space.kscience.krig.core.meta.DeviceActionContract<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
     open fun <#A1: kotlin/Any?> reader(space.kscience.krig.core.meta/DevicePropertyContract<#A1>): space.kscience.krig.core.contracts.typed/TypedReader<#A1> // space.kscience.krig.core.contracts/Device.reader|reader(space.kscience.krig.core.meta.DevicePropertyContract<0:0>){0§<kotlin.Any?>}[0]
@@ -220,17 +189,15 @@ abstract interface space.kscience.krig.core.contracts/Device : kotlin/AutoClosea
     open fun close() // space.kscience.krig.core.contracts/Device.close|close(){}[0]
     open fun content(kotlin/String): kotlin.collections/Map<space.kscience.dataforge.names/Name, kotlin/Any> // space.kscience.krig.core.contracts/Device.content|content(kotlin.String){}[0]
     open fun propertySpec(space.kscience.dataforge.names/Name): space.kscience.krig.core.meta/DevicePropertyContract<*>? // space.kscience.krig.core.contracts/Device.propertySpec|propertySpec(space.kscience.dataforge.names.Name){}[0]
-    open suspend fun execute(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta? = ...): space.kscience.dataforge.meta/Meta? // space.kscience.krig.core.contracts/Device.execute|execute(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
     open suspend fun readBatchBinaryOutcome(kotlin.collections/Collection<space.kscience.dataforge.names/Name>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.io/Binary>> // space.kscience.krig.core.contracts/Device.readBatchBinaryOutcome|readBatchBinaryOutcome(kotlin.collections.Collection<space.kscience.dataforge.names.Name>){}[0]
     open suspend fun readBatchOutcome(kotlin.collections/Collection<space.kscience.dataforge.names/Name>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>>> // space.kscience.krig.core.contracts/Device.readBatchOutcome|readBatchOutcome(kotlin.collections.Collection<space.kscience.dataforge.names.Name>){}[0]
     open suspend fun readBinaryOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.io/Binary> // space.kscience.krig.core.contracts/Device.readBinaryOutcome|readBinaryOutcome(space.kscience.dataforge.names.Name){}[0]
     open suspend fun readBytesOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<kotlin/ByteArray> // space.kscience.krig.core.contracts/Device.readBytesOutcome|readBytesOutcome(space.kscience.dataforge.names.Name){}[0]
     open suspend fun readObservedOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>> // space.kscience.krig.core.contracts/Device.readObservedOutcome|readObservedOutcome(space.kscience.dataforge.names.Name){}[0]
-    open suspend fun readProperty(space.kscience.dataforge.names/Name): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.contracts/Device.readProperty|readProperty(space.kscience.dataforge.names.Name){}[0]
     open suspend fun shutdown() // space.kscience.krig.core.contracts/Device.shutdown|shutdown(){}[0]
+    open suspend fun subscribe(space.kscience.krig.api.context/Principal, space.kscience.dataforge.names/Name): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/Device.subscribe|subscribe(space.kscience.krig.api.context.Principal;space.kscience.dataforge.names.Name){}[0]
     open suspend fun writeBatchOutcome(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<kotlin/Unit>> // space.kscience.krig.core.contracts/Device.writeBatchOutcome|writeBatchOutcome(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.dataforge.meta.Meta>){}[0]
     open suspend fun writeBinaryOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.io/Binary): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/Device.writeBinaryOutcome|writeBinaryOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.io.Binary){}[0]
-    open suspend fun writeProperty(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta) // space.kscience.krig.core.contracts/Device.writeProperty|writeProperty(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
 }
 
 abstract interface space.kscience.krig.core.contracts/DeviceBackend : kotlin/AutoCloseable { // space.kscience.krig.core.contracts/DeviceBackend|null[0]
@@ -326,6 +293,30 @@ abstract interface space.kscience.krig.core.pipeline/ReadDecorator { // space.ks
     abstract fun <#A1: kotlin/Any?> decorate(space.kscience.krig.core.meta/DevicePropertyContract<#A1>, space.kscience.krig.core.contracts.typed/TypedReader<#A1>): space.kscience.krig.core.contracts.typed/TypedReader<#A1> // space.kscience.krig.core.pipeline/ReadDecorator.decorate|decorate(space.kscience.krig.core.meta.DevicePropertyContract<0:0>;space.kscience.krig.core.contracts.typed.TypedReader<0:0>){0§<kotlin.Any?>}[0]
 }
 
+abstract class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/AbstractRingSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/AbstractRingSampler|null[0]
+    constructor <init>(kotlin/Int, space.kscience.attributes/SafeType<#A>) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.<init>|<init>(kotlin.Int;space.kscience.attributes.SafeType<1:0>){}[0]
+
+    final val capacity // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity|{}capacity[0]
+        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
+    final val hasLatest // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest|{}hasLatest[0]
+        final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
+    final val lock // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock|{}lock[0]
+        // Targets: [native]
+        final fun <get-lock>(): kotlinx.atomicfu.locks/SynchronizedObject // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock.<get-lock>|<get-lock>(){}[0]
+
+        // Targets: [js, wasmJs]
+        final fun <get-lock>(): kotlin/Any // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock.<get-lock>|<get-lock>(){}[0]
+    final val type // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type|{}type[0]
+        final fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type.<get-type>|<get-type>(){}[0]
+
+    final fun emitToFlow(#A) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.emitToFlow|emitToFlow(1:0){}[0]
+    final fun flow(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.flow|flow(){}[0]
+    final fun hasLatestLocked(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatestLocked|hasLatestLocked(){}[0]
+    final fun oldestSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.oldestSlotLocked|oldestSlotLocked(){}[0]
+    final fun reserveSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.reserveSlotLocked|reserveSlotLocked(){}[0]
+    final fun sizeLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.sizeLocked|sizeLocked(){}[0]
+}
+
 abstract class <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> space.kscience.krig.api.factory/DeviceFactory : space.kscience.dataforge.context/Factory<#A>, space.kscience.krig.core.contracts/DeviceManifest { // space.kscience.krig.api.factory/DeviceFactory|null[0]
     constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/MetaConverter<#B>) // space.kscience.krig.api.factory/DeviceFactory.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.MetaConverter<1:1>){}[0]
 
@@ -359,9 +350,9 @@ abstract class space.kscience.krig.core.contracts/AbstractDevice : space.kscienc
     constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceRuntime) // space.kscience.krig.core.contracts/AbstractDevice.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.DeviceRuntime){}[0]
 
     final val controlFlow // space.kscience.krig.core.contracts/AbstractDevice.controlFlow|{}controlFlow[0]
-        final fun <get-controlFlow>(): kotlinx.coroutines.flow/SharedFlow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.controlFlow.<get-controlFlow>|<get-controlFlow>(){}[0]
+        final fun <get-controlFlow>(): kotlinx.coroutines.flow/SharedFlow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.controlFlow.<get-controlFlow>|<get-controlFlow>(){}[0]
     final val dataFlow // space.kscience.krig.core.contracts/AbstractDevice.dataFlow|{}dataFlow[0]
-        final fun <get-dataFlow>(): kotlinx.coroutines.flow/SharedFlow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.dataFlow.<get-dataFlow>|<get-dataFlow>(){}[0]
+        final fun <get-dataFlow>(): kotlinx.coroutines.flow/SharedFlow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.dataFlow.<get-dataFlow>|<get-dataFlow>(){}[0]
     final val installedCapabilities // space.kscience.krig.core.contracts/AbstractDevice.installedCapabilities|{}installedCapabilities[0]
         final fun <get-installedCapabilities>(): kotlin.collections/Collection<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.contracts/AbstractDevice.installedCapabilities.<get-installedCapabilities>|<get-installedCapabilities>(){}[0]
     final val messaging // space.kscience.krig.core.contracts/AbstractDevice.messaging|{}messaging[0]
@@ -393,18 +384,15 @@ abstract class space.kscience.krig.core.contracts/AbstractDevice : space.kscienc
 
     final fun registerCapability(space.kscience.krig.core.capabilities/Capability<*>) // space.kscience.krig.core.contracts/AbstractDevice.registerCapability|registerCapability(space.kscience.krig.core.capabilities.Capability<*>){}[0]
     final suspend fun closeGracefullyUsing(kotlin.time/Duration, kotlin.coroutines/SuspendFunction0<kotlin/Unit>) // space.kscience.krig.core.contracts/AbstractDevice.closeGracefullyUsing|closeGracefullyUsing(kotlin.time.Duration;kotlin.coroutines.SuspendFunction0<kotlin.Unit>){}[0]
-    final suspend fun execute(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta?): space.kscience.dataforge.meta/Meta? // space.kscience.krig.core.contracts/AbstractDevice.execute|execute(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
     final suspend fun executeOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta?): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.core.contracts/AbstractDevice.executeOutcome|executeOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
     final suspend fun readBatchBinaryOutcome(kotlin.collections/Collection<space.kscience.dataforge.names/Name>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.io/Binary>> // space.kscience.krig.core.contracts/AbstractDevice.readBatchBinaryOutcome|readBatchBinaryOutcome(kotlin.collections.Collection<space.kscience.dataforge.names.Name>){}[0]
     final suspend fun readBatchOutcome(kotlin.collections/Collection<space.kscience.dataforge.names/Name>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>>> // space.kscience.krig.core.contracts/AbstractDevice.readBatchOutcome|readBatchOutcome(kotlin.collections.Collection<space.kscience.dataforge.names.Name>){}[0]
     final suspend fun readBinaryOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.io/Binary> // space.kscience.krig.core.contracts/AbstractDevice.readBinaryOutcome|readBinaryOutcome(space.kscience.dataforge.names.Name){}[0]
     final suspend fun readObservedOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>> // space.kscience.krig.core.contracts/AbstractDevice.readObservedOutcome|readObservedOutcome(space.kscience.dataforge.names.Name){}[0]
-    final suspend fun readProperty(space.kscience.dataforge.names/Name): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.contracts/AbstractDevice.readProperty|readProperty(space.kscience.dataforge.names.Name){}[0]
     final suspend fun readPropertyOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.contracts/AbstractDevice.readPropertyOutcome|readPropertyOutcome(space.kscience.dataforge.names.Name){}[0]
     final suspend fun shutdownSelf() // space.kscience.krig.core.contracts/AbstractDevice.shutdownSelf|shutdownSelf(){}[0]
     final suspend fun writeBatchOutcome(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta>): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<kotlin/Unit>> // space.kscience.krig.core.contracts/AbstractDevice.writeBatchOutcome|writeBatchOutcome(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.dataforge.meta.Meta>){}[0]
     final suspend fun writeBinaryOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.io/Binary): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/AbstractDevice.writeBinaryOutcome|writeBinaryOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.io.Binary){}[0]
-    final suspend fun writeProperty(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta) // space.kscience.krig.core.contracts/AbstractDevice.writeProperty|writeProperty(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
     final suspend fun writePropertyOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/AbstractDevice.writePropertyOutcome|writePropertyOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
     open fun <#A1: space.kscience.krig.core.capabilities/Capability<*>> capability(space.kscience.krig.core.capabilities/CapabilityKey<#A1>): #A1? // space.kscience.krig.core.contracts/AbstractDevice.capability|capability(space.kscience.krig.core.capabilities.CapabilityKey<0:0>){0§<space.kscience.krig.core.capabilities.Capability<*>>}[0]
     open suspend fun closeGracefully(kotlin.time/Duration) // space.kscience.krig.core.contracts/AbstractDevice.closeGracefully|closeGracefully(kotlin.time.Duration){}[0]
@@ -418,7 +406,8 @@ abstract class space.kscience.krig.core.contracts/AbstractDevice : space.kscienc
     open suspend fun doWriteBinaryOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.io/Binary): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/AbstractDevice.doWriteBinaryOutcome|doWriteBinaryOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.io.Binary){}[0]
     open suspend fun doWritePropertyOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/AbstractDevice.doWritePropertyOutcome|doWritePropertyOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
     open suspend fun shutdown() // space.kscience.krig.core.contracts/AbstractDevice.shutdown|shutdown(){}[0]
-    open suspend fun subscribe(space.kscience.krig.api.context/Principal): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.subscribe|subscribe(space.kscience.krig.api.context.Principal){}[0]
+    open suspend fun subscribe(space.kscience.krig.api.context/Principal): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.subscribe|subscribe(space.kscience.krig.api.context.Principal){}[0]
+    open suspend fun subscribe(space.kscience.krig.api.context/Principal, space.kscience.dataforge.names/Name): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/AbstractDevice.subscribe|subscribe(space.kscience.krig.api.context.Principal;space.kscience.dataforge.names.Name){}[0]
 }
 
 abstract class space.kscience.krig.core.meta/DeviceContractBuilder { // space.kscience.krig.core.meta/DeviceContractBuilder|null[0]
@@ -460,13 +449,7 @@ final class <#A: kotlin/Any> space.kscience.krig.api.discovery/ContributionTarge
     final fun toString(): kotlin/String // space.kscience.krig.api.discovery/ContributionTarget.toString|toString(){}[0]
 }
 
-final class <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.contracts.typed/GenericTypedAction : space.kscience.krig.core.contracts.typed/TypedAction<#A, #B> { // space.kscience.krig.core.contracts.typed/GenericTypedAction|null[0]
-    constructor <init>(kotlin.coroutines/SuspendFunction1<#A, #B?>) // space.kscience.krig.core.contracts.typed/GenericTypedAction.<init>|<init>(kotlin.coroutines.SuspendFunction1<1:0,1:1?>){}[0]
-
-    final suspend fun execute(#A): #B? // space.kscience.krig.core.contracts.typed/GenericTypedAction.execute|execute(1:0){}[0]
-}
-
-final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/FlowSampler : space.kscience.krig.core.contracts.typed/PrimitiveTypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/FlowSampler|null[0]
+final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/FlowSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/FlowSampler|null[0]
     constructor <init>(space.kscience.attributes/SafeType<#A>, kotlin/Int) // space.kscience.krig.core.contracts.sampling/FlowSampler.<init>|<init>(space.kscience.attributes.SafeType<1:0>;kotlin.Int){}[0]
 
     final val capacity // space.kscience.krig.core.contracts.sampling/FlowSampler.capacity|{}capacity[0]
@@ -479,18 +462,6 @@ final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/FlowSa
     final fun publish(#A) // space.kscience.krig.core.contracts.sampling/FlowSampler.publish|publish(1:0){}[0]
     final fun snapshot(): kotlin.collections/List<#A> // space.kscience.krig.core.contracts.sampling/FlowSampler.snapshot|snapshot(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.contracts.sampling/FlowSampler.toString|toString(){}[0]
-}
-
-final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/GenericTypedReader : space.kscience.krig.core.contracts.typed/TypedReader<#A> { // space.kscience.krig.core.contracts.typed/GenericTypedReader|null[0]
-    constructor <init>(kotlin.coroutines/SuspendFunction0<#A>) // space.kscience.krig.core.contracts.typed/GenericTypedReader.<init>|<init>(kotlin.coroutines.SuspendFunction0<1:0>){}[0]
-
-    final suspend fun read(): #A // space.kscience.krig.core.contracts.typed/GenericTypedReader.read|read(){}[0]
-}
-
-final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.typed/GenericTypedWriter : space.kscience.krig.core.contracts.typed/TypedWriter<#A> { // space.kscience.krig.core.contracts.typed/GenericTypedWriter|null[0]
-    constructor <init>(kotlin.coroutines/SuspendFunction1<#A, kotlin/Unit>) // space.kscience.krig.core.contracts.typed/GenericTypedWriter.<init>|<init>(kotlin.coroutines.SuspendFunction1<1:0,kotlin.Unit>){}[0]
-
-    final suspend fun write(#A) // space.kscience.krig.core.contracts.typed/GenericTypedWriter.write|write(1:0){}[0]
 }
 
 final class <#A: kotlin/Any?> space.kscience.krig.core.contracts/ConnectionProperty { // space.kscience.krig.core.contracts/ConnectionProperty|null[0]
@@ -513,45 +484,38 @@ final class space.kscience.krig.api.hub/HubConflictException : kotlin/Exception 
         final fun <get-reason>(): kotlin/String // space.kscience.krig.api.hub/HubConflictException.reason.<get-reason>|<get-reason>(){}[0]
 }
 
-final class space.kscience.krig.core.capabilities/LiveReconfigurationState { // space.kscience.krig.core.capabilities/LiveReconfigurationState|null[0]
-    constructor <init>(space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.core.capabilities/LiveReconfigurationState.<init>|<init>(space.kscience.dataforge.meta.Meta){}[0]
-
-    final val current // space.kscience.krig.core.capabilities/LiveReconfigurationState.current|{}current[0]
-        final fun <get-current>(): kotlinx.coroutines.flow/StateFlow<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.capabilities/LiveReconfigurationState.current.<get-current>|<get-current>(){}[0]
-}
-
-final class space.kscience.krig.core.capabilities/ReconfigurationPlan { // space.kscience.krig.core.capabilities/ReconfigurationPlan|null[0]
-    constructor <init>(space.kscience.dataforge.meta/Meta, space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.core.capabilities/ReconfigurationPlan.<init>|<init>(space.kscience.dataforge.meta.Meta;space.kscience.dataforge.meta.Meta){}[0]
-
-    final val previous // space.kscience.krig.core.capabilities/ReconfigurationPlan.previous|{}previous[0]
-        final fun <get-previous>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.capabilities/ReconfigurationPlan.previous.<get-previous>|<get-previous>(){}[0]
-    final val update // space.kscience.krig.core.capabilities/ReconfigurationPlan.update|{}update[0]
-        final fun <get-update>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.capabilities/ReconfigurationPlan.update.<get-update>|<get-update>(){}[0]
-
-    final fun component1(): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.capabilities/ReconfigurationPlan.component1|component1(){}[0]
-    final fun component2(): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.capabilities/ReconfigurationPlan.component2|component2(){}[0]
-    final fun copy(space.kscience.dataforge.meta/Meta = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.core.capabilities/ReconfigurationPlan // space.kscience.krig.core.capabilities/ReconfigurationPlan.copy|copy(space.kscience.dataforge.meta.Meta;space.kscience.dataforge.meta.Meta){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.capabilities/ReconfigurationPlan.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.core.capabilities/ReconfigurationPlan.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.core.capabilities/ReconfigurationPlan.toString|toString(){}[0]
-}
-
-final class space.kscience.krig.core.contracts.sampling/RingDoubleSampler : space.kscience.krig.core.contracts.typed/DoubleSampler { // space.kscience.krig.core.contracts.sampling/RingDoubleSampler|null[0]
+final class space.kscience.krig.core.contracts.sampling/RingDoubleSampler : space.kscience.krig.core.contracts.sampling/AbstractRingSampler<kotlin/Double> { // space.kscience.krig.core.contracts.sampling/RingDoubleSampler|null[0]
     constructor <init>(kotlin/Int = ...) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.<init>|<init>(kotlin.Int){}[0]
 
-    final val capacity // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.capacity|{}capacity[0]
-        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
-    final val hasLatest // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.hasLatest|{}hasLatest[0]
-        final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
-    final val type // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.type.<get-type>|<get-type>(){}[0]
-
-    final fun flow(): kotlinx.coroutines.flow/Flow<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.flow|flow(){}[0]
+    final fun latest(): kotlin/Double? // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latest|latest(){}[0]
     final fun latestDoubleOr(kotlin/Double): kotlin/Double // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latestDoubleOr|latestDoubleOr(kotlin.Double){}[0]
     final fun latestDoubleOrNaN(): kotlin/Double // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.latestDoubleOrNaN|latestDoubleOrNaN(){}[0]
     final fun publish(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publish|publish(kotlin.Double){}[0]
     final fun publishDouble(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publishDouble|publishDouble(kotlin.Double){}[0]
+    final fun snapshot(): kotlin.collections/List<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.snapshot|snapshot(){}[0]
     final fun snapshotDoubleArray(): kotlin/DoubleArray // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.snapshotDoubleArray|snapshotDoubleArray(){}[0]
+}
+
+final class space.kscience.krig.core.contracts.sampling/RingIntSampler : space.kscience.krig.core.contracts.sampling/AbstractRingSampler<kotlin/Int> { // space.kscience.krig.core.contracts.sampling/RingIntSampler|null[0]
+    constructor <init>(kotlin/Int = ...) // space.kscience.krig.core.contracts.sampling/RingIntSampler.<init>|<init>(kotlin.Int){}[0]
+
+    final fun latest(): kotlin/Int? // space.kscience.krig.core.contracts.sampling/RingIntSampler.latest|latest(){}[0]
+    final fun latestIntOr(kotlin/Int): kotlin/Int // space.kscience.krig.core.contracts.sampling/RingIntSampler.latestIntOr|latestIntOr(kotlin.Int){}[0]
+    final fun publish(kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publish|publish(kotlin.Int){}[0]
+    final fun publishInt(kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publishInt|publishInt(kotlin.Int){}[0]
+    final fun snapshot(): kotlin.collections/List<kotlin/Int> // space.kscience.krig.core.contracts.sampling/RingIntSampler.snapshot|snapshot(){}[0]
+    final fun snapshotIntArray(): kotlin/IntArray // space.kscience.krig.core.contracts.sampling/RingIntSampler.snapshotIntArray|snapshotIntArray(){}[0]
+}
+
+final class space.kscience.krig.core.contracts.sampling/RingLongSampler : space.kscience.krig.core.contracts.sampling/AbstractRingSampler<kotlin/Long> { // space.kscience.krig.core.contracts.sampling/RingLongSampler|null[0]
+    constructor <init>(kotlin/Int = ...) // space.kscience.krig.core.contracts.sampling/RingLongSampler.<init>|<init>(kotlin.Int){}[0]
+
+    final fun latest(): kotlin/Long? // space.kscience.krig.core.contracts.sampling/RingLongSampler.latest|latest(){}[0]
+    final fun latestLongOr(kotlin/Long): kotlin/Long // space.kscience.krig.core.contracts.sampling/RingLongSampler.latestLongOr|latestLongOr(kotlin.Long){}[0]
+    final fun publish(kotlin/Long) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publish|publish(kotlin.Long){}[0]
+    final fun publishLong(kotlin/Long) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publishLong|publishLong(kotlin.Long){}[0]
+    final fun snapshot(): kotlin.collections/List<kotlin/Long> // space.kscience.krig.core.contracts.sampling/RingLongSampler.snapshot|snapshot(){}[0]
+    final fun snapshotLongArray(): kotlin/LongArray // space.kscience.krig.core.contracts.sampling/RingLongSampler.snapshotLongArray|snapshotLongArray(){}[0]
 }
 
 final class space.kscience.krig.core.contracts.typed/BackendBuilder { // space.kscience.krig.core.contracts.typed/BackendBuilder|null[0]
@@ -640,10 +604,6 @@ final class space.kscience.krig.core.contracts/DeviceMessaging { // space.kscien
     final object Companion { // space.kscience.krig.core.contracts/DeviceMessaging.Companion|null[0]
         final val Default // space.kscience.krig.core.contracts/DeviceMessaging.Companion.Default|{}Default[0]
             final fun <get-Default>(): space.kscience.krig.core.contracts/DeviceMessaging // space.kscience.krig.core.contracts/DeviceMessaging.Companion.Default.<get-Default>|<get-Default>(){}[0]
-        final val SafetyCritical // space.kscience.krig.core.contracts/DeviceMessaging.Companion.SafetyCritical|{}SafetyCritical[0]
-            final fun <get-SafetyCritical>(): space.kscience.krig.core.contracts/DeviceMessaging // space.kscience.krig.core.contracts/DeviceMessaging.Companion.SafetyCritical.<get-SafetyCritical>|<get-SafetyCritical>(){}[0]
-        final val Streaming // space.kscience.krig.core.contracts/DeviceMessaging.Companion.Streaming|{}Streaming[0]
-            final fun <get-Streaming>(): space.kscience.krig.core.contracts/DeviceMessaging // space.kscience.krig.core.contracts/DeviceMessaging.Companion.Streaming.<get-Streaming>|<get-Streaming>(){}[0]
     }
 }
 
@@ -703,24 +663,6 @@ final class space.kscience.krig.core.operations/HybridLogicalClock { // space.ks
     final fun update(space.kscience.krig.core.operations/HlcTimestamp): space.kscience.krig.core.operations/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.update|update(space.kscience.krig.core.operations.HlcTimestamp){}[0]
 }
 
-final class space.kscience.krig.core.pipeline/SamplingPipelineSpec { // space.kscience.krig.core.pipeline/SamplingPipelineSpec|null[0]
-    constructor <init>(kotlin.collections/List<space.kscience.krig.core.pipeline/SamplingObserver> = ...) // space.kscience.krig.core.pipeline/SamplingPipelineSpec.<init>|<init>(kotlin.collections.List<space.kscience.krig.core.pipeline.SamplingObserver>){}[0]
-
-    final val observers // space.kscience.krig.core.pipeline/SamplingPipelineSpec.observers|{}observers[0]
-        final fun <get-observers>(): kotlin.collections/List<space.kscience.krig.core.pipeline/SamplingObserver> // space.kscience.krig.core.pipeline/SamplingPipelineSpec.observers.<get-observers>|<get-observers>(){}[0]
-
-    final fun component1(): kotlin.collections/List<space.kscience.krig.core.pipeline/SamplingObserver> // space.kscience.krig.core.pipeline/SamplingPipelineSpec.component1|component1(){}[0]
-    final fun copy(kotlin.collections/List<space.kscience.krig.core.pipeline/SamplingObserver> = ...): space.kscience.krig.core.pipeline/SamplingPipelineSpec // space.kscience.krig.core.pipeline/SamplingPipelineSpec.copy|copy(kotlin.collections.List<space.kscience.krig.core.pipeline.SamplingObserver>){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/SamplingPipelineSpec.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/SamplingPipelineSpec.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/SamplingPipelineSpec.toString|toString(){}[0]
-
-    final object Companion { // space.kscience.krig.core.pipeline/SamplingPipelineSpec.Companion|null[0]
-        final val Empty // space.kscience.krig.core.pipeline/SamplingPipelineSpec.Companion.Empty|{}Empty[0]
-            final fun <get-Empty>(): space.kscience.krig.core.pipeline/SamplingPipelineSpec // space.kscience.krig.core.pipeline/SamplingPipelineSpec.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
-    }
-}
-
 final object space.kscience.krig.api.discovery/ActionHandlerContributions { // space.kscience.krig.api.discovery/ActionHandlerContributions|null[0]
     final val Target // space.kscience.krig.api.discovery/ActionHandlerContributions.Target|{}Target[0]
         final fun <get-Target>(): space.kscience.krig.api.discovery/ContributionTarget<kotlin/Any> // space.kscience.krig.api.discovery/ActionHandlerContributions.Target.<get-Target>|<get-Target>(){}[0]
@@ -739,8 +681,6 @@ final object space.kscience.krig.api.discovery/ProtocolContributions { // space.
 final object space.kscience.krig.core.hook/DeviceAttached : space.kscience.krig.core.hook/Hook<kotlin.coroutines/SuspendFunction2<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device, kotlin/Unit>> // space.kscience.krig.core.hook/DeviceAttached|null[0]
 
 final object space.kscience.krig.core.hook/DeviceDetached : space.kscience.krig.core.hook/Hook<kotlin.coroutines/SuspendFunction2<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device, kotlin/Unit>> // space.kscience.krig.core.hook/DeviceDetached|null[0]
-
-final object space.kscience.krig.core.hook/PropertyReadRequested : space.kscience.krig.core.hook/Hook<kotlin.coroutines/SuspendFunction1<space.kscience.dataforge.names/Name, kotlin/Unit>> // space.kscience.krig.core.hook/PropertyReadRequested|null[0]
 
 final val space.kscience.krig.core.capabilities/capabilityValues // space.kscience.krig.core.capabilities/capabilityValues|@space.kscience.attributes.Attributes{}capabilityValues[0]
     final fun (space.kscience.attributes/Attributes).<get-capabilityValues>(): kotlin.collections/Collection<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.capabilities/capabilityValues.<get-capabilityValues>|<get-capabilityValues>@space.kscience.attributes.Attributes(){}[0]
@@ -772,8 +712,12 @@ final fun (kotlin.collections/Collection<space.kscience.krig.core.meta/DevicePro
 final fun (kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>).space.kscience.krig.core.contracts/asNodeMap(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceNode> // space.kscience.krig.core.contracts/asNodeMap|asNodeMap@kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>(){}[0]
 final fun (space.kscience.krig.core.contracts/CapabilityHost).space.kscience.krig.core.contracts/isCapabilityActive(space.kscience.krig.core.capabilities/CapabilityKey<*>): kotlin/Boolean // space.kscience.krig.core.contracts/isCapabilityActive|isCapabilityActive@space.kscience.krig.core.contracts.CapabilityHost(space.kscience.krig.core.capabilities.CapabilityKey<*>){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.api.hub/resolve(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/Device? // space.kscience.krig.api.hub/resolve|resolve@space.kscience.krig.core.contracts.Device(space.kscience.dataforge.names.Name){}[0]
-final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/doubleSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Double>): space.kscience.krig.core.contracts.typed/DoubleSampler? // space.kscience.krig.core.contracts.sampling/doubleSampler|doubleSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Double>){}[0]
-final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireDoubleSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Double>): space.kscience.krig.core.contracts.typed/DoubleSampler // space.kscience.krig.core.contracts.sampling/requireDoubleSampler|requireDoubleSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Double>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/doubleSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Double>): space.kscience.krig.core.contracts.sampling/RingDoubleSampler? // space.kscience.krig.core.contracts.sampling/doubleSampler|doubleSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Double>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/intSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Int>): space.kscience.krig.core.contracts.sampling/RingIntSampler? // space.kscience.krig.core.contracts.sampling/intSampler|intSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Int>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/longSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Long>): space.kscience.krig.core.contracts.sampling/RingLongSampler? // space.kscience.krig.core.contracts.sampling/longSampler|longSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Long>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireDoubleSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Double>): space.kscience.krig.core.contracts.sampling/RingDoubleSampler // space.kscience.krig.core.contracts.sampling/requireDoubleSampler|requireDoubleSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Double>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireIntSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Int>): space.kscience.krig.core.contracts.sampling/RingIntSampler // space.kscience.krig.core.contracts.sampling/requireIntSampler|requireIntSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Int>){}[0]
+final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireLongSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Long>): space.kscience.krig.core.contracts.sampling/RingLongSampler // space.kscience.krig.core.contracts.sampling/requireLongSampler|requireLongSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Long>){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/asNode(): space.kscience.krig.core.contracts/DeviceNode // space.kscience.krig.core.contracts/asNode|asNode@space.kscience.krig.core.contracts.Device(){}[0]
 final fun (space.kscience.krig.core.contracts/DeviceNode).space.kscience.krig.api.hub/resolveDevice(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/Device? // space.kscience.krig.api.hub/resolveDevice|resolveDevice@space.kscience.krig.core.contracts.DeviceNode(space.kscience.dataforge.names.Name){}[0]
 final fun (space.kscience.krig.core.contracts/DeviceNode).space.kscience.krig.api.hub/resolveDeviceFlow(space.kscience.dataforge.names/Name): kotlinx.coroutines.flow/Flow<space.kscience.krig.core.contracts/Device?> // space.kscience.krig.api.hub/resolveDeviceFlow|resolveDeviceFlow@space.kscience.krig.core.contracts.DeviceNode(space.kscience.dataforge.names.Name){}[0]
@@ -802,10 +746,12 @@ final fun <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> space
 final fun <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> space.kscience.krig.api.factory/DeviceFactory(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/MetaConverter<#B>, kotlin/Function2<space.kscience.dataforge.context/Context, #B, #A>): space.kscience.krig.api.factory/DeviceFactory<#A, #B> // space.kscience.krig.api.factory/DeviceFactory|DeviceFactory(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.MetaConverter<0:1>;kotlin.Function2<space.kscience.dataforge.context.Context,0:1,0:0>){0§<space.kscience.krig.core.contracts.Device>;1§<kotlin.Any?>}[0]
 final fun <#A: space.kscience.krig.core.contracts/Device> space.kscience.krig.api.factory/DeviceFactory(kotlin/String, kotlin/Function1<space.kscience.dataforge.context/Context, #A>): space.kscience.krig.api.factory/DeviceFactory<#A, kotlin/Unit> // space.kscience.krig.api.factory/DeviceFactory|DeviceFactory(kotlin.String;kotlin.Function1<space.kscience.dataforge.context.Context,0:0>){0§<space.kscience.krig.core.contracts.Device>}[0]
 final fun <#A: space.kscience.krig.core.contracts/Device> space.kscience.krig.api.factory/DeviceFactory(space.kscience.dataforge.names/Name, kotlin/Function1<space.kscience.dataforge.context/Context, #A>): space.kscience.krig.api.factory/DeviceFactory<#A, kotlin/Unit> // space.kscience.krig.api.factory/DeviceFactory|DeviceFactory(space.kscience.dataforge.names.Name;kotlin.Function1<space.kscience.dataforge.context.Context,0:0>){0§<space.kscience.krig.core.contracts.Device>}[0]
-final fun space.kscience.krig.core.capabilities/staticReconfigurationRejected(kotlin/String): space.kscience.krig.api.result/OperationOutcome.Fail // space.kscience.krig.core.capabilities/staticReconfigurationRejected|staticReconfigurationRejected(kotlin.String){}[0]
 final fun space.kscience.krig.core.contracts.sampling/doubleSampler(kotlin/Int = ...): space.kscience.krig.core.contracts.sampling/RingDoubleSampler // space.kscience.krig.core.contracts.sampling/doubleSampler|doubleSampler(kotlin.Int){}[0]
+final fun space.kscience.krig.core.contracts.sampling/intSampler(kotlin/Int = ...): space.kscience.krig.core.contracts.sampling/RingIntSampler // space.kscience.krig.core.contracts.sampling/intSampler|intSampler(kotlin.Int){}[0]
+final fun space.kscience.krig.core.contracts.sampling/longSampler(kotlin/Int = ...): space.kscience.krig.core.contracts.sampling/RingLongSampler // space.kscience.krig.core.contracts.sampling/longSampler|longSampler(kotlin.Int){}[0]
 final fun space.kscience.krig.core.contracts.typed/backend(kotlin/Function1<space.kscience.krig.core.contracts.typed/BackendBuilder, kotlin/Unit>): space.kscience.krig.core.contracts.typed/TypedDeviceBackend // space.kscience.krig.core.contracts.typed/backend|backend(kotlin.Function1<space.kscience.krig.core.contracts.typed.BackendBuilder,kotlin.Unit>){}[0]
 final fun space.kscience.krig.core.contracts/DeviceNode(space.kscience.krig.core.contracts/Device? = ..., kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceNode> = ...): space.kscience.krig.core.contracts/DeviceNode // space.kscience.krig.core.contracts/DeviceNode|DeviceNode(space.kscience.krig.core.contracts.Device?;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.DeviceNode>){}[0]
+final fun space.kscience.krig.core.contracts/SteppedBackend(space.kscience.krig.core.contracts/DeviceBackend, kotlin/Function1<kotlin.time/Duration, kotlin/Unit>): space.kscience.krig.core.contracts/SteppedBackend // space.kscience.krig.core.contracts/SteppedBackend|SteppedBackend(space.kscience.krig.core.contracts.DeviceBackend;kotlin.Function1<kotlin.time.Duration,kotlin.Unit>){}[0]
 final fun space.kscience.krig.core.contracts/deviceBackend(kotlin/Function1<space.kscience.krig.core.contracts/DeviceBackendBuilder, kotlin/Unit>): space.kscience.krig.core.contracts/DeviceBackend // space.kscience.krig.core.contracts/deviceBackend|deviceBackend(kotlin.Function1<space.kscience.krig.core.contracts.DeviceBackendBuilder,kotlin.Unit>){}[0]
 final fun space.kscience.krig.core.contracts/deviceTree(space.kscience.krig.core.contracts/Device? = ..., kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceNode> = ...): space.kscience.krig.core.contracts/DeviceNode // space.kscience.krig.core.contracts/deviceTree|deviceTree(space.kscience.krig.core.contracts.Device?;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.DeviceNode>){}[0]
 final fun space.kscience.krig.core.contracts/manifestOf(kotlin/String, space.kscience.krig.core.meta/DeviceContractBuilder, kotlin/String = ..., kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.features/PipelineFeatureSpec> = ..., space.kscience.dataforge.meta/Meta = ..., kotlin/String = ...): space.kscience.krig.core.contracts/DeviceManifest // space.kscience.krig.core.contracts/manifestOf|manifestOf(kotlin.String;space.kscience.krig.core.meta.DeviceContractBuilder;kotlin.String;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.api.features.PipelineFeatureSpec>;space.kscience.dataforge.meta.Meta;kotlin.String){}[0]
@@ -843,13 +789,17 @@ final suspend fun (context(space.kscience.krig.core.contracts/DeviceEnvironment)
 final suspend fun (context(space.kscience.krig.core.contracts/DeviceEnvironment), space.kscience.krig.core.contracts/DeviceBackend).space.kscience.krig.core.contracts/readBytesOutcome(space.kscience.krig.api.descriptors/PropertyDescriptor): space.kscience.krig.api.result/OperationOutcome<kotlin/ByteArray> // space.kscience.krig.core.contracts/readBytesOutcome|readBytesOutcome(space.kscience.krig.core.contracts.DeviceEnvironment)@space.kscience.krig.core.contracts.DeviceBackend(space.kscience.krig.api.descriptors.PropertyDescriptor){}[0]
 final suspend fun (context(space.kscience.krig.core.contracts/DeviceEnvironment), space.kscience.krig.core.contracts/DeviceBackend).space.kscience.krig.core.contracts/readObservedOrThrow(space.kscience.krig.api.descriptors/PropertyDescriptor): space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.core.contracts/readObservedOrThrow|readObservedOrThrow(space.kscience.krig.core.contracts.DeviceEnvironment)@space.kscience.krig.core.contracts.DeviceBackend(space.kscience.krig.api.descriptors.PropertyDescriptor){}[0]
 final suspend fun (context(space.kscience.krig.core.contracts/DeviceEnvironment), space.kscience.krig.core.contracts/DeviceBackend).space.kscience.krig.core.contracts/writeBytes(space.kscience.krig.api.descriptors/PropertyDescriptor, kotlin/ByteArray) // space.kscience.krig.core.contracts/writeBytes|writeBytes(space.kscience.krig.core.contracts.DeviceEnvironment)@space.kscience.krig.core.contracts.DeviceBackend(space.kscience.krig.api.descriptors.PropertyDescriptor;kotlin.ByteArray){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/execute(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta? = ...): space.kscience.dataforge.meta/Meta? // space.kscience.krig.core.contracts/execute|execute@space.kscience.krig.core.contracts.Device(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/executeId(kotlin/String, space.kscience.dataforge.meta/Meta? = ...): space.kscience.dataforge.meta/Meta? // space.kscience.krig.core.contracts/executeId|executeId@space.kscience.krig.core.contracts.Device(kotlin.String;space.kscience.dataforge.meta.Meta?){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/executePath(kotlin/String, space.kscience.dataforge.meta/Meta? = ...): space.kscience.dataforge.meta/Meta? // space.kscience.krig.core.contracts/executePath|executePath@space.kscience.krig.core.contracts.Device(kotlin.String;space.kscience.dataforge.meta.Meta?){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/readProperty(space.kscience.dataforge.names/Name): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.contracts/readProperty|readProperty@space.kscience.krig.core.contracts.Device(space.kscience.dataforge.names.Name){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/readPropertyId(kotlin/String): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.contracts/readPropertyId|readPropertyId@space.kscience.krig.core.contracts.Device(kotlin.String){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/readPropertyPath(kotlin/String): space.kscience.dataforge.meta/Meta // space.kscience.krig.core.contracts/readPropertyPath|readPropertyPath@space.kscience.krig.core.contracts.Device(kotlin.String){}[0]
-final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribe(space.kscience.krig.api.context/Principal, space.kscience.krig.core.contracts/SubscribeOptions): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/subscribe|subscribe@space.kscience.krig.core.contracts.Device(space.kscience.krig.api.context.Principal;space.kscience.krig.core.contracts.SubscribeOptions){}[0]
-final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribeFromContext(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/subscribeFromContext|subscribeFromContext@space.kscience.krig.core.contracts.Device(){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribe(space.kscience.krig.api.context/Principal, space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/SubscribeOptions): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/subscribe|subscribe@space.kscience.krig.core.contracts.Device(space.kscience.krig.api.context.Principal;space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.SubscribeOptions){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribe(space.kscience.krig.api.context/Principal, space.kscience.krig.core.contracts/SubscribeOptions): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/subscribe|subscribe@space.kscience.krig.core.contracts.Device(space.kscience.krig.api.context.Principal;space.kscience.krig.core.contracts.SubscribeOptions){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribeFromContext(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.contracts/subscribeFromContext|subscribeFromContext@space.kscience.krig.core.contracts.Device(){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/subscribePayloadsFromContext(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessage> // space.kscience.krig.core.contracts/subscribePayloadsFromContext|subscribePayloadsFromContext@space.kscience.krig.core.contracts.Device(){}[0]
+final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/writeProperty(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta) // space.kscience.krig.core.contracts/writeProperty|writeProperty@space.kscience.krig.core.contracts.Device(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/writePropertyId(kotlin/String, space.kscience.dataforge.meta/Meta) // space.kscience.krig.core.contracts/writePropertyId|writePropertyId@space.kscience.krig.core.contracts.Device(kotlin.String;space.kscience.dataforge.meta.Meta){}[0]
 final suspend fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/writePropertyPath(kotlin/String, space.kscience.dataforge.meta/Meta) // space.kscience.krig.core.contracts/writePropertyPath|writePropertyPath@space.kscience.krig.core.contracts.Device(kotlin.String;space.kscience.dataforge.meta.Meta){}[0]
 final suspend fun (space.kscience.krig.core.contracts/DeviceNode).space.kscience.krig.core.contracts/batchExecute(kotlin/String, space.kscience.dataforge.meta/Meta? = ...): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta?>> // space.kscience.krig.core.contracts/batchExecute|batchExecute@space.kscience.krig.core.contracts.DeviceNode(kotlin.String;space.kscience.dataforge.meta.Meta?){}[0]

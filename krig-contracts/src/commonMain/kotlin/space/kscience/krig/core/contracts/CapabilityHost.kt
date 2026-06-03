@@ -34,6 +34,7 @@ public interface CapabilityHost {
 public class CapabilityRegistry {
     private val lock = SynchronizedObject()
     private val capabilities: MutableMap<Name, Capability<*>> = linkedMapOf()
+    private var detached = false
 
     public val installedCapabilities: Collection<Capability<*>>
         get() = synchronized(lock) { capabilities.values.toList() }
@@ -45,4 +46,16 @@ public class CapabilityRegistry {
     @Suppress("UNCHECKED_CAST")
     public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
         synchronized(lock) { capabilities[key.id] as? C }
+
+    /**
+     * Detaches every owned capability exactly once, in reverse registration order, on behalf of
+     * [host]. Repeat calls are no-ops; per-capability failures are reported, not propagated.
+     */
+    public suspend fun detachOnce(host: CapabilityHost) {
+        val claimed = synchronized(lock) { if (detached) false else { detached = true; true } }
+        if (!claimed) return
+        for (capability in installedCapabilities.toList().asReversed()) {
+            ignoreCleanupFailureSuspending { context(host) { capability.onDetach() } }
+        }
+    }
 }

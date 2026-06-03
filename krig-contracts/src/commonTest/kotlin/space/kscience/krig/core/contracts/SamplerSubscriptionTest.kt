@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
-import space.kscience.krig.core.contracts.typed.DoubleSampler
-import space.kscience.krig.core.contracts.typed.GenericTypedWriter
-import space.kscience.krig.core.contracts.typed.PrimitiveTypedSampler
+import space.kscience.krig.core.contracts.sampling.requireDoubleSampler
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.*
 
@@ -28,7 +26,7 @@ private fun freshSamplerContext(): Context =
  *
  * - The driver publishes new values into a [RingDoubleSampler] on every typed write.
  * - Consumers obtain the sampler via `device.sampler(spec)`.
- * - Latest value is readable through the unboxed [DoubleSampler.latestDoubleOrNaN] path;
+ * - Latest value is readable through the unboxed [RingDoubleSampler.latestDoubleOrNaN] path;
  *   streaming consumers attach via [RingDoubleSampler.flow].
  *
  * This is the canonical pattern for high-frequency drivers (Modbus polling loops, EPICS
@@ -38,24 +36,22 @@ private fun freshSamplerContext(): Context =
 class SamplerSubscriptionTest {
 
     @Test
-    fun samplerReturnsPrimitiveTypedSampler() {
+    fun samplerReturnsRingDoubleSampler() {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
         val sampler = device.sampler(device.valueSpec)
         assertNotNull(sampler, "driver must expose a sampler for its known spec")
-        assertIs<PrimitiveTypedSampler<Double>>(sampler)
-        assertIs<DoubleSampler>(sampler)
         assertIs<RingDoubleSampler>(sampler)
     }
 
     @Test
     fun samplerStartsEmpty_thenReportsLatestAfterPublish() = runTest {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
-        val sampler = device.sampler(device.valueSpec) as DoubleSampler
+        val sampler = device.requireDoubleSampler(device.valueSpec)
 
         assertFalse(sampler.hasLatest, "no value published yet")
         assertTrue(sampler.latestDoubleOrNaN().isNaN(), "empty primitive latest is NaN")
 
-        val writer = device.writer(device.valueSpec) as GenericTypedWriter<Double>
+        val writer = device.writer(device.valueSpec)
         writer.write(42.0)
         assertTrue(sampler.hasLatest)
         assertEquals(42.0, sampler.latestDoubleOrNaN())
@@ -67,8 +63,8 @@ class SamplerSubscriptionTest {
     @Test
     fun snapshotContainsPublishedValuesInOrder() = runTest {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
-        val sampler = device.sampler(device.valueSpec) as DoubleSampler
-        val writer = device.writer(device.valueSpec) as GenericTypedWriter<Double>
+        val sampler = device.requireDoubleSampler(device.valueSpec)
+        val writer = device.writer(device.valueSpec)
 
         writer.write(1.0)
         writer.write(2.0)
@@ -80,8 +76,8 @@ class SamplerSubscriptionTest {
     @Test
     fun flowEmitsEveryPublishedValue() = runTest {
         val device = SimulatedDoubleSource(context = freshSamplerContext())
-        val sampler = device.sampler(device.valueSpec) as DoubleSampler
-        val writer = device.writer(device.valueSpec) as GenericTypedWriter<Double>
+        val sampler = device.requireDoubleSampler(device.valueSpec)
+        val writer = device.writer(device.valueSpec)
 
         // Subscribe first; collect-then-write avoids dropping values on slow subscribers.
         val collector = async(start = CoroutineStart.UNDISPATCHED) { sampler.flow().take(3).toList() }

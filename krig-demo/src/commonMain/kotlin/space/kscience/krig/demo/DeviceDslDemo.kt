@@ -12,6 +12,8 @@ import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.state.collectPropertyHistory
 import space.kscience.krig.dsl.device
 import space.kscience.krig.dsl.okUnit

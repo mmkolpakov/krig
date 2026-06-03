@@ -13,6 +13,9 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.core.contracts.readProperty
+import space.kscience.krig.core.contracts.writeProperty
+import space.kscience.krig.core.contracts.execute
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.hub.resolveDevice
 import space.kscience.krig.api.hub.resolveNode

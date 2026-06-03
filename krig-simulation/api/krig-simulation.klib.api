@@ -6,6 +6,24 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-simulation>
+open annotation class space.kscience.krig.simulation/SimulationDsl : kotlin/Annotation { // space.kscience.krig.simulation/SimulationDsl|null[0]
+    constructor <init>() // space.kscience.krig.simulation/SimulationDsl.<init>|<init>(){}[0]
+}
+
+final enum class space.kscience.krig.concurrency/ResourceEventType : kotlin/Enum<space.kscience.krig.concurrency/ResourceEventType> { // space.kscience.krig.concurrency/ResourceEventType|null[0]
+    enum entry Granted // space.kscience.krig.concurrency/ResourceEventType.Granted|null[0]
+    enum entry Preempted // space.kscience.krig.concurrency/ResourceEventType.Preempted|null[0]
+    enum entry Queued // space.kscience.krig.concurrency/ResourceEventType.Queued|null[0]
+    enum entry Released // space.kscience.krig.concurrency/ResourceEventType.Released|null[0]
+    enum entry Requested // space.kscience.krig.concurrency/ResourceEventType.Requested|null[0]
+
+    final val entries // space.kscience.krig.concurrency/ResourceEventType.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.concurrency/ResourceEventType> // space.kscience.krig.concurrency/ResourceEventType.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.concurrency/ResourceEventType> // space.kscience.krig.concurrency/ResourceEventType.values|values#static(){}[0]
+}
+
 abstract fun interface space.kscience.krig.concurrency/ResourceEventSink { // space.kscience.krig.concurrency/ResourceEventSink|null[0]
     abstract fun emit(space.kscience.krig.concurrency/ResourceEvent) // space.kscience.krig.concurrency/ResourceEventSink.emit|emit(space.kscience.krig.concurrency.ResourceEvent){}[0]
 
@@ -19,7 +37,16 @@ abstract fun interface space.kscience.krig.concurrency/ResourcePreemptionPolicy 
     abstract fun selectVictims(space.kscience.krig.concurrency/ResourcePreemptionContext): kotlin.collections/List<space.kscience.krig.concurrency/ResourceClaim> // space.kscience.krig.concurrency/ResourcePreemptionPolicy.selectVictims|selectVictims(space.kscience.krig.concurrency.ResourcePreemptionContext){}[0]
 }
 
+abstract fun interface space.kscience.krig.simulation/Derivatives { // space.kscience.krig.simulation/Derivatives|null[0]
+    abstract fun evaluate(kotlin/DoubleArray, kotlin/DoubleArray) // space.kscience.krig.simulation/Derivatives.evaluate|evaluate(kotlin.DoubleArray;kotlin.DoubleArray){}[0]
+}
+
 abstract interface space.kscience.krig.simulation/ProcessScope : kotlinx.coroutines/CoroutineScope // space.kscience.krig.simulation/ProcessScope|null[0]
+
+abstract interface space.kscience.krig.simulation/SimulationContext : kotlinx.coroutines/CoroutineScope { // space.kscience.krig.simulation/SimulationContext|null[0]
+    abstract val scheduler // space.kscience.krig.simulation/SimulationContext.scheduler|{}scheduler[0]
+        abstract fun <get-scheduler>(): space.kscience.krig.simulation/SimulationScheduler // space.kscience.krig.simulation/SimulationContext.scheduler.<get-scheduler>|<get-scheduler>(){}[0]
+}
 
 abstract interface space.kscience.krig.simulation/SimulationScheduler { // space.kscience.krig.simulation/SimulationScheduler|null[0]
     abstract val currentTimeMs // space.kscience.krig.simulation/SimulationScheduler.currentTimeMs|{}currentTimeMs[0]
@@ -43,19 +70,6 @@ sealed interface space.kscience.krig.simulation/ClockMode { // space.kscience.kr
         final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.simulation/ClockMode.Compressed.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/ClockMode.Compressed.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.simulation/ClockMode.Compressed.toString|toString(){}[0]
-    }
-
-    final class Custom : space.kscience.krig.simulation/ClockMode { // space.kscience.krig.simulation/ClockMode.Custom|null[0]
-        constructor <init>(kotlin.time/Clock) // space.kscience.krig.simulation/ClockMode.Custom.<init>|<init>(kotlin.time.Clock){}[0]
-
-        final val clock // space.kscience.krig.simulation/ClockMode.Custom.clock|{}clock[0]
-            final fun <get-clock>(): kotlin.time/Clock // space.kscience.krig.simulation/ClockMode.Custom.clock.<get-clock>|<get-clock>(){}[0]
-
-        final fun component1(): kotlin.time/Clock // space.kscience.krig.simulation/ClockMode.Custom.component1|component1(){}[0]
-        final fun copy(kotlin.time/Clock = ...): space.kscience.krig.simulation/ClockMode.Custom // space.kscience.krig.simulation/ClockMode.Custom.copy|copy(kotlin.time.Clock){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.simulation/ClockMode.Custom.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/ClockMode.Custom.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.simulation/ClockMode.Custom.toString|toString(){}[0]
     }
 
     final class Virtual : space.kscience.krig.simulation/ClockMode { // space.kscience.krig.simulation/ClockMode.Virtual|null[0]
@@ -268,30 +282,6 @@ final class space.kscience.krig.simulation/VirtualTimeScope { // space.kscience.
     final fun toString(): kotlin/String // space.kscience.krig.simulation/VirtualTimeScope.toString|toString(){}[0]
 }
 
-final value class space.kscience.krig.concurrency/ResourceEventType { // space.kscience.krig.concurrency/ResourceEventType|null[0]
-    constructor <init>(kotlin/String) // space.kscience.krig.concurrency/ResourceEventType.<init>|<init>(kotlin.String){}[0]
-
-    final val name // space.kscience.krig.concurrency/ResourceEventType.name|{}name[0]
-        final fun <get-name>(): kotlin/String // space.kscience.krig.concurrency/ResourceEventType.name.<get-name>|<get-name>(){}[0]
-
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.concurrency/ResourceEventType.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.concurrency/ResourceEventType.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.concurrency/ResourceEventType.toString|toString(){}[0]
-
-    final object Companion { // space.kscience.krig.concurrency/ResourceEventType.Companion|null[0]
-        final val Granted // space.kscience.krig.concurrency/ResourceEventType.Companion.Granted|{}Granted[0]
-            final fun <get-Granted>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Granted.<get-Granted>|<get-Granted>(){}[0]
-        final val Preempted // space.kscience.krig.concurrency/ResourceEventType.Companion.Preempted|{}Preempted[0]
-            final fun <get-Preempted>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Preempted.<get-Preempted>|<get-Preempted>(){}[0]
-        final val Queued // space.kscience.krig.concurrency/ResourceEventType.Companion.Queued|{}Queued[0]
-            final fun <get-Queued>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Queued.<get-Queued>|<get-Queued>(){}[0]
-        final val Released // space.kscience.krig.concurrency/ResourceEventType.Companion.Released|{}Released[0]
-            final fun <get-Released>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Released.<get-Released>|<get-Released>(){}[0]
-        final val Requested // space.kscience.krig.concurrency/ResourceEventType.Companion.Requested|{}Requested[0]
-            final fun <get-Requested>(): space.kscience.krig.concurrency/ResourceEventType // space.kscience.krig.concurrency/ResourceEventType.Companion.Requested.<get-Requested>|<get-Requested>(){}[0]
-    }
-}
-
 final value class space.kscience.krig.concurrency/ResourcePriority : kotlin/Comparable<space.kscience.krig.concurrency/ResourcePriority> { // space.kscience.krig.concurrency/ResourcePriority|null[0]
     constructor <init>(kotlin/Int) // space.kscience.krig.concurrency/ResourcePriority.<init>|<init>(kotlin.Int){}[0]
 
@@ -355,11 +345,13 @@ final fun (space.kscience.dataforge.context/Context).space.kscience.krig.simulat
 final fun (space.kscience.dataforge.context/ContextBuilder).space.kscience.krig.simulation/withTimeCompression(kotlin/Double) // space.kscience.krig.simulation/withTimeCompression|withTimeCompression@space.kscience.dataforge.context.ContextBuilder(kotlin.Double){}[0]
 final fun (space.kscience.dataforge.context/ContextBuilder).space.kscience.krig.simulation/withVirtualTime(kotlin.time/Instant = ...) // space.kscience.krig.simulation/withVirtualTime|withVirtualTime@space.kscience.dataforge.context.ContextBuilder(kotlin.time.Instant){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.simulation/runProcess(kotlin/String = ..., kotlin.coroutines/SuspendFunction1<space.kscience.krig.simulation/ProcessScope, kotlin/Unit>): kotlinx.coroutines/Job // space.kscience.krig.simulation/runProcess|runProcess@space.kscience.krig.core.contracts.Device(kotlin.String;kotlin.coroutines.SuspendFunction1<space.kscience.krig.simulation.ProcessScope,kotlin.Unit>){}[0]
-final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asClockState(): space.kscience.krig.dsl/ClockState // space.kscience.krig.simulation/asClockState|asClockState@space.kscience.krig.simulation.ClockManager(){}[0]
-final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asSamplingClock(): space.kscience.krig.dsl/SamplingClock // space.kscience.krig.simulation/asSamplingClock|asSamplingClock@space.kscience.krig.simulation.ClockManager(){}[0]
+final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asClockState(): space.kscience.krig.core.operations/ClockState // space.kscience.krig.simulation/asClockState|asClockState@space.kscience.krig.simulation.ClockManager(){}[0]
+final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asSamplingClock(): space.kscience.krig.core.operations/SamplingClock // space.kscience.krig.simulation/asSamplingClock|asSamplingClock@space.kscience.krig.simulation.ClockManager(){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/fixedRateTicks(kotlin.time/Duration): kotlinx.coroutines.flow/Flow<kotlin/Unit> // space.kscience.krig.simulation/fixedRateTicks|fixedRateTicks@space.kscience.krig.simulation.ClockManager(kotlin.time.Duration){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/sharedTicks(kotlinx.coroutines/CoroutineScope, kotlin.time/Duration, kotlinx.coroutines.flow/SharingStarted = ...): kotlinx.coroutines.flow/SharedFlow<kotlin/Unit> // space.kscience.krig.simulation/sharedTicks|sharedTicks@space.kscience.krig.simulation.ClockManager(kotlinx.coroutines.CoroutineScope;kotlin.time.Duration;kotlinx.coroutines.flow.SharingStarted){}[0]
-final fun space.kscience.krig.simulation/simulationScope(space.kscience.krig.simulation/DeterministicScheduler): kotlinx.coroutines/CoroutineScope // space.kscience.krig.simulation/simulationScope|simulationScope(space.kscience.krig.simulation.DeterministicScheduler){}[0]
+final fun space.kscience.krig.simulation/rungeKutta4(kotlin/DoubleArray, kotlin.time/Duration, space.kscience.krig.simulation/Derivatives) // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.DoubleArray;kotlin.time.Duration;space.kscience.krig.simulation.Derivatives){}[0]
+final fun space.kscience.krig.simulation/simulationScope(space.kscience.krig.simulation/DeterministicScheduler): space.kscience.krig.simulation/SimulationContext // space.kscience.krig.simulation/simulationScope|simulationScope(space.kscience.krig.simulation.DeterministicScheduler){}[0]
+final inline fun space.kscience.krig.simulation/rungeKutta4(kotlin/Double, kotlin.time/Duration, kotlin/Function1<kotlin/Double, kotlin/Double>): kotlin/Double // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.Double;kotlin.time.Duration;kotlin.Function1<kotlin.Double,kotlin.Double>){}[0]
 final suspend fun (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/hold(kotlin.time/Duration) // space.kscience.krig.simulation/hold|hold@space.kscience.krig.simulation.ProcessScope(kotlin.time.Duration){}[0]
 final suspend fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/StateFlow<#A>).space.kscience.krig.concurrency/waitUntil(kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.concurrency/waitUntil|waitUntil@kotlinx.coroutines.flow.StateFlow<0:0>(kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/request(space.kscience.krig.concurrency/Resource, kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ..., kotlin.coroutines/SuspendFunction0<#A>): #A // space.kscience.krig.simulation/request|request@space.kscience.krig.simulation.ProcessScope(space.kscience.krig.concurrency.Resource;kotlin.Int;space.kscience.krig.concurrency.ResourcePriority;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]

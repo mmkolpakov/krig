@@ -11,6 +11,9 @@ import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.journal.ReplayLog
+import space.kscience.krig.storage.journal.SequenceCursor
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
@@ -82,7 +85,7 @@ class CounterfactualTest {
     @Test
     fun branchAtAndWhatIfProducesDivergentFuture() = runTest {
         val history = listOf(event(100, 1), event(200, 2))
-        val log = InMemoryReplayLog()
+        val log = InMemoryEventJournal()
         history.forEach { log.record(it.testEnvelope()) }
         val replay = CounterReplay()
 
@@ -125,7 +128,7 @@ class CounterfactualTest {
 
     @Test
     fun cursorMutationTargetsOneRecordWhenTimestampsCollide() = runTest {
-        val log = InMemoryReplayLog()
+        val log = InMemoryEventJournal()
         log.record(event(100, 1).testEnvelope())
         log.record(event(100, 2).testEnvelope())
         val replay = CounterReplay()

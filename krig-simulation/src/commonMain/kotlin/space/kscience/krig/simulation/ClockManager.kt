@@ -44,8 +44,6 @@ private class CompressedTimeDispatcher(
 public sealed interface ClockMode {
     public data object System : ClockMode
 
-    public data class Custom(public val clock: Clock) : ClockMode
-
     /**
      * Real-time scaled by [compression] (>1 = faster, <1 = slower).
      */
@@ -87,7 +85,6 @@ public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
     public open val clock: Clock by lazy {
         when (val mode = clockMode) {
             ClockMode.System -> Clock.System
-            is ClockMode.Custom -> mode.clock
             is ClockMode.Compressed -> CompressedClock(factor = mode.compression, baseClock = Clock.System)
             is ClockMode.Virtual -> mode.scheduler.asClock()
         }
@@ -106,7 +103,7 @@ public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
     @OptIn(ExperimentalCoroutinesApi::class)
     public open val simulationDispatcher: CoroutineDispatcher by lazy {
         when (val mode = clockMode) {
-            is ClockMode.System, is ClockMode.Custom ->
+            is ClockMode.System ->
                 context.coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher ?: Dispatchers.Default
             is ClockMode.Compressed -> CompressedTimeDispatcher(
                 coroutineContext = context.coroutineContext,

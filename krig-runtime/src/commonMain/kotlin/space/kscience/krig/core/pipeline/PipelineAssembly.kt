@@ -8,7 +8,6 @@ import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.api.services.auditService
 import space.kscience.krig.api.services.authorizationService
 import space.kscience.krig.core.ExperimentalKrigApi
@@ -22,7 +21,6 @@ import space.kscience.krig.core.features.PipelineFeatureSpecMismatchException
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.krig.core.features.UnknownPipelineFeaturePolicy
-import space.kscience.krig.core.hook.PropertyReadRequested
 import space.kscience.krig.core.operations.ResourceLockRegistry
 
 /**
@@ -41,14 +39,6 @@ public suspend fun wrapWithPipeline(
     autoInstallDefaults: Boolean = true,
 ): Device {
     if (device is PipelineDevice && builder.isEmpty()) return device
-
-    val readRequestedHandlers = builder.handlersOf(PropertyReadRequested)
-    if (readRequestedHandlers.isNotEmpty()) {
-        builder.onRead { operation ->
-            for (handler in readRequestedHandlers) handler(operation.name)
-            okUnit()
-        }
-    }
 
     if (autoInstallDefaults && device !is PipelineDevice) {
         installDefaults(builder, device, deviceName)

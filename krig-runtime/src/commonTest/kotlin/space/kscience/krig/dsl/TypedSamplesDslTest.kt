@@ -19,7 +19,8 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
+import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
@@ -68,7 +69,9 @@ private class SamplerOnlyDevice : AbstractDevice(
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? =
         if (spec === valueSpec) sampler as TypedSampler<T> else null
 
-    override suspend fun subscribe(principal: Principal): Flow<DeviceMessageEnvelope<DeviceMessage>> = messageFlow
+    override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = messageFlow
+    override suspend fun subscribe(principal: Principal, property: Name): Flow<DeviceMessageFrame<DeviceMessage>> =
+        messageFlow
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         runCatchingOperation { error("typedSamples must not call readProperty") }
 
@@ -112,7 +115,7 @@ class TypedSamplesDslTest {
             device.typedSamples(
                 principal = AnonymousPrincipal,
                 spec = device.valueSpec,
-                options = SubscribeOptions(typeFilter = setOf("PropertyChangedMessage")),
+                options = SubscribeOptions(typeFilter = setOf(DeviceMessageType.PropertyChanged)),
             )
         }
     }

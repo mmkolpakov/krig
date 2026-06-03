@@ -35,12 +35,12 @@ public annotation class UnstableKrigForSubclassing
 /**
  * Marks an API that allocates [Meta][space.kscience.dataforge.meta.Meta] (or otherwise
  * boxes typed primitives) on the hot path. Prefer typed accessors —
- * `TypedReader<T>` / `TypedWriter<T>` / `TypedSampler<T>` and their primitive
- * specialisations (`GenericTypedReader<Double>`, `GenericTypedReader<Int>`, …) — for high-frequency reads.
+ * `TypedReader<T>` / `TypedWriter<T>` / `TypedSampler<T>` and the unboxed ring samplers
+ * (`RingDoubleSampler`, `RingIntSampler`, …) — for high-frequency reads.
  */
 @RequiresOptIn(
     message = "This API allocates Meta or boxes typed values on the hot path. " +
-            "Prefer typed primitive accessors (GenericTypedReader<Double>, GenericTypedReader<Int>, TypedSampler) " +
+            "Prefer typed primitive accessors (TypedReader, TypedSampler, RingDoubleSampler) " +
             "for high-frequency reads. Opt in with @OptIn(PerformancePitfall::class).",
     level = RequiresOptIn.Level.WARNING,
 )

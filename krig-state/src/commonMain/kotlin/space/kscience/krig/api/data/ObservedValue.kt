@@ -52,10 +52,6 @@ public val ObservedValue<*>.hasValue: Boolean
 public val ObservedValue<*>.isUsable: Boolean
     get() = hasValue && isGood
 
-/** `true` when the value is present and its quality is exactly [DataQuality.GOOD]. */
-public val ObservedValue<*>.isReliable: Boolean
-    get() = isUsable
-
 /** Returns the sample value only when [isUsable], otherwise `null`. */
 public val <T> ObservedValue<T>.usableValue: T?
     get() = if (isUsable) value else null

@@ -30,7 +30,7 @@ import space.kscience.krig.core.hook.HookRegistry
  */
 public class PipelineBuilder : HookRegistry {
 
-    private data class OperationPolicy(
+    private data class PipelineKindDefaults(
         val timeout: Duration? = null,
         val retry: RetryPolicy? = null,
         val latencyBudget: Duration? = null,
@@ -48,11 +48,9 @@ public class PipelineBuilder : HookRegistry {
         AtomicReference(persistentMapOf())
     private val observers: AtomicReference<PersistentMap<OperationKind, PersistentList<OperationObserver>>> =
         AtomicReference(persistentMapOf())
-    private val policies: AtomicReference<PersistentMap<OperationKind, OperationPolicy>> =
+    private val policies: AtomicReference<PersistentMap<OperationKind, PipelineKindDefaults>> =
         AtomicReference(persistentMapOf())
     private val readDecoratorsRef: AtomicReference<PersistentList<ReadDecorator>> =
-        AtomicReference(persistentListOf())
-    private val samplingObserversRef: AtomicReference<PersistentList<SamplingObserver>> =
         AtomicReference(persistentListOf())
 
     public val capabilities: AttributesBuilder<Capability<*>> = AttributesBuilder()
@@ -65,9 +63,6 @@ public class PipelineBuilder : HookRegistry {
     public fun observers(kind: OperationKind): List<OperationObserver> = observers.load()[kind].orEmpty()
     public val readDecorators: List<ReadDecorator> get() = readDecoratorsRef.load()
 
-    /** After-sample observers — invoked on every TypedSampler flow element. */
-    public val samplingObservers: List<SamplingObserver> get() = samplingObserversRef.load()
-
     public fun gate(kind: OperationKind, gate: OperationGate) {
         gates.update { it.append(kind, gate) }
     }
@@ -78,10 +73,6 @@ public class PipelineBuilder : HookRegistry {
 
     public fun decorateRead(decorator: ReadDecorator) {
         readDecoratorsRef.update { it.add(decorator) }
-    }
-
-    public fun addSamplingObserver(observer: SamplingObserver) {
-        samplingObserversRef.update { it.add(observer) }
     }
 
     public fun timeout(kind: OperationKind, timeout: Duration?) {
@@ -129,7 +120,6 @@ public class PipelineBuilder : HookRegistry {
         gates.load().values.all { it.isEmpty() } &&
             observers.load().values.all { it.isEmpty() } &&
             readDecorators.isEmpty() &&
-            samplingObservers.isEmpty() &&
             policies.load().isEmpty() &&
             capabilities.attributes().isEmpty() &&
             connectionStateProvider == null &&
@@ -147,14 +137,9 @@ public class PipelineBuilder : HookRegistry {
         )
     }
 
-    @InternalKrigApi
-    public fun toSamplingSpec(): SamplingPipelineSpec = SamplingPipelineSpec(
-        observers = samplingObservers,
-    )
-
-    private fun updatePolicy(kind: OperationKind, transform: (OperationPolicy) -> OperationPolicy) {
+    private fun updatePolicy(kind: OperationKind, transform: (PipelineKindDefaults) -> PipelineKindDefaults) {
         policies.update { current ->
-            current.put(kind, transform(current[kind] ?: OperationPolicy()))
+            current.put(kind, transform(current[kind] ?: PipelineKindDefaults()))
         }
     }
 }

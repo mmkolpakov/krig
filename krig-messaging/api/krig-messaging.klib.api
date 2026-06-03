@@ -235,80 +235,40 @@ sealed interface space.kscience.krig.api.messages/DeviceDepartureReason { // spa
     }
 }
 
-final class <#A: out space.kscience.krig.api.messages/DeviceMessage> space.kscience.krig.api.messages/DeviceMessageEnvelope { // space.kscience.krig.api.messages/DeviceMessageEnvelope|null[0]
-    constructor <init>(#A, space.kscience.krig.api.messages/MessageContext = ...) // space.kscience.krig.api.messages/DeviceMessageEnvelope.<init>|<init>(1:0;space.kscience.krig.api.messages.MessageContext){}[0]
+final class <#A: out space.kscience.krig.api.messages/DeviceMessage> space.kscience.krig.api.messages/DeviceMessageFrame { // space.kscience.krig.api.messages/DeviceMessageFrame|null[0]
+    constructor <init>(#A, space.kscience.krig.api.messages/MessageContext = ...) // space.kscience.krig.api.messages/DeviceMessageFrame.<init>|<init>(1:0;space.kscience.krig.api.messages.MessageContext){}[0]
 
-    final val context // space.kscience.krig.api.messages/DeviceMessageEnvelope.context|{}context[0]
-        final fun <get-context>(): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/DeviceMessageEnvelope.context.<get-context>|<get-context>(){}[0]
-    final val payload // space.kscience.krig.api.messages/DeviceMessageEnvelope.payload|{}payload[0]
-        final fun <get-payload>(): #A // space.kscience.krig.api.messages/DeviceMessageEnvelope.payload.<get-payload>|<get-payload>(){}[0]
+    final val context // space.kscience.krig.api.messages/DeviceMessageFrame.context|{}context[0]
+        final fun <get-context>(): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/DeviceMessageFrame.context.<get-context>|<get-context>(){}[0]
+    final val payload // space.kscience.krig.api.messages/DeviceMessageFrame.payload|{}payload[0]
+        final fun <get-payload>(): #A // space.kscience.krig.api.messages/DeviceMessageFrame.payload.<get-payload>|<get-payload>(){}[0]
 
-    final fun component1(): #A // space.kscience.krig.api.messages/DeviceMessageEnvelope.component1|component1(){}[0]
-    final fun component2(): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/DeviceMessageEnvelope.component2|component2(){}[0]
-    final fun copy(#A = ..., space.kscience.krig.api.messages/MessageContext = ...): space.kscience.krig.api.messages/DeviceMessageEnvelope<#A> // space.kscience.krig.api.messages/DeviceMessageEnvelope.copy|copy(1:0;space.kscience.krig.api.messages.MessageContext){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceMessageEnvelope.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceMessageEnvelope.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageEnvelope.toString|toString(){}[0]
+    final fun component1(): #A // space.kscience.krig.api.messages/DeviceMessageFrame.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/DeviceMessageFrame.component2|component2(){}[0]
+    final fun copy(#A = ..., space.kscience.krig.api.messages/MessageContext = ...): space.kscience.krig.api.messages/DeviceMessageFrame<#A> // space.kscience.krig.api.messages/DeviceMessageFrame.copy|copy(1:0;space.kscience.krig.api.messages.MessageContext){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceMessageFrame.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceMessageFrame.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageFrame.toString|toString(){}[0]
 
-    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/DeviceMessageEnvelope<#A1>> { // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer|null[0]
-        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/DeviceMessageFrame<#A1>> { // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
 
-        final val descriptor // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-        final val typeSerial0 // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.typeSerial0|{}typeSerial0[0]
+        final val descriptor // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.typeSerial0|{}typeSerial0[0]
 
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/DeviceMessageEnvelope<#A1> // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/DeviceMessageEnvelope<#A1>) // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.DeviceMessageEnvelope<1:0>){}[0]
-        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/DeviceMessageEnvelope.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/DeviceMessageFrame<#A1> // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/DeviceMessageFrame<#A1>) // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.DeviceMessageFrame<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/DeviceMessageFrame.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
     }
 
-    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.messages/DeviceMessageEnvelope.Companion|null[0]
-        final val $cachedDescriptor // space.kscience.krig.api.messages/DeviceMessageEnvelope.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
-            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/DeviceMessageEnvelope.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.messages/DeviceMessageFrame.Companion|null[0]
+        final val $cachedDescriptor // space.kscience.krig.api.messages/DeviceMessageFrame.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/DeviceMessageFrame.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
 
-        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceMessageEnvelope<#A2>> // space.kscience.krig.api.messages/DeviceMessageEnvelope.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceMessageEnvelope.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
-}
-
-final class space.kscience.krig.api.messages/ActionFaultMessage : space.kscience.krig.api.messages/ResponseMessage { // space.kscience.krig.api.messages/ActionFaultMessage|null[0]
-    constructor <init>(kotlin.time/Instant, space.kscience.krig.api.faults/OperationFault, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.api.messages/ActionFaultMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-
-    final val fault // space.kscience.krig.api.messages/ActionFaultMessage.fault|{}fault[0]
-        final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/ActionFaultMessage.fault.<get-fault>|<get-fault>(){}[0]
-    final val messageType // space.kscience.krig.api.messages/ActionFaultMessage.messageType|{}messageType[0]
-        final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/ActionFaultMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
-    final val sourceDevice // space.kscience.krig.api.messages/ActionFaultMessage.sourceDevice|{}sourceDevice[0]
-        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/ActionFaultMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
-    final val targetDevice // space.kscience.krig.api.messages/ActionFaultMessage.targetDevice|{}targetDevice[0]
-        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/ActionFaultMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
-    final val time // space.kscience.krig.api.messages/ActionFaultMessage.time|{}time[0]
-        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.api.messages/ActionFaultMessage.time.<get-time>|<get-time>(){}[0]
-
-    final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/ActionFaultMessage // space.kscience.krig.api.messages/ActionFaultMessage.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
-    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/ActionFaultMessage.component1|component1(){}[0]
-    final fun component2(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/ActionFaultMessage.component2|component2(){}[0]
-    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/ActionFaultMessage.component3|component3(){}[0]
-    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/ActionFaultMessage.component4|component4(){}[0]
-    final fun copy(kotlin.time/Instant = ..., space.kscience.krig.api.faults/OperationFault = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/ActionFaultMessage // space.kscience.krig.api.messages/ActionFaultMessage.copy|copy(kotlin.time.Instant;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/ActionFaultMessage.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/ActionFaultMessage.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.messages/ActionFaultMessage.toString|toString(){}[0]
-
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/ActionFaultMessage> { // space.kscience.krig.api.messages/ActionFaultMessage.$serializer|null[0]
-        final val descriptor // space.kscience.krig.api.messages/ActionFaultMessage.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/ActionFaultMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/ActionFaultMessage.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/ActionFaultMessage // space.kscience.krig.api.messages/ActionFaultMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/ActionFaultMessage) // space.kscience.krig.api.messages/ActionFaultMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.ActionFaultMessage){}[0]
-    }
-
-    final object Companion { // space.kscience.krig.api.messages/ActionFaultMessage.Companion|null[0]
-        final val $childSerializers // space.kscience.krig.api.messages/ActionFaultMessage.Companion.$childSerializers|{}$childSerializers[0]
-
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/ActionFaultMessage> // space.kscience.krig.api.messages/ActionFaultMessage.Companion.serializer|serializer(){}[0]
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceMessageFrame<#A2>> // space.kscience.krig.api.messages/DeviceMessageFrame.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceMessageFrame.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
     }
 }
 
@@ -504,44 +464,6 @@ final class space.kscience.krig.api.messages/DeviceDetachedMessage : space.kscie
     }
 }
 
-final class space.kscience.krig.api.messages/DeviceErrorMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.api.messages/DeviceErrorMessage|null[0]
-    constructor <init>(kotlin.time/Instant, space.kscience.krig.api.faults/SerializableOperationFailure, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.api.messages/DeviceErrorMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.api.faults.SerializableOperationFailure;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-
-    final val failure // space.kscience.krig.api.messages/DeviceErrorMessage.failure|{}failure[0]
-        final fun <get-failure>(): space.kscience.krig.api.faults/SerializableOperationFailure // space.kscience.krig.api.messages/DeviceErrorMessage.failure.<get-failure>|<get-failure>(){}[0]
-    final val messageType // space.kscience.krig.api.messages/DeviceErrorMessage.messageType|{}messageType[0]
-        final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/DeviceErrorMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
-    final val sourceDevice // space.kscience.krig.api.messages/DeviceErrorMessage.sourceDevice|{}sourceDevice[0]
-        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/DeviceErrorMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
-    final val targetDevice // space.kscience.krig.api.messages/DeviceErrorMessage.targetDevice|{}targetDevice[0]
-        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/DeviceErrorMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
-    final val time // space.kscience.krig.api.messages/DeviceErrorMessage.time|{}time[0]
-        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.api.messages/DeviceErrorMessage.time.<get-time>|<get-time>(){}[0]
-
-    final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/DeviceErrorMessage // space.kscience.krig.api.messages/DeviceErrorMessage.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
-    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/DeviceErrorMessage.component1|component1(){}[0]
-    final fun component2(): space.kscience.krig.api.faults/SerializableOperationFailure // space.kscience.krig.api.messages/DeviceErrorMessage.component2|component2(){}[0]
-    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/DeviceErrorMessage.component3|component3(){}[0]
-    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/DeviceErrorMessage.component4|component4(){}[0]
-    final fun copy(kotlin.time/Instant = ..., space.kscience.krig.api.faults/SerializableOperationFailure = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/DeviceErrorMessage // space.kscience.krig.api.messages/DeviceErrorMessage.copy|copy(kotlin.time.Instant;space.kscience.krig.api.faults.SerializableOperationFailure;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceErrorMessage.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceErrorMessage.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceErrorMessage.toString|toString(){}[0]
-
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/DeviceErrorMessage> { // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer|null[0]
-        final val descriptor // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/DeviceErrorMessage // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/DeviceErrorMessage) // space.kscience.krig.api.messages/DeviceErrorMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.DeviceErrorMessage){}[0]
-    }
-
-    final object Companion { // space.kscience.krig.api.messages/DeviceErrorMessage.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceErrorMessage> // space.kscience.krig.api.messages/DeviceErrorMessage.Companion.serializer|serializer(){}[0]
-    }
-}
-
 final class space.kscience.krig.api.messages/DeviceOfflineMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.api.messages/DeviceOfflineMessage|null[0]
     constructor <init>(kotlin.time/Instant, space.kscience.krig.api.messages/DeviceDepartureReason, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.api.messages/DeviceOfflineMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.api.messages.DeviceDepartureReason;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
 
@@ -628,23 +550,63 @@ final class space.kscience.krig.api.messages/DeviceOnlineMessage : space.kscienc
     }
 }
 
+final class space.kscience.krig.api.messages/FaultMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.api.messages/FaultMessage|null[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.krig.api.faults/OperationFault, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.messages/FaultMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val fault // space.kscience.krig.api.messages/FaultMessage.fault|{}fault[0]
+        final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/FaultMessage.fault.<get-fault>|<get-fault>(){}[0]
+    final val messageType // space.kscience.krig.api.messages/FaultMessage.messageType|{}messageType[0]
+        final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/FaultMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
+    final val scope // space.kscience.krig.api.messages/FaultMessage.scope|{}scope[0]
+        final fun <get-scope>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/FaultMessage.scope.<get-scope>|<get-scope>(){}[0]
+    final val sourceDevice // space.kscience.krig.api.messages/FaultMessage.sourceDevice|{}sourceDevice[0]
+        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/FaultMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
+    final val targetDevice // space.kscience.krig.api.messages/FaultMessage.targetDevice|{}targetDevice[0]
+        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/FaultMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
+    final val time // space.kscience.krig.api.messages/FaultMessage.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.api.messages/FaultMessage.time.<get-time>|<get-time>(){}[0]
+
+    final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/FaultMessage // space.kscience.krig.api.messages/FaultMessage.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
+    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/FaultMessage.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/FaultMessage.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/FaultMessage.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/FaultMessage.component4|component4(){}[0]
+    final fun component5(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/FaultMessage.component5|component5(){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.krig.api.faults/OperationFault = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.api.messages/FaultMessage // space.kscience.krig.api.messages/FaultMessage.copy|copy(kotlin.time.Instant;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?;space.kscience.dataforge.meta.Meta){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/FaultMessage.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/FaultMessage.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.messages/FaultMessage.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/FaultMessage> { // space.kscience.krig.api.messages/FaultMessage.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.messages/FaultMessage.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/FaultMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/FaultMessage.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/FaultMessage // space.kscience.krig.api.messages/FaultMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/FaultMessage) // space.kscience.krig.api.messages/FaultMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.FaultMessage){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.messages/FaultMessage.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.messages/FaultMessage.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/FaultMessage> // space.kscience.krig.api.messages/FaultMessage.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.api.messages/MessageContext { // space.kscience.krig.api.messages/MessageContext|null[0]
-    constructor <init>(kotlin/String? = ..., kotlin/String? = ..., space.kscience.krig.core.operations/HlcTimestamp? = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.messages/MessageContext.<init>|<init>(kotlin.String?;kotlin.String?;space.kscience.krig.core.operations.HlcTimestamp?;space.kscience.dataforge.meta.Meta){}[0]
+    constructor <init>(space.kscience.krig.api.identifiers/CorrelationId? = ..., space.kscience.krig.core.operations/HlcTimestamp? = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.messages/MessageContext.<init>|<init>(space.kscience.krig.api.identifiers.CorrelationId?;space.kscience.krig.core.operations.HlcTimestamp?;space.kscience.dataforge.meta.Meta){}[0]
 
     final val attributes // space.kscience.krig.api.messages/MessageContext.attributes|{}attributes[0]
         final fun <get-attributes>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/MessageContext.attributes.<get-attributes>|<get-attributes>(){}[0]
     final val correlationId // space.kscience.krig.api.messages/MessageContext.correlationId|{}correlationId[0]
-        final fun <get-correlationId>(): kotlin/String? // space.kscience.krig.api.messages/MessageContext.correlationId.<get-correlationId>|<get-correlationId>(){}[0]
+        final fun <get-correlationId>(): space.kscience.krig.api.identifiers/CorrelationId? // space.kscience.krig.api.messages/MessageContext.correlationId.<get-correlationId>|<get-correlationId>(){}[0]
     final val hlcTimestamp // space.kscience.krig.api.messages/MessageContext.hlcTimestamp|{}hlcTimestamp[0]
         final fun <get-hlcTimestamp>(): space.kscience.krig.core.operations/HlcTimestamp? // space.kscience.krig.api.messages/MessageContext.hlcTimestamp.<get-hlcTimestamp>|<get-hlcTimestamp>(){}[0]
-    final val requestId // space.kscience.krig.api.messages/MessageContext.requestId|{}requestId[0]
-        final fun <get-requestId>(): kotlin/String? // space.kscience.krig.api.messages/MessageContext.requestId.<get-requestId>|<get-requestId>(){}[0]
 
-    final fun component1(): kotlin/String? // space.kscience.krig.api.messages/MessageContext.component1|component1(){}[0]
-    final fun component2(): kotlin/String? // space.kscience.krig.api.messages/MessageContext.component2|component2(){}[0]
-    final fun component3(): space.kscience.krig.core.operations/HlcTimestamp? // space.kscience.krig.api.messages/MessageContext.component3|component3(){}[0]
-    final fun component4(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/MessageContext.component4|component4(){}[0]
-    final fun copy(kotlin/String? = ..., kotlin/String? = ..., space.kscience.krig.core.operations/HlcTimestamp? = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/MessageContext.copy|copy(kotlin.String?;kotlin.String?;space.kscience.krig.core.operations.HlcTimestamp?;space.kscience.dataforge.meta.Meta){}[0]
+    final fun component1(): space.kscience.krig.api.identifiers/CorrelationId? // space.kscience.krig.api.messages/MessageContext.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.core.operations/HlcTimestamp? // space.kscience.krig.api.messages/MessageContext.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/MessageContext.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.api.identifiers/CorrelationId? = ..., space.kscience.krig.core.operations/HlcTimestamp? = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/MessageContext.copy|copy(space.kscience.krig.api.identifiers.CorrelationId?;space.kscience.krig.core.operations.HlcTimestamp?;space.kscience.dataforge.meta.Meta){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/MessageContext.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/MessageContext.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.messages/MessageContext.toString|toString(){}[0]
@@ -710,58 +672,15 @@ final class space.kscience.krig.api.messages/PropertyChangedMessage : space.ksci
     }
 }
 
-final class space.kscience.krig.api.messages/PropertyFaultMessage : space.kscience.krig.api.messages/ResponseMessage { // space.kscience.krig.api.messages/PropertyFaultMessage|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/String, space.kscience.krig.api.faults/OperationFault, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.api.messages/PropertyFaultMessage.<init>|<init>(kotlin.time.Instant;kotlin.String;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-
-    final val fault // space.kscience.krig.api.messages/PropertyFaultMessage.fault|{}fault[0]
-        final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/PropertyFaultMessage.fault.<get-fault>|<get-fault>(){}[0]
-    final val messageType // space.kscience.krig.api.messages/PropertyFaultMessage.messageType|{}messageType[0]
-        final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/PropertyFaultMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
-    final val property // space.kscience.krig.api.messages/PropertyFaultMessage.property|{}property[0]
-        final fun <get-property>(): kotlin/String // space.kscience.krig.api.messages/PropertyFaultMessage.property.<get-property>|<get-property>(){}[0]
-    final val sourceDevice // space.kscience.krig.api.messages/PropertyFaultMessage.sourceDevice|{}sourceDevice[0]
-        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyFaultMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
-    final val targetDevice // space.kscience.krig.api.messages/PropertyFaultMessage.targetDevice|{}targetDevice[0]
-        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyFaultMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
-    final val time // space.kscience.krig.api.messages/PropertyFaultMessage.time|{}time[0]
-        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyFaultMessage.time.<get-time>|<get-time>(){}[0]
-
-    final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/PropertyFaultMessage // space.kscience.krig.api.messages/PropertyFaultMessage.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
-    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyFaultMessage.component1|component1(){}[0]
-    final fun component2(): kotlin/String // space.kscience.krig.api.messages/PropertyFaultMessage.component2|component2(){}[0]
-    final fun component3(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.messages/PropertyFaultMessage.component3|component3(){}[0]
-    final fun component4(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyFaultMessage.component4|component4(){}[0]
-    final fun component5(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyFaultMessage.component5|component5(){}[0]
-    final fun copy(kotlin.time/Instant = ..., kotlin/String = ..., space.kscience.krig.api.faults/OperationFault = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/PropertyFaultMessage // space.kscience.krig.api.messages/PropertyFaultMessage.copy|copy(kotlin.time.Instant;kotlin.String;space.kscience.krig.api.faults.OperationFault;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/PropertyFaultMessage.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/PropertyFaultMessage.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.messages/PropertyFaultMessage.toString|toString(){}[0]
-
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/PropertyFaultMessage> { // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer|null[0]
-        final val descriptor // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/PropertyFaultMessage // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/PropertyFaultMessage) // space.kscience.krig.api.messages/PropertyFaultMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.PropertyFaultMessage){}[0]
-    }
-
-    final object Companion { // space.kscience.krig.api.messages/PropertyFaultMessage.Companion|null[0]
-        final val $childSerializers // space.kscience.krig.api.messages/PropertyFaultMessage.Companion.$childSerializers|{}$childSerializers[0]
-
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/PropertyFaultMessage> // space.kscience.krig.api.messages/PropertyFaultMessage.Companion.serializer|serializer(){}[0]
-    }
-}
-
 final class space.kscience.krig.api.messages/PropertyReadRequest : space.kscience.krig.api.messages/RequestMessage { // space.kscience.krig.api.messages/PropertyReadRequest|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/String, kotlin/String? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?) // space.kscience.krig.api.messages/PropertyReadRequest.<init>|<init>(kotlin.time.Instant;kotlin.String;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.names/Name, kotlin/String? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?) // space.kscience.krig.api.messages/PropertyReadRequest.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.names.Name;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
 
     final val callerIdentity // space.kscience.krig.api.messages/PropertyReadRequest.callerIdentity|{}callerIdentity[0]
         final fun <get-callerIdentity>(): kotlin/String? // space.kscience.krig.api.messages/PropertyReadRequest.callerIdentity.<get-callerIdentity>|<get-callerIdentity>(){}[0]
     final val messageType // space.kscience.krig.api.messages/PropertyReadRequest.messageType|{}messageType[0]
         final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/PropertyReadRequest.messageType.<get-messageType>|<get-messageType>(){}[0]
     final val property // space.kscience.krig.api.messages/PropertyReadRequest.property|{}property[0]
-        final fun <get-property>(): kotlin/String // space.kscience.krig.api.messages/PropertyReadRequest.property.<get-property>|<get-property>(){}[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyReadRequest.property.<get-property>|<get-property>(){}[0]
     final val sourceDevice // space.kscience.krig.api.messages/PropertyReadRequest.sourceDevice|{}sourceDevice[0]
         final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyReadRequest.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
     final val targetDevice // space.kscience.krig.api.messages/PropertyReadRequest.targetDevice|{}targetDevice[0]
@@ -771,11 +690,11 @@ final class space.kscience.krig.api.messages/PropertyReadRequest : space.kscienc
 
     final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/PropertyReadRequest // space.kscience.krig.api.messages/PropertyReadRequest.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
     final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyReadRequest.component1|component1(){}[0]
-    final fun component2(): kotlin/String // space.kscience.krig.api.messages/PropertyReadRequest.component2|component2(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyReadRequest.component2|component2(){}[0]
     final fun component3(): kotlin/String? // space.kscience.krig.api.messages/PropertyReadRequest.component3|component3(){}[0]
     final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyReadRequest.component4|component4(){}[0]
     final fun component5(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyReadRequest.component5|component5(){}[0]
-    final fun copy(kotlin.time/Instant = ..., kotlin/String = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/PropertyReadRequest // space.kscience.krig.api.messages/PropertyReadRequest.copy|copy(kotlin.time.Instant;kotlin.String;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.names/Name = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/PropertyReadRequest // space.kscience.krig.api.messages/PropertyReadRequest.copy|copy(kotlin.time.Instant;space.kscience.dataforge.names.Name;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/PropertyReadRequest.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/PropertyReadRequest.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.messages/PropertyReadRequest.toString|toString(){}[0]
@@ -795,12 +714,12 @@ final class space.kscience.krig.api.messages/PropertyReadRequest : space.kscienc
 }
 
 final class space.kscience.krig.api.messages/PropertyReadResponse : space.kscience.krig.api.messages/ResponseMessage { // space.kscience.krig.api.messages/PropertyReadResponse|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/String, space.kscience.dataforge.meta/Meta, space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?, space.kscience.krig.api.data/DataQuality = ...) // space.kscience.krig.api.messages/PropertyReadResponse.<init>|<init>(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality){}[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta, space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?, space.kscience.krig.api.data/DataQuality = ...) // space.kscience.krig.api.messages/PropertyReadResponse.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality){}[0]
 
     final val messageType // space.kscience.krig.api.messages/PropertyReadResponse.messageType|{}messageType[0]
         final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/PropertyReadResponse.messageType.<get-messageType>|<get-messageType>(){}[0]
     final val property // space.kscience.krig.api.messages/PropertyReadResponse.property|{}property[0]
-        final fun <get-property>(): kotlin/String // space.kscience.krig.api.messages/PropertyReadResponse.property.<get-property>|<get-property>(){}[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyReadResponse.property.<get-property>|<get-property>(){}[0]
     final val quality // space.kscience.krig.api.messages/PropertyReadResponse.quality|{}quality[0]
         final fun <get-quality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.messages/PropertyReadResponse.quality.<get-quality>|<get-quality>(){}[0]
     final val sourceDevice // space.kscience.krig.api.messages/PropertyReadResponse.sourceDevice|{}sourceDevice[0]
@@ -814,12 +733,12 @@ final class space.kscience.krig.api.messages/PropertyReadResponse : space.kscien
 
     final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/PropertyReadResponse // space.kscience.krig.api.messages/PropertyReadResponse.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
     final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyReadResponse.component1|component1(){}[0]
-    final fun component2(): kotlin/String // space.kscience.krig.api.messages/PropertyReadResponse.component2|component2(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyReadResponse.component2|component2(){}[0]
     final fun component3(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/PropertyReadResponse.component3|component3(){}[0]
     final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyReadResponse.component4|component4(){}[0]
     final fun component5(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyReadResponse.component5|component5(){}[0]
     final fun component6(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.messages/PropertyReadResponse.component6|component6(){}[0]
-    final fun copy(kotlin.time/Instant = ..., kotlin/String = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.api.messages/PropertyReadResponse // space.kscience.krig.api.messages/PropertyReadResponse.copy|copy(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.api.messages/PropertyReadResponse // space.kscience.krig.api.messages/PropertyReadResponse.copy|copy(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/PropertyReadResponse.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/PropertyReadResponse.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.messages/PropertyReadResponse.toString|toString(){}[0]
@@ -839,14 +758,14 @@ final class space.kscience.krig.api.messages/PropertyReadResponse : space.kscien
 }
 
 final class space.kscience.krig.api.messages/PropertyWriteRequest : space.kscience.krig.api.messages/RequestMessage { // space.kscience.krig.api.messages/PropertyWriteRequest|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/String, space.kscience.dataforge.meta/Meta, kotlin/String? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?) // space.kscience.krig.api.messages/PropertyWriteRequest.<init>|<init>(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta, kotlin/String? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?) // space.kscience.krig.api.messages/PropertyWriteRequest.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
 
     final val callerIdentity // space.kscience.krig.api.messages/PropertyWriteRequest.callerIdentity|{}callerIdentity[0]
         final fun <get-callerIdentity>(): kotlin/String? // space.kscience.krig.api.messages/PropertyWriteRequest.callerIdentity.<get-callerIdentity>|<get-callerIdentity>(){}[0]
     final val messageType // space.kscience.krig.api.messages/PropertyWriteRequest.messageType|{}messageType[0]
         final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteRequest.messageType.<get-messageType>|<get-messageType>(){}[0]
     final val property // space.kscience.krig.api.messages/PropertyWriteRequest.property|{}property[0]
-        final fun <get-property>(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteRequest.property.<get-property>|<get-property>(){}[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyWriteRequest.property.<get-property>|<get-property>(){}[0]
     final val sourceDevice // space.kscience.krig.api.messages/PropertyWriteRequest.sourceDevice|{}sourceDevice[0]
         final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteRequest.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
     final val targetDevice // space.kscience.krig.api.messages/PropertyWriteRequest.targetDevice|{}targetDevice[0]
@@ -858,12 +777,12 @@ final class space.kscience.krig.api.messages/PropertyWriteRequest : space.kscien
 
     final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/PropertyWriteRequest // space.kscience.krig.api.messages/PropertyWriteRequest.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
     final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyWriteRequest.component1|component1(){}[0]
-    final fun component2(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteRequest.component2|component2(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyWriteRequest.component2|component2(){}[0]
     final fun component3(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/PropertyWriteRequest.component3|component3(){}[0]
     final fun component4(): kotlin/String? // space.kscience.krig.api.messages/PropertyWriteRequest.component4|component4(){}[0]
     final fun component5(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteRequest.component5|component5(){}[0]
     final fun component6(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteRequest.component6|component6(){}[0]
-    final fun copy(kotlin.time/Instant = ..., kotlin/String = ..., space.kscience.dataforge.meta/Meta = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/PropertyWriteRequest // space.kscience.krig.api.messages/PropertyWriteRequest.copy|copy(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.meta/Meta = ..., kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/PropertyWriteRequest // space.kscience.krig.api.messages/PropertyWriteRequest.copy|copy(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/PropertyWriteRequest.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/PropertyWriteRequest.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteRequest.toString|toString(){}[0]
@@ -883,7 +802,7 @@ final class space.kscience.krig.api.messages/PropertyWriteRequest : space.kscien
 }
 
 final class space.kscience.krig.api.messages/PropertyWriteResponse : space.kscience.krig.api.messages/ResponseMessage { // space.kscience.krig.api.messages/PropertyWriteResponse|null[0]
-    constructor <init>(kotlin.time/Instant, kotlin/String, space.kscience.dataforge.meta/Meta? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?, space.kscience.krig.api.data/DataQuality? = ...) // space.kscience.krig.api.messages/PropertyWriteResponse.<init>|<init>(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality?){}[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta? = ..., space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?, space.kscience.krig.api.data/DataQuality? = ...) // space.kscience.krig.api.messages/PropertyWriteResponse.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality?){}[0]
 
     final val messageType // space.kscience.krig.api.messages/PropertyWriteResponse.messageType|{}messageType[0]
         final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteResponse.messageType.<get-messageType>|<get-messageType>(){}[0]
@@ -892,7 +811,7 @@ final class space.kscience.krig.api.messages/PropertyWriteResponse : space.kscie
     final val observedValue // space.kscience.krig.api.messages/PropertyWriteResponse.observedValue|{}observedValue[0]
         final fun <get-observedValue>(): space.kscience.dataforge.meta/Meta? // space.kscience.krig.api.messages/PropertyWriteResponse.observedValue.<get-observedValue>|<get-observedValue>(){}[0]
     final val property // space.kscience.krig.api.messages/PropertyWriteResponse.property|{}property[0]
-        final fun <get-property>(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteResponse.property.<get-property>|<get-property>(){}[0]
+        final fun <get-property>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyWriteResponse.property.<get-property>|<get-property>(){}[0]
     final val sourceDevice // space.kscience.krig.api.messages/PropertyWriteResponse.sourceDevice|{}sourceDevice[0]
         final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteResponse.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
     final val targetDevice // space.kscience.krig.api.messages/PropertyWriteResponse.targetDevice|{}targetDevice[0]
@@ -902,12 +821,12 @@ final class space.kscience.krig.api.messages/PropertyWriteResponse : space.kscie
 
     final fun changeSource(kotlin/Function1<space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name>): space.kscience.krig.api.messages/PropertyWriteResponse // space.kscience.krig.api.messages/PropertyWriteResponse.changeSource|changeSource(kotlin.Function1<space.kscience.dataforge.names.Name,space.kscience.dataforge.names.Name>){}[0]
     final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/PropertyWriteResponse.component1|component1(){}[0]
-    final fun component2(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteResponse.component2|component2(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/PropertyWriteResponse.component2|component2(){}[0]
     final fun component3(): space.kscience.dataforge.meta/Meta? // space.kscience.krig.api.messages/PropertyWriteResponse.component3|component3(){}[0]
     final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteResponse.component4|component4(){}[0]
     final fun component5(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/PropertyWriteResponse.component5|component5(){}[0]
     final fun component6(): space.kscience.krig.api.data/DataQuality? // space.kscience.krig.api.messages/PropertyWriteResponse.component6|component6(){}[0]
-    final fun copy(kotlin.time/Instant = ..., kotlin/String = ..., space.kscience.dataforge.meta/Meta? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.krig.api.data/DataQuality? = ...): space.kscience.krig.api.messages/PropertyWriteResponse // space.kscience.krig.api.messages/PropertyWriteResponse.copy|copy(kotlin.time.Instant;kotlin.String;space.kscience.dataforge.meta.Meta?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality?){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.meta/Meta? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.krig.api.data/DataQuality? = ...): space.kscience.krig.api.messages/PropertyWriteResponse // space.kscience.krig.api.messages/PropertyWriteResponse.copy|copy(kotlin.time.Instant;space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.krig.api.data.DataQuality?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/PropertyWriteResponse.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/PropertyWriteResponse.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.messages/PropertyWriteResponse.toString|toString(){}[0]
@@ -926,37 +845,23 @@ final class space.kscience.krig.api.messages/PropertyWriteResponse : space.kscie
     }
 }
 
-open class <#A: space.kscience.dataforge.meta/Scheme> space.kscience.krig.api.serialization/SchemeAsMetaSerializer : kotlinx.serialization/KSerializer<#A> { // space.kscience.krig.api.serialization/SchemeAsMetaSerializer|null[0]
-    constructor <init>(space.kscience.dataforge.meta/SchemeSpec<#A>) // space.kscience.krig.api.serialization/SchemeAsMetaSerializer.<init>|<init>(space.kscience.dataforge.meta.SchemeSpec<1:0>){}[0]
-
-    open val descriptor // space.kscience.krig.api.serialization/SchemeAsMetaSerializer.descriptor|{}descriptor[0]
-        open fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.serialization/SchemeAsMetaSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-
-    open fun deserialize(kotlinx.serialization.encoding/Decoder): #A // space.kscience.krig.api.serialization/SchemeAsMetaSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-    open fun serialize(kotlinx.serialization.encoding/Encoder, #A) // space.kscience.krig.api.serialization/SchemeAsMetaSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;1:0){}[0]
-}
-
 final object space.kscience.krig.api.messages/DeviceMessageType { // space.kscience.krig.api.messages/DeviceMessageType|null[0]
     final const val ActionExecuteRequest // space.kscience.krig.api.messages/DeviceMessageType.ActionExecuteRequest|{}ActionExecuteRequest[0]
         final fun <get-ActionExecuteRequest>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.ActionExecuteRequest.<get-ActionExecuteRequest>|<get-ActionExecuteRequest>(){}[0]
     final const val ActionExecuteResponse // space.kscience.krig.api.messages/DeviceMessageType.ActionExecuteResponse|{}ActionExecuteResponse[0]
         final fun <get-ActionExecuteResponse>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.ActionExecuteResponse.<get-ActionExecuteResponse>|<get-ActionExecuteResponse>(){}[0]
-    final const val ActionFault // space.kscience.krig.api.messages/DeviceMessageType.ActionFault|{}ActionFault[0]
-        final fun <get-ActionFault>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.ActionFault.<get-ActionFault>|<get-ActionFault>(){}[0]
     final const val DeviceAttached // space.kscience.krig.api.messages/DeviceMessageType.DeviceAttached|{}DeviceAttached[0]
         final fun <get-DeviceAttached>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.DeviceAttached.<get-DeviceAttached>|<get-DeviceAttached>(){}[0]
     final const val DeviceDetached // space.kscience.krig.api.messages/DeviceMessageType.DeviceDetached|{}DeviceDetached[0]
         final fun <get-DeviceDetached>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.DeviceDetached.<get-DeviceDetached>|<get-DeviceDetached>(){}[0]
-    final const val DeviceError // space.kscience.krig.api.messages/DeviceMessageType.DeviceError|{}DeviceError[0]
-        final fun <get-DeviceError>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.DeviceError.<get-DeviceError>|<get-DeviceError>(){}[0]
     final const val DeviceOffline // space.kscience.krig.api.messages/DeviceMessageType.DeviceOffline|{}DeviceOffline[0]
         final fun <get-DeviceOffline>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.DeviceOffline.<get-DeviceOffline>|<get-DeviceOffline>(){}[0]
     final const val DeviceOnline // space.kscience.krig.api.messages/DeviceMessageType.DeviceOnline|{}DeviceOnline[0]
         final fun <get-DeviceOnline>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.DeviceOnline.<get-DeviceOnline>|<get-DeviceOnline>(){}[0]
+    final const val Fault // space.kscience.krig.api.messages/DeviceMessageType.Fault|{}Fault[0]
+        final fun <get-Fault>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.Fault.<get-Fault>|<get-Fault>(){}[0]
     final const val PropertyChanged // space.kscience.krig.api.messages/DeviceMessageType.PropertyChanged|{}PropertyChanged[0]
         final fun <get-PropertyChanged>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.PropertyChanged.<get-PropertyChanged>|<get-PropertyChanged>(){}[0]
-    final const val PropertyFault // space.kscience.krig.api.messages/DeviceMessageType.PropertyFault|{}PropertyFault[0]
-        final fun <get-PropertyFault>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.PropertyFault.<get-PropertyFault>|<get-PropertyFault>(){}[0]
     final const val PropertyReadRequest // space.kscience.krig.api.messages/DeviceMessageType.PropertyReadRequest|{}PropertyReadRequest[0]
         final fun <get-PropertyReadRequest>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.PropertyReadRequest.<get-PropertyReadRequest>|<get-PropertyReadRequest>(){}[0]
     final const val PropertyReadResponse // space.kscience.krig.api.messages/DeviceMessageType.PropertyReadResponse|{}PropertyReadResponse[0]
@@ -970,16 +875,29 @@ final object space.kscience.krig.api.messages/DeviceMessageType { // space.kscie
         final fun <get-all>(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.api.messages/DeviceMessageType.all.<get-all>|<get-all>(){}[0]
 }
 
-final val space.kscience.krig.api.messages/typedCorrelationId // space.kscience.krig.api.messages/typedCorrelationId|@space.kscience.krig.api.messages.MessageContext{}typedCorrelationId[0]
-    final fun (space.kscience.krig.api.messages/MessageContext).<get-typedCorrelationId>(): space.kscience.krig.api.identifiers/CorrelationId? // space.kscience.krig.api.messages/typedCorrelationId.<get-typedCorrelationId>|<get-typedCorrelationId>@space.kscience.krig.api.messages.MessageContext(){}[0]
+final object space.kscience.krig.api.messages/FaultScope { // space.kscience.krig.api.messages/FaultScope|null[0]
+    final val ACTION // space.kscience.krig.api.messages/FaultScope.ACTION|{}ACTION[0]
+        final fun <get-ACTION>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/FaultScope.ACTION.<get-ACTION>|<get-ACTION>(){}[0]
+    final val PROPERTY // space.kscience.krig.api.messages/FaultScope.PROPERTY|{}PROPERTY[0]
+        final fun <get-PROPERTY>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/FaultScope.PROPERTY.<get-PROPERTY>|<get-PROPERTY>(){}[0]
+}
+
+final val space.kscience.krig.api.messages/MESSAGE_QUALITY_KEY // space.kscience.krig.api.messages/MESSAGE_QUALITY_KEY|{}MESSAGE_QUALITY_KEY[0]
+    final fun <get-MESSAGE_QUALITY_KEY>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/MESSAGE_QUALITY_KEY.<get-MESSAGE_QUALITY_KEY>|<get-MESSAGE_QUALITY_KEY>(){}[0]
+final val space.kscience.krig.api.messages/quality // space.kscience.krig.api.messages/quality|@space.kscience.krig.api.messages.MessageContext{}quality[0]
+    final fun (space.kscience.krig.api.messages/MessageContext).<get-quality>(): space.kscience.krig.api.data/DataQuality? // space.kscience.krig.api.messages/quality.<get-quality>|<get-quality>@space.kscience.krig.api.messages.MessageContext(){}[0]
 final val space.kscience.krig.api.serialization/krigApiSerializersModule // space.kscience.krig.api.serialization/krigApiSerializersModule|{}krigApiSerializersModule[0]
     final fun <get-krigApiSerializersModule>(): kotlinx.serialization.modules/SerializersModule // space.kscience.krig.api.serialization/krigApiSerializersModule.<get-krigApiSerializersModule>|<get-krigApiSerializersModule>(){}[0]
 
-final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (#A).space.kscience.krig.api.messages/envelope(space.kscience.krig.api.messages/MessageContext = ...): space.kscience.krig.api.messages/DeviceMessageEnvelope<#A> // space.kscience.krig.api.messages/envelope|envelope@0:0(space.kscience.krig.api.messages.MessageContext){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
-final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<#A>>).space.kscience.krig.api.messages/payloads(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.api.messages/payloads|payloads@kotlinx.coroutines.flow.Flow<space.kscience.krig.api.messages.DeviceMessageEnvelope<0:0>>(){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
-final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (space.kscience.krig.api.messages/DeviceMessageEnvelope<#A>).space.kscience.krig.api.messages/withHlcStamp(space.kscience.krig.core.operations/HlcTimestamp): space.kscience.krig.api.messages/DeviceMessageEnvelope<#A> // space.kscience.krig.api.messages/withHlcStamp|withHlcStamp@space.kscience.krig.api.messages.DeviceMessageEnvelope<0:0>(space.kscience.krig.core.operations.HlcTimestamp){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
+final fun (space.kscience.dataforge.meta/Meta).space.kscience.krig.api.messages/toDataQualityOrNull(): space.kscience.krig.api.data/DataQuality? // space.kscience.krig.api.messages/toDataQualityOrNull|toDataQualityOrNull@space.kscience.dataforge.meta.Meta(){}[0]
+final fun (space.kscience.krig.api.data/DataQuality).space.kscience.krig.api.messages/toMeta(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.messages/toMeta|toMeta@space.kscience.krig.api.data.DataQuality(){}[0]
+final fun (space.kscience.krig.api.messages/MessageContext).space.kscience.krig.api.messages/withQuality(space.kscience.krig.api.data/DataQuality): space.kscience.krig.api.messages/MessageContext // space.kscience.krig.api.messages/withQuality|withQuality@space.kscience.krig.api.messages.MessageContext(space.kscience.krig.api.data.DataQuality){}[0]
+final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (#A).space.kscience.krig.api.messages/frame(space.kscience.krig.api.messages/MessageContext = ...): space.kscience.krig.api.messages/DeviceMessageFrame<#A> // space.kscience.krig.api.messages/frame|frame@0:0(space.kscience.krig.api.messages.MessageContext){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
+final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<#A>>).space.kscience.krig.api.messages/payloads(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.api.messages/payloads|payloads@kotlinx.coroutines.flow.Flow<space.kscience.krig.api.messages.DeviceMessageFrame<0:0>>(){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
+final fun <#A: space.kscience.krig.api.messages/DeviceMessage> (space.kscience.krig.api.messages/DeviceMessageFrame<#A>).space.kscience.krig.api.messages/withHlcStamp(space.kscience.krig.core.operations/HlcTimestamp): space.kscience.krig.api.messages/DeviceMessageFrame<#A> // space.kscience.krig.api.messages/withHlcStamp|withHlcStamp@space.kscience.krig.api.messages.DeviceMessageFrame<0:0>(space.kscience.krig.core.operations.HlcTimestamp){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
 final fun space.kscience.krig.api.serialization/SerializationContributor(kotlinx.serialization.modules/SerializersModule): space.kscience.krig.api.serialization/SerializationContributor // space.kscience.krig.api.serialization/SerializationContributor|SerializationContributor(kotlinx.serialization.modules.SerializersModule){}[0]
 final fun space.kscience.krig.api.serialization/buildKrigSerializersModule(kotlin/Array<out space.kscience.krig.api.serialization/SerializationContributor>...): kotlinx.serialization.modules/SerializersModule // space.kscience.krig.api.serialization/buildKrigSerializersModule|buildKrigSerializersModule(kotlin.Array<out|space.kscience.krig.api.serialization.SerializationContributor>...){}[0]
 final fun space.kscience.krig.api.serialization/krigJson(kotlin/Array<out space.kscience.krig.api.serialization/SerializationContributor>...): kotlinx.serialization.json/Json // space.kscience.krig.api.serialization/krigJson|krigJson(kotlin.Array<out|space.kscience.krig.api.serialization.SerializationContributor>...){}[0]
 final fun space.kscience.krig.api.serialization/krigStorageJson(kotlin/Array<out space.kscience.krig.api.serialization/SerializationContributor>...): kotlinx.serialization.json/Json // space.kscience.krig.api.serialization/krigStorageJson|krigStorageJson(kotlin.Array<out|space.kscience.krig.api.serialization.SerializationContributor>...){}[0]
 final inline fun <#A: reified kotlin/Any, #B: reified #A> space.kscience.krig.api.serialization/polymorphicSerializationContributor(kotlinx.serialization/KSerializer<#B>): space.kscience.krig.api.serialization/SerializationContributor // space.kscience.krig.api.serialization/polymorphicSerializationContributor|polymorphicSerializationContributor(kotlinx.serialization.KSerializer<0:1>){0§<kotlin.Any>;1§<0:0>}[0]
+final inline fun <#A: reified space.kscience.krig.api.messages/DeviceMessage> space.kscience.krig.api.messages/messageTypeOrNull(): kotlin/String? // space.kscience.krig.api.messages/messageTypeOrNull|messageTypeOrNull(){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]

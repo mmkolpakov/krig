@@ -10,11 +10,14 @@ import kotlinx.serialization.json.Json
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigStorageJson
+import space.kscience.krig.storage.journal.CursorReplayLog
+import space.kscience.krig.storage.journal.EventCursor
+import space.kscience.krig.storage.journal.ReplayRecord
 import kotlin.time.Instant
 
 /** Transforms stored journal entries before decoding them into current DTOs. */
@@ -66,7 +69,7 @@ public class KotlinxJsonJournalPayloadCodec(
 public class MessageJournalCodec(
     private val payloadCodec: JournalPayloadCodec = KotlinxJsonJournalPayloadCodec(),
     private val migrations: JournalMigrations = JournalMigrations.empty,
-    private val schema: JournalSchema = JournalSchemas.deviceMessageV1,
+    private val schema: StorageSchema = StorageSchemas.deviceMessageV1,
 ) {
     public fun encode(
         message: DeviceMessage,
@@ -82,16 +85,16 @@ public class MessageJournalCodec(
     )
 
     public fun encode(
-        envelope: DeviceMessageEnvelope<DeviceMessage>,
+        envelope: DeviceMessageFrame<DeviceMessage>,
         subject: Name = envelope.payload.sourceDevice ?: Name.EMPTY,
     ): JournalEntry = encode(envelope.payload, envelope.context, subject)
 
     public fun decode(entry: JournalEntry): Sequence<DeviceMessage> =
         decodeEnvelope(entry).map { it.payload }
 
-    public fun decodeEnvelope(entry: JournalEntry): Sequence<DeviceMessageEnvelope<DeviceMessage>> =
+    public fun decodeEnvelope(entry: JournalEntry): Sequence<DeviceMessageFrame<DeviceMessage>> =
         migrations.migrate(entry).map { migrated ->
-            DeviceMessageEnvelope(
+            DeviceMessageFrame(
                 payload = payloadCodec.decode(migrated.payload),
                 context = migrated.context,
             )
@@ -114,7 +117,7 @@ public fun CursorJournal.asReplayLog(codec: MessageJournalCodec = MessageJournal
                 }
             }
 
-        override fun replay(from: Instant, until: Instant): Flow<DeviceMessageEnvelope<DeviceMessage>> =
+        override fun replay(from: Instant, until: Instant): Flow<DeviceMessageFrame<DeviceMessage>> =
             replayFrom(null)
                 .map { it.envelope }
                 .dropWhile { it.payload.time < from }

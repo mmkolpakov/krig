@@ -6,6 +6,14 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-storage>
+abstract fun interface space.kscience.krig.storage.journal/ReplayLog { // space.kscience.krig.storage.journal/ReplayLog|null[0]
+    abstract fun replay(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/ReplayLog.replay|replay(kotlin.time.Instant;kotlin.time.Instant){}[0]
+}
+
+abstract fun interface space.kscience.krig.storage.journal/ReplaySink { // space.kscience.krig.storage.journal/ReplaySink|null[0]
+    abstract suspend fun record(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/ReplaySink.record|record(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+}
+
 abstract interface <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/TimeSeries { // space.kscience.krig.storage.timeseries/TimeSeries|null[0]
     abstract fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/TimeSeriesSample<#A>> // space.kscience.krig.storage.timeseries/TimeSeries.readAll|readAll(){}[0]
     abstract suspend fun append(space.kscience.krig.storage.timeseries/TimeSeriesSample<#A>) // space.kscience.krig.storage.timeseries/TimeSeries.append|append(space.kscience.krig.storage.timeseries.TimeSeriesSample<1:0>){}[0]
@@ -15,14 +23,23 @@ abstract interface <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/Time
     abstract suspend fun append(space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>) // space.kscience.krig.storage.timeseries/TimeSeriesChunkSink.append|append(space.kscience.krig.storage.timeseries.TimeSeriesChunk<1:0>){}[0]
 }
 
-abstract interface space.kscience.krig.storage.journal/EventJournal : kotlin/AutoCloseable { // space.kscience.krig.storage.journal/EventJournal|null[0]
-    abstract fun read(kotlin/String? = ..., kotlin.ranges/ClosedRange<kotlin.time/Instant>? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.read|read(kotlin.String?;kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
-    abstract fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.readAll|readAll(){}[0]
-    abstract suspend fun write(space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/EventJournal.write|write(space.kscience.krig.api.messages.DeviceMessageEnvelope<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+abstract interface space.kscience.krig.storage.journal/CursorReplayLog : space.kscience.krig.storage.journal/ReplayLog { // space.kscience.krig.storage.journal/CursorReplayLog|null[0]
+    abstract fun replayFrom(space.kscience.krig.storage.journal/EventCursor? = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/CursorReplayLog.replayFrom|replayFrom(space.kscience.krig.storage.journal.EventCursor?){}[0]
+    open fun replayRecords(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/CursorReplayLog.replayRecords|replayRecords(kotlin.time.Instant;kotlin.time.Instant){}[0]
+}
+
+abstract interface space.kscience.krig.storage.journal/EventCursor : kotlin/Comparable<space.kscience.krig.storage.journal/EventCursor> // space.kscience.krig.storage.journal/EventCursor|null[0]
+
+abstract interface space.kscience.krig.storage.journal/EventJournal : kotlin/AutoCloseable, space.kscience.krig.storage.journal/CursorReplayLog, space.kscience.krig.storage.journal/ReplaySink { // space.kscience.krig.storage.journal/EventJournal|null[0]
+    abstract fun read(kotlin/String? = ..., kotlin.ranges/ClosedRange<kotlin.time/Instant>? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.read|read(kotlin.String?;kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    abstract fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.readAll|readAll(){}[0]
+    abstract suspend fun write(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/EventJournal.write|write(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
     open fun close() // space.kscience.krig.storage.journal/EventJournal.close|close(){}[0]
-    open fun observe(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.observe|observe(){}[0]
-    open suspend fun write(space.kscience.krig.api.messages/DeviceMessage) // space.kscience.krig.storage.journal/EventJournal.write|write(space.kscience.krig.api.messages.DeviceMessage){}[0]
-    open suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/EventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageEnvelope<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
+    open fun observe(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.observe|observe(){}[0]
+    open fun replay(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.replay|replay(kotlin.time.Instant;kotlin.time.Instant){}[0]
+    open suspend fun record(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/EventJournal.record|record(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+    open suspend fun write(space.kscience.krig.api.messages/DeviceMessage): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/EventJournal.write|write(space.kscience.krig.api.messages.DeviceMessage){}[0]
+    open suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/EventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
 }
 
 abstract interface space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink|null[0]
@@ -91,20 +108,51 @@ final class <#A: out kotlin/Any?> space.kscience.krig.storage.timeseries/TimeSer
 final class space.kscience.krig.storage.journal/InMemoryEventJournal : space.kscience.krig.storage.journal/EventJournal { // space.kscience.krig.storage.journal/InMemoryEventJournal|null[0]
     constructor <init>(kotlin/Int = ..., kotlin/Int = ...) // space.kscience.krig.storage.journal/InMemoryEventJournal.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
 
-    final fun observe(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.observe|observe(){}[0]
-    final fun read(kotlin/String?, kotlin.ranges/ClosedRange<kotlin.time/Instant>?, space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.read|read(kotlin.String?;kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
-    final fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.readAll|readAll(){}[0]
-    final suspend fun write(space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/InMemoryEventJournal.write|write(space.kscience.krig.api.messages.DeviceMessageEnvelope<space.kscience.krig.api.messages.DeviceMessage>){}[0]
-    final suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageEnvelope<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/InMemoryEventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageEnvelope<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
+    final fun observe(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.observe|observe(){}[0]
+    final fun read(kotlin/String?, kotlin.ranges/ClosedRange<kotlin.time/Instant>?, space.kscience.dataforge.names/Name?, space.kscience.dataforge.names/Name?): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.read|read(kotlin.String?;kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){}[0]
+    final fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/InMemoryEventJournal.readAll|readAll(){}[0]
+    final fun replayFrom(space.kscience.krig.storage.journal/EventCursor?): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/InMemoryEventJournal.replayFrom|replayFrom(space.kscience.krig.storage.journal.EventCursor?){}[0]
+    final fun replayRecords(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/InMemoryEventJournal.replayRecords|replayRecords(kotlin.time.Instant;kotlin.time.Instant){}[0]
+    final fun size(): kotlin/Int // space.kscience.krig.storage.journal/InMemoryEventJournal.size|size(){}[0]
+    final suspend fun write(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/InMemoryEventJournal.write|write(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+    final suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/InMemoryEventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
+}
+
+final class space.kscience.krig.storage.journal/ReplayRecord { // space.kscience.krig.storage.journal/ReplayRecord|null[0]
+    constructor <init>(space.kscience.krig.storage.journal/EventCursor, space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/ReplayRecord.<init>|<init>(space.kscience.krig.storage.journal.EventCursor;space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+
+    final val cursor // space.kscience.krig.storage.journal/ReplayRecord.cursor|{}cursor[0]
+        final fun <get-cursor>(): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/ReplayRecord.cursor.<get-cursor>|<get-cursor>(){}[0]
+    final val envelope // space.kscience.krig.storage.journal/ReplayRecord.envelope|{}envelope[0]
+        final fun <get-envelope>(): space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage> // space.kscience.krig.storage.journal/ReplayRecord.envelope.<get-envelope>|<get-envelope>(){}[0]
+    final val message // space.kscience.krig.storage.journal/ReplayRecord.message|{}message[0]
+        final fun <get-message>(): space.kscience.krig.api.messages/DeviceMessage // space.kscience.krig.storage.journal/ReplayRecord.message.<get-message>|<get-message>(){}[0]
+
+    final fun component1(): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/ReplayRecord.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage> // space.kscience.krig.storage.journal/ReplayRecord.component2|component2(){}[0]
+    final fun copy(space.kscience.krig.storage.journal/EventCursor = ..., space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage> = ...): space.kscience.krig.storage.journal/ReplayRecord // space.kscience.krig.storage.journal/ReplayRecord.copy|copy(space.kscience.krig.storage.journal.EventCursor;space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.journal/ReplayRecord.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.storage.journal/ReplayRecord.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.storage.journal/ReplayRecord.toString|toString(){}[0]
 }
 
 final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk|null[0]
     constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow>){}[0]
 
+    final val rowCount // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.rowCount|{}rowCount[0]
+        final fun <get-rowCount>(): kotlin/Int // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
     final val rows // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.rows|{}rows[0]
         final fun <get-rows>(): kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow> // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.rows.<get-rows>|<get-rows>(){}[0]
     final val series // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.series|{}series[0]
         final fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.series.<get-series>|<get-series>(){}[0]
+    final val times // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.times|{}times[0]
+        final fun <get-times>(): kotlin.collections/List<kotlin.time/Instant> // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.times.<get-times>|<get-times>(){}[0]
+
+    final fun aggregateQualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.aggregateQualityAt|aggregateQualityAt(kotlin.Int){}[0]
+    final fun column(kotlin/Int): space.kscience.kmath.structures/Float64Buffer // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.column|column(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
+    final fun row(kotlin/Int): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.row|row(kotlin.Int){}[0]
+    final fun value(kotlin/Int, kotlin/Int): kotlin/Double // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.value|value(kotlin.Int;kotlin.Int){}[0]
 }
 
 final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow|null[0]
@@ -120,6 +168,8 @@ final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow { //
         final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.time.<get-time>|<get-time>(){}[0]
     final val values // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.values|{}values[0]
         final fun <get-values>(): kotlin/DoubleArray // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.values.<get-values>|<get-values>(){}[0]
+    final val valuesBuffer // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.valuesBuffer|{}valuesBuffer[0]
+        final fun <get-valuesBuffer>(): space.kscience.kmath.structures/Float64Buffer // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.valuesBuffer.<get-valuesBuffer>|<get-valuesBuffer>(){}[0]
 
     final fun get(kotlin/Int): kotlin/Double // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.get|get(kotlin.Int){}[0]
     final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
@@ -165,6 +215,18 @@ final class space.kscience.krig.storage.timeseries/RowsCompression { // space.ks
     }
 }
 
+final value class space.kscience.krig.storage.journal/SequenceCursor : space.kscience.krig.storage.journal/EventCursor { // space.kscience.krig.storage.journal/SequenceCursor|null[0]
+    constructor <init>(kotlin/Long) // space.kscience.krig.storage.journal/SequenceCursor.<init>|<init>(kotlin.Long){}[0]
+
+    final val sequence // space.kscience.krig.storage.journal/SequenceCursor.sequence|{}sequence[0]
+        final fun <get-sequence>(): kotlin/Long // space.kscience.krig.storage.journal/SequenceCursor.sequence.<get-sequence>|<get-sequence>(){}[0]
+
+    final fun compareTo(space.kscience.krig.storage.journal/EventCursor): kotlin/Int // space.kscience.krig.storage.journal/SequenceCursor.compareTo|compareTo(space.kscience.krig.storage.journal.EventCursor){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.journal/SequenceCursor.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.storage.journal/SequenceCursor.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.storage.journal/SequenceCursor.toString|toString(){}[0]
+}
+
 final value class space.kscience.krig.storage.profile/StorageProfile { // space.kscience.krig.storage.profile/StorageProfile|null[0]
     constructor <init>(space.kscience.dataforge.names/Name) // space.kscience.krig.storage.profile/StorageProfile.<init>|<init>(space.kscience.dataforge.names.Name){}[0]
 
@@ -192,6 +254,10 @@ final object space.kscience.krig.storage.profile/StorageProfiles { // space.ksci
 }
 
 final fun (kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk>).space.kscience.krig.storage.timeseries/compressDenseRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk> // space.kscience.krig.storage.timeseries/compressDenseRows|compressDenseRows@kotlinx.coroutines.flow.Flow<space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk>(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
+final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/lastOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/lastOrNaN|lastOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
+final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/maxOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/maxOrNaN|maxOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
+final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/mean(): kotlin/Double // space.kscience.krig.storage.timeseries/mean|mean@space.kscience.kmath.structures.Float64Buffer(){}[0]
+final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/minOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/minOrNaN|minOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/compressRows|compressRows@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink).space.kscience.krig.storage.timeseries/compressing(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink // space.kscience.krig.storage.timeseries/compressing|compressing@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunkSink(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
 final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Double>).space.kscience.krig.storage.timeseries/toDenseDoubleChunk(kotlin/Double = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseDoubleChunk|toDenseDoubleChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Double>(kotlin.Double){}[0]
@@ -199,6 +265,8 @@ final fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/Flow<space.kscience.krig.st
 final fun <#A: kotlin/Any?> (space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A> // space.kscience.krig.storage.timeseries/compressRows|compressRows@space.kscience.krig.storage.timeseries.TimeSeriesChunk<0:0>(space.kscience.krig.storage.timeseries.RowsCompression){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.storage.timeseries/TimeSeriesChunkSink<#A>).space.kscience.krig.storage.timeseries/compressing(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/TimeSeriesChunkSink<#A> // space.kscience.krig.storage.timeseries/compressing|compressing@space.kscience.krig.storage.timeseries.TimeSeriesChunkSink<0:0>(space.kscience.krig.storage.timeseries.RowsCompression){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/timeSeriesSample(space.kscience.dataforge.names/Name, space.kscience.krig.api.data/ObservedValue<#A>): space.kscience.krig.storage.timeseries/TimeSeriesSample<#A> // space.kscience.krig.storage.timeseries/timeSeriesSample|timeSeriesSample(space.kscience.dataforge.names.Name;space.kscience.krig.api.data.ObservedValue<0:0>){0§<kotlin.Any?>}[0]
+final fun space.kscience.krig.storage.journal/ReplayLog(kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>): space.kscience.krig.storage.journal/ReplayLog // space.kscience.krig.storage.journal/ReplayLog|ReplayLog(kotlinx.coroutines.flow.Flow<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
+final fun space.kscience.krig.storage.journal/compareEnvelopesByCausality(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>, space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>): kotlin/Int // space.kscience.krig.storage.journal/compareEnvelopesByCausality|compareEnvelopesByCausality(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>;space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
 final inline fun <#A: reified space.kscience.krig.api.messages/DeviceMessage> (space.kscience.krig.storage.journal/EventJournal).space.kscience.krig.storage.journal/read(kotlin.ranges/ClosedRange<kotlin.time/Instant>? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.storage.journal/read|read@space.kscience.krig.storage.journal.EventJournal(kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
 final inline fun <#A: reified space.kscience.krig.api.messages/DeviceMessage> (space.kscience.krig.storage.journal/EventJournal).space.kscience.krig.storage.journal/readTyped(kotlin/String, kotlin.ranges/ClosedRange<kotlin.time/Instant>? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ...): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.storage.journal/readTyped|readTyped@space.kscience.krig.storage.journal.EventJournal(kotlin.String;kotlin.ranges.ClosedRange<kotlin.time.Instant>?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?){0§<space.kscience.krig.api.messages.DeviceMessage>}[0]
 final suspend fun (space.kscience.krig.storage.journal/EventJournal).space.kscience.krig.storage.journal/writePayloads(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/writePayloads|writePayloads@space.kscience.krig.storage.journal.EventJournal(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessage>){}[0]

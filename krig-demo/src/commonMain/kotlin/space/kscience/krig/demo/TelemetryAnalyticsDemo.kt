@@ -6,8 +6,13 @@ import space.kscience.dataforge.data.await
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
+import space.kscience.kmath.structures.Float64Buffer
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.assembly.ReductionSpec
+import space.kscience.krig.assembly.reduceToBins
+import space.kscience.krig.assembly.resample
+import space.kscience.krig.assembly.totalize
 import space.kscience.krig.core.dataforge.TimeSeriesTableColumns
 import space.kscience.krig.core.dataforge.asDataSource
 import space.kscience.krig.core.dataforge.asTable
@@ -17,13 +22,20 @@ import space.kscience.krig.storage.timeseries.TimeSeriesChunk
 import space.kscience.krig.storage.timeseries.TimeSeriesRow
 import space.kscience.krig.storage.timeseries.TimeSeriesSample
 import space.kscience.krig.storage.timeseries.compressRows
+import space.kscience.krig.storage.timeseries.mean
+import space.kscience.krig.storage.timeseries.toDenseDoubleChunk
 import space.kscience.tables.Table
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
 /** Time-series compression plus DataForge table/source adapters for notebook analytics. */
 suspend fun telemetryAnalyticsDemo() {
     val raw = pumpTelemetryChunk()
     val compressed = raw.compressRows(RowsCompression(minIntervalMillis = 10))
+    val dense = compressed.toDenseDoubleChunk()
+    val binned = dense.reduceToBins(20.milliseconds, ReductionSpec.MinMaxMean)
+    val regularGrid = dense.resample(10.milliseconds)
+    val motorCharge = dense.totalize(motorCurrent)
     val table = compressed.asTable()
     val dataSource = compressed.toSampleSeries().asDataSource(
         name = "passport.telemetry".parseAsName(),
@@ -45,6 +57,9 @@ suspend fun telemetryAnalyticsDemo() {
     println("  first table row: ${table.firstRowSnapshot()}")
     println("  DataSource samples: ${dataSourceSnapshot.size}")
     println("  average GOOD vibration: ${compressed.averageGoodVibration()}")
+    println("  20ms min/max/mean bins: ${binned.rowCount} rows over ${binned.series.size} columns")
+    println("  resampled to uniform 10ms grid: ${regularGrid.rowCount} rows (linear interpolation)")
+    println("  motor charge over window: $motorCharge A·s (trapezoid ∫ current dt)")
     println(
         "  diagnostic rows: ${
             diagnosticRows.map { row ->
@@ -117,10 +132,10 @@ private class ListTimeSeries<T>(
 }
 
 private fun TimeSeriesChunk<Double>.averageGoodVibration(): Double {
-    val values = rows.mapNotNull { row ->
+    val good = rows.mapNotNull { row ->
         if (row.quality.severity == QualitySeverity.GOOD) row.values[vibrationRms] else null
     }
-    return if (values.isEmpty()) Double.NaN else values.sum() / values.size
+    return Float64Buffer(good.toDoubleArray()).mean()
 }
 
 private fun Table<Any?>.firstRowSnapshot(): Map<String, Any?> =

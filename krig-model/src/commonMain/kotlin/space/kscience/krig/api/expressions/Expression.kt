@@ -19,6 +19,12 @@ import space.kscience.dataforge.names.Name
  *
  * Operator DSL in [space.kscience.krig.dsl] builds the same tree with
  * Kotlin syntax: `ref("m","rpm") * 2.0 + ref("s","temp")`.
+ *
+ * **KMath `kmath-ast` seam.** Operations are string-named, so this tree maps node-for-node onto a
+ * KMath `MST` without a dependency here: [Constant] → `MST.Numeric`, [Binding] → `MST.Symbol`,
+ * [Unary]/[Binary] → `MST.Unary`/`MST.Binary` (same function name), [NAry] → a fold of `MST.Binary`.
+ * A consumer that wants string parsing or JVM-bytecode compilation adds `kmath-ast` on its side and
+ * bridges via `String.parseMath()` / `MST.compileToExpression(Float64Field)` — krig stays neutral.
  */
 @Polymorphic
 @Serializable

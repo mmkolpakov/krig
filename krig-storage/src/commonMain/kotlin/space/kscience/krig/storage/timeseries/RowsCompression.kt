@@ -68,33 +68,38 @@ public fun <T> TimeSeriesChunk<T>.compressRows(compression: RowsCompression = Ro
     return TimeSeriesChunk(series, compressed)
 }
 
-/** Compresses dense double rows by dropping rows whose values and aggregate quality did not change. */
+/**
+ * Compresses dense double rows by dropping rows whose values and aggregate quality did not change.
+ * Column-native: comparison reads straight from the column buffers against the last kept row, and the
+ * result is selected column-major — no per-row [DoubleArray] or [DenseDoubleTimeSeriesRow] is allocated.
+ */
 public fun DenseDoubleTimeSeriesChunk.compressRows(
     compression: RowsCompression = RowsCompression.Default,
 ): DenseDoubleTimeSeriesChunk {
-    if (rows.isEmpty() || compression == RowsCompression.None) return this
-    val compressed = ArrayList<DenseDoubleTimeSeriesRow>(rows.size)
-    var previousValues: DoubleArray? = null
+    if (rowCount == 0 || compression == RowsCompression.None) return this
+    val keptRows = IntArray(rowCount)
+    var keptCount = 0
+    var lastKept = -1
     var previousQuality: DataQuality? = null
     var lastKeptTime: Instant? = null
 
-    for (row in rows) {
-        val previous = previousValues
-        val valuesChanged = previous == null || row.values.indices.any { index ->
-            !doubleEquivalent(previous[index], row.values[index], compression.numericDelta)
+    for (index in 0 until rowCount) {
+        val valuesChanged = lastKept < 0 || series.indices.any { column ->
+            !doubleEquivalent(value(lastKept, column), value(index, column), compression.numericDelta)
         }
-        val qualityChanged = previousQuality != row.aggregateQuality
+        val aggregateQuality = aggregateQualityAt(index)
+        val qualityChanged = previousQuality != aggregateQuality
         val rowChanged = !compression.skipUnchangedRows || valuesChanged || qualityChanged
-        val intervalAllows = lastKeptTime.allows(row.time, compression)
+        val intervalAllows = lastKeptTime.allows(times[index], compression)
 
         if (rowChanged && intervalAllows) {
-            compressed += row
-            previousValues = row.values.copyOf()
-            previousQuality = row.aggregateQuality
-            lastKeptTime = row.time
+            keptRows[keptCount++] = index
+            lastKept = index
+            previousQuality = aggregateQuality
+            lastKeptTime = times[index]
         }
     }
-    return DenseDoubleTimeSeriesChunk(series, compressed)
+    return selectRows(keptRows, keptCount)
 }
 
 /** Flow adapter for chunk pipelines. */

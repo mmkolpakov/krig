@@ -12,6 +12,8 @@ import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.faults.operationFault
+import space.kscience.krig.api.faults.validationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.runCatchingOperation
@@ -144,15 +146,19 @@ public suspend fun device(
 // ── Private impl: synthesised backend for DeclarativeDeviceBuilder ──
 
 /**
- * Shared read / write / execute / close state for the device DSL backends.
+ * Device DSL backend: a re-entrant interpreter whose property/action blocks run inside a
+ * [DeclarativeScope] that can read and write sibling members. It implements [DeviceBackend]
+ * directly; the Meta control plane lives here because the scope and raw-value path are intrinsic
+ * to the DSL and cannot be lowered into the contract-level [BackendCore].
  */
+@OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 internal class DeclarativeBackendCore(
     val readers: Map<Name, DeviceReadBlock<Any>>,
     val writers: Map<Name, DeviceWriteBlock>,
     val valueWriters: Map<Name, (Any?) -> Unit>,
     val actions: Map<Name, DeviceActionBlock>,
     val closeBody: (() -> Unit)?,
-) {
+) : DeviceBackend {
     private val scopeLock = SynchronizedObject()
     private var cachedScope: DeclarativeScope? = null
 
@@ -168,7 +174,7 @@ internal class DeclarativeBackendCore(
     context(device: DeviceEnvironment)
     suspend fun readValue(name: Name): OperationOutcome<Any> {
         val reader = readers[name]
-            ?: return unknownDeclarativeOperation(OperationFaultTypes.UnknownProperty, "Unknown property '$name' on Device DSL backend")
+            ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '$name' on Device DSL backend")
         return runCatchingOperation {
             val scope = scope()
             with(reader) { scope.read() }
@@ -176,7 +182,7 @@ internal class DeclarativeBackendCore(
     }
 
     context(device: DeviceEnvironment)
-    suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
+    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         when (val outcome = readValue(property.name)) {
             is OperationOutcome.Fail -> outcome
             is OperationOutcome.Ok -> runCatchingOperation {
@@ -207,7 +213,7 @@ internal class DeclarativeBackendCore(
             }
         }
         val writer = writers[name]
-            ?: return validationFault(name, "Property '$name' is not writable on Device DSL backend")
+            ?: return validationFault("Property '$name' is not writable on Device DSL backend", property = name)
         val meta = try {
             toMeta(value)
         } catch (e: ClassCastException) {
@@ -222,9 +228,9 @@ internal class DeclarativeBackendCore(
     }
 
     context(device: DeviceEnvironment)
-    suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
+    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
         val writer = writers[property.name]
-            ?: return validationFault(property.name, "Property '${property.name}' is not writable on Device DSL backend")
+            ?: return validationFault("Property '${property.name}' is not writable on Device DSL backend", property = property.name)
         return runCatchingOperation {
             val scope = scope()
             with(writer) { scope.write(value) }
@@ -232,9 +238,9 @@ internal class DeclarativeBackendCore(
     }
 
     context(device: DeviceEnvironment)
-    suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
+    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
         val body = actions[action.name]
-            ?: return unknownDeclarativeOperation(
+            ?: return operationFault(
                 OperationFaultTypes.UnknownAction,
                 "Unknown action '${action.name}' on Device DSL backend",
             )
@@ -244,7 +250,7 @@ internal class DeclarativeBackendCore(
         }
     }
 
-    fun close() { closeBody?.invoke() }
+    override fun close() { closeBody?.invoke() }
 }
 
 private class DeclarativeScope(
@@ -368,47 +374,7 @@ private class DeclarativeScope(
     }
 }
 
-/** Device DSL backend without time-advancement. */
-@OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
-internal class DeclarativeDeviceBackend(private val c: DeclarativeBackendCore) : DeviceBackend {
-    context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
-    context(device: DeviceEnvironment)
-    override suspend fun write(
-        property: PropertyDescriptor,
-        value: Meta,
-    ): OperationOutcome<Unit> = c.write(property, value)
-    context(device: DeviceEnvironment)
-    override suspend fun execute(
-        action: ActionDescriptor,
-        argument: Meta?,
-    ): OperationOutcome<Meta?> = c.execute(action, argument)
-    override fun close() = c.close()
-}
-
-/** Device DSL backend used when `onStep` was declared. */
-@OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
-internal class DeclarativeSteppedBackend(
-    private val c: DeclarativeBackendCore,
-    private val stepBody: (Duration) -> Unit,
-) : SteppedBackend {
-    override fun step(dt: Duration) { stepBody(dt) }
-    context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
-    context(device: DeviceEnvironment)
-    override suspend fun write(
-        property: PropertyDescriptor,
-        value: Meta,
-    ): OperationOutcome<Unit> = c.write(property, value)
-    context(device: DeviceEnvironment)
-    override suspend fun execute(
-        action: ActionDescriptor,
-        argument: Meta?,
-    ): OperationOutcome<Meta?> = c.execute(action, argument)
-    override fun close() = c.close()
-}
-
-/** Picks the concrete class based on whether `onStep` was declared. */
+/** Builds the device DSL backend, attaching a step body via [SteppedBackend] when `onStep` was declared. */
 internal fun declarativeBackend(
     readers: Map<Name, DeviceReadBlock<Any>>,
     writers: Map<Name, DeviceWriteBlock>,
@@ -418,7 +384,7 @@ internal fun declarativeBackend(
     closeBody: (() -> Unit)?,
 ): DeviceBackend {
     val core = DeclarativeBackendCore(readers, writers, valueWriters, actions, closeBody)
-    return if (stepBody != null) DeclarativeSteppedBackend(core, stepBody) else DeclarativeDeviceBackend(core)
+    return if (stepBody != null) SteppedBackend(core, stepBody) else core
 }
 
 internal fun synthesizeProperty(name: Name, mutable: Boolean): PropertyDescriptor = PropertyDescriptor(
@@ -439,19 +405,6 @@ internal fun writeTypeError(property: String, expected: String, got: Meta): Noth
                 OperationFaultDetails.EXPECTED_TYPE put expected
                 OperationFaultDetails.MESSAGE put "Property '$property' write requires a scalar $expected value."
                 "actual" put got.toString()
-            },
-        ),
-    )
-
-private fun unknownDeclarativeOperation(type: Name, message: String): OperationOutcome.Fail =
-    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
-
-private fun validationFault(property: Name, message: String): OperationOutcome.Fail =
-    OperationOutcome.Fail(
-        ValidationFault(
-            details = Meta {
-                OperationFaultDetails.PROPERTY put property.toString()
-                OperationFaultDetails.MESSAGE put message
             },
         ),
     )

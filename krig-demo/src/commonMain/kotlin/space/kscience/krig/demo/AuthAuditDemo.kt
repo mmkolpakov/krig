@@ -17,7 +17,6 @@ import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AuthorizationException
-import space.kscience.krig.api.services.AuditAction
 import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.api.services.AuthorizationService
 import space.kscience.krig.api.services.auditService
@@ -86,8 +85,8 @@ private class RecordingAuditService private constructor(meta: Meta) :
     override val tag: PluginTag get() = AuditService.tag
     val records: MutableList<DemoAuditRecord> = mutableListOf()
 
-    override suspend fun record(principal: Principal, action: AuditAction, details: Meta) {
-        records += DemoAuditRecord("${principal.name}:${action.id}:${details}")
+    override suspend fun record(principal: Principal, action: String, details: Meta) {
+        records += DemoAuditRecord("${principal.name}:$action:$details")
     }
 
     companion object : PluginFactory<RecordingAuditService> {

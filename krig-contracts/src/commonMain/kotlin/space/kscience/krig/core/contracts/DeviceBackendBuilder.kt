@@ -2,17 +2,11 @@ package space.kscience.krig.core.contracts
 
 import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.io.asBinary
-import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.GenericOperationFault
-import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.faults.faultDetails
+import space.kscience.krig.api.faults.validationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
-import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -21,7 +15,6 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.time.Duration
-import kotlin.time.Clock
 
 /**
  * DSL marker for [deviceBackend] builder blocks. Prevents accidental nesting
@@ -271,19 +264,24 @@ public class DeviceBackendBuilder internal constructor() {
     }
 
     internal fun build(): DeviceBackend {
-        val common = BuiltCommon(
-            readers = readers.toMap(),
-            observedReaders = observedReaders.toMap(),
-            binaryReaders = binaryReaders.toMap(),
-            writers = writers.toMap(),
-            actions = actions.toMap(),
-            batchObservedReadBody = batchObservedReadBody,
-            batchBinaryReadBody = batchBinaryReadBody,
-            batchWriteBody = batchWriteBody,
-            closeBody = closeBlock,
+        val core = BackendCore(
+            BackendHandlers(
+                metaReaders = readers.toMetaReaders { (reader, converter) -> converter.convertAny(reader()) },
+                observedReaders = observedReaders.toObservedReaders { (reader, converter) ->
+                    val observed = reader()
+                    ObservedValue(converter.convertAny(observed.value), observed.time, observed.quality)
+                },
+                binaryReaders = binaryReaders.toBinaryReaders { it() },
+                writers = writers.toMetaWriters { writer, value -> writer(value) },
+                actions = actions.toMetaActions { _, body, argument -> runCatchingOperation { body(argument) } },
+                batchObserved = batchObservedReadBody,
+                batchBinary = batchBinaryReadBody,
+                batchWrite = batchWriteBody,
+                onClose = closeBlock,
+            ),
         )
         val step = stepBlock
-        return if (step != null) BuiltSteppedBackend(common, step) else BuiltDeviceBackend(common)
+        return if (step != null) SteppedBackend(core, step) else core
     }
 
     private fun checkReaderSlot(name: Name) {
@@ -316,175 +314,3 @@ public fun steppedBackend(block: DeviceBackendBuilder.() -> Unit): SteppedBacken
         ?: error("steppedBackend { } requires an onStep { } block; use deviceBackend { } for state-less backends")
 }
 
-/** Shared read / write / execute / close state for both built backends. */
-private class BuiltCommon(
-    val readers: Map<Name, Pair<suspend () -> Any?, MetaConverter<*>>>,
-    val observedReaders: Map<Name, Pair<suspend () -> ObservedValue<Any?>, MetaConverter<*>>>,
-    val binaryReaders: Map<Name, suspend () -> Binary>,
-    val writers: Map<Name, suspend (Meta) -> OperationOutcome<Unit>>,
-    val actions: Map<Name, suspend (Meta?) -> Meta?>,
-    val batchObservedReadBody:
-            (suspend DeviceEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>)?,
-    val batchBinaryReadBody:
-            (suspend DeviceEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<Binary>>)?,
-    val batchWriteBody:
-            (suspend DeviceEnvironment.(Map<PropertyDescriptor, Meta>) -> Map<Name, OperationOutcome<Unit>>)?,
-    val closeBody: (() -> Unit)?,
-) {
-    suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
-        readers[property.name]?.let { (reader, converter) ->
-            return runCatchingOperation {
-                converter.convertAny(reader())
-            }
-        }
-        observedReaders[property.name]?.let { (reader, converter) ->
-            return runCatchingOperation {
-                converter.convertAny(reader().value)
-            }
-        }
-        return backendFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}' on device backend")
-    }
-
-    suspend fun readObserved(property: PropertyDescriptor, clock: Clock): OperationOutcome<ObservedValue<Meta?>> {
-        observedReaders[property.name]?.let { (reader, converter) ->
-            return runCatchingOperation {
-                val observed = reader()
-                val meta = converter.convertAny(observed.value)
-                ObservedValue(value = meta, time = observed.time, quality = observed.quality)
-            }
-        }
-        return when (val outcome = read(property)) {
-            is OperationOutcome.Ok -> OperationOutcome.Ok(
-                ObservedValue(value = outcome.value, time = clock.now(), quality = DataQuality.GOOD),
-            )
-            is OperationOutcome.Fail -> outcome
-        }
-    }
-
-    suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> {
-        binaryReaders[property.name]?.let { reader ->
-            return runCatchingOperation { reader() }
-        }
-        return backendFault(OperationFaultTypes.UnsupportedValue, "Property '${property.name}' has no binary reader")
-    }
-
-    suspend fun readBatchObserved(
-        device: DeviceEnvironment,
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
-        batchObservedReadBody?.let { return it.invoke(device, properties) }
-        return properties.associate { property -> property.name to readObserved(property, device.clock) }
-    }
-
-    suspend fun readBatchBinary(
-        device: DeviceEnvironment,
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<Binary>> {
-        batchBinaryReadBody?.let { return it.invoke(device, properties) }
-        return properties.associate { property -> property.name to readBinary(property) }
-    }
-
-    suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        val writer = writers[property.name]
-            ?: return validationFault("Property '${property.name}' is not writable on device backend")
-        return writer(value)
-    }
-
-    suspend fun writeBatch(
-        device: DeviceEnvironment,
-        values: Map<PropertyDescriptor, Meta>,
-    ): Map<Name, OperationOutcome<Unit>> {
-        batchWriteBody?.let { return it.invoke(device, values) }
-        val results = LinkedHashMap<Name, OperationOutcome<Unit>>()
-        for ((property, value) in values) {
-            results[property.name] = write(property, value)
-        }
-        return results
-    }
-
-    suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
-        val body = actions[action.name]
-            ?: return backendFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}' on device backend")
-        return runCatchingOperation {
-            body(argument)
-        }
-    }
-
-    fun close() {
-        closeBody?.invoke()
-    }
-}
-
-private fun backendFault(type: Name, message: String): OperationOutcome.Fail =
-    OperationOutcome.Fail(GenericOperationFault(faultType = type, message = message))
-
-private fun validationFault(message: String): OperationOutcome.Fail =
-    OperationOutcome.Fail(
-        ValidationFault(
-            details = faultDetails(message),
-        ),
-    )
-
-@Suppress("UNCHECKED_CAST")
-private fun MetaConverter<*>.convertAny(value: Any?): Meta =
-    (this as MetaConverter<Any?>).convert(value)
-
-@OptIn(UnstableKrigForSubclassing::class)
-private class BuiltDeviceBackend(private val c: BuiltCommon) : DeviceBackend {
-    context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
-    context(device: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> =
-        c.readObserved(property, device.clock)
-    context(device: DeviceEnvironment)
-    override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> = c.readBinary(property)
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchObserved(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = c.readBatchObserved(device, properties)
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchBinary(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<Binary>> = c.readBatchBinary(device, properties)
-    context(device: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> = c.write(property, value)
-    context(device: DeviceEnvironment)
-    override suspend fun writeBatch(
-        values: Map<PropertyDescriptor, Meta>,
-    ): Map<Name, OperationOutcome<Unit>> = c.writeBatch(device, values)
-    context(device: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> = c.execute(action, argument)
-    override fun close() = c.close()
-}
-
-@OptIn(UnstableKrigForSubclassing::class)
-private class BuiltSteppedBackend(
-    private val c: BuiltCommon,
-    private val stepBody: (Duration) -> Unit,
-) : SteppedBackend {
-    override fun step(dt: Duration) { stepBody(dt) }
-    context(device: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> = c.read(property)
-    context(device: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> =
-        c.readObserved(property, device.clock)
-    context(device: DeviceEnvironment)
-    override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> = c.readBinary(property)
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchObserved(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = c.readBatchObserved(device, properties)
-    context(device: DeviceEnvironment)
-    override suspend fun readBatchBinary(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<Binary>> = c.readBatchBinary(device, properties)
-    context(device: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> = c.write(property, value)
-    context(device: DeviceEnvironment)
-    override suspend fun writeBatch(
-        values: Map<PropertyDescriptor, Meta>,
-    ): Map<Name, OperationOutcome<Unit>> = c.writeBatch(device, values)
-    context(device: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> = c.execute(action, argument)
-    override fun close() = c.close()
-}

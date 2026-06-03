@@ -14,11 +14,11 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.frame
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.timetravel.ExperimentalTimeTravelApi
-import space.kscience.krig.core.timetravel.InMemoryReplayLog
 import space.kscience.krig.core.timetravel.Reconstructible
+import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.krig.core.timetravel.branchAt
 import space.kscience.krig.core.timetravel.whatIf
 import kotlin.time.Instant
@@ -26,9 +26,9 @@ import kotlin.time.Instant
 /** Snapshot plus cursor branch: replay to a point, then run another future. */
 suspend fun replayNavigationDemo() {
     val source = "nav.counter".asName()
-    val log = InMemoryReplayLog()
+    val log = InMemoryEventJournal()
     for (value in 0..3) {
-        log.record(counterEvent(source, value + 1, value).envelope())
+        log.record(counterEvent(source, value + 1, value).frame())
     }
 
     val model = NavigationCounter()

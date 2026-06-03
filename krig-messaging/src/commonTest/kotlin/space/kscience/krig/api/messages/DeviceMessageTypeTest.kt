@@ -59,4 +59,11 @@ class DeviceMessageTypeTest {
             assertTrue(pattern.matches(type), "Unexpected DeviceMessage type name: $type")
         }
     }
+
+    @Test
+    fun messageTypeOrNullResolvesConcreteSerialNameAndNullsAbstract() {
+        assertEquals(DeviceMessageType.PropertyChanged, messageTypeOrNull<PropertyChangedMessage>())
+        assertEquals(DeviceMessageType.DeviceOffline, messageTypeOrNull<DeviceOfflineMessage>())
+        assertEquals(null, messageTypeOrNull<DeviceMessage>())
+    }
 }

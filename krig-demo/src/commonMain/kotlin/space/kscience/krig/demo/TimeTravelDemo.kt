@@ -16,32 +16,32 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.messages.envelope
+import space.kscience.krig.api.messages.frame
 import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigStorageJson
 import space.kscience.krig.core.operations.HlcTimestamp
 import space.kscience.krig.core.timetravel.CursorJournal
-import space.kscience.krig.core.timetravel.EventCursor
 import space.kscience.krig.core.timetravel.ExperimentalTimeTravelApi
-import space.kscience.krig.core.timetravel.InMemoryReplayLog
 import space.kscience.krig.core.timetravel.InMemorySnapshotStore
 import space.kscience.krig.core.timetravel.JournalEntry
 import space.kscience.krig.core.timetravel.JournalMigration
 import space.kscience.krig.core.timetravel.JournalRecord
-import space.kscience.krig.core.timetravel.JournalSchema
-import space.kscience.krig.core.timetravel.JournalSchemas
+import space.kscience.krig.core.timetravel.StorageSchema
+import space.kscience.krig.core.timetravel.StorageSchemas
 import space.kscience.krig.core.timetravel.JournalMigrations
 import space.kscience.krig.core.timetravel.KotlinxJsonJournalPayloadCodec
 import space.kscience.krig.core.timetravel.MessageJournalCodec
 import space.kscience.krig.core.timetravel.Reconstructible
-import space.kscience.krig.core.timetravel.SequenceCursor
 import space.kscience.krig.core.timetravel.asReplayLog
 import space.kscience.krig.core.timetravel.counterfactual
 import space.kscience.krig.core.timetravel.counterfactualScope
 import space.kscience.krig.core.timetravel.recover
 import space.kscience.krig.core.timetravel.save
 import space.kscience.krig.core.timetravel.timeTravel
+import space.kscience.krig.storage.journal.EventCursor
+import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.journal.SequenceCursor
 import kotlin.time.Instant
 
 /**
@@ -54,7 +54,7 @@ suspend fun timeTravelDemo() {
 
     println("=== 1. Event log ===")
 
-    val log = InMemoryReplayLog()
+    val log = InMemoryEventJournal()
     repeat(5) { i ->
         log.record(
             PropertyChangedMessage(
@@ -62,7 +62,7 @@ suspend fun timeTravelDemo() {
                 property = "value".asName(),
                 value = Meta(i.asValue()),
                 sourceDevice = source,
-            ).envelope(),
+            ).frame(),
         )
     }
     println("  recorded ${log.size()} events: 0..4")
@@ -125,15 +125,15 @@ suspend fun timeTravelDemo() {
 
     println("\n=== 7. Causal ordering ===")
 
-    val causalLog = InMemoryReplayLog()
+    val causalLog = InMemoryEventJournal()
     causalLog.record(
-        counterMessage(source, second = 3, value = 300).envelope().withHlcStamp(HlcTimestamp(100, 0)),
+        counterMessage(source, second = 3, value = 300).frame().withHlcStamp(HlcTimestamp(100, 0)),
     )
     causalLog.record(
-        counterMessage(source, second = 1, value = 100).envelope().withHlcStamp(HlcTimestamp(300, 0)),
+        counterMessage(source, second = 1, value = 100).frame().withHlcStamp(HlcTimestamp(300, 0)),
     )
     causalLog.record(
-        counterMessage(source, second = 2, value = 200).envelope().withHlcStamp(HlcTimestamp(200, 0)),
+        counterMessage(source, second = 2, value = 200).frame().withHlcStamp(HlcTimestamp(200, 0)),
     )
     val causalOrder = causalLog
         .replay(from = Instant.fromEpochMilliseconds(0), until = Instant.fromEpochMilliseconds(10_000))
@@ -144,7 +144,7 @@ suspend fun timeTravelDemo() {
     println("\nDone - time-travel demo complete.")
 }
 
-private val oldCounterSchema = JournalSchema("demo.counter.scalar.v0")
+private val oldCounterSchema = StorageSchema("demo.counter.scalar.v0")
 
 private fun oldCounterLog(source: Name): CursorJournal {
     val entry = JournalEntry(
@@ -188,7 +188,7 @@ private fun counterMigrationCodec(): MessageJournalCodec {
             sequenceOf(
                 entry.copy(
                     messageType = message.messageType,
-                    schema = JournalSchemas.deviceMessageV1,
+                    schema = StorageSchemas.deviceMessageV1,
                     payload = serializableToMeta(serializer, message, json),
                 ),
             )

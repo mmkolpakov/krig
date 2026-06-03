@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.withContext
-import space.kscience.krig.dsl.ClockState
-import space.kscience.krig.dsl.SamplingClock
-import space.kscience.krig.dsl.fixedRateTicks as runtimeFixedRateTicks
-import space.kscience.krig.dsl.sharedTicks as runtimeSharedTicks
+import space.kscience.krig.core.operations.ClockState
+import space.kscience.krig.core.operations.SamplingClock
+import space.kscience.krig.core.operations.fixedRateTicks as runtimeFixedRateTicks
+import space.kscience.krig.core.operations.sharedTicks as runtimeSharedTicks
 import kotlin.time.Duration
 import kotlin.time.TimeMark
 

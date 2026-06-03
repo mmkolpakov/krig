@@ -1,7 +1,6 @@
 ﻿package space.kscience.krig.simulation
 
 import kotlinx.coroutines.*
-import space.kscience.dataforge.misc.DFBuilder
 import space.kscience.krig.concurrency.Resource
 import space.kscience.krig.concurrency.ResourcePriority
 import space.kscience.krig.concurrency.waitUntil
@@ -24,13 +23,34 @@ import kotlin.time.Duration
  */
 
 /**
- * Marker receiver for process bodies. Keeps `hold` / `waitUntil` / `request` from the
- * enclosing [CoroutineScope] from leaking into unrelated nested DSL blocks.
+ * `@DslMarker` for the process DSL. Prevents the `hold` / `waitUntil` / `request` receiver of an
+ * enclosing process from leaking into unrelated nested DSL blocks (compile-time scope isolation).
  */
-@DFBuilder
+@DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+public annotation class SimulationDsl
+
+/**
+ * Marker receiver for process bodies. Scope-isolated via [SimulationDsl].
+ */
+@SimulationDsl
 public interface ProcessScope : CoroutineScope
 
 internal class ProcessScopeImpl(parent: CoroutineScope) : ProcessScope, CoroutineScope by parent
+
+/**
+ * Virtual-time simulation scope: a [CoroutineScope] running on a [SimulationScheduler]'s dispatcher
+ * with the [scheduler] exposed for time advancement. Build it with [simulationScope].
+ */
+@SimulationDsl
+public interface SimulationContext : CoroutineScope {
+    public val scheduler: SimulationScheduler
+}
+
+internal class SimulationContextImpl(
+    parent: CoroutineScope,
+    override val scheduler: SimulationScheduler,
+) : SimulationContext, CoroutineScope by parent
 
 /**
  * Launches a named process on [this] scope. Returns the driving [Job]; join it, cancel it,
@@ -95,9 +115,9 @@ public fun Device.runProcess(
 ): Job = deviceScope.process(name, block)
 
 /**
- * Creates a coroutine scope that uses [scheduler]'s dispatcher. Processes launched on
- * this scope advance virtual time via [DeterministicScheduler.advanceBy]; no real clock
- * is consulted.
+ * Creates a [SimulationContext] that uses [scheduler]'s dispatcher. Processes launched on
+ * this scope advance virtual time via [SimulationScheduler.advanceBy]; no real clock
+ * is consulted. The [scheduler][SimulationContext.scheduler] is exposed for time advancement.
  */
-public fun simulationScope(scheduler: DeterministicScheduler): CoroutineScope =
-    CoroutineScope(scheduler.asDispatcher() + SupervisorJob())
+public fun simulationScope(scheduler: DeterministicScheduler): SimulationContext =
+    SimulationContextImpl(CoroutineScope(scheduler.asDispatcher() + SupervisorJob()), scheduler)

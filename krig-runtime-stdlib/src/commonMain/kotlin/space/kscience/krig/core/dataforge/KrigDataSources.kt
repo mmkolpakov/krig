@@ -6,7 +6,7 @@ import space.kscience.dataforge.data.DataSource
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageEnvelope
+import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.storage.journal.EventJournal
 import space.kscience.krig.storage.timeseries.TimeSeries
 import space.kscience.krig.storage.timeseries.TimeSeriesSample
@@ -39,12 +39,12 @@ public inline fun <reified T> TimeSeries<T>.asDataSource(
 public fun EventJournal.asDataSource(
     name: Name,
     meta: Meta = Meta.EMPTY,
-): DataSource<List<DeviceMessageEnvelope<DeviceMessage>>> {
+): DataSource<List<DeviceMessageFrame<DeviceMessage>>> {
     val nodeName = name
-    return object : DataSource<List<DeviceMessageEnvelope<DeviceMessage>>> {
-        override val dataType: KType = typeOf<List<DeviceMessageEnvelope<DeviceMessage>>>()
+    return object : DataSource<List<DeviceMessageFrame<DeviceMessage>>> {
+        override val dataType: KType = typeOf<List<DeviceMessageFrame<DeviceMessage>>>()
 
-        override fun read(name: Name): Data<List<DeviceMessageEnvelope<DeviceMessage>>>? =
+        override fun read(name: Name): Data<List<DeviceMessageFrame<DeviceMessage>>>? =
             if (name == Name.EMPTY || name == nodeName) {
                 Data(meta = meta) { this@asDataSource.readAll().toList() }
             } else {

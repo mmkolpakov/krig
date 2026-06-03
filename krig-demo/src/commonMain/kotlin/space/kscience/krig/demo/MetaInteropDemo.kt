@@ -7,7 +7,9 @@ import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.PerformancePitfall
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.read
+import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.write
+import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.dsl.device
 
 /**

@@ -12,6 +12,8 @@ kotlin {
                 api(project(":krig-runtime"))
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)
+                api(libs.kmath.core)
+                implementation(libs.kmath.functions)
                 implementation(libs.kotlinx.atomicfu)
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.coroutines.core)

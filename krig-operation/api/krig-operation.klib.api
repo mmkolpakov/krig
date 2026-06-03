@@ -156,7 +156,7 @@ final class space.kscience.krig.api.faults/DevicePropertyException : space.kscie
 }
 
 final class space.kscience.krig.api.faults/GenericOperationFault : space.kscience.krig.api.faults/OperationFault { // space.kscience.krig.api.faults/GenericOperationFault|null[0]
-    constructor <init>(space.kscience.dataforge.names/Name = ..., kotlin/String, space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.faults/GenericOperationFault.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String;space.kscience.dataforge.meta.Meta){}[0]
+    constructor <init>(space.kscience.dataforge.names/Name = ..., kotlin/String = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.api.faults/GenericOperationFault.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String;space.kscience.dataforge.meta.Meta){}[0]
 
     final val details // space.kscience.krig.api.faults/GenericOperationFault.details|{}details[0]
         final fun <get-details>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.faults/GenericOperationFault.details.<get-details>|<get-details>(){}[0]
@@ -536,8 +536,6 @@ final object space.kscience.krig.api.faults/OperationFaultTypes { // space.kscie
 final object space.kscience.krig.core.pipeline/OperationKinds { // space.kscience.krig.core.pipeline/OperationKinds|null[0]
     final val Action // space.kscience.krig.core.pipeline/OperationKinds.Action|{}Action[0]
         final fun <get-Action>(): space.kscience.krig.core.pipeline/OperationKind // space.kscience.krig.core.pipeline/OperationKinds.Action.<get-Action>|<get-Action>(){}[0]
-    final val Poll // space.kscience.krig.core.pipeline/OperationKinds.Poll|{}Poll[0]
-        final fun <get-Poll>(): space.kscience.krig.core.pipeline/OperationKind // space.kscience.krig.core.pipeline/OperationKinds.Poll.<get-Poll>|<get-Poll>(){}[0]
     final val Read // space.kscience.krig.core.pipeline/OperationKinds.Read|{}Read[0]
         final fun <get-Read>(): space.kscience.krig.core.pipeline/OperationKind // space.kscience.krig.core.pipeline/OperationKinds.Read.<get-Read>|<get-Read>(){}[0]
     final val Write // space.kscience.krig.core.pipeline/OperationKinds.Write|{}Write[0]
@@ -558,6 +556,7 @@ final val space.kscience.krig.api.faults/displayType // space.kscience.krig.api.
 final val space.kscience.krig.api.result/outcomeFailureJson // space.kscience.krig.api.result/outcomeFailureJson|{}outcomeFailureJson[0]
     final fun <get-outcomeFailureJson>(): kotlinx.serialization.json/Json // space.kscience.krig.api.result/outcomeFailureJson.<get-outcomeFailureJson>|<get-outcomeFailureJson>(){}[0]
 
+final fun (kotlin/Throwable).space.kscience.krig.api.faults/toOperationFault(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.api.faults/toOperationFault|toOperationFault@kotlin.Throwable(){}[0]
 final fun (kotlin/Throwable).space.kscience.krig.api.faults/toSerializableOperationFailure(kotlin/Boolean = ...): space.kscience.krig.api.faults/SerializableOperationFailure // space.kscience.krig.api.faults/toSerializableOperationFailure|toSerializableOperationFailure@kotlin.Throwable(kotlin.Boolean){}[0]
 final fun (space.kscience.krig.api.faults/OperationFault).space.kscience.krig.api.data/toDataQuality(space.kscience.krig.api.data/QualityNamespace = ..., space.kscience.krig.api.data/QualityPolicy = ...): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.data/toDataQuality|toDataQuality@space.kscience.krig.api.faults.OperationFault(space.kscience.krig.api.data.QualityNamespace;space.kscience.krig.api.data.QualityPolicy){}[0]
 final fun (space.kscience.krig.api.result/OperationOutcome<*>).space.kscience.krig.api.result/faultOrNull(): space.kscience.krig.api.faults/OperationFault? // space.kscience.krig.api.result/faultOrNull|faultOrNull@space.kscience.krig.api.result.OperationOutcome<*>(){}[0]
@@ -569,6 +568,8 @@ final fun <#A: kotlin/Any?> (space.kscience.krig.api.result/OperationOutcome<#A>
 final fun <#A: kotlin/Any?> space.kscience.krig.api.result/ok(#A): space.kscience.krig.api.result/OperationOutcome<#A> // space.kscience.krig.api.result/ok|ok(0:0){0§<kotlin.Any?>}[0]
 final fun space.kscience.krig.api.data/staleDataQuality(space.kscience.krig.api.data/QualityCode = ..., kotlin/String? = ..., space.kscience.krig.api.data/QualitySeverity = ...): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.data/staleDataQuality|staleDataQuality(space.kscience.krig.api.data.QualityCode;kotlin.String?;space.kscience.krig.api.data.QualitySeverity){}[0]
 final fun space.kscience.krig.api.faults/faultDetails(kotlin/String, kotlin/String? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., space.kscience.dataforge.names/Name? = ..., kotlin/String? = ..., kotlin/Throwable? = ...): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.faults/faultDetails|faultDetails(kotlin.String;kotlin.String?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;space.kscience.dataforge.names.Name?;kotlin.String?;kotlin.Throwable?){}[0]
+final fun space.kscience.krig.api.faults/operationFault(space.kscience.dataforge.names/Name, kotlin/String): space.kscience.krig.api.result/OperationOutcome.Fail // space.kscience.krig.api.faults/operationFault|operationFault(space.kscience.dataforge.names.Name;kotlin.String){}[0]
+final fun space.kscience.krig.api.faults/validationFault(kotlin/String, space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.result/OperationOutcome.Fail // space.kscience.krig.api.faults/validationFault|validationFault(kotlin.String;space.kscience.dataforge.names.Name?){}[0]
 final fun space.kscience.krig.api.result/fail(space.kscience.krig.api.faults/OperationFault): space.kscience.krig.api.result/OperationOutcome<kotlin/Nothing> // space.kscience.krig.api.result/fail|fail(space.kscience.krig.api.faults.OperationFault){}[0]
 final fun space.kscience.krig.api.result/okUnit(): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.api.result/okUnit|okUnit(){}[0]
 final inline fun <#A: kotlin/Any?, #B: kotlin/Any?> (space.kscience.krig.api.result/OperationOutcome<#A>).space.kscience.krig.api.result/flatMap(kotlin/Function1<#A, space.kscience.krig.api.result/OperationOutcome<#B>>): space.kscience.krig.api.result/OperationOutcome<#B> // space.kscience.krig.api.result/flatMap|flatMap@space.kscience.krig.api.result.OperationOutcome<0:0>(kotlin.Function1<0:0,space.kscience.krig.api.result.OperationOutcome<0:1>>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]

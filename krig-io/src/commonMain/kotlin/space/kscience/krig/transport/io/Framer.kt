@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.io.Buffer
 import kotlinx.io.bytestring.ByteString
 import kotlinx.io.bytestring.encodeToByteString
+import kotlinx.io.indexOf
 import kotlinx.io.readByteArray
 
 /**
@@ -36,17 +37,28 @@ public fun fixedSizeFramer(size: Int): Framer<ByteArray> = Framer { buffer ->
 public fun delimitedFramer(
     delimiter: ByteString,
     maxLength: Int = 4096,
-): Framer<ByteArray> = Framer { buffer ->
-    val snapshot = buffer.peek().readByteArray()
-    val index = indexOfByteString(snapshot, delimiter)
-    if (index < 0) {
-        require(snapshot.size <= maxLength) {
-            "DelimitedFramer: no delimiter after $maxLength bytes — stream corrupt?"
+): Framer<ByteArray> {
+    require(delimiter.size > 0) { "delimiter must not be empty" }
+    val firstByte = delimiter[0]
+    return Framer { buffer ->
+        var from = 0L
+        var frame: ByteArray? = null
+        var done = false
+        while (!done) {
+            val candidate = buffer.indexOf(firstByte, from)
+            if (candidate < 0L || candidate + delimiter.size > buffer.size) {
+                require(buffer.size <= maxLength.toLong()) {
+                    "DelimitedFramer: no delimiter after $maxLength bytes — stream corrupt?"
+                }
+                done = true
+            } else if (matchesDelimiterAt(buffer, candidate, delimiter)) {
+                frame = buffer.readByteArray(candidate.toInt())
+                buffer.skip(delimiter.size.toLong())
+                done = true
+            } else {
+                from = candidate + 1
+            }
         }
-        null
-    } else {
-        val frame = buffer.readByteArray(index)
-        buffer.skip(delimiter.size.toLong())
         frame
     }
 }
@@ -81,13 +93,13 @@ public fun <T> Flow<ByteArray>.framed(framer: Framer<T>): Flow<T> = flow {
     }
 }
 
-private fun indexOfByteString(haystack: ByteArray, needle: ByteString): Int {
-    if (needle.size == 0 || haystack.size < needle.size) return -1
-    outer@ for (i in 0..haystack.size - needle.size) {
-        for (j in 0 until needle.size) {
-            if (haystack[i + j] != needle[j]) continue@outer
-        }
-        return i
+/** Confirms [delimiter] at [offset] by peeking only its bytes, never copying the whole buffer. */
+private fun matchesDelimiterAt(buffer: Buffer, offset: Long, delimiter: ByteString): Boolean {
+    val peek = buffer.peek()
+    peek.skip(offset)
+    for (j in 0 until delimiter.size) {
+        if (!peek.request(1)) return false
+        if (peek.readByte() != delimiter[j]) return false
     }
-    return -1
+    return true
 }

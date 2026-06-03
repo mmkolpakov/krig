@@ -18,6 +18,11 @@ dependencies {
             .forEach { subproject ->
                 api(subproject)
             }
+
+        // Align KMath versions for downstream consumers.
+        api(libs.kmath.core)
+        api(libs.kmath.coroutines)
+        api(libs.kmath.functions)
     }
 }
 

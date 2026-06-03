@@ -1,20 +1,19 @@
 ﻿package space.kscience.krig.api.identifiers
 
 import kotlinx.serialization.Serializable
-import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmInline
 
 /**
- * A type-safe, serializable CoroutineContext element to carry a unique correlation ID for tracing a request
- * through different components and asynchronous boundaries.
+ * A type-safe, serializable correlation id for tracing a request across components and async
+ * boundaries. Carried explicitly on the wire ([MessageContext][space.kscience.krig.api.messages])
+ * and optionally in the ambient execution context — not as a bespoke `CoroutineContext` element.
  *
  * @property id The string value of the correlation identifier.
  */
 @JvmInline
 @Serializable
-public value class CorrelationId(public val id: String) : CoroutineContext.Element {
-    override val key: CoroutineContext.Key<*> get() = Key
-    public companion object Key : CoroutineContext.Key<CorrelationId> {
+public value class CorrelationId(public val id: String) {
+    public companion object {
         /**
          * Explicit sentinel for execution flows that do not participate in distributed tracing.
          * Runtime layers that need a real trace id should pass one deliberately.

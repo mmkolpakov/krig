@@ -28,4 +28,8 @@ public interface ControlsPermission : Permission {
     public data class DeviceSubscribe(val device: String) : ControlsPermission {
         override val id: String = "device.subscribe.$device"
     }
+
+    public data class DevicePropertySubscribe(val device: String, val property: String) : ControlsPermission {
+        override val id: String = "device.subscribe.$device.$property"
+    }
 }

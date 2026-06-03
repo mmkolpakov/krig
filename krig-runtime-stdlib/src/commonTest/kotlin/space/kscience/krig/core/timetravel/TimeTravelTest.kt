@@ -6,6 +6,7 @@ import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.storage.journal.ReplayLog
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
