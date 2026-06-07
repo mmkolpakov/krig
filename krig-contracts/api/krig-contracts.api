@@ -689,9 +689,11 @@ public final class space/kscience/krig/core/contracts/TransportBackend$DefaultIm
 
 public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSampler : space/kscience/krig/core/contracts/typed/TypedSampler {
 	public synthetic fun <init> (ILkotlin/reflect/KType;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	protected final fun emitToFlow (Ljava/lang/Object;)V
+	public final fun emitToFlow (Ljava/lang/Object;)V
+	protected final fun emitToFlowIfObserved (Lkotlin/jvm/functions/Function0;)V
 	public final fun flow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getCapacity ()I
+	protected final fun getHasFlowSubscribers ()Z
 	public final fun getHasLatest ()Z
 	protected final fun getLock ()Ljava/lang/Object;
 	public final fun getType-V0oMfBY ()Lkotlin/reflect/KType;
@@ -701,11 +703,9 @@ public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSa
 	protected final fun sizeLocked ()I
 }
 
-public final class space/kscience/krig/core/contracts/sampling/FlowSampler : space/kscience/krig/core/contracts/typed/TypedSampler {
+public final class space/kscience/krig/core/contracts/sampling/FlowSampler : space/kscience/krig/core/contracts/sampling/AbstractRingSampler {
+	public synthetic fun <init> (Lkotlin/reflect/KType;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lkotlin/reflect/KType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun flow ()Lkotlinx/coroutines/flow/Flow;
-	public fun getCapacity ()I
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	public fun latest ()Ljava/lang/Object;
 	public final fun publish (Ljava/lang/Object;)V
 	public fun snapshot ()Ljava/util/List;

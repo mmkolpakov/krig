@@ -85,45 +85,75 @@ public fun DenseDoubleTimeSeriesChunk.writeArrowIpc(
 ) {
     require(batchSize > 0) { "batchSize must be positive, got $batchSize" }
     RootAllocator(allocatorLimitBytes(batchSize, series.size)).use { allocator ->
-        val timeVector = TimeStampNanoVector("time", allocator)
-        val valueVectors = series.map { Float8Vector(it.toString(), allocator) }
-        val severityVectors = series.map { IntVector(it.toString() + QUALITY_SEVERITY_SUFFIX, allocator) }
-        val codeVectors = series.map { VarCharVector(it.toString() + QUALITY_CODE_SUFFIX, allocator) }
-        val detailVectors = series.map { VarCharVector(it.toString() + QUALITY_DETAIL_SUFFIX, allocator) }
-        val fieldVectors = buildList<FieldVector>(1 + series.size * COLUMNS_PER_SERIES) {
-            add(timeVector)
-            for (column in series.indices) {
-                add(valueVectors[column])
-                add(severityVectors[column])
-                add(codeVectors[column])
-                add(detailVectors[column])
+        val vectors = ArrowSeriesVectors(this, allocator)
+        VectorSchemaRoot(vectors.fieldVectors).use { root ->
+            newFileWriter(root, channel, compression).use { writer ->
+                writeBatches(root, writer, vectors, batchSize)
             }
         }
-        VectorSchemaRoot(fieldVectors).use { root ->
-            newFileWriter(root, channel, compression).use { writer ->
-                writer.start()
-                var start = 0
-                while (start < rowCount) {
-                    val count = minOf(batchSize, rowCount - start)
-                    fieldVectors.forEach { it.reset() }
-                    for (i in 0 until count) {
-                        val rowIndex = start + i
-                        val time = times[rowIndex]
-                        timeVector.setSafe(i, time.epochSeconds * NANOS_PER_SECOND + time.nanosecondsOfSecond)
-                        for (column in series.indices) {
-                            valueVectors[column].setSafe(i, value(rowIndex, column))
-                            val quality = qualityAt(rowIndex, column)
-                            severityVectors[column].setSafe(i, quality.severity.rank)
-                            setNullableUtf8(codeVectors[column], i, quality.code?.id)
-                            setNullableUtf8(detailVectors[column], i, quality.detail)
-                        }
-                    }
-                    root.rowCount = count
-                    writer.writeBatch()
-                    start += count
-                }
-                writer.end()
-            }
+    }
+}
+
+/** Streams every record batch through [writer], reusing [vectors] across batches. */
+private fun DenseDoubleTimeSeriesChunk.writeBatches(
+    root: VectorSchemaRoot,
+    writer: ArrowFileWriter,
+    vectors: ArrowSeriesVectors,
+    batchSize: Int,
+) {
+    writer.start()
+    var start = 0
+    while (start < rowCount) {
+        val count = minOf(batchSize, rowCount - start)
+        vectors.fieldVectors.forEach { it.reset() }
+        fillBatch(vectors, start, count)
+        root.rowCount = count
+        writer.writeBatch()
+        start += count
+    }
+    writer.end()
+}
+
+/** Populates [count] rows of [vectors] starting at row [start] from the column store. */
+private fun DenseDoubleTimeSeriesChunk.fillBatch(
+    vectors: ArrowSeriesVectors,
+    start: Int,
+    count: Int,
+) {
+    for (i in 0 until count) {
+        val rowIndex = start + i
+        val time = times[rowIndex]
+        vectors.timeVector.setSafe(i, time.epochSeconds * NANOS_PER_SECOND + time.nanosecondsOfSecond)
+        for (column in series.indices) {
+            vectors.valueVectors[column].setSafe(i, value(rowIndex, column))
+            val quality = qualityAt(rowIndex, column)
+            vectors.severityVectors[column].setSafe(i, quality.severity.rank)
+            setNullableUtf8(vectors.codeVectors[column], i, quality.code?.id)
+            setNullableUtf8(vectors.detailVectors[column], i, quality.detail)
+        }
+    }
+}
+
+/**
+ * Arrow vectors backing one export: a `time` column plus, per series, a `Float8` value column and a
+ * data-quality triplet. Allocated once per [writeArrowIpc] call and reused across record batches.
+ */
+private class ArrowSeriesVectors(chunk: DenseDoubleTimeSeriesChunk, allocator: RootAllocator) {
+    val timeVector: TimeStampNanoVector = TimeStampNanoVector("time", allocator)
+    val valueVectors: List<Float8Vector> = chunk.series.map { Float8Vector(it.toString(), allocator) }
+    val severityVectors: List<IntVector> =
+        chunk.series.map { IntVector(it.toString() + QUALITY_SEVERITY_SUFFIX, allocator) }
+    val codeVectors: List<VarCharVector> =
+        chunk.series.map { VarCharVector(it.toString() + QUALITY_CODE_SUFFIX, allocator) }
+    val detailVectors: List<VarCharVector> =
+        chunk.series.map { VarCharVector(it.toString() + QUALITY_DETAIL_SUFFIX, allocator) }
+    val fieldVectors: List<FieldVector> = buildList(1 + chunk.series.size * COLUMNS_PER_SERIES) {
+        add(timeVector)
+        for (column in chunk.series.indices) {
+            add(valueVectors[column])
+            add(severityVectors[column])
+            add(codeVectors[column])
+            add(detailVectors[column])
         }
     }
 }

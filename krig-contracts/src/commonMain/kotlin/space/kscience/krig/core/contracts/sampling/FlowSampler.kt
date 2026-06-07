@@ -13,25 +13,40 @@ import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.contracts.typed.TypedSampler
 
 /**
- * [TypedSampler] backed by a standard [MutableSharedFlow].
- * For high-frequency data, publish chunked arrays ([DoubleArray]) rather than
- * individual values — one emission replaces N boxing allocations.
+ * Generic [TypedSampler] over a **boxed** ring buffer — the fallback for non-primitive value types.
+ *
+ * Shares the bounded-ring engine and the non-replaying [flow] contract with the primitive samplers:
+ * a new collector observes only values published *after* it subscribes (no replay of buffered
+ * history), and [latest] / [snapshot] read the stored ring rather than a flow cache. For
+ * high-frequency numeric streams prefer the unboxed [RingDoubleSampler] / [RingIntSampler] /
+ * [RingLongSampler]; with this generic sampler each published value is boxed.
  */
 public class FlowSampler<T>(
-    override val type: SafeType<T>,
-    override val capacity: Int,
-) : TypedSampler<T> {
-    init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
+    type: SafeType<T>,
+    capacity: Int = 256,
+) : AbstractRingSampler<T>(capacity, type) {
 
-    private val flow = MutableSharedFlow<T>(
-        replay = capacity,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
+    @Suppress("UNCHECKED_CAST")
+    private val values: Array<T?> = arrayOfNulls<Any?>(capacity) as Array<T?>
+    private var latestValue: T? = null
 
-    public fun publish(value: T) { flow.tryEmit(value) }
-    override fun latest(): T? = flow.replayCache.lastOrNull()
-    override fun snapshot(): List<T> = flow.replayCache.toList()
-    override fun flow(): Flow<T> = flow.asSharedFlow()
+    public fun publish(value: T) {
+        synchronized(lock) {
+            values[reserveSlotLocked()] = value
+            latestValue = value
+        }
+        emitToFlowIfObserved { value }
+    }
+
+    override fun latest(): T? = synchronized(lock) { if (hasLatestLocked()) latestValue else null }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun snapshot(): List<T> = synchronized(lock) {
+        val count = sizeLocked()
+        val start = oldestSlotLocked()
+        List(count) { values[(start + it) % capacity] as T }
+    }
+
     override fun toString(): String = "FlowSampler(type=$type, capacity=$capacity)"
 }
 
@@ -83,8 +98,29 @@ public abstract class AbstractRingSampler<T>(
     /** Under a held [lock]: whether any value has been published. */
     protected fun hasLatestLocked(): Boolean = hasLatestValue
 
-    /** Publishes [value] to the boxed reactive [flow] view; call outside [lock]. */
-    protected fun emitToFlow(value: T) { updates.tryEmit(value) }
+    /**
+     * Whether anyone is currently collecting [flow]. Reading [subscriptionCount] is allocation-free.
+     */
+    protected val hasFlowSubscribers: Boolean get() = updates.subscriptionCount.value > 0
+
+    /**
+     * Raw emit into the boxed reactive [flow]. Deliberately **not** part of the protected subclass
+     * surface (a direct call boxes the primitive on every tick, even with no collector); subclasses
+     * must go through [emitToFlowIfObserved]. `@PublishedApi internal` keeps it reachable from the
+     * inline guard while removing it from the footgun-prone API.
+     */
+    @PublishedApi
+    internal fun emitToFlow(value: T) { updates.tryEmit(value) }
+
+    /**
+     * The only emit primitive a subclass should call: forwards [value] to [flow] **only** when a
+     * collector is attached. `inline` so the value is materialised (and, for a primitive subclass,
+     * boxed) strictly inside the subscriber branch — on the silent hot path (no collector, the common
+     * telemetry case) the unboxed publish stays zero-allocation. Makes the guard impossible to forget.
+     */
+    protected inline fun emitToFlowIfObserved(value: () -> T) {
+        if (hasFlowSubscribers) emitToFlow(value())
+    }
 
     final override fun flow(): Flow<T> = updates.asSharedFlow()
 }
@@ -106,7 +142,7 @@ public class RingDoubleSampler(
             values[reserveSlotLocked()] = value
             latestValue = value
         }
-        emitToFlow(value)
+        emitToFlowIfObserved { value }
     }
 
     public fun publish(value: Double): Unit = publishDouble(value)
@@ -143,7 +179,7 @@ public class RingIntSampler(
             values[reserveSlotLocked()] = value
             latestValue = value
         }
-        emitToFlow(value)
+        emitToFlowIfObserved { value }
     }
 
     public fun publish(value: Int): Unit = publishInt(value)
@@ -177,7 +213,7 @@ public class RingLongSampler(
             values[reserveSlotLocked()] = value
             latestValue = value
         }
-        emitToFlow(value)
+        emitToFlowIfObserved { value }
     }
 
     public fun publish(value: Long): Unit = publishLong(value)

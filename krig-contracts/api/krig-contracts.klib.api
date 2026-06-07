@@ -298,6 +298,8 @@ abstract class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/Abs
 
     final val capacity // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
+    final val hasFlowSubscribers // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasFlowSubscribers|{}hasFlowSubscribers[0]
+        final fun <get-hasFlowSubscribers>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasFlowSubscribers.<get-hasFlowSubscribers>|<get-hasFlowSubscribers>(){}[0]
     final val hasLatest // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest|{}hasLatest[0]
         final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
     final val lock // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock|{}lock[0]
@@ -315,6 +317,7 @@ abstract class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/Abs
     final fun oldestSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.oldestSlotLocked|oldestSlotLocked(){}[0]
     final fun reserveSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.reserveSlotLocked|reserveSlotLocked(){}[0]
     final fun sizeLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.sizeLocked|sizeLocked(){}[0]
+    final inline fun emitToFlowIfObserved(kotlin/Function0<#A>) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.emitToFlowIfObserved|emitToFlowIfObserved(kotlin.Function0<1:0>){}[0]
 }
 
 abstract class <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> space.kscience.krig.api.factory/DeviceFactory : space.kscience.dataforge.context/Factory<#A>, space.kscience.krig.core.contracts/DeviceManifest { // space.kscience.krig.api.factory/DeviceFactory|null[0]
@@ -449,15 +452,9 @@ final class <#A: kotlin/Any> space.kscience.krig.api.discovery/ContributionTarge
     final fun toString(): kotlin/String // space.kscience.krig.api.discovery/ContributionTarget.toString|toString(){}[0]
 }
 
-final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/FlowSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/FlowSampler|null[0]
-    constructor <init>(space.kscience.attributes/SafeType<#A>, kotlin/Int) // space.kscience.krig.core.contracts.sampling/FlowSampler.<init>|<init>(space.kscience.attributes.SafeType<1:0>;kotlin.Int){}[0]
+final class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/FlowSampler : space.kscience.krig.core.contracts.sampling/AbstractRingSampler<#A> { // space.kscience.krig.core.contracts.sampling/FlowSampler|null[0]
+    constructor <init>(space.kscience.attributes/SafeType<#A>, kotlin/Int = ...) // space.kscience.krig.core.contracts.sampling/FlowSampler.<init>|<init>(space.kscience.attributes.SafeType<1:0>;kotlin.Int){}[0]
 
-    final val capacity // space.kscience.krig.core.contracts.sampling/FlowSampler.capacity|{}capacity[0]
-        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/FlowSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
-    final val type // space.kscience.krig.core.contracts.sampling/FlowSampler.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.core.contracts.sampling/FlowSampler.type.<get-type>|<get-type>(){}[0]
-
-    final fun flow(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.core.contracts.sampling/FlowSampler.flow|flow(){}[0]
     final fun latest(): #A? // space.kscience.krig.core.contracts.sampling/FlowSampler.latest|latest(){}[0]
     final fun publish(#A) // space.kscience.krig.core.contracts.sampling/FlowSampler.publish|publish(1:0){}[0]
     final fun snapshot(): kotlin.collections/List<#A> // space.kscience.krig.core.contracts.sampling/FlowSampler.snapshot|snapshot(){}[0]

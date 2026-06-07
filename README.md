@@ -65,8 +65,9 @@ val thermo = device("thermo") {
    `Meta` boundary for normal code. `readProperty(Name)` remains the control-plane adapter.
 4. **Faults are values.** `OperationOutcome<T>` returns `Ok(value)` or `Fail(fault)`;
    fault types are open `Name` keys, not string switches.
-5. **State keeps time and quality.** `Timestamped<T>` and `ObservedValue<T>` carry time and
-   `DataQuality` through reactive views.
+5. **Quality is an opt-in overlay.** The default read path `read(spec): T` is quality-free;
+   `Timestamped<T>` and `ObservedValue<T>` add time and `DataQuality` only on the observed path,
+   without weighing down the core.
 6. **Acquisition mapping is protocol-neutral.** krig validates named sources, timers,
    tags, and device-property targets; concrete connectors live outside the SDK core.
 7. **Device identity is a `Name`.** Transport routes and physical addresses stay at the

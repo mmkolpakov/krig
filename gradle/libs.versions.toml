@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.4.0-RC2"
+kotlin = "2.4.0"
 
 # Core runtime
 atomicfu = "0.32.1"
