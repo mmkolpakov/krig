@@ -4,25 +4,29 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 import space.kscience.dataforge.meta.Meta
-import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
-import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.descriptors.attributes.latencyBudget
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.services.AuditService
+import space.kscience.krig.api.services.IdentityProvider
 
-/** Reports a warning when an operation exceeds its descriptor/default latency budget. */
+/**
+ * Reports a violation when an operation exceeds its descriptor/default latency budget.
+ *
+ * A zero or absent budget disables the check. [onViolation] must be supplied by the assembler —
+ * a silent default would swallow every violation (the default assembly logs through the device
+ * context logger).
+ */
 public class LatencyBudgetObserver(
     private val defaultBudget: Duration? = null,
-    private val onViolation: (String) -> Unit = {},
+    private val onViolation: (String) -> Unit,
 ) : OperationObserver {
     override suspend fun observe(
         context: OperationContext,
@@ -30,8 +34,9 @@ public class LatencyBudgetObserver(
         fault: OperationFault?,
     ) {
         val budget = context.descriptor.latencyBudget ?: defaultBudget ?: return
+        if (budget <= Duration.ZERO) return
         val elapsed = durationNanos.nanoseconds
-        if (elapsed > budget || budget == Duration.ZERO) {
+        if (elapsed > budget) {
             onViolation("latency budget exceeded on ${context.kind} '${context.name}': elapsed=$elapsed, budget=$budget")
         }
     }
@@ -66,8 +71,8 @@ public class BufferedAuditSink(
                         auditService.record(record.principal, record.action, record.details)
                     } catch (e: CancellationException) {
                         throw e
-                    } catch (_: Throwable) {
-                        // Audit must never change operation semantics.
+                    } catch (_: Exception) {
+                        // Audit must never change operation semantics; fatal errors still surface.
                     }
                 }
             }
@@ -83,6 +88,7 @@ public class BufferedAuditSink(
 public class AuditObserver(
     private val hostName: String,
     private val auditService: AuditService,
+    private val identityProvider: IdentityProvider,
 ) : OperationObserver {
     override suspend fun observe(
         context: OperationContext,
@@ -90,7 +96,7 @@ public class AuditObserver(
         fault: OperationFault?,
     ) {
         if (!auditService.isActive) return
-        val principal = currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal
+        val principal = currentPipelinePrincipal(identityProvider)
         auditService.record(principal, context.auditAction() ?: return, context.auditDetails(hostName, fault))
     }
 }
@@ -99,13 +105,14 @@ public class AuditObserver(
 public class BufferedAuditObserver(
     private val hostName: String,
     private val sink: BufferedAuditSink,
+    private val identityProvider: IdentityProvider,
 ) : OperationObserver {
     override suspend fun observe(
         context: OperationContext,
         durationNanos: Long,
         fault: OperationFault?,
     ) {
-        val principal = currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal
+        val principal = currentPipelinePrincipal(identityProvider)
         sink.record(principal, context.auditAction() ?: return, context.auditDetails(hostName, fault))
     }
 }

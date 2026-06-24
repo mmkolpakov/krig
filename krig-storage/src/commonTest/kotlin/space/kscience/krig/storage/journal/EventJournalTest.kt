@@ -45,6 +45,27 @@ class EventJournalTest {
     }
 
     @Test
+    fun truncateBeforeDropsRecordsUpToCursor() = runTest {
+        val storage = InMemoryEventJournal()
+        val cursors = (0 until 5).map { index ->
+            storage.write(
+                PropertyChangedMessage(
+                    time = Clock.System.now(),
+                    property = "temperature".asName(),
+                    value = Meta { "value" put index },
+                    sourceDevice = "thermo".asName(),
+                ),
+            )
+        }
+
+        storage.truncateBefore(cursors[2])
+
+        val remaining = storage.readAll().toList().map { (it.payload as PropertyChangedMessage).value }
+        assertEquals(listOf(Meta { "value" put 3 }, Meta { "value" put 4 }), remaining)
+        assertEquals(2, storage.size())
+    }
+
+    @Test
     fun hotTailPreservesAppendOrderForBatchWrites() = runTest {
         val storage = InMemoryEventJournal(tailBufferCapacity = 16)
         val messages = (0 until 5).map { index ->

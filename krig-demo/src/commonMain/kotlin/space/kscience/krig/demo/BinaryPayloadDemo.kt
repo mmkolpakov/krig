@@ -5,7 +5,7 @@ import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.manifestOf
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.meta.binaryProperty
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.dsl.device
@@ -50,8 +50,8 @@ private val BinaryPayloadManifest: DeviceManifest = manifestOf(
     version = "1.0.0-alpha-3",
 )
 
-private fun binaryBackend(payload: ByteArray) = backend {
+private fun binaryBackend(payload: ByteArray) = deviceBackend {
     binaryReader(BinaryPayloadSpec.waveform) { payload.asBinary() }
 }
 
-private fun wrongRawBackend() = backend { }
+private fun wrongRawBackend() = deviceBackend { }

@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.yield
 import space.kscience.krig.api.context.AnonymousPrincipal
-import space.kscience.krig.api.expressions.Expression
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.api.expressions.NumericExpression
+import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.writeProperty
@@ -30,7 +30,7 @@ import space.kscience.dataforge.names.asName
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
-@OptIn(PerformancePitfall::class)
+@OptIn(KrigPerformancePitfall::class)
 suspend fun expressionDemo() {
     val ctx = demoContext("expr-demo")
 
@@ -39,9 +39,9 @@ suspend fun expressionDemo() {
     val sensorA: Device = device("sensorA", ctx) { mutableProperty("value", initial = 10.0) }
     val sensorB: Device = device("sensorB", ctx) { mutableProperty("value", initial = 20.0) }
 
-    val a: Expression<Double> = ref("sensorA", "value")
-    val b: Expression<Double> = ref("sensorB", "value")
-    val formula: Expression<Double> = a * 2.0 + b + 1.0
+    val a: NumericExpression = ref("sensorA", "value")
+    val b: NumericExpression = ref("sensorB", "value")
+    val formula: NumericExpression = a * 2.0 + b + 1.0
     println("  tree: $formula")
 
     val devices: Map<Name, Device> = mapOf(

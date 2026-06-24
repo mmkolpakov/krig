@@ -110,8 +110,8 @@ class CounterfactualTest {
 
         assertFailsWith<IllegalArgumentException> {
             replay.counterfactualScope(log, at = Instant.fromEpochMilliseconds(100)) {
-                inject(event(100, 2))
-                inject(event(100, 3))
+                replace(event(100, 2))
+                replace(event(100, 3))
             }
         }
     }

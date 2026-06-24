@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.simulation
+package space.kscience.krig.simulation
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.joinAll

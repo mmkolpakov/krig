@@ -97,21 +97,18 @@ public class DataAcquisitionBuilder internal constructor() {
         return spec
     }
 
-    internal fun replaceTag(old: AcquisitionTagSpec, replacement: AcquisitionTagSpec) {
-        tags[tags.indexOf(old)] = replacement
-    }
-
     @DFBuilder
     public inner class AcquisitionTagHandle internal constructor(private val id: Name) {
         @IgnorableReturnValue
         public fun from(
             sourceId: Name,
             address: String,
-            valueTypeId: String = space.kscience.krig.api.descriptors.TypeIds.META,
+            valueTypeId: space.kscience.krig.api.descriptors.TypeId =
+                space.kscience.krig.api.descriptors.TypeIds.META,
             timeout: Duration? = null,
             bufferCapacity: Int = 1024,
             reduction: ReductionSpec = ReductionSpec.Last,
-        ): AcquisitionTagBinding = this@DataAcquisitionBuilder.AcquisitionTagBinding(
+        ): AcquisitionTagBinding = AcquisitionTagBinding(
             this@DataAcquisitionBuilder.appendTag(
                 AcquisitionTagSpec(
                     id = id,
@@ -129,35 +126,19 @@ public class DataAcquisitionBuilder internal constructor() {
         public fun from(
             sourceId: String,
             address: String,
-            valueTypeId: String = space.kscience.krig.api.descriptors.TypeIds.META,
+            valueTypeId: space.kscience.krig.api.descriptors.TypeId =
+                space.kscience.krig.api.descriptors.TypeIds.META,
             timeout: Duration? = null,
             bufferCapacity: Int = 1024,
             reduction: ReductionSpec = ReductionSpec.Last,
         ): AcquisitionTagBinding = from(sourceId.asName(), address, valueTypeId, timeout, bufferCapacity, reduction)
     }
 
-    /** Fluent continuation returned by [AcquisitionTagHandle.from]. */
+    /** Continuation returned by [AcquisitionTagHandle.from], exposing the registered tag [spec]. */
     @DFBuilder
-    public inner class AcquisitionTagBinding internal constructor(
-        private var current: AcquisitionTagSpec,
-    ) {
-        public val spec: AcquisitionTagSpec get() = current
-
-        @IgnorableReturnValue
-        public fun toTarget(deviceId: Name, property: Name): AcquisitionTagSpec {
-            val replacement = current.copy(target = AcquisitionTargetSpec(deviceId, property))
-            this@DataAcquisitionBuilder.replaceTag(current, replacement)
-            current = replacement
-            return replacement
-        }
-
-        @IgnorableReturnValue
-        public fun toTarget(deviceId: String, property: String): AcquisitionTagSpec =
-            toTarget(deviceId.asName(), property.asName())
-
-        @IgnorableReturnValue
-        public fun withoutTarget(): AcquisitionTagSpec = current
-    }
+    public class AcquisitionTagBinding internal constructor(
+        public val spec: AcquisitionTagSpec,
+    )
 }
 
 /** Nested builder: timer -> tag ids. */

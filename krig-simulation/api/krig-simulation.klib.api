@@ -248,6 +248,25 @@ final class space.kscience.krig.simulation/DeterministicScheduler : space.kscien
     }
 }
 
+final class space.kscience.krig.simulation/RealTimePacingScheduler : space.kscience.krig.simulation/SimulationScheduler { // space.kscience.krig.simulation/RealTimePacingScheduler|null[0]
+    constructor <init>(kotlin.time/Clock = ..., kotlin/Long = ...) // space.kscience.krig.simulation/RealTimePacingScheduler.<init>|<init>(kotlin.time.Clock;kotlin.Long){}[0]
+
+    final val currentTimeMs // space.kscience.krig.simulation/RealTimePacingScheduler.currentTimeMs|{}currentTimeMs[0]
+        final fun <get-currentTimeMs>(): kotlin/Long // space.kscience.krig.simulation/RealTimePacingScheduler.currentTimeMs.<get-currentTimeMs>|<get-currentTimeMs>(){}[0]
+
+    final fun asClock(): kotlin.time/Clock // space.kscience.krig.simulation/RealTimePacingScheduler.asClock|asClock(){}[0]
+    final fun asDispatcher(): kotlinx.coroutines/CoroutineDispatcher // space.kscience.krig.simulation/RealTimePacingScheduler.asDispatcher|asDispatcher(){}[0]
+    final fun asTimeSource(): kotlin.time/TimeSource // space.kscience.krig.simulation/RealTimePacingScheduler.asTimeSource|asTimeSource(){}[0]
+    final suspend fun advanceBy(kotlin.time/Duration) // space.kscience.krig.simulation/RealTimePacingScheduler.advanceBy|advanceBy(kotlin.time.Duration){}[0]
+}
+
+final class space.kscience.krig.simulation/RungeKuttaWorkspace { // space.kscience.krig.simulation/RungeKuttaWorkspace|null[0]
+    constructor <init>(kotlin/Int) // space.kscience.krig.simulation/RungeKuttaWorkspace.<init>|<init>(kotlin.Int){}[0]
+
+    final val size // space.kscience.krig.simulation/RungeKuttaWorkspace.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // space.kscience.krig.simulation/RungeKuttaWorkspace.size.<get-size>|<get-size>(){}[0]
+}
+
 final class space.kscience.krig.simulation/SimulationSession { // space.kscience.krig.simulation/SimulationSession|null[0]
     constructor <init>(space.kscience.krig.simulation/SimulationScheduler, kotlin.collections/List<space.kscience.krig.core.contracts/Device>, kotlin.time/Duration, kotlin.collections/List<space.kscience.krig.core.contracts/SteppedBackend> = ...) // space.kscience.krig.simulation/SimulationSession.<init>|<init>(space.kscience.krig.simulation.SimulationScheduler;kotlin.collections.List<space.kscience.krig.core.contracts.Device>;kotlin.time.Duration;kotlin.collections.List<space.kscience.krig.core.contracts.SteppedBackend>){}[0]
 
@@ -309,7 +328,7 @@ final value class space.kscience.krig.concurrency/ResourcePriority : kotlin/Comp
     }
 }
 
-open class space.kscience.krig.simulation/ClockManager : space.kscience.dataforge.context/AbstractPlugin { // space.kscience.krig.simulation/ClockManager|null[0]
+open class space.kscience.krig.simulation/ClockManager : space.kscience.dataforge.context/AbstractPlugin, space.kscience.krig.core.contracts/RuntimeClockSource { // space.kscience.krig.simulation/ClockManager|null[0]
     constructor <init>(space.kscience.dataforge.meta/Meta) // space.kscience.krig.simulation/ClockManager.<init>|<init>(space.kscience.dataforge.meta.Meta){}[0]
 
     final val clockMode // space.kscience.krig.simulation/ClockManager.clockMode|{}clockMode[0]
@@ -350,6 +369,7 @@ final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simu
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/fixedRateTicks(kotlin.time/Duration): kotlinx.coroutines.flow/Flow<kotlin/Unit> // space.kscience.krig.simulation/fixedRateTicks|fixedRateTicks@space.kscience.krig.simulation.ClockManager(kotlin.time.Duration){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/sharedTicks(kotlinx.coroutines/CoroutineScope, kotlin.time/Duration, kotlinx.coroutines.flow/SharingStarted = ...): kotlinx.coroutines.flow/SharedFlow<kotlin/Unit> // space.kscience.krig.simulation/sharedTicks|sharedTicks@space.kscience.krig.simulation.ClockManager(kotlinx.coroutines.CoroutineScope;kotlin.time.Duration;kotlinx.coroutines.flow.SharingStarted){}[0]
 final fun space.kscience.krig.simulation/rungeKutta4(kotlin/DoubleArray, kotlin.time/Duration, space.kscience.krig.simulation/Derivatives) // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.DoubleArray;kotlin.time.Duration;space.kscience.krig.simulation.Derivatives){}[0]
+final fun space.kscience.krig.simulation/rungeKutta4(kotlin/DoubleArray, kotlin.time/Duration, space.kscience.krig.simulation/Derivatives, space.kscience.krig.simulation/RungeKuttaWorkspace) // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.DoubleArray;kotlin.time.Duration;space.kscience.krig.simulation.Derivatives;space.kscience.krig.simulation.RungeKuttaWorkspace){}[0]
 final fun space.kscience.krig.simulation/simulationScope(space.kscience.krig.simulation/DeterministicScheduler): space.kscience.krig.simulation/SimulationContext // space.kscience.krig.simulation/simulationScope|simulationScope(space.kscience.krig.simulation.DeterministicScheduler){}[0]
 final inline fun space.kscience.krig.simulation/rungeKutta4(kotlin/Double, kotlin.time/Duration, kotlin/Function1<kotlin/Double, kotlin/Double>): kotlin/Double // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.Double;kotlin.time.Duration;kotlin.Function1<kotlin.Double,kotlin.Double>){}[0]
 final suspend fun (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/hold(kotlin.time/Duration) // space.kscience.krig.simulation/hold|hold@space.kscience.krig.simulation.ProcessScope(kotlin.time.Duration){}[0]

@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.simulation
+package space.kscience.krig.simulation
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -57,8 +57,9 @@ public data class VirtualTimeScope(
     public val scheduler: DeterministicScheduler,
     public val scope: CoroutineScope,
 ) {
-    public val runtime: DeviceRuntime =
-        DeviceRuntime(context = context, clock = scheduler.asClock(), timeSource = scheduler.asTimeSource())
+    // Resolves clock/timeSource from the context's (scheduler-backed) ClockManager — same single
+    // wiring point the device DSL uses, so simulated devices and this scope share one time source.
+    public val runtime: DeviceRuntime = DeviceRuntime.from(context)
 }
 
 /**

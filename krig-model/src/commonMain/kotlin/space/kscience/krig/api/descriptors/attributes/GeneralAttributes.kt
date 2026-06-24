@@ -14,14 +14,18 @@ import kotlin.time.Duration
 /**
  * Human-readable operation metadata.
  *
- * Engineering units intentionally not declared here. Integrations that need typed units
- * (KotUniL, Measured, …) contribute their own attribute key/value pair carrying
- * library-specific quantities — the SDK does not hardcode a unit ontology.
+ * [unit] is an optional engineering-unit *label* — a UCUM/UNECE-style code string (e.g. `"Cel"`,
+ * `"rpm"`, `"m/s"`), mirroring OPC UA `EUInformation` and AWS SiteWise `unit`. It is a static
+ * contract annotation (not a per-sample value) used for display and export metadata (e.g. Arrow
+ * column `metadata={"unit": …}`). The SDK deliberately does **not** hardcode a typed unit *ontology*:
+ * integrations that need dimensional quantities (KotUniL, Measured, …) layer their own attribute
+ * key/value on top; this label is the lightweight interop seam.
  */
 @Serializable
 @SerialName("attr.metadata")
 public data class MetadataAttribute(
     val description: String? = null,
+    val unit: String? = null,
 )
 
 public object OperationAttributeKeys {
@@ -56,6 +60,12 @@ public val OperationDescriptor.metadata: MetadataAttribute?
 public val OperationDescriptor.description: String? by attr(
     OperationAttributeKeys.Metadata,
     MetadataAttribute::description,
+)
+
+/** Engineering-unit label (UCUM/UNECE code) of a descriptor, or `null` when unitless. */
+public val OperationDescriptor.unit: String? by attr(
+    OperationAttributeKeys.Metadata,
+    MetadataAttribute::unit,
 )
 
 /**
@@ -98,7 +108,7 @@ public val OperationDescriptor.retryPolicy: RetryPolicy?
 
 /**
  * Attributes defining read/write access. RBAC is enforced at runtime via
- * [ControlsPermissions][space.kscience.krig.api.identifiers.ControlsPermissions];
+ * [ControlsPermission][space.kscience.krig.api.identifiers.ControlsPermission];
  * descriptor-level permission metadata is intentionally not modelled here.
  */
 @Serializable
@@ -112,13 +122,13 @@ public val OperationDescriptor.access: AccessAttribute?
     get() = attribute(OperationAttributeKeys.Access)
 
 public val OperationDescriptor.readable: Boolean by attr(
-    true,
     OperationAttributeKeys.Access,
+    default = true,
     AccessAttribute::readable,
 )
 public val OperationDescriptor.mutable: Boolean by attr(
-    false,
     OperationAttributeKeys.Access,
+    default = false,
     AccessAttribute::mutable,
 )
 

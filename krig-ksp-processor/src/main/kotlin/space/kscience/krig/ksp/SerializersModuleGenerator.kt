@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.ksp
+package space.kscience.krig.ksp
 
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver

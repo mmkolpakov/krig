@@ -13,6 +13,7 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.BehaviorAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
 import space.kscience.krig.api.descriptors.operationAttributes
@@ -39,53 +40,73 @@ private class PipelineSystemFailure : Throwable("boom")
 
 class PipelineExecutorTest {
 
+    private fun doubleDescriptor(name: String = "value"): PropertyDescriptor = PropertyDescriptor(
+        name = name.asName(),
+        kind = PropertyKind.LOGICAL,
+        valueTypeId = TypeIds.DOUBLE,
+    )
+
+    private fun planFor(descriptor: PropertyDescriptor, policy: OperationPolicy = OperationPolicy()): OperationPlan =
+        OperationPlan(
+            context = OperationContext(OperationKinds.Read, descriptor.name, descriptor),
+            policy = policy,
+        )
+
     @Test
-    fun pipeline_readsThroughGatesAndObservers_onSuccess() = runTest {
+    fun executor_readsThroughGatesAndObservers_onSuccess() = runTest {
         var observed = false
         var observerFault: OperationFault? = null
         val reader = TypedReader { 42.0 }
+        val execute = compileOperationExecutor(
+            gates = listOf(OperationGate { OperationOutcome.OkUnit }),
+            observers = listOf(OperationObserver { _, _, fault -> observed = true; observerFault = fault }),
+            registry = ResourceLockRegistry(),
+        )
 
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.prepend { input, next -> // gate
-            next(input)
-        }
-        pipeline.wrapWithTiming { _, fault -> observed = true; observerFault = fault }
-        val execute = pipeline.build { OperationOutcome.Ok(reader.read()) }
+        val result = execute(planFor(doubleDescriptor()), Unit) { OperationOutcome.Ok(reader.read()) }
 
-        val result = execute(Unit)
         assertEquals(42.0, assertIs<OperationOutcome.Ok<Double>>(result).value)
         assertTrue(observed, "observer must run on success")
         assertEquals(null, observerFault, "observer must see null fault on success")
     }
 
     @Test
-    fun pipeline_propagatesGateDenial_andObserverSeesFault() = runTest {
+    fun executor_propagatesGateDenial_andObserverSeesFault() = runTest {
         var observerFault: OperationFault? = null
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.prepend { _, _ ->
-            OperationOutcome.Fail(
-                InvalidStateFault(
-                    currentState = "Detached",
-                    requiredState = "Running",
-                    operation = "test",
-                ),
-            )
-        }
-        pipeline.wrapWithTiming { _, fault -> observerFault = fault }
-        val execute = pipeline.build { error("reader must not be called when gate denies") }
+        val execute = compileOperationExecutor(
+            gates = listOf(OperationGate {
+                OperationOutcome.Fail(
+                    InvalidStateFault(
+                        currentState = "Detached",
+                        requiredState = "Running",
+                        operation = "test",
+                    ),
+                )
+            }),
+            observers = listOf(OperationObserver { _, _, fault -> observerFault = fault }),
+            registry = ResourceLockRegistry(),
+        )
 
-        val result = execute(Unit)
+        val result = execute(planFor(doubleDescriptor()), Unit) {
+            error("reader must not be called when gate denies")
+        }
+
         assertTrue(result is OperationOutcome.Fail)
         assertTrue(result.fault is InvalidStateFault)
         assertTrue(observerFault is InvalidStateFault, "observer must see the gate's fault")
     }
 
     @Test
-    fun pipeline_observerExceptionsDoNotAffectCaller() = runTest {
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.wrapWithTiming { _, _ -> try { error("observer failure must be swallowed") } catch (_: Throwable) {} }
-        val execute = pipeline.build { OperationOutcome.Ok(1.0) }
-        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(Unit)).value)
+    fun executor_observerExceptionsDoNotAffectCaller() = runTest {
+        val execute = compileOperationExecutor(
+            gates = emptyList(),
+            observers = listOf(OperationObserver { _, _, _ -> error("observer failure must be swallowed") }),
+            registry = ResourceLockRegistry(),
+        )
+
+        val result = execute(planFor(doubleDescriptor()), Unit) { OperationOutcome.Ok(1.0) }
+
+        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(result).value)
     }
 
     @Test
@@ -101,6 +122,22 @@ class PipelineExecutorTest {
         }
 
         assertEquals(42, result)
+    }
+
+    @Test
+    fun nestedAcquisitionOfHeldResourceDoesNotDeadlock() = runTest {
+        val registry = ResourceLockRegistry()
+        val bus = listOf(ResourceLock("bus".asName()))
+
+        // Re-entering the same resource the caller already holds must not deadlock the non-reentrant
+        // mutex: the inner acquisition is a no-op skip (same coroutine = sequential access).
+        val result = withTimeout(1.seconds) {
+            acquireAllLocks(registry, bus) {
+                acquireAllLocks(registry, bus) { 7 }
+            }
+        }
+
+        assertEquals(7, result)
     }
 
     @Test
@@ -147,17 +184,18 @@ class PipelineExecutorTest {
         val descriptor = PropertyDescriptor(
             name = "value".asName(),
             kind = PropertyKind.LOGICAL,
-            valueTypeId = "kotlin.Double",
+            valueTypeId = TypeIds.DOUBLE,
         )
         val plan = OperationPlan(
             context = OperationContext(OperationKinds.Read, descriptor.name, descriptor),
             policy = OperationPolicy(),
-        ) { _ ->
+        )
+        val result = execute(plan, Unit) { _ ->
             scheduler.advanceTimeBy(1.seconds)
             OperationOutcome.Ok(1.0)
         }
 
-        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, Unit)).value)
+        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(result).value)
         assertEquals(1.seconds.inWholeNanoseconds, observedNanos)
     }
 
@@ -168,7 +206,7 @@ class PipelineExecutorTest {
         val descriptor = PropertyDescriptor(
             name = "setpoint".asName(),
             kind = PropertyKind.LOGICAL,
-            valueTypeId = "kotlin.Double",
+            valueTypeId = TypeIds.DOUBLE,
         )
         val context = OperationContext(OperationKinds.Write, descriptor.name, descriptor, "device".asName())
         val execute = compileOperationExecutor(
@@ -181,12 +219,13 @@ class PipelineExecutorTest {
             }),
             registry = ResourceLockRegistry(),
         )
-        val plan = OperationPlan(context, OperationPolicy()) { payload ->
+        val plan = OperationPlan(context, OperationPolicy())
+        val terminal: OperationTerminal = { payload ->
             OperationOutcome.Ok(payload as Double + 1.0)
         }
 
-        assertEquals(2.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 1.0)).value)
-        assertEquals(3.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 2.0)).value)
+        assertEquals(2.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 1.0, terminal)).value)
+        assertEquals(3.0, assertIs<OperationOutcome.Ok<Double>>(execute(plan, 2.0, terminal)).value)
         assertEquals(listOf(descriptor.name, descriptor.name), seenByGate)
         assertEquals(listOf(descriptor.name, descriptor.name), seenByObserver)
     }
@@ -194,12 +233,14 @@ class PipelineExecutorTest {
     @Test
     fun observerSeesSystemFaultForThrowable() = runTest {
         var observerFault: OperationFault? = null
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.wrapWithTiming { _, fault -> observerFault = fault }
-        val execute = pipeline.build { throw PipelineSystemFailure() }
+        val execute = compileOperationExecutor(
+            gates = emptyList(),
+            observers = listOf(OperationObserver { _, _, fault -> observerFault = fault }),
+            registry = ResourceLockRegistry(),
+        )
 
         assertFailsWith<PipelineSystemFailure> {
-            execute(Unit)
+            execute(planFor(doubleDescriptor()), Unit) { throw PipelineSystemFailure() }
         }
 
         assertTrue(observerFault is GenericOperationFault, "observer must see system failures")
@@ -207,42 +248,63 @@ class PipelineExecutorTest {
     }
 
     @Test
-    fun globalTimeoutCoversOuterGate() = runTest {
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.prepend { input, next ->
-            delay(2.seconds)
-            next(input)
-        }
-        pipeline.wrapWithGlobalTimeout(1.seconds)
-        val execute = pipeline.build { OperationOutcome.Ok(1.0) }
+    fun globalTimeoutCoversGates() = runTest {
+        val execute = compileOperationExecutor(
+            gates = listOf(OperationGate {
+                delay(2.seconds)
+                OperationOutcome.OkUnit
+            }),
+            observers = emptyList(),
+            registry = ResourceLockRegistry(),
+        )
+        val plan = planFor(doubleDescriptor(), OperationPolicy(timeout = 1.seconds))
 
-        val result = execute(Unit)
+        val result = execute(plan, Unit) { OperationOutcome.Ok(1.0) }
 
         assertTrue(result is OperationOutcome.Fail)
         assertTrue(result.fault is TimeoutFault)
     }
 
     @Test
-    fun ioRetryDoesNotRetryOuterGateFault() = runTest {
+    fun ioRetryDoesNotRetryGateFault() = runTest {
         var gateCalls = 0
         var terminalCalls = 0
-        val pipeline = Pipeline<Unit, OperationOutcome<Double>>()
-        pipeline.wrapWithIoRetry(RetryPolicy(maxAttempts = 10))
-        pipeline.prepend { _, _ ->
-            gateCalls++
-            OperationOutcome.Fail(InvalidStateFault(operation = "gate-test"))
-        }
-        val execute = pipeline.build {
+        val execute = compileOperationExecutor(
+            gates = listOf(OperationGate {
+                gateCalls++
+                OperationOutcome.Fail(InvalidStateFault(operation = "gate-test"))
+            }),
+            observers = emptyList(),
+            registry = ResourceLockRegistry(),
+        )
+        val plan = planFor(doubleDescriptor(), OperationPolicy(retry = RetryPolicy(maxAttempts = 10)))
+
+        val result = execute(plan, Unit) {
             terminalCalls++
             OperationOutcome.Ok(1.0)
         }
-
-        val result = execute(Unit)
 
         assertTrue(result is OperationOutcome.Fail)
         assertTrue(result.fault is InvalidStateFault)
         assertEquals(1, gateCalls)
         assertEquals(0, terminalCalls)
+    }
+
+    @Test
+    fun removingTimeoutInterceptorByKeyDisablesTheTimeoutLayer() = runTest {
+        val plan = planFor(doubleDescriptor(), OperationPolicy(timeout = 1.milliseconds))
+        val slowTerminal: OperationTerminal = {
+            delay(1.seconds)
+            OperationOutcome.Ok(1.0)
+        }
+        val full = defaultOperationInterceptors(emptyList(), ResourceLockRegistry())
+
+        val timedOut = full.compileChain(plan, emptyList(), kotlin.time.TimeSource.Monotonic, slowTerminal)(Unit)
+        assertTrue(timedOut is OperationOutcome.Fail && timedOut.fault is TimeoutFault)
+
+        val withoutTimeout = full.without(BuiltinInterceptorKeys.Timeout)
+            .compileChain(plan, emptyList(), kotlin.time.TimeSource.Monotonic, slowTerminal)(Unit)
+        assertEquals(1.0, assertIs<OperationOutcome.Ok<Double>>(withoutTimeout).value)
     }
 
     @Test
@@ -252,7 +314,7 @@ class PipelineExecutorTest {
         val descriptor = PropertyDescriptor(
             name = "value".asName(),
             kind = PropertyKind.LOGICAL,
-            valueTypeId = "kotlin.Double",
+            valueTypeId = TypeIds.DOUBLE,
             attributes = operationAttributes {
                 OperationAttributeKeys.Behavior(BehaviorAttribute(requiredCapabilityIds = setOf(capabilityId)))
             },

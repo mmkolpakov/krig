@@ -6,7 +6,6 @@ import space.kscience.kmath.interpolation.linearInterpolator
 import space.kscience.kmath.interpolation.splineInterpolator
 import space.kscience.kmath.operations.Float64Field
 import space.kscience.kmath.structures.Float64Buffer
-import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk
 import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow
 import kotlin.time.Duration

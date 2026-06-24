@@ -11,6 +11,11 @@ import org.apache.arrow.vector.VectorSchemaRoot
 import org.apache.arrow.vector.compression.CompressionUtil
 import org.apache.arrow.vector.ipc.ArrowFileWriter
 import org.apache.arrow.vector.ipc.message.IpcOption
+import org.apache.arrow.vector.types.FloatingPointPrecision
+import org.apache.arrow.vector.types.pojo.ArrowType
+import org.apache.arrow.vector.types.pojo.Field
+import org.apache.arrow.vector.types.pojo.FieldType
+import org.apache.arrow.vector.types.pojo.Schema
 import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk
 import java.nio.channels.FileChannel
 import java.nio.channels.WritableByteChannel
@@ -53,6 +58,8 @@ public fun DenseDoubleTimeSeriesChunk.writeArrowIpcFile(
     path: Path,
     compression: ArrowCompression = ArrowCompression.ZSTD,
     batchSize: Int = DEFAULT_BATCH_SIZE,
+    schemaMetadata: Map<String, String> = emptyMap(),
+    columnUnits: Map<String, String> = emptyMap(),
 ) {
     path.toAbsolutePath().parent?.let(Files::createDirectories)
     FileChannel.open(
@@ -60,7 +67,7 @@ public fun DenseDoubleTimeSeriesChunk.writeArrowIpcFile(
         StandardOpenOption.CREATE,
         StandardOpenOption.WRITE,
         StandardOpenOption.TRUNCATE_EXISTING,
-    ).use { channel -> writeArrowIpc(channel, compression, batchSize) }
+    ).use { channel -> writeArrowIpc(channel, compression, batchSize, schemaMetadata, columnUnits) }
 }
 
 /**
@@ -71,7 +78,9 @@ public fun DenseDoubleTimeSeriesChunk.writeFeatherV2(
     path: Path,
     compression: ArrowCompression = ArrowCompression.ZSTD,
     batchSize: Int = DEFAULT_BATCH_SIZE,
-): Unit = writeArrowIpcFile(path, compression, batchSize)
+    schemaMetadata: Map<String, String> = emptyMap(),
+    columnUnits: Map<String, String> = emptyMap(),
+): Unit = writeArrowIpcFile(path, compression, batchSize, schemaMetadata, columnUnits)
 
 /**
  * Writes the Arrow IPC file body to an arbitrary [channel] (used by sinks, benchmarks, streams).
@@ -82,11 +91,16 @@ public fun DenseDoubleTimeSeriesChunk.writeArrowIpc(
     channel: WritableByteChannel,
     compression: ArrowCompression = ArrowCompression.ZSTD,
     batchSize: Int = DEFAULT_BATCH_SIZE,
+    schemaMetadata: Map<String, String> = emptyMap(),
+    columnUnits: Map<String, String> = emptyMap(),
 ) {
     require(batchSize > 0) { "batchSize must be positive, got $batchSize" }
     RootAllocator(allocatorLimitBytes(batchSize, series.size)).use { allocator ->
-        val vectors = ArrowSeriesVectors(this, allocator)
-        VectorSchemaRoot(vectors.fieldVectors).use { root ->
+        val vectors = ArrowSeriesVectors(this, allocator, columnUnits)
+        // Custom schema metadata carries device semantics (manifest / Meta tree) alongside the flat
+        // columns, so a `pyarrow` consumer recovers names, descriptors and units from one file.
+        val schema = Schema(vectors.fieldVectors.map { it.field }, schemaMetadata)
+        VectorSchemaRoot(schema, vectors.fieldVectors, 0).use { root ->
             newFileWriter(root, channel, compression).use { writer ->
                 writeBatches(root, writer, vectors, batchSize)
             }
@@ -125,7 +139,10 @@ private fun DenseDoubleTimeSeriesChunk.fillBatch(
         val time = times[rowIndex]
         vectors.timeVector.setSafe(i, time.epochSeconds * NANOS_PER_SECOND + time.nanosecondsOfSecond)
         for (column in series.indices) {
-            vectors.valueVectors[column].setSafe(i, value(rowIndex, column))
+            // NaN is the dense-chunk "absent" sentinel; map it to a real Arrow null so pandas/Polars
+            // treat it as missing (the quality triplet still records why). A present value is written as-is.
+            val cell = value(rowIndex, column)
+            if (cell.isNaN()) vectors.valueVectors[column].setNull(i) else vectors.valueVectors[column].setSafe(i, cell)
             val quality = qualityAt(rowIndex, column)
             vectors.severityVectors[column].setSafe(i, quality.severity.rank)
             setNullableUtf8(vectors.codeVectors[column], i, quality.code?.id)
@@ -138,9 +155,16 @@ private fun DenseDoubleTimeSeriesChunk.fillBatch(
  * Arrow vectors backing one export: a `time` column plus, per series, a `Float8` value column and a
  * data-quality triplet. Allocated once per [writeArrowIpc] call and reused across record batches.
  */
-private class ArrowSeriesVectors(chunk: DenseDoubleTimeSeriesChunk, allocator: RootAllocator) {
+private class ArrowSeriesVectors(
+    chunk: DenseDoubleTimeSeriesChunk,
+    allocator: RootAllocator,
+    columnUnits: Map<String, String> = emptyMap(),
+) {
     val timeVector: TimeStampNanoVector = TimeStampNanoVector("time", allocator)
-    val valueVectors: List<Float8Vector> = chunk.series.map { Float8Vector(it.toString(), allocator) }
+    val valueVectors: List<Float8Vector> = chunk.series.map { name ->
+        val column = name.toString()
+        Float8Vector(doubleFieldWithUnit(column, columnUnits[column]), allocator)
+    }
     val severityVectors: List<IntVector> =
         chunk.series.map { IntVector(it.toString() + QUALITY_SEVERITY_SUFFIX, allocator) }
     val codeVectors: List<VarCharVector> =
@@ -156,6 +180,20 @@ private class ArrowSeriesVectors(chunk: DenseDoubleTimeSeriesChunk, allocator: R
             add(detailVectors[column])
         }
     }
+}
+
+/**
+ * Builds the `Float8` value-column [Field], attaching `metadata={"unit": …}` when a unit label is
+ * known so `pyarrow`/Polars surface the engineering unit on the column (mirrors OPC UA `EUInformation`).
+ */
+private fun doubleFieldWithUnit(name: String, unit: String?): Field {
+    val arrowType = ArrowType.FloatingPoint(FloatingPointPrecision.DOUBLE)
+    val fieldType = if (unit == null) {
+        FieldType.nullable(arrowType)
+    } else {
+        FieldType(true, arrowType, null, mapOf("unit" to unit))
+    }
+    return Field(name, fieldType, null)
 }
 
 /** Finite native-memory budget for one record batch, scaled by batch size and column count. */

@@ -26,6 +26,7 @@ kotlin {
         }
         jvmMain {
             dependencies {
+                implementation(project(":krig-arrow"))
                 runtimeOnly(libs.slf4j.nop)
             }
         }

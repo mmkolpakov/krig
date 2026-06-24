@@ -3,6 +3,10 @@ package space.kscience.krig.api.serialization
 import kotlinx.serialization.json.Json
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.krig.api.context.AnonymousPrincipal
+import space.kscience.krig.api.context.DevicePrincipal
+import space.kscience.krig.api.context.Principal
+import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.ValidationFault
@@ -78,8 +82,8 @@ class ApiSerializationRoundTripTest {
             HubEvent.Replaced(
                 name = "motor.x".asName(),
                 time = Instant.fromEpochMilliseconds(3),
-                previousContractFqName = "OldDevice",
-                newContractFqName = "NewDevice",
+                previousType = "com.example.devices.MotorV1",
+                newType = "com.example.devices.MotorV2",
             ),
         )
     }
@@ -145,6 +149,22 @@ class ApiSerializationRoundTripTest {
         val decoded = json.decodeFromString<OperationFault>(fromFuture)
         assertIs<GenericOperationFault>(decoded)
         assertEquals("bad range", decoded.message)
+    }
+
+    @Test
+    fun devicePrincipalRoundTrip() {
+        roundTrip<Principal>(
+            DevicePrincipal(
+                verifiedIdentity = "spiffe://trust-domain/workload/pump",
+                roles = setOf("device"),
+            ),
+        )
+    }
+
+    @Test
+    fun simpleAndAnonymousPrincipalRoundTrip() {
+        roundTrip<Principal>(SimplePrincipal(name = "operator", roles = setOf("admin")))
+        roundTrip<Principal>(AnonymousPrincipal)
     }
 
     @Test

@@ -4,15 +4,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.*
-import space.kscience.dataforge.context.ContextAware
 import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.io.toByteArray
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.ObservableMeta
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
-import space.kscience.dataforge.provider.Provider
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.data.DataQuality
@@ -24,13 +20,14 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
+import space.kscience.krig.api.messages.FaultMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.map
 import space.kscience.krig.core.InternalKrigApi
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.capabilities.CapabilityKey
 import space.kscience.krig.core.capabilities.Capability
@@ -49,18 +46,20 @@ import kotlin.time.Clock
  * orchestrator. Carries properties, actions, capabilities and reactive state; follows
  * Tango / Waltz vocabulary where `Device` is the universal logical unit.
  *
- * Also a [Provider] for introspection. Subclasses opt in via [UnstableKrigForSubclassing].
+ * Subclasses opt in via [UnstableKrigForSubclassing].
  */
 @MustUseReturnValues
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
-public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, DeviceEnvironment {
+public interface Device : AutoCloseable, TypedDevice, DeviceEnvironment {
 
-    /** Background tasks launch here. `SupervisorJob`: a failed child does not cancel the device. */
-    override val deviceScope: CoroutineScope
+    /**
+     * Device-lifetime coroutine scope; background tasks launch here. `SupervisorJob`: a failed child
+     * does not cancel the device. Lives on [Device] (not [DeviceEnvironment]) so per-operation
+     * environments and DSL read/write scopes cannot launch into device lifetime.
+     */
+    public val deviceScope: CoroutineScope
 
     override val name: Name
-
-    public val meta: ObservableMeta
 
     /** Control-plane descriptors. Descriptors must match [propertySpec] registrations. */
     public val propertyDescriptors: Map<Name, PropertyDescriptor>
@@ -81,7 +80,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     public val messageFlow: Flow<DeviceMessageFrame<DeviceMessage>>
         get() = merge(controlFlow, dataFlow)
 
-    /** Payload-only view for scripts and legacy consumers that do not need envelope context. */
+    /** Payload-only view for scripts and consumers that do not need envelope context. */
     @InternalKrigApi
     public val messagePayloadFlow: Flow<DeviceMessage>
         get() = messageFlow.payloads()
@@ -127,12 +126,12 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
      * This crosses the `Meta` boundary and may allocate; drivers override it, or expose
      * [space.kscience.krig.core.contracts.typed.TypedBackend], for native typed access.
      */
-    @OptIn(PerformancePitfall::class)
+    @OptIn(KrigPerformancePitfall::class)
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         TypedReader { spec.converter.read(readProperty(spec.name)) }
 
     /** Fallback [TypedWriter] — bridges through [writeProperty] + converter and may allocate. */
-    @OptIn(PerformancePitfall::class)
+    @OptIn(KrigPerformancePitfall::class)
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
         TypedWriter { value -> writeProperty(spec.name, spec.converter.convert(value)) }
 
@@ -140,7 +139,7 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
     override fun <T> sampler(spec: DevicePropertyContract<T>): TypedSampler<T>? = null
 
     /** Fallback [TypedAction] — bridges through [execute] + converters and may allocate. */
-    @OptIn(PerformancePitfall::class)
+    @OptIn(KrigPerformancePitfall::class)
     override fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =
         TypedAction { input ->
             val resultMeta = execute(spec.name, spec.inputConverter.convert(input))
@@ -228,8 +227,6 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
             ),
         )
 
-    override fun content(target: String): Map<Name, Any> = emptyMap()
-
     /** Best-effort close: signals [deviceScope] cancellation. */
     @OptIn(InternalKrigApi::class)
     override fun close() {
@@ -242,42 +239,34 @@ public interface Device : ContextAware, Provider, AutoCloseable, TypedDevice, De
  * that throws on failure. Allocates [Meta] per call — typed readers avoid that boundary on the hot path.
  * Kept as an extension (not a member) to signal it is derived sugar, not part of the overridable contract.
  */
-@PerformancePitfall
+@KrigPerformancePitfall
 public suspend fun Device.readProperty(propertyName: Name): Meta =
     readPropertyOutcome(propertyName).getOrThrow()
 
 /** Writes a property through the serialization boundary; throwing convenience over [Device.writePropertyOutcome]. */
-@PerformancePitfall
+@KrigPerformancePitfall
 public suspend fun Device.writeProperty(propertyName: Name, value: Meta) {
     writePropertyOutcome(propertyName, value).getOrThrow()
 }
 
 /** Executes an action through the serialization boundary; throwing convenience over [Device.executeOutcome]. */
-@PerformancePitfall
+@KrigPerformancePitfall
 public suspend fun Device.execute(actionName: Name, argument: Meta? = null): Meta? =
     executeOutcome(actionName, argument).getOrThrow()
 
-@OptIn(PerformancePitfall::class)
+/** String-path convenience over [readProperty]; [path] is parsed as a hierarchical [Name] (`a.b.c`). */
+@OptIn(KrigPerformancePitfall::class)
 public suspend fun Device.readPropertyPath(path: String): Meta = readProperty(path.parseAsName())
 
-@OptIn(PerformancePitfall::class)
-public suspend fun Device.readPropertyId(id: String): Meta = readProperty(id.asName())
-
-@OptIn(PerformancePitfall::class)
+/** String-path convenience over [writeProperty]; [path] is parsed as a hierarchical [Name] (`a.b.c`). */
+@OptIn(KrigPerformancePitfall::class)
 public suspend fun Device.writePropertyPath(path: String, value: Meta): Unit =
     writeProperty(path.parseAsName(), value)
 
-@OptIn(PerformancePitfall::class)
-public suspend fun Device.writePropertyId(id: String, value: Meta): Unit =
-    writeProperty(id.asName(), value)
-
-@OptIn(PerformancePitfall::class)
+/** String-path convenience over [execute]; [path] is parsed as a hierarchical [Name] (`a.b.c`). */
+@OptIn(KrigPerformancePitfall::class)
 public suspend fun Device.executePath(path: String, argument: Meta? = null): Meta? =
     execute(path.parseAsName(), argument)
-
-@OptIn(PerformancePitfall::class)
-public suspend fun Device.executeId(id: String, argument: Meta? = null): Meta? =
-    execute(id.asName(), argument)
 
 public val Device.propertyNames: Set<Name> get() = propertyDescriptors.keys
 
@@ -290,3 +279,13 @@ public suspend fun Device.subscribeFromContext(): Flow<DeviceMessageFrame<Device
 /** Payload-only subscription helper for call sites that intentionally ignore envelope context. */
 public suspend fun Device.subscribePayloadsFromContext(): Flow<DeviceMessage> =
     subscribeFromContext().payloads()
+
+/**
+ * Raw control-plane [FaultMessage] view over [Device.controlFlow] — fault monitoring without lifecycle
+ * or attach/detach envelopes. Unlike the authorized `Device.faultFlow(principal): Flow<OperationFault>`
+ * in `krig-runtime`, this is a direct, principal-less stream for code that already holds the device
+ * instance (its own diagnostics, demos, tests); it carries the full [FaultMessage], not just the fault.
+ */
+@OptIn(InternalKrigApi::class)
+public val Device.faultMessageFlow: Flow<FaultMessage>
+    get() = controlFlow.payloads().filterIsInstance<FaultMessage>()

@@ -1,41 +1,26 @@
 package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.*
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.ObservableMeta
-import space.kscience.dataforge.meta.ObservableMutableMeta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.context.Principal
-import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.GenericOperationFault
-import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultException
-import space.kscience.krig.api.identifiers.ControlsPermissions
-import space.kscience.krig.api.identifiers.isSpecified
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
-import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.api.messages.frame
-import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.map
-import space.kscience.krig.api.services.AuthorizationException
-import space.kscience.krig.api.services.auditService
-import space.kscience.krig.api.services.authorizationService
 import space.kscience.krig.core.InternalKrigApi
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.capabilities.CapabilityKey
@@ -47,7 +32,7 @@ import kotlin.time.TimeSource
  * Base [Device] implementation. Owns the two-plane message flows and the lifecycle state;
  * subclasses implement the protected `do*Outcome` hooks for I/O.
  */
-@OptIn(InternalKrigApi::class, PerformancePitfall::class)
+@OptIn(InternalKrigApi::class, KrigPerformancePitfall::class)
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
 public abstract class AbstractDevice(
     override val name: Name,
@@ -56,12 +41,11 @@ public abstract class AbstractDevice(
 
     private val operationController = OperationDrainController(name)
 
-    override val context: Context = runtime.context
+    /** DataForge context backing this device. */
+    public val context: Context = runtime.context
 
     /** Messaging configuration captured for [subscribe]'s buffer sizing. */
     protected val messaging: DeviceMessaging = runtime.messaging
-
-    override val meta: ObservableMeta = ObservableMutableMeta()
 
     override val clock: Clock = runtime.clock
 
@@ -73,6 +57,10 @@ public abstract class AbstractDevice(
                     SupervisorJob(context.coroutineContext[Job]) +
                     DeviceScopeElement(name),
         )
+
+    /** Capability background scope: child of [deviceScope] (supervised), cancelled when it cancels. */
+    override val capabilityScope: CoroutineScope =
+        CoroutineScope(deviceScope.coroutineContext + SupervisorJob(deviceScope.coroutineContext[Job]))
 
     override val propertyDescriptors: Map<Name, PropertyDescriptor> = emptyMap()
     override val actionDescriptors: Map<Name, ActionDescriptor> = emptyMap()
@@ -88,6 +76,7 @@ public abstract class AbstractDevice(
         capabilityRegistry.registerCapability(capability)
     }
 
+    @InternalKrigApi
     override fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
         capabilityRegistry.capability(key)
 
@@ -177,12 +166,7 @@ public abstract class AbstractDevice(
     private suspend inline fun <T> trackedOperationOutcome(
         crossinline block: suspend () -> OperationOutcome<T>,
     ): OperationOutcome<T> = try {
-        enterOperation()
-        try {
-            block()
-        } finally {
-            exitOperation()
-        }
+        trackReentrant { block() }
     } catch (e: OperationFaultException) {
         OperationOutcome.Fail(e.fault)
     } catch (e: CancellationException) {
@@ -196,12 +180,7 @@ public abstract class AbstractDevice(
         properties: Collection<Name>,
         crossinline block: suspend () -> Map<Name, OperationOutcome<T>>,
     ): Map<Name, OperationOutcome<T>> = try {
-        enterOperation()
-        try {
-            block()
-        } finally {
-            exitOperation()
-        }
+        trackReentrant { block() }
     } catch (e: OperationFaultException) {
         properties.associateWith { OperationOutcome.Fail(e.fault) }
     } catch (e: CancellationException) {
@@ -211,104 +190,30 @@ public abstract class AbstractDevice(
         throw e
     }
 
-    // --- Two-plane message flows ---
+    // --- Two-plane message flows (delegated to DeviceMessageBus) ---
 
-    private val mutableControlFlow: MutableSharedFlow<DeviceMessageFrame<DeviceMessage>> = MutableSharedFlow(
-        replay = messaging.replay,
-        extraBufferCapacity = messaging.controlBufferCapacity,
-        onBufferOverflow = BufferOverflow.SUSPEND,
-    )
+    private val messageBus: DeviceMessageBus = DeviceMessageBus(name, deviceScope, messaging, runtime.hlc)
 
-    private val mutableDataFlow: MutableSharedFlow<DeviceMessageFrame<DeviceMessage>> = MutableSharedFlow(
-        replay = 0,
-        extraBufferCapacity = messaging.dataBufferCapacity,
-        onBufferOverflow = messaging.toDataBufferOverflow(),
-    )
-
-    final override val controlFlow: SharedFlow<DeviceMessageFrame<DeviceMessage>> = mutableControlFlow.asSharedFlow()
-    final override val dataFlow: SharedFlow<DeviceMessageFrame<DeviceMessage>> = mutableDataFlow.asSharedFlow()
-
-    private val controlMailbox: Channel<DeviceMessageFrame<DeviceMessage>> = Channel(
-        capacity = messaging.controlBufferCapacity,
-        onBufferOverflow = BufferOverflow.SUSPEND,
-    )
-
-    private val dataMailbox: Channel<DeviceMessageFrame<DeviceMessage>> = Channel(
-        capacity = mailboxCapacity(messaging.dataBufferCapacity, messaging.toDataBufferOverflow()),
-        onBufferOverflow = messaging.toDataBufferOverflow(),
-    )
-
-    init {
-        deviceScope.launch { pumpMessages(controlMailbox, mutableControlFlow) }
-        deviceScope.launch { pumpMessages(dataMailbox, mutableDataFlow) }
-    }
-
-    /**
-     * Routes by message type into a per-plane mailbox. A single pump per plane applies the
-     * optional HLC stamp immediately before publishing to the shared flow, preserving
-     * monotonic stamp order within that plane while keeping slow control subscribers from
-     * blocking data-plane publication (and vice versa).
-     */
+    // @InternalKrigApi is not inherited: re-annotate the overrides so the ABI filter hides them too.
     @InternalKrigApi
-    protected suspend fun emit(message: DeviceMessage) {
-        emit(message.frame(ambientMessageContext()))
-    }
-
-    /**
-     * Bridges the ambient [ExecutionContext][space.kscience.krig.api.context.ExecutionContext]
-     * correlation id onto the emitted frame so causal tracing survives the process/async
-     * boundary. Returns [MessageContext.Empty] outside a traced flow.
-     */
-    private suspend fun ambientMessageContext(): MessageContext {
-        val correlationId = currentCoroutineContext().executionContext?.correlationId
-        return if (correlationId != null && correlationId.isSpecified) {
-            MessageContext(correlationId = correlationId)
-        } else {
-            MessageContext.Empty
-        }
-    }
+    final override val controlFlow: SharedFlow<DeviceMessageFrame<DeviceMessage>> get() = messageBus.controlFlow
 
     @InternalKrigApi
-    protected suspend fun emit(envelope: DeviceMessageFrame<DeviceMessage>) {
-        mailboxFor(envelope).send(envelope)
-    }
+    final override val dataFlow: SharedFlow<DeviceMessageFrame<DeviceMessage>> get() = messageBus.dataFlow
 
-    /**
-     * Non-suspending variant. Returns `false` when the selected plane mailbox cannot accept
-     * the message immediately. HLC stamping still happens in the plane pump so `tryEmit` and
-     * suspending [emit] share one ordering point.
-     */
+    /** Suspending publish into the two-plane [DeviceMessageBus]; carries the ambient correlation id. */
     @InternalKrigApi
-    protected fun tryEmit(message: DeviceMessage): Boolean {
-        return tryEmit(message.frame())
-    }
+    protected suspend fun emit(message: DeviceMessage): Unit = messageBus.emit(message)
 
     @InternalKrigApi
-    protected fun tryEmit(envelope: DeviceMessageFrame<DeviceMessage>): Boolean {
-        return mailboxFor(envelope).trySend(envelope).isSuccess
-    }
+    protected suspend fun emit(envelope: DeviceMessageFrame<DeviceMessage>): Unit = messageBus.emit(envelope)
 
-    private suspend fun pumpMessages(
-        mailbox: ReceiveChannel<DeviceMessageFrame<DeviceMessage>>,
-        target: MutableSharedFlow<DeviceMessageFrame<DeviceMessage>>,
-    ) {
-        for (envelope in mailbox) {
-            val stamped = runtime.hlc?.let { envelope.withHlcStamp(it.tick()) } ?: envelope
-            target.emit(stamped)
-        }
-    }
+    /** Non-suspending publish; returns `false` when the selected plane cannot accept the message now. */
+    @InternalKrigApi
+    protected fun tryEmit(message: DeviceMessage): Boolean = messageBus.tryEmit(message)
 
-    private fun mailboxFor(envelope: DeviceMessageFrame<DeviceMessage>): Channel<DeviceMessageFrame<DeviceMessage>> = when (
-        envelope.payload
-    ) {
-        is PropertyChangedMessage -> dataMailbox
-        else -> controlMailbox // errors, lifecycle, attach/detach, faults — never drop
-    }
-
-    private fun mailboxCapacity(capacity: Int, overflow: BufferOverflow): Int = when (overflow) {
-        BufferOverflow.SUSPEND -> capacity
-        BufferOverflow.DROP_OLDEST, BufferOverflow.DROP_LATEST -> maxOf(1, capacity)
-    }
+    @InternalKrigApi
+    protected fun tryEmit(envelope: DeviceMessageFrame<DeviceMessage>): Boolean = messageBus.tryEmit(envelope)
 
     // --- Lifecycle state ---
 
@@ -329,7 +234,9 @@ public abstract class AbstractDevice(
         mutableLifecycleStateFlow.value = state
     }
 
-    // --- Subscription with auth + audit ---
+    // --- Subscription with auth + audit (delegated to SubscriptionAuthorizer) ---
+
+    private val subscriptions: SubscriptionAuthorizer = SubscriptionAuthorizer(name, context)
 
     /**
      * Authorization checked once at subscription time. Returned flow preserves the
@@ -337,8 +244,7 @@ public abstract class AbstractDevice(
      * UI stream can add their own Flow buffer or use the higher-level subscription DSL.
      */
     override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> {
-        context.authorizationService.checkPermission(principal, ControlsPermissions.deviceSubscribe(name.toString()))
-        auditSubscribe(principal, property = null)
+        subscriptions.authorizeSubscribe(principal)
         return messageFlow
     }
 
@@ -346,35 +252,8 @@ public abstract class AbstractDevice(
         principal: Principal,
         property: Name,
     ): Flow<DeviceMessageFrame<DeviceMessage>> {
-        authorizePropertySubscribe(principal, property)
-        auditSubscribe(principal, property)
+        subscriptions.authorizePropertySubscribe(principal, property)
         return messageFlow.filter { (it.payload as? PropertyChangedMessage)?.property == property }
-    }
-
-    /** A property-scoped grant suffices; a device-wide grant also covers every property. */
-    private suspend fun authorizePropertySubscribe(principal: Principal, property: Name) {
-        val auth = context.authorizationService
-        try {
-            auth.checkPermission(principal, ControlsPermissions.deviceSubscribe(name.toString(), property.toString()))
-        } catch (propertyDenied: AuthorizationException) {
-            try {
-                auth.checkPermission(principal, ControlsPermissions.deviceSubscribe(name.toString()))
-            } catch (_: AuthorizationException) {
-                throw propertyDenied
-            }
-        }
-    }
-
-    private suspend fun auditSubscribe(principal: Principal, property: Name?) {
-        if (!context.auditService.isActive) return
-        context.auditService.record(
-            principal,
-            "device.subscribe",
-            Meta {
-                OperationFaultDetails.DEVICE put name.toString()
-                if (property != null) "property" put property.toString()
-            },
-        )
     }
 
     override suspend fun shutdown() {
@@ -383,7 +262,16 @@ public abstract class AbstractDevice(
 
     protected suspend fun shutdownSelf() {
         capabilityRegistry.detachOnce(this)
+        // Close the bus before killing the pumps: producers suspended in emit() resume with
+        // InvalidStateFault instead of hanging on a dead channel.
+        messageBus.close()
         cancelDeviceScopeSafely(name, deviceScope)
+    }
+
+    /** Non-suspending close: closes the plane mailboxes and signals scope cancellation. */
+    override fun close() {
+        messageBus.close()
+        deviceScope.cancel("Device '$name' closed")
     }
 
     @InternalKrigApi

@@ -101,22 +101,7 @@ kotlin {
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(rootProject.files("config/detekt/detekt.yml"))
-    source.setFrom(
-        files(
-            "src/commonMain/kotlin",
-            "src/commonTest/kotlin",
-            "src/jvmMain/kotlin",
-            "src/jvmTest/kotlin",
-            "src/jsMain/kotlin",
-            "src/jsTest/kotlin",
-            "src/linuxX64Main/kotlin",
-            "src/linuxX64Test/kotlin",
-            "src/mingwX64Main/kotlin",
-            "src/mingwX64Test/kotlin",
-            "src/wasmJsMain/kotlin",
-            "src/wasmJsTest/kotlin",
-        )
-    )
+    source.setFrom(provider { kotlin.sourceSets.flatMap { it.kotlin.srcDirs } })
 }
 
 

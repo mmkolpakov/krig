@@ -1,4 +1,4 @@
-@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
+@file:OptIn(space.kscience.krig.core.KrigPerformancePitfall::class)
 
 package space.kscience.krig.core.runtime
 
@@ -9,15 +9,19 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultException
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceNode
+import space.kscience.krig.core.contracts.DEFAULT_DEVICE_SHUTDOWN_TIMEOUT
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.GracefullyCloseable
 import space.kscience.krig.core.contracts.asNodeMap
-import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
+import space.kscience.krig.core.contracts.closeDeviceBounded
 import space.kscience.krig.core.contracts.ignoreNonCancellationFailure
 import kotlin.time.Duration
 
@@ -35,17 +39,16 @@ public open class DeviceGroup(
     name: Name,
     context: Context,
     children: Map<Name, Device>,
-) : AbstractDevice(name, DeviceRuntime(context)), DeviceNode {
+) : AbstractDevice(name, DeviceRuntime.from(context)), DeviceNode {
 
     public open val devices: Map<Name, Device> = children
 
     override val device: Device get() = this
 
-    override val children: Map<Name, DeviceNode>
-        get() = devices.asNodeMap()
-
-    override fun content(target: String): Map<Name, Any> =
-        if (target == defaultTarget) children else super<AbstractDevice>.content(target)
+    // Children are fixed for a plain DeviceGroup, so the node map is built once instead of on every
+    // access (asNodeMap allocates a map + wrappers). MutableDeviceHub overrides this with its cached
+    // topology flow for the dynamic case.
+    override val children: Map<Name, DeviceNode> by lazy { devices.asNodeMap() }
 
     private fun tryResolveChild(fullName: Name): Pair<Device, Name>? {
         val tokens = fullName.tokens
@@ -55,17 +58,33 @@ public open class DeviceGroup(
         return child to Name(tokens.drop(1))
     }
 
-    protected open suspend fun readOwnProperty(propertyName: Name): Meta {
-        error("Property '$propertyName' not found on DeviceGroup '$name'. Children: ${devices.keys}")
-    }
+    // Defaults throw OperationFaultException (caught by runCatchingOperation into a Fail outcome):
+    // an unknown name is a predictable client error and must not promote the whole group to Failed.
+
+    protected open suspend fun readOwnProperty(propertyName: Name): Meta =
+        throw OperationFaultException(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnknownProperty,
+                message = "Property '$propertyName' not found on DeviceGroup '$name'. Children: ${devices.keys}",
+            ),
+        )
 
     protected open suspend fun writeOwnProperty(propertyName: Name, value: Meta) {
-        error("Property '$propertyName' not writable on DeviceGroup '$name' for value $value.")
+        throw OperationFaultException(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnknownProperty,
+                message = "Property '$propertyName' not writable on DeviceGroup '$name'.",
+            ),
+        )
     }
 
-    protected open suspend fun executeOwn(actionName: Name, argument: Meta?): Meta? {
-        error("Action '$actionName' not found on DeviceGroup '$name' for argument $argument.")
-    }
+    protected open suspend fun executeOwn(actionName: Name, argument: Meta?): Meta? =
+        throw OperationFaultException(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnknownAction,
+                message = "Action '$actionName' not found on DeviceGroup '$name'.",
+            ),
+        )
 
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> {
         val resolved = tryResolveChild(propertyName)
@@ -121,29 +140,21 @@ public open class DeviceGroup(
 
     private suspend fun closeChildDevicesGracefully(drainTimeout: Duration) {
         supervisorScope {
-            val jobs = devices.values.map { child ->
+            devices.values.map { child ->
                 async {
-                    ignoreCleanupFailureSuspending {
-                        if (child is GracefullyCloseable) {
-                            child.closeGracefully(drainTimeout)
-                        } else {
-                            child.shutdown()
-                        }
+                    closeDeviceBounded(child, drainTimeout + DEFAULT_DEVICE_SHUTDOWN_TIMEOUT) {
+                        if (child is GracefullyCloseable) child.closeGracefully(drainTimeout) else child.shutdown()
                     }
                 }
-            }
-            jobs.awaitAll()
+            }.awaitAll()
         }
     }
 
     private suspend fun shutdownChildDevices() {
         supervisorScope {
-            val jobs = devices.values.map { child ->
-                async {
-                    ignoreCleanupFailureSuspending { child.shutdown() }
-                }
-            }
-            jobs.awaitAll()
+            devices.values.map { child ->
+                async { closeDeviceBounded(child) { child.shutdown() } }
+            }.awaitAll()
         }
     }
 }

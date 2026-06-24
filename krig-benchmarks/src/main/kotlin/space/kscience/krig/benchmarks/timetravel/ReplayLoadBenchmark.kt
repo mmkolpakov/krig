@@ -11,7 +11,6 @@ import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.runBlocking
-import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame

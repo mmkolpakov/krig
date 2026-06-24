@@ -4,6 +4,8 @@ kotlin = "2.4.0"
 # Core runtime
 atomicfu = "0.32.1"
 dataforge = "0.11.0-dev-2"
+# tables-kt has its own release line; the match with the DataForge dev version is coincidental.
+tables-kt = "0.11.0-dev-2"
 kmath = "0.5.0"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.10.0"
@@ -51,12 +53,14 @@ dataforge-io = { module = "space.kscience:dataforge-io", version.ref = "dataforg
 dataforge-meta = { module = "space.kscience:dataforge-meta", version.ref = "dataforge" }
 dataforge-context = { module = "space.kscience:dataforge-context", version.ref = "dataforge" }
 dataforge-data = { module = "space.kscience:dataforge-data", version.ref = "dataforge" }
-tables-kt = { module = "space.kscience:tables-kt", version.ref = "dataforge" }
+dataforge-workspace = { module = "space.kscience:dataforge-workspace", version.ref = "dataforge" }
+tables-kt = { module = "space.kscience:tables-kt", version.ref = "tables-kt" }
 
 # KMath (numeric Data Plane: typed buffers / SoA structures / algebras)
 kmath-core = { module = "space.kscience:kmath-core", version.ref = "kmath" }
 kmath-coroutines = { module = "space.kscience:kmath-coroutines", version.ref = "kmath" }
 kmath-functions = { module = "space.kscience:kmath-functions", version.ref = "kmath" }
+kmath-stat = { module = "space.kscience:kmath-stat", version.ref = "kmath" }
 
 # kscience
 attributes-kt = { module = "space.kscience:attributes-kt", version.ref = "attributes-kt" }
@@ -79,6 +83,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io-core" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinx-serialization" }
+kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
 kotlinx-benchmark-runtime = { module = "org.jetbrains.kotlinx:kotlinx-benchmark-runtime", version.ref = "kotlinx-benchmark" }

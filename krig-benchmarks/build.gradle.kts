@@ -24,6 +24,24 @@ tasks.register<JavaExec>("allocationProbe") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+// Repeated in-process storage scenarios (H2 + chunk codecs, no Docker): write/read mean ± StdDev.
+tasks.register<JavaExec>("storageStats") {
+    group = "benchmark"
+    description = "Repeated H2/chunk storage scenarios reporting write/read mean ± StdDev."
+    mainClass.set("space.kscience.krig.benchmarks.storage.StorageStatsBenchKt")
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+// Transport discipline probe: per-message JSON/CBOR/PROTO vs columnar Arrow batch (bytes/alloc/time).
+tasks.register<JavaExec>("transportProbe") {
+    group = "benchmark"
+    description = "Telemetry transport cost: per-message JSON/CBOR/PROTO vs Arrow/feather batch."
+    mainClass.set("space.kscience.krig.benchmarks.transport.TelemetryTransportProbeKt")
+    classpath = sourceSets["main"].runtimeClasspath
+    // Apache Arrow Java needs these on the forked JVM (same as ArrowExportBenchmark).
+    jvmArgs("--add-opens=java.base/java.nio=ALL-UNNAMED", "--enable-native-access=ALL-UNNAMED")
+}
+
 benchmark {
     configurations {
         named("main") {
@@ -31,6 +49,14 @@ benchmark {
             iterations = 3
             iterationTime = 1
             iterationTimeUnit = "s"
+        }
+        register("transport") {
+            warmups = 5
+            iterations = 10
+            iterationTime = 1
+            iterationTimeUnit = "s"
+            advanced("jvmForks", "1")
+            include(".*TransportEncodingBenchmark.perMessage.*")
         }
     }
     targets {
@@ -54,10 +80,14 @@ dependencies {
     implementation(project(":krig-simulation"))
     implementation(project(":krig-storage"))
     implementation(project(":krig-arrow"))
+    implementation(project(":krig-magix"))
     implementation(libs.dataforge.meta)
+    implementation(libs.kmath.stat)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.benchmark.runtime)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.serialization.cbor)
+    implementation(libs.kotlinx.serialization.protobuf)
     implementation(libs.testcontainers)
     implementation(libs.testcontainers.postgresql)
     implementation(libs.exposed.jdbc)

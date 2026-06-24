@@ -8,7 +8,7 @@ import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.manifestOf
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.doubleProperty
 import space.kscience.krig.core.meta.mutableDoubleProperty
@@ -33,7 +33,7 @@ val PumpManifest: DeviceManifest = manifestOf(
 )
 
 /** Plain in-memory pump backend with an unboxed rpm sampler. */
-fun pumpBackend() = backend {
+fun pumpBackend() = deviceBackend {
     var rpm = 0.0
     val rpmSampler = doubleSampler(capacity = 64)
 
@@ -56,7 +56,7 @@ class FlakyPump(private val failuresBeforeSuccess: Int = 2) {
     var attempts: Int = 0
         private set
 
-    fun backend() = backend {
+    fun backend() = deviceBackend {
         var rpm = 1_200.0
 
         reader(PumpSpec.rpm) {

@@ -1,14 +1,13 @@
 package space.kscience.krig.concurrency
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.internal.SynchronizedObject
-import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.suspendCancellableCoroutine
 import space.kscience.krig.core.InternalKrigApi
 
@@ -23,7 +22,7 @@ public class Resource(
         require(capacity > 0) { "Resource '$name' capacity must be positive, got $capacity" }
     }
 
-    @OptIn(InternalCoroutinesApi::class)
+    // atomicfu monitor: a stable cross-platform lock, unlike kotlinx.coroutines.internal.
     private val lock = SynchronizedObject()
 
     // All mutable state below is accessed under [lock].
@@ -65,7 +64,6 @@ public class Resource(
     /**
      * Suspends until [amount] units are available, then claims them. Prefer [use].
      */
-    @OptIn(InternalCoroutinesApi::class)
     public suspend fun seize(
         amount: Int = 1,
         priority: ResourcePriority = ResourcePriority.DEFAULT,
@@ -73,7 +71,6 @@ public class Resource(
         check(claim(amount, priority, holderJob = null) == null)
     }
 
-    @OptIn(InternalCoroutinesApi::class)
     private suspend fun claim(
         amount: Int,
         priority: ResourcePriority,
@@ -157,7 +154,6 @@ public class Resource(
     }
 
     /** Releases [amount] units claimed by [seize]. */
-    @OptIn(InternalCoroutinesApi::class)
     public fun release(amount: Int = 1) {
         val actions = synchronized(lock) {
             require(usedUnits >= amount) {
@@ -170,7 +166,6 @@ public class Resource(
     }
 
     /** Preempts every waiter whose priority is strictly less than [priority]. */
-    @OptIn(InternalCoroutinesApi::class)
     public fun preemptWaitersBelow(priority: ResourcePriority) {
         val victims = synchronized(lock) {
             val victims = waiters.filter { it.claim.priority < priority }
@@ -194,7 +189,6 @@ public class Resource(
     }
 
     /** Cooperatively cancels active holders whose priority is strictly less than [priority]. */
-    @OptIn(InternalCoroutinesApi::class)
     public fun preemptHoldersBelow(priority: ResourcePriority) {
         val actions = synchronized(lock) {
             val syntheticRequest = ResourceClaim(++claimCounter, 0, priority)
@@ -220,7 +214,6 @@ public class Resource(
 
     // --- locked helpers (caller holds [lock]) ------------------------------------
 
-    @OptIn(InternalCoroutinesApi::class)
     private fun newClaim(amount: Int, priority: ResourcePriority): ResourceClaim = synchronized(lock) {
         ResourceClaim(++claimCounter, amount, priority)
     }
@@ -314,11 +307,9 @@ public class Resource(
     }
 
     /** Internal inspection for tests. */
-    @OptIn(InternalCoroutinesApi::class)
     @InternalKrigApi
     public fun currentWaiterCount(): Int = synchronized(lock) { waiters.size }
 
-    @OptIn(InternalCoroutinesApi::class)
     private fun rollbackGranted(waiter: Waiter): ResourceActions = synchronized(lock) {
         if (usedUnits < waiter.claim.amount) return@synchronized ResourceActions()
         if (waiter.holder != null) holders.remove(waiter.holder)
@@ -326,7 +317,6 @@ public class Resource(
         drainWaitersLocked(listOf(eventLocked(ResourceEventType.Released, waiter.claim)))
     }
 
-    @OptIn(InternalCoroutinesApi::class)
     private fun release(holder: Holder) {
         val actions = synchronized(lock) {
             check(holders.remove(holder)) {

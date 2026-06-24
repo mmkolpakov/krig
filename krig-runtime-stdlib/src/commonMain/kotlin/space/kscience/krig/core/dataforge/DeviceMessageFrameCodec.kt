@@ -7,10 +7,10 @@ import space.kscience.dataforge.io.Envelope
 import space.kscience.dataforge.io.asBinary
 import space.kscience.dataforge.io.toByteArray
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.meta.long
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
+import space.kscience.dataforge.names.isEmpty
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.identifiers.CorrelationId
 import space.kscience.krig.api.identifiers.wireValue
@@ -18,7 +18,7 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.serialization.krigStorageJson
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 
 /**
  * Canonical wire-key dictionary for lowering a [DeviceMessageFrame] into a DataForge
@@ -31,8 +31,10 @@ import space.kscience.krig.core.operations.HlcTimestamp
 public object DeviceMessageFrameKeys {
     public val MESSAGE_TYPE: Name = "krig.message.type".parseAsName()
     public val CORRELATION_ID: Name = "krig.message.correlationId".parseAsName()
+    public val VERIFIED_IDENTITY: Name = "krig.message.verifiedIdentity".parseAsName()
     public val HLC_PHYSICAL_MS: Name = "krig.message.hlc.physicalMs".parseAsName()
     public val HLC_LOGICAL: Name = "krig.message.hlc.logical".parseAsName()
+    public val HLC_NODE: Name = "krig.message.hlc.node".parseAsName()
     public val ATTRIBUTES: Name = "krig.message.attributes".parseAsName()
     public const val ENVELOPE_TYPE: String = "krig.device-message"
     public const val JSON_DATA_TYPE: String = "application/vnd.krig.device-message+json"
@@ -67,9 +69,11 @@ public class KotlinxJsonDeviceMessageFrameCodec(
 private fun MessageContext.toEnvelopeMeta(message: DeviceMessage): Meta = Meta {
     DeviceMessageFrameKeys.MESSAGE_TYPE put message.messageType
     correlationId?.wireValue?.let { DeviceMessageFrameKeys.CORRELATION_ID put it }
+    verifiedIdentity?.takeIf { it.isNotBlank() }?.let { DeviceMessageFrameKeys.VERIFIED_IDENTITY put it }
     hlcTimestamp?.let { stamp ->
         DeviceMessageFrameKeys.HLC_PHYSICAL_MS put stamp.physicalMilliseconds
         DeviceMessageFrameKeys.HLC_LOGICAL put stamp.logicalCounter
+        if (!stamp.nodeId.isEmpty()) DeviceMessageFrameKeys.HLC_NODE put stamp.nodeId.toString()
     }
     set(DeviceMessageFrameKeys.ATTRIBUTES, attributes)
     Envelope.ENVELOPE_TYPE_KEY put DeviceMessageFrameKeys.ENVELOPE_TYPE
@@ -78,10 +82,12 @@ private fun MessageContext.toEnvelopeMeta(message: DeviceMessage): Meta = Meta {
 
 private fun Meta.toMessageContext(): MessageContext {
     val physical = get(DeviceMessageFrameKeys.HLC_PHYSICAL_MS)?.long
-    val logical = get(DeviceMessageFrameKeys.HLC_LOGICAL)?.int
+    val logical = get(DeviceMessageFrameKeys.HLC_LOGICAL)?.long
+    val nodeId = get(DeviceMessageFrameKeys.HLC_NODE)?.string?.parseAsName() ?: Name.EMPTY
     return MessageContext(
         correlationId = CorrelationId.fromWire(get(DeviceMessageFrameKeys.CORRELATION_ID)?.string),
-        hlcTimestamp = if (physical != null && logical != null) HlcTimestamp(physical, logical) else null,
+        hlcTimestamp = if (physical != null && logical != null) HlcTimestamp(physical, logical, nodeId) else null,
+        verifiedIdentity = get(DeviceMessageFrameKeys.VERIFIED_IDENTITY)?.string,
         attributes = get(DeviceMessageFrameKeys.ATTRIBUTES) ?: Meta.EMPTY,
     )
 }

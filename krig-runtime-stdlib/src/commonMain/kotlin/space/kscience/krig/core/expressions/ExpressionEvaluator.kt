@@ -46,23 +46,23 @@ public class ExpressionContext internal constructor(
     }
 }
 
-/** Compiles an [Expression] tree into a reactive [DeviceState<Double>]. */
-public suspend fun Expression<Double>.compile(ctx: ExpressionContext): DeviceState<Double> =
+/** Compiles a [NumericExpression] tree into a reactive [DeviceState<Double>]. */
+public suspend fun NumericExpression.compile(ctx: ExpressionContext): DeviceState<Double> =
     when (this) {
         is Binding -> bindingState(deviceName, propertyName, ctx)
-        is Constant<Double> -> constantState(value)
+        is Constant -> constantState(value)
         is Unary -> {
-            val op = OpRegistry.unary(operation)
+            val op = Float64Operations.unary(operation)
             argument.compile(ctx).map { op(it ?: Double.NaN) }
         }
         is Binary -> {
             val l = left.compile(ctx); val r = right.compile(ctx)
-            val op = OpRegistry.binary(operation)
+            val op = Float64Operations.binary(operation)
             l.combine(r) { lv, rv -> op(lv ?: Double.NaN, rv ?: Double.NaN) }
         }
         is NAry -> {
             val states = operands.map { it.compile(ctx) }
-            val op = OpRegistry.nary(operation)
+            val op = Float64Operations.nary(operation)
             combineAll(states, op)
         }
     }

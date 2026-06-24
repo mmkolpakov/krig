@@ -1,6 +1,6 @@
 @file:OptIn(
     InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
 )
 
 package space.kscience.krig.dsl
@@ -57,6 +57,12 @@ public interface DescriptorSource {
     /** Returns the declared [ActionDescriptor] for [name], or `null` if absent. */
     public fun action(name: Name): ActionDescriptor?
 
+    /** All declared property descriptors — the enumeration behind [Device.propertyDescriptors]. */
+    public val properties: Map<Name, PropertyDescriptor> get() = emptyMap()
+
+    /** All declared action descriptors — the enumeration behind [Device.actionDescriptors]. */
+    public val actions: Map<Name, ActionDescriptor> get() = emptyMap()
+
     public companion object {
         /** Empty descriptor source. Undeclared Meta properties require explicit dynamic-property mode. */
         public val Empty: DescriptorSource = object : DescriptorSource {
@@ -68,9 +74,15 @@ public interface DescriptorSource {
         public fun of(
             properties: Map<Name, PropertyDescriptor>,
             actions: Map<Name, ActionDescriptor> = emptyMap(),
-        ): DescriptorSource = object : DescriptorSource {
-            override fun property(name: Name): PropertyDescriptor? = properties[name]
-            override fun action(name: Name): ActionDescriptor? = actions[name]
+        ): DescriptorSource {
+            val propertyMap = properties.toMap()
+            val actionMap = actions.toMap()
+            return object : DescriptorSource {
+                override fun property(name: Name): PropertyDescriptor? = propertyMap[name]
+                override fun action(name: Name): ActionDescriptor? = actionMap[name]
+                override val properties: Map<Name, PropertyDescriptor> get() = propertyMap
+                override val actions: Map<Name, ActionDescriptor> get() = actionMap
+            }
         }
     }
 }
@@ -79,9 +91,9 @@ public interface DescriptorSource {
  * Minimal [Device] delegating read / write / execute to a [DeviceBackend]. Use the
  * [device] factory; direct construction bypasses pipeline assembly.
  *
- * [descriptorSource] supplies declared descriptors so their attributes reach protocol
- * adapters. Undeclared Meta calls are rejected unless [allowAdHocProperties] is enabled
- * explicitly for legacy adapters and notebooks.
+ * [descriptorSource] supplies declared descriptors so their attributes reach protocol adapters.
+ * Undeclared Meta calls are rejected unless [allowAdHocProperties] explicitly enables schema-less
+ * access for notebooks, REPL probes, or runtime-discovered adapter schemas.
  */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 public class BackendDevice @InternalKrigApi constructor(
@@ -98,10 +110,26 @@ public class BackendDevice @InternalKrigApi constructor(
         context: Context,
         descriptorSource: DescriptorSource = DescriptorSource.Empty,
         allowAdHocProperties: Boolean = false,
-    ) : this(backend, name, DeviceRuntime(context), descriptorSource, allowAdHocProperties)
+    ) : this(backend, name, DeviceRuntime.from(context), descriptorSource, allowAdHocProperties)
 
     private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
+
+    /**
+     * Introspection materialized from the declared descriptor source plus the typed backend's
+     * registered specs (typed specs win, mirroring the point-lookup priority of [propertySpec]).
+     * Without this override every DSL-built device would report «properties: 0» (the
+     * [AbstractDevice] default), breaking catalogues and notebook renderers.
+     */
+    override val propertyDescriptors: Map<Name, PropertyDescriptor> = buildMap {
+        putAll(descriptorSource.properties)
+        typedDeviceBackend?.propertySpecs()?.forEach { (specName, spec) -> put(specName, spec.descriptor) }
+    }
+
+    override val actionDescriptors: Map<Name, ActionDescriptor> = buildMap {
+        putAll(descriptorSource.actions)
+        typedDeviceBackend?.actionSpecs()?.forEach { (specName, spec) -> put(specName, spec.descriptor) }
+    }
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         contractBackend?.reader(spec) ?: TypedReader { spec.converter.read(readProperty(spec.name)) }

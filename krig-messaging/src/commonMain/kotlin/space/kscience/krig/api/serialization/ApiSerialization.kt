@@ -6,6 +6,7 @@ import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import space.kscience.krig.api.addressing.TransportAddress
 import space.kscience.krig.api.context.AnonymousPrincipal
+import space.kscience.krig.api.context.DevicePrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.SimplePrincipal
 import space.kscience.krig.api.descriptors.ActionDescriptor
@@ -14,8 +15,13 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.*
 import space.kscience.krig.api.features.MetadataFeature
 import space.kscience.krig.api.features.PipelineFeatureSpec
+import space.kscience.krig.api.messages.ActionCancelMessage
 import space.kscience.krig.api.messages.ActionRequestMessage
 import space.kscience.krig.api.messages.ActionResponseMessage
+import space.kscience.krig.api.messages.BatchReadRequest
+import space.kscience.krig.api.messages.BatchReadResponse
+import space.kscience.krig.api.messages.BatchWriteRequest
+import space.kscience.krig.api.messages.BatchWriteResponse
 import space.kscience.krig.api.messages.DeviceAttachedMessage
 import space.kscience.krig.api.messages.DeviceDetachedMessage
 import space.kscience.krig.api.messages.DeviceMessage
@@ -27,6 +33,7 @@ import space.kscience.krig.api.messages.PropertyReadRequest
 import space.kscience.krig.api.messages.PropertyReadResponse
 import space.kscience.krig.api.messages.PropertyWriteRequest
 import space.kscience.krig.api.messages.PropertyWriteResponse
+import space.kscience.krig.api.messages.TimeSeriesRowMessage
 
 /**
  * Polymorphic registrations for open hierarchies.
@@ -61,6 +68,12 @@ public val krigApiSerializersModule: SerializersModule = SerializersModule {
         subclass(PropertyWriteResponse::class)
         subclass(ActionRequestMessage::class)
         subclass(ActionResponseMessage::class)
+        subclass(ActionCancelMessage::class)
+        subclass(BatchReadRequest::class)
+        subclass(BatchReadResponse::class)
+        subclass(BatchWriteRequest::class)
+        subclass(BatchWriteResponse::class)
+        subclass(TimeSeriesRowMessage::class)
     }
 
     polymorphic(PipelineFeatureSpec::class) {
@@ -70,6 +83,7 @@ public val krigApiSerializersModule: SerializersModule = SerializersModule {
     polymorphic(Principal::class) {
         subclass(AnonymousPrincipal::class)
         subclass(SimplePrincipal::class)
+        subclass(DevicePrincipal::class)
     }
 
     polymorphic(OperationDescriptor::class) {

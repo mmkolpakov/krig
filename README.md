@@ -11,8 +11,8 @@ import kotlinx.coroutines.runBlocking
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.manifestOf
 import space.kscience.krig.core.contracts.read
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.typed.backend
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.doubleProperty
@@ -26,7 +26,7 @@ object PumpSpec : DeviceContractBuilder() {
 
 val PumpManifest: DeviceManifest = manifestOf("demo.pump", PumpSpec)
 
-fun pumpBackend() = backend {
+fun pumpBackend() = deviceBackend {
     var rpm = 0.0
     val samples = doubleSampler()
 
@@ -82,29 +82,40 @@ val thermo = device("thermo") {
 
 ## Modules
 
+Modules are layered. Dependencies point strictly down the layer numbers (and sideways to
+leaves); contracts never depend on implementations, and no product module depends on
+`krig-demo` / `krig-benchmarks` / `krig-jupyter`.
+
 | Layer | Module | Purpose |
 |---|---|---|
-| Data | `krig-state` | Lifecycle, `Timestamped`, `ObservedValue`, `DataQuality`, snapshots |
-| Data | `krig-identity` | Principals, permissions, audit, authorization |
-| Model | `krig-model` | Descriptors, pipeline feature specs, expressions, retry policy |
-| Operation | `krig-operation` | `OperationOutcome`, faults, QoS pipeline, gates, observers, locks |
-| Messaging | `krig-messaging` | Device messages and serialization |
-| Storage | `krig-storage` | Event journals, typed row and dense time-series chunks, storage profiles |
-| Contracts | `krig-contracts` | Device, backend, Manifest, typed access, samplers, HLC |
-| IO | `krig-io` | Byte-stream framers and flow adapters |
-| Runtime | `krig-runtime` | DSL, operation pipeline assembly, gates, observers, dynamic groups |
-| Runtime stdlib | `krig-runtime-stdlib` | Device hubs, state history, expressions, peer runtime, time travel |
-| Assembly | `krig-assembly` | DataForge plugins, Manifest/factory discovery, data-platform polling |
-| Transport | `krig-magix` | Magix endpoint and envelope support |
-| Simulation | `krig-simulation` | Deterministic scheduler, resources, process DSL |
-| Build | `krig-ksp-processor` | KSP2 validation and serializers module generation |
-| Build | `krig-bom` | Aligned dependency versions |
-| Demo | `krig-demo` | Runnable examples |
-| Notebook | `krig-jupyter` | Kotlin Notebook integration and renderers |
+| L0 | `krig-state` | Values, `Timestamped`, `ObservedValue`, `DataQuality`, snapshots |
+| L0 | `krig-magix` | Magix bus contract (`space.kscience.magix.*` namespace) |
+| L1 | `krig-identity` | Principals, permissions, audit, authorization |
+| L2 | `krig-model` | Descriptors, `TypeId`, expressions, conditions, retry policy |
+| L2 | `krig-operation` | `OperationOutcome`, faults, QoS pipeline, gates, observers, locks |
+| L3 | `krig-messaging` | Device message DTOs, frames, hub events, serialization |
+| L4 | `krig-storage` | Event-journal and time-series contracts plus in-memory references |
+| L5 | `krig-contracts` | The waist: `Device`, `DeviceBackend`, `DeviceManifest`, `AbstractDevice`, typed access, samplers, HLC |
+| L6 | `krig-runtime-stdlib` | Default contract implementations: device hubs, groups, reconcile, time travel, file journal |
+| L7 | `krig-runtime` | Engine and authoring DSL: QoS pipeline, `device { }` / `stateModel`, dynamic groups |
+| L8 | `krig-assembly` | Acquisition DSL, Manifest/factory catalog, data-platform polling |
+| — | `krig-simulation` | Deterministic scheduler, resources, process DSL (virtual time) |
+| — | `krig-arrow` | JVM-only: Apache Arrow / Feather export |
+| — | `krig-analytics` | DataForge Workspace tasks and data selectors over the event journal (multiplatform) |
+| — | `krig-jupyter` | JVM-only: Kotlin Notebook integration and renderers |
+| — | `krig-ksp-processor` | Compile-time validation and serializers-module generation |
+| — | `krig-bom` | Aligned dependency versions |
+| — | `krig-demo` | Runnable examples |
+| — | `krig-benchmarks` | Storage, sampler, and pipeline benchmark profiles |
+
+`krig-runtime-stdlib` holds the default *implementations* of the `krig-contracts` interfaces
+(hubs, groups, journals, time travel). `krig-runtime` is the *engine and DSL* that orchestrates
+them (pipeline execution, `device { }`). Add a new default implementation to the former; add a
+new pipeline step or authoring DSL to the latter.
 
 ## Stack
 
-Kotlin **2.4.0-RC2**, kotlinx.coroutines **1.11.0**, KSP **2.3.9**,
+Kotlin **2.4.0**, kotlinx.coroutines **1.11.0**, KSP **2.3.9**,
 Gradle **9.5.1**. Targets: JVM 21, JS browser, Wasm JS, Linux x64,
 Windows x64, macOS, and iOS.
 

@@ -1,6 +1,6 @@
 @file:OptIn(
     space.kscience.krig.core.ExperimentalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     ExperimentalTimeTravelApi::class,
     kotlinx.coroutines.ExperimentalCoroutinesApi::class,

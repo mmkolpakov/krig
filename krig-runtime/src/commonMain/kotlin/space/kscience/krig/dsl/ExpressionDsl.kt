@@ -5,10 +5,10 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 
 /**
- * Operator-style DSL for building [Expression] trees.
+ * Operator-style DSL for building [NumericExpression] trees.
  *
  * ```kotlin
- * val formula: Expression<Double> = expr {
+ * val formula: NumericExpression = expr {
  *     ref("motor", "rpm") * 2.0 + ref("sensor", "temp")
  * }
  * ```
@@ -16,31 +16,31 @@ import space.kscience.dataforge.names.asName
 
 // ── Arithmetic operators ──
 
-public operator fun Expression<Double>.plus(other: Expression<Double>): Expression<Double> =
+public operator fun NumericExpression.plus(other: NumericExpression): NumericExpression =
     Binary("add", this, other)
 
-public operator fun Expression<Double>.minus(other: Expression<Double>): Expression<Double> =
+public operator fun NumericExpression.minus(other: NumericExpression): NumericExpression =
     Binary("sub", this, other)
 
-public operator fun Expression<Double>.times(other: Expression<Double>): Expression<Double> =
+public operator fun NumericExpression.times(other: NumericExpression): NumericExpression =
     Binary("mul", this, other)
 
-public operator fun Expression<Double>.div(other: Expression<Double>): Expression<Double> =
+public operator fun NumericExpression.div(other: NumericExpression): NumericExpression =
     Binary("div", this, other)
 
 // Scalar overloads
-public operator fun Expression<Double>.plus(other: Double): Expression<Double> = this + constant(other)
-public operator fun Expression<Double>.minus(other: Double): Expression<Double> = this - constant(other)
-public operator fun Expression<Double>.times(other: Double): Expression<Double> = this * constant(other)
-public operator fun Expression<Double>.div(other: Double): Expression<Double> = this / constant(other)
+public operator fun NumericExpression.plus(other: Double): NumericExpression = this + constant(other)
+public operator fun NumericExpression.minus(other: Double): NumericExpression = this - constant(other)
+public operator fun NumericExpression.times(other: Double): NumericExpression = this * constant(other)
+public operator fun NumericExpression.div(other: Double): NumericExpression = this / constant(other)
 
-public operator fun Double.plus(other: Expression<Double>): Expression<Double> = constant(this) + other
-public operator fun Double.minus(other: Expression<Double>): Expression<Double> = constant(this) - other
-public operator fun Double.times(other: Expression<Double>): Expression<Double> = constant(this) * other
-public operator fun Double.div(other: Expression<Double>): Expression<Double> = constant(this) / other
+public operator fun Double.plus(other: NumericExpression): NumericExpression = constant(this) + other
+public operator fun Double.minus(other: NumericExpression): NumericExpression = constant(this) - other
+public operator fun Double.times(other: NumericExpression): NumericExpression = constant(this) * other
+public operator fun Double.div(other: NumericExpression): NumericExpression = constant(this) / other
 
 // Unary negation
-public operator fun Expression<Double>.unaryMinus(): Expression<Double> = Unary("neg", this)
+public operator fun NumericExpression.unaryMinus(): NumericExpression = Unary("neg", this)
 
 // ── Factories ──
 
@@ -50,27 +50,29 @@ public fun ref(deviceName: String, propertyName: String): Binding =
 public fun ref(deviceName: Name, propertyName: Name): Binding =
     Binding(deviceName, propertyName)
 
-public fun constant(value: Double): Constant<Double> = Constant(value)
+public fun constant(value: Double): Constant = Constant(value)
 
-public inline fun <T> expr(body: () -> Expression<T>): Expression<T> = body()
+public inline fun expr(body: () -> NumericExpression): NumericExpression = body()
 
 // ── Math functions ──
 
-public fun sin(arg: Expression<Double>): Expression<Double> = Unary("sin", arg)
-public fun cos(arg: Expression<Double>): Expression<Double> = Unary("cos", arg)
-public fun tan(arg: Expression<Double>): Expression<Double> = Unary("tan", arg)
-public fun sqrt(arg: Expression<Double>): Expression<Double> = Unary("sqrt", arg)
-public fun abs(arg: Expression<Double>): Expression<Double> = Unary("abs", arg)
-public fun exp(arg: Expression<Double>): Expression<Double> = Unary("exp", arg)
-public fun ln(arg: Expression<Double>): Expression<Double> = Unary("ln", arg)
-public fun log10(arg: Expression<Double>): Expression<Double> = Unary("log10", arg)
+public fun sin(arg: NumericExpression): NumericExpression = Unary("sin", arg)
+public fun cos(arg: NumericExpression): NumericExpression = Unary("cos", arg)
+public fun tan(arg: NumericExpression): NumericExpression = Unary("tan", arg)
+public fun sqrt(arg: NumericExpression): NumericExpression = Unary("sqrt", arg)
+public fun abs(arg: NumericExpression): NumericExpression = Unary("abs", arg)
+public fun exp(arg: NumericExpression): NumericExpression = Unary("exp", arg)
+public fun ln(arg: NumericExpression): NumericExpression = Unary("ln", arg)
+public fun log10(arg: NumericExpression): NumericExpression = Unary("log10", arg)
 
-public fun pow(base: Expression<Double>, exponent: Expression<Double>): Expression<Double> =
+public fun pow(base: NumericExpression, exponent: NumericExpression): NumericExpression =
     Binary("pow", base, exponent)
 
-public fun sumOf(vararg args: Expression<Double>): Expression<Double> =
+public fun sumOf(vararg args: NumericExpression): NumericExpression =
     NAry("sum", args.toList())
-public fun productOf(vararg args: Expression<Double>): Expression<Double> =
+public fun productOf(vararg args: NumericExpression): NumericExpression =
     NAry("prod", args.toList())
-public fun meanOf(vararg args: Expression<Double>): Expression<Double> =
+public fun meanOf(vararg args: NumericExpression): NumericExpression =
     NAry("mean", args.toList())
+
+// Threshold/alarm conditions (boolean [Condition] tree) live in `ConditionDsl.kt`.

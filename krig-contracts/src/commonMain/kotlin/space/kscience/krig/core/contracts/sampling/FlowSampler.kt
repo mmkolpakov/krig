@@ -8,6 +8,7 @@ import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import space.kscience.attributes.SafeType
 import space.kscience.attributes.safeTypeOf
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.contracts.typed.TypedSampler
@@ -24,7 +25,8 @@ import space.kscience.krig.core.contracts.typed.TypedSampler
 public class FlowSampler<T>(
     type: SafeType<T>,
     capacity: Int = 256,
-) : AbstractRingSampler<T>(capacity, type) {
+    trackQuality: Boolean = false,
+) : AbstractRingSampler<T>(capacity, type, trackQuality) {
 
     @Suppress("UNCHECKED_CAST")
     private val values: Array<T?> = arrayOfNulls<Any?>(capacity) as Array<T?>
@@ -33,6 +35,15 @@ public class FlowSampler<T>(
     public fun publish(value: T) {
         synchronized(lock) {
             values[reserveSlotLocked()] = value
+            latestValue = value
+        }
+        emitToFlowIfObserved { value }
+    }
+
+    /** Publishes [value] tagging the slot with [severity] (recorded only when quality is tracked). */
+    public fun publish(value: T, severity: QualitySeverity) {
+        synchronized(lock) {
+            values[reserveSlotLocked(severity.rank)] = value
             latestValue = value
         }
         emitToFlowIfObserved { value }
@@ -50,10 +61,21 @@ public class FlowSampler<T>(
     override fun toString(): String = "FlowSampler(type=$type, capacity=$capacity)"
 }
 
-/** Reified factory — single public entry point replacing the primitive-specialised factories. */
-@Suppress("SameParameterValue")
-public inline fun <reified T> sampler(capacity: Int = 256): FlowSampler<T> =
-    FlowSampler(safeTypeOf(), capacity)
+/**
+ * Reified factory with smart primitive routing — the single public entry point for obtaining a
+ * sampler. Mirrors KMath's `Buffer.auto`: for `Double`/`Int`/`Long` it returns the **unboxed**
+ * `Ring*Sampler` (zero-allocation hot path); any other `T` falls back to the boxed [FlowSampler].
+ * The static return type is [TypedSampler]; narrow with `as RingDoubleSampler` (or use
+ * [doubleSampler]/[intSampler]/[longSampler]) when the unboxed publish surface is required.
+ */
+@Suppress("UNCHECKED_CAST", "SameParameterValue")
+public inline fun <reified T> sampler(capacity: Int = 256, trackQuality: Boolean = false): TypedSampler<T> =
+    when (T::class) {
+        Double::class -> RingDoubleSampler(capacity, trackQuality) as TypedSampler<T>
+        Int::class -> RingIntSampler(capacity, trackQuality) as TypedSampler<T>
+        Long::class -> RingLongSampler(capacity, trackQuality) as TypedSampler<T>
+        else -> FlowSampler(safeTypeOf(), capacity, trackQuality)
+    }
 
 /**
  * Shared bounded ring engine: holds the index/size bookkeeping, the latest-flag, and the boxed
@@ -64,6 +86,7 @@ public inline fun <reified T> sampler(capacity: Int = 256): FlowSampler<T> =
 public abstract class AbstractRingSampler<T>(
     final override val capacity: Int,
     final override val type: SafeType<T>,
+    trackQuality: Boolean = false,
 ) : TypedSampler<T> {
     init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
 
@@ -71,6 +94,18 @@ public abstract class AbstractRingSampler<T>(
     private var nextIndex: Int = 0
     private var storedSize: Int = 0
     private var hasLatestValue: Boolean = false
+    private var totalWrites: Long = 0
+    private var drainedWrites: Long = 0
+
+    /**
+     * Optional parallel severity lane (a `Structure-of-Arrays` column), allocated only when
+     * [trackQuality] is requested — zero cost otherwise. Stores a single [QualitySeverity.rank] per
+     * slot as an unsigned byte (0..255), enough for the standard ladder (GOOD=0/UNCERTAIN=50/BAD=100).
+     * The full [space.kscience.krig.api.data.DataQuality] (string code/detail) is **not** on the hot
+     * path: it travels the event channel, keeping the per-tick publish allocation-free.
+     */
+    private val severities: ByteArray? = if (trackQuality) ByteArray(capacity) else null
+    private var latestSeverityRank: Int = QualitySeverity.GOOD.rank
 
     private val updates = MutableSharedFlow<T>(
         extraBufferCapacity = capacity,
@@ -80,13 +115,37 @@ public abstract class AbstractRingSampler<T>(
     /** Whether any value has been published; safe to call without holding [lock]. */
     public val hasLatest: Boolean get() = synchronized(lock) { hasLatestValue }
 
+    /** Whether this sampler keeps a per-sample [QualitySeverity] lane (see [trackQuality]). */
+    public val tracksQuality: Boolean get() = severities != null
+
     /** Under a held [lock]: reserves the next write slot and advances ring bookkeeping. */
-    protected fun reserveSlotLocked(): Int {
+    protected fun reserveSlotLocked(): Int = reserveSlotLocked(QualitySeverity.GOOD.rank)
+
+    /**
+     * Under a held [lock]: reserves the next write slot, records [severityRank] in the quality lane
+     * (if tracked), and advances ring bookkeeping. The rank is stored as a byte; callers feed
+     * [QualitySeverity.rank] (the boxed `DataQuality` never reaches this path).
+     */
+    protected fun reserveSlotLocked(severityRank: Int): Int {
         val slot = nextIndex
+        severities?.set(slot, severityRank.toByte())
+        latestSeverityRank = severityRank
         nextIndex = (nextIndex + 1) % capacity
         if (storedSize < capacity) storedSize++
         hasLatestValue = true
+        totalWrites++
         return slot
+    }
+
+    /**
+     * Samples overwritten since the last call, i.e. samples lost between two pull-snapshots when the
+     * publish rate outran consumption. Reads-and-resets the counter; a non-zero result means the next
+     * snapshot has a gap and should be flagged [QualitySeverity.UNCERTAIN] for downstream analytics.
+     */
+    public fun drainOverrunCount(): Long = synchronized(lock) {
+        val lost = (totalWrites - drainedWrites - capacity).coerceAtLeast(0)
+        drainedWrites = totalWrites
+        lost
     }
 
     /** Under a held [lock]: number of stored elements. */
@@ -97,6 +156,27 @@ public abstract class AbstractRingSampler<T>(
 
     /** Under a held [lock]: whether any value has been published. */
     protected fun hasLatestLocked(): Boolean = hasLatestValue
+
+    /**
+     * Severity of the most recently published value, or `null` when quality is untracked or nothing
+     * has been published yet. Reads the unboxed lane, allocating only the [QualitySeverity] wrapper.
+     */
+    public fun latestSeverity(): QualitySeverity? = synchronized(lock) {
+        if (severities != null && hasLatestValue) QualitySeverity(latestSeverityRank) else null
+    }
+
+    /**
+     * Defensive snapshot of the severity ranks in oldest-to-newest order, column-aligned with the
+     * value snapshot ([snapshot] / `snapshot*Array`), or `null` when quality is untracked. Returned
+     * as unsigned ranks (0..255) so it drops straight into a columnar quality band / Arrow `IntVector`
+     * without per-row boxing.
+     */
+    public fun snapshotSeverityRanks(): IntArray? = synchronized(lock) {
+        val lane = severities ?: return@synchronized null
+        val count = storedSize
+        val start = oldestSlotLocked()
+        IntArray(count) { lane[(start + it) % capacity].toInt() and 0xFF }
+    }
 
     /**
      * Whether anyone is currently collecting [flow]. Reading [subscriptionCount] is allocation-free.
@@ -133,7 +213,8 @@ public abstract class AbstractRingSampler<T>(
  */
 public class RingDoubleSampler(
     capacity: Int = 256,
-) : AbstractRingSampler<Double>(capacity, safeTypeOf<Double>()) {
+    trackQuality: Boolean = false,
+) : AbstractRingSampler<Double>(capacity, safeTypeOf<Double>(), trackQuality) {
     private val values = DoubleArray(capacity)
     private var latestValue: Double = 0.0
 
@@ -145,7 +226,18 @@ public class RingDoubleSampler(
         emitToFlowIfObserved { value }
     }
 
+    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
+    public fun publishDouble(value: Double, severityRank: Int) {
+        synchronized(lock) {
+            values[reserveSlotLocked(severityRank)] = value
+            latestValue = value
+        }
+        emitToFlowIfObserved { value }
+    }
+
     public fun publish(value: Double): Unit = publishDouble(value)
+
+    public fun publish(value: Double, severity: QualitySeverity): Unit = publishDouble(value, severity.rank)
 
     public fun latestDoubleOr(default: Double): Double = synchronized(lock) {
         if (hasLatestLocked()) latestValue else default
@@ -170,7 +262,8 @@ public class RingDoubleSampler(
  */
 public class RingIntSampler(
     capacity: Int = 256,
-) : AbstractRingSampler<Int>(capacity, safeTypeOf<Int>()) {
+    trackQuality: Boolean = false,
+) : AbstractRingSampler<Int>(capacity, safeTypeOf<Int>(), trackQuality) {
     private val values = IntArray(capacity)
     private var latestValue: Int = 0
 
@@ -182,7 +275,18 @@ public class RingIntSampler(
         emitToFlowIfObserved { value }
     }
 
+    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
+    public fun publishInt(value: Int, severityRank: Int) {
+        synchronized(lock) {
+            values[reserveSlotLocked(severityRank)] = value
+            latestValue = value
+        }
+        emitToFlowIfObserved { value }
+    }
+
     public fun publish(value: Int): Unit = publishInt(value)
+
+    public fun publish(value: Int, severity: QualitySeverity): Unit = publishInt(value, severity.rank)
 
     public fun latestIntOr(default: Int): Int = synchronized(lock) {
         if (hasLatestLocked()) latestValue else default
@@ -204,7 +308,8 @@ public class RingIntSampler(
  */
 public class RingLongSampler(
     capacity: Int = 256,
-) : AbstractRingSampler<Long>(capacity, safeTypeOf<Long>()) {
+    trackQuality: Boolean = false,
+) : AbstractRingSampler<Long>(capacity, safeTypeOf<Long>(), trackQuality) {
     private val values = LongArray(capacity)
     private var latestValue: Long = 0L
 
@@ -216,7 +321,18 @@ public class RingLongSampler(
         emitToFlowIfObserved { value }
     }
 
+    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
+    public fun publishLong(value: Long, severityRank: Int) {
+        synchronized(lock) {
+            values[reserveSlotLocked(severityRank)] = value
+            latestValue = value
+        }
+        emitToFlowIfObserved { value }
+    }
+
     public fun publish(value: Long): Unit = publishLong(value)
+
+    public fun publish(value: Long, severity: QualitySeverity): Unit = publishLong(value, severity.rank)
 
     public fun latestLongOr(default: Long): Long = synchronized(lock) {
         if (hasLatestLocked()) latestValue else default
@@ -232,11 +348,14 @@ public class RingLongSampler(
     override fun snapshot(): List<Long> = snapshotLongArray().asList()
 }
 
-public fun doubleSampler(capacity: Int = 256): RingDoubleSampler = RingDoubleSampler(capacity)
+public fun doubleSampler(capacity: Int = 256, trackQuality: Boolean = false): RingDoubleSampler =
+    RingDoubleSampler(capacity, trackQuality)
 
-public fun intSampler(capacity: Int = 256): RingIntSampler = RingIntSampler(capacity)
+public fun intSampler(capacity: Int = 256, trackQuality: Boolean = false): RingIntSampler =
+    RingIntSampler(capacity, trackQuality)
 
-public fun longSampler(capacity: Int = 256): RingLongSampler = RingLongSampler(capacity)
+public fun longSampler(capacity: Int = 256, trackQuality: Boolean = false): RingLongSampler =
+    RingLongSampler(capacity, trackQuality)
 
 /** Returns the unboxed double sampler exposed for [spec], or `null` when the device has no such sampler. */
 public fun Device.doubleSampler(spec: DevicePropertyContract<Double>): RingDoubleSampler? =

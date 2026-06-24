@@ -13,6 +13,26 @@ open annotation class space.kscience.krig.api.annotations/KrigPipelineFeatureSpe
         final fun <get-id>(): kotlin/String // space.kscience.krig.api.annotations/KrigPipelineFeatureSpec.id.<get-id>|<get-id>(){}[0]
 }
 
+final enum class space.kscience.krig.api.expressions/ComparisonOperation : kotlin/Enum<space.kscience.krig.api.expressions/ComparisonOperation> { // space.kscience.krig.api.expressions/ComparisonOperation|null[0]
+    enum entry EQUAL // space.kscience.krig.api.expressions/ComparisonOperation.EQUAL|null[0]
+    enum entry GREATER // space.kscience.krig.api.expressions/ComparisonOperation.GREATER|null[0]
+    enum entry GREATER_OR_EQUAL // space.kscience.krig.api.expressions/ComparisonOperation.GREATER_OR_EQUAL|null[0]
+    enum entry LESS // space.kscience.krig.api.expressions/ComparisonOperation.LESS|null[0]
+    enum entry LESS_OR_EQUAL // space.kscience.krig.api.expressions/ComparisonOperation.LESS_OR_EQUAL|null[0]
+    enum entry NOT_EQUAL // space.kscience.krig.api.expressions/ComparisonOperation.NOT_EQUAL|null[0]
+
+    final val entries // space.kscience.krig.api.expressions/ComparisonOperation.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.api.expressions/ComparisonOperation> // space.kscience.krig.api.expressions/ComparisonOperation.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.api.expressions/ComparisonOperation // space.kscience.krig.api.expressions/ComparisonOperation.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.api.expressions/ComparisonOperation> // space.kscience.krig.api.expressions/ComparisonOperation.values|values#static(){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.expressions/ComparisonOperation.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/ComparisonOperation> // space.kscience.krig.api.expressions/ComparisonOperation.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.expressions/ComparisonOperation.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
 abstract interface space.kscience.krig.api.descriptors/OperationDescriptor { // space.kscience.krig.api.descriptors/OperationDescriptor|null[0]
     abstract val attributes // space.kscience.krig.api.descriptors/OperationDescriptor.attributes|{}attributes[0]
         abstract fun <get-attributes>(): space.kscience.attributes/Attributes // space.kscience.krig.api.descriptors/OperationDescriptor.attributes.<get-attributes>|<get-attributes>(){}[0]
@@ -21,16 +41,6 @@ abstract interface space.kscience.krig.api.descriptors/OperationDescriptor { // 
 }
 
 abstract interface space.kscience.krig.api.features/PipelineFeatureSpec // space.kscience.krig.api.features/PipelineFeatureSpec|null[0]
-
-sealed interface <#A: out kotlin/Any?> space.kscience.krig.api.expressions/Expression { // space.kscience.krig.api.expressions/Expression|null[0]
-    abstract val type // space.kscience.krig.api.expressions/Expression.type|{}type[0]
-        abstract fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.api.expressions/Expression.type.<get-type>|<get-type>(){}[0]
-
-    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.expressions/Expression.Companion|null[0]
-        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Expression<#A2>> // space.kscience.krig.api.expressions/Expression.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.expressions/Expression.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
-}
 
 sealed interface space.kscience.krig.api.descriptors/PropertyKind { // space.kscience.krig.api.descriptors/PropertyKind|null[0]
     final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.descriptors/PropertyKind.Companion|null[0]
@@ -46,12 +56,42 @@ sealed interface space.kscience.krig.api.descriptors/PropertyKind { // space.ksc
         final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/PropertyKind.LOGICAL.toString|toString(){}[0]
     }
 
+    final object MEASURED : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.descriptors/PropertyKind { // space.kscience.krig.api.descriptors/PropertyKind.MEASURED|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/PropertyKind.MEASURED.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/PropertyKind.MEASURED.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.descriptors/PropertyKind.MEASURED> // space.kscience.krig.api.descriptors/PropertyKind.MEASURED.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.descriptors/PropertyKind.MEASURED.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/PropertyKind.MEASURED.toString|toString(){}[0]
+    }
+
     final object PHYSICAL : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.descriptors/PropertyKind { // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL.hashCode|hashCode(){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL> // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL.serializer|serializer(){}[0]
         final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/PropertyKind.PHYSICAL.toString|toString(){}[0]
+    }
+
+    final object SETPOINT : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.descriptors/PropertyKind { // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.descriptors/PropertyKind.SETPOINT> // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/PropertyKind.SETPOINT.toString|toString(){}[0]
+    }
+}
+
+sealed interface space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/Condition|null[0]
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.expressions/Condition.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Condition> // space.kscience.krig.api.expressions/Condition.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.expressions/Condition.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+sealed interface space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/NumericExpression|null[0]
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.expressions/NumericExpression.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/NumericExpression> // space.kscience.krig.api.expressions/NumericExpression.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.expressions/NumericExpression.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
     }
 }
 
@@ -73,42 +113,6 @@ final class <#A: kotlin/Any?> space.kscience.krig.api.descriptors/OperationAttri
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/OperationAttributeEntry.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/OperationAttributeEntry.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/OperationAttributeEntry.toString|toString(){}[0]
-}
-
-final class <#A: out kotlin/Any?> space.kscience.krig.api.expressions/Constant : space.kscience.krig.api.expressions/Expression<#A> { // space.kscience.krig.api.expressions/Constant|null[0]
-    constructor <init>(#A) // space.kscience.krig.api.expressions/Constant.<init>|<init>(1:0){}[0]
-
-    final val type // space.kscience.krig.api.expressions/Constant.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.api.expressions/Constant.type.<get-type>|<get-type>(){}[0]
-    final val value // space.kscience.krig.api.expressions/Constant.value|{}value[0]
-        final fun <get-value>(): #A // space.kscience.krig.api.expressions/Constant.value.<get-value>|<get-value>(){}[0]
-
-    final fun component1(): #A // space.kscience.krig.api.expressions/Constant.component1|component1(){}[0]
-    final fun copy(#A = ...): space.kscience.krig.api.expressions/Constant<#A> // space.kscience.krig.api.expressions/Constant.copy|copy(1:0){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Constant.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Constant.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Constant.toString|toString(){}[0]
-
-    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/Constant<#A1>> { // space.kscience.krig.api.expressions/Constant.$serializer|null[0]
-        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // space.kscience.krig.api.expressions/Constant.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
-
-        final val descriptor // space.kscience.krig.api.expressions/Constant.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Constant.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-        final val typeSerial0 // space.kscience.krig.api.expressions/Constant.$serializer.typeSerial0|{}typeSerial0[0]
-
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Constant.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/Constant<#A1> // space.kscience.krig.api.expressions/Constant.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/Constant<#A1>) // space.kscience.krig.api.expressions/Constant.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.Constant<1:0>){}[0]
-        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Constant.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
-    }
-
-    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.api.expressions/Constant.Companion|null[0]
-        final val $cachedDescriptor // space.kscience.krig.api.expressions/Constant.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
-            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Constant.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
-
-        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Constant<#A2>> // space.kscience.krig.api.expressions/Constant.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.expressions/Constant.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
 }
 
 final class space.kscience.krig.api.descriptors.attributes/AccessAttribute { // space.kscience.krig.api.descriptors.attributes/AccessAttribute|null[0]
@@ -209,13 +213,16 @@ final class space.kscience.krig.api.descriptors.attributes/BindingsAttribute { /
 }
 
 final class space.kscience.krig.api.descriptors.attributes/MetadataAttribute { // space.kscience.krig.api.descriptors.attributes/MetadataAttribute|null[0]
-    constructor <init>(kotlin/String? = ...) // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.<init>|<init>(kotlin.String?){}[0]
+    constructor <init>(kotlin/String? = ..., kotlin/String? = ...) // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.<init>|<init>(kotlin.String?;kotlin.String?){}[0]
 
     final val description // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.description|{}description[0]
         final fun <get-description>(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.description.<get-description>|<get-description>(){}[0]
+    final val unit // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.unit|{}unit[0]
+        final fun <get-unit>(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.unit.<get-unit>|<get-unit>(){}[0]
 
     final fun component1(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.component1|component1(){}[0]
-    final fun copy(kotlin/String? = ...): space.kscience.krig.api.descriptors.attributes/MetadataAttribute // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.copy|copy(kotlin.String?){}[0]
+    final fun component2(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.component2|component2(){}[0]
+    final fun copy(kotlin/String? = ..., kotlin/String? = ...): space.kscience.krig.api.descriptors.attributes/MetadataAttribute // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.copy|copy(kotlin.String?;kotlin.String?){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.descriptors.attributes/MetadataAttribute.toString|toString(){}[0]
@@ -337,7 +344,7 @@ final class space.kscience.krig.api.descriptors/ActionDescriptor : space.kscienc
 }
 
 final class space.kscience.krig.api.descriptors/PropertyDescriptor : space.kscience.krig.api.descriptors/OperationDescriptor { // space.kscience.krig.api.descriptors/PropertyDescriptor|null[0]
-    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyKind, kotlin/String, space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.attributes/Attributes = ...) // space.kscience.krig.api.descriptors/PropertyDescriptor.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;kotlin.String;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.attributes.Attributes){}[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyKind, space.kscience.krig.api.descriptors/TypeId, space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.attributes/Attributes = ...) // space.kscience.krig.api.descriptors/PropertyDescriptor.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;space.kscience.krig.api.descriptors.TypeId;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.attributes.Attributes){}[0]
 
     final val attributes // space.kscience.krig.api.descriptors/PropertyDescriptor.attributes|{}attributes[0]
         final fun <get-attributes>(): space.kscience.attributes/Attributes // space.kscience.krig.api.descriptors/PropertyDescriptor.attributes.<get-attributes>|<get-attributes>(){}[0]
@@ -348,15 +355,14 @@ final class space.kscience.krig.api.descriptors/PropertyDescriptor : space.kscie
     final val name // space.kscience.krig.api.descriptors/PropertyDescriptor.name|{}name[0]
         final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.descriptors/PropertyDescriptor.name.<get-name>|<get-name>(){}[0]
     final val valueTypeId // space.kscience.krig.api.descriptors/PropertyDescriptor.valueTypeId|{}valueTypeId[0]
-        final fun <get-valueTypeId>(): kotlin/String // space.kscience.krig.api.descriptors/PropertyDescriptor.valueTypeId.<get-valueTypeId>|<get-valueTypeId>(){}[0]
+        final fun <get-valueTypeId>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/PropertyDescriptor.valueTypeId.<get-valueTypeId>|<get-valueTypeId>(){}[0]
 
-    final fun <#A1: kotlin/Any?> findAttribute(space.kscience.attributes/Attribute<#A1>): #A1? // space.kscience.krig.api.descriptors/PropertyDescriptor.findAttribute|findAttribute(space.kscience.attributes.Attribute<0:0>){0§<kotlin.Any?>}[0]
     final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.api.descriptors/PropertyDescriptor.component1|component1(){}[0]
     final fun component2(): space.kscience.krig.api.descriptors/PropertyKind // space.kscience.krig.api.descriptors/PropertyDescriptor.component2|component2(){}[0]
-    final fun component3(): kotlin/String // space.kscience.krig.api.descriptors/PropertyDescriptor.component3|component3(){}[0]
+    final fun component3(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/PropertyDescriptor.component3|component3(){}[0]
     final fun component4(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/PropertyDescriptor.component4|component4(){}[0]
     final fun component5(): space.kscience.attributes/Attributes // space.kscience.krig.api.descriptors/PropertyDescriptor.component5|component5(){}[0]
-    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.api.descriptors/PropertyKind = ..., kotlin/String = ..., space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.attributes/Attributes = ...): space.kscience.krig.api.descriptors/PropertyDescriptor // space.kscience.krig.api.descriptors/PropertyDescriptor.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;kotlin.String;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.attributes.Attributes){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.api.descriptors/PropertyKind = ..., space.kscience.krig.api.descriptors/TypeId = ..., space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.attributes/Attributes = ...): space.kscience.krig.api.descriptors/PropertyDescriptor // space.kscience.krig.api.descriptors/PropertyDescriptor.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;space.kscience.krig.api.descriptors.TypeId;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.attributes.Attributes){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/PropertyDescriptor.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/PropertyDescriptor.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/PropertyDescriptor.toString|toString(){}[0]
@@ -380,22 +386,48 @@ final class space.kscience.krig.api.descriptors/PropertyDescriptor : space.kscie
     }
 }
 
-final class space.kscience.krig.api.expressions/Binary : space.kscience.krig.api.expressions/Expression<kotlin/Double> { // space.kscience.krig.api.expressions/Binary|null[0]
-    constructor <init>(kotlin/String, space.kscience.krig.api.expressions/Expression<kotlin/Double>, space.kscience.krig.api.expressions/Expression<kotlin/Double>) // space.kscience.krig.api.expressions/Binary.<init>|<init>(kotlin.String;space.kscience.krig.api.expressions.Expression<kotlin.Double>;space.kscience.krig.api.expressions.Expression<kotlin.Double>){}[0]
+final class space.kscience.krig.api.expressions/And : space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/And|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.krig.api.expressions/Condition>) // space.kscience.krig.api.expressions/And.<init>|<init>(kotlin.collections.List<space.kscience.krig.api.expressions.Condition>){}[0]
+
+    final val operands // space.kscience.krig.api.expressions/And.operands|{}operands[0]
+        final fun <get-operands>(): kotlin.collections/List<space.kscience.krig.api.expressions/Condition> // space.kscience.krig.api.expressions/And.operands.<get-operands>|<get-operands>(){}[0]
+
+    final fun component1(): kotlin.collections/List<space.kscience.krig.api.expressions/Condition> // space.kscience.krig.api.expressions/And.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<space.kscience.krig.api.expressions/Condition> = ...): space.kscience.krig.api.expressions/And // space.kscience.krig.api.expressions/And.copy|copy(kotlin.collections.List<space.kscience.krig.api.expressions.Condition>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/And.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/And.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/And.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/And> { // space.kscience.krig.api.expressions/And.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/And.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/And.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/And.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/And // space.kscience.krig.api.expressions/And.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/And) // space.kscience.krig.api.expressions/And.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.And){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/And.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.expressions/And.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/And> // space.kscience.krig.api.expressions/And.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/Binary : space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/Binary|null[0]
+    constructor <init>(kotlin/String, space.kscience.krig.api.expressions/NumericExpression, space.kscience.krig.api.expressions/NumericExpression) // space.kscience.krig.api.expressions/Binary.<init>|<init>(kotlin.String;space.kscience.krig.api.expressions.NumericExpression;space.kscience.krig.api.expressions.NumericExpression){}[0]
 
     final val left // space.kscience.krig.api.expressions/Binary.left|{}left[0]
-        final fun <get-left>(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Binary.left.<get-left>|<get-left>(){}[0]
+        final fun <get-left>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Binary.left.<get-left>|<get-left>(){}[0]
     final val operation // space.kscience.krig.api.expressions/Binary.operation|{}operation[0]
         final fun <get-operation>(): kotlin/String // space.kscience.krig.api.expressions/Binary.operation.<get-operation>|<get-operation>(){}[0]
     final val right // space.kscience.krig.api.expressions/Binary.right|{}right[0]
-        final fun <get-right>(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Binary.right.<get-right>|<get-right>(){}[0]
-    final val type // space.kscience.krig.api.expressions/Binary.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.api.expressions/Binary.type.<get-type>|<get-type>(){}[0]
+        final fun <get-right>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Binary.right.<get-right>|<get-right>(){}[0]
 
     final fun component1(): kotlin/String // space.kscience.krig.api.expressions/Binary.component1|component1(){}[0]
-    final fun component2(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Binary.component2|component2(){}[0]
-    final fun component3(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Binary.component3|component3(){}[0]
-    final fun copy(kotlin/String = ..., space.kscience.krig.api.expressions/Expression<kotlin/Double> = ..., space.kscience.krig.api.expressions/Expression<kotlin/Double> = ...): space.kscience.krig.api.expressions/Binary // space.kscience.krig.api.expressions/Binary.copy|copy(kotlin.String;space.kscience.krig.api.expressions.Expression<kotlin.Double>;space.kscience.krig.api.expressions.Expression<kotlin.Double>){}[0]
+    final fun component2(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Binary.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Binary.component3|component3(){}[0]
+    final fun copy(kotlin/String = ..., space.kscience.krig.api.expressions/NumericExpression = ..., space.kscience.krig.api.expressions/NumericExpression = ...): space.kscience.krig.api.expressions/Binary // space.kscience.krig.api.expressions/Binary.copy|copy(kotlin.String;space.kscience.krig.api.expressions.NumericExpression;space.kscience.krig.api.expressions.NumericExpression){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Binary.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Binary.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Binary.toString|toString(){}[0]
@@ -416,15 +448,13 @@ final class space.kscience.krig.api.expressions/Binary : space.kscience.krig.api
     }
 }
 
-final class space.kscience.krig.api.expressions/Binding : space.kscience.krig.api.expressions/Expression<kotlin/Double> { // space.kscience.krig.api.expressions/Binding|null[0]
+final class space.kscience.krig.api.expressions/Binding : space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/Binding|null[0]
     constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name) // space.kscience.krig.api.expressions/Binding.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
 
     final val deviceName // space.kscience.krig.api.expressions/Binding.deviceName|{}deviceName[0]
         final fun <get-deviceName>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.expressions/Binding.deviceName.<get-deviceName>|<get-deviceName>(){}[0]
     final val propertyName // space.kscience.krig.api.expressions/Binding.propertyName|{}propertyName[0]
         final fun <get-propertyName>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.expressions/Binding.propertyName.<get-propertyName>|<get-propertyName>(){}[0]
-    final val type // space.kscience.krig.api.expressions/Binding.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.api.expressions/Binding.type.<get-type>|<get-type>(){}[0]
 
     final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.api.expressions/Binding.component1|component1(){}[0]
     final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.api.expressions/Binding.component2|component2(){}[0]
@@ -447,19 +477,103 @@ final class space.kscience.krig.api.expressions/Binding : space.kscience.krig.ap
     }
 }
 
-final class space.kscience.krig.api.expressions/NAry : space.kscience.krig.api.expressions/Expression<kotlin/Double> { // space.kscience.krig.api.expressions/NAry|null[0]
-    constructor <init>(kotlin/String, kotlin.collections/List<space.kscience.krig.api.expressions/Expression<kotlin/Double>>) // space.kscience.krig.api.expressions/NAry.<init>|<init>(kotlin.String;kotlin.collections.List<space.kscience.krig.api.expressions.Expression<kotlin.Double>>){}[0]
+final class space.kscience.krig.api.expressions/BooleanConstant : space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/BooleanConstant|null[0]
+    constructor <init>(kotlin/Boolean) // space.kscience.krig.api.expressions/BooleanConstant.<init>|<init>(kotlin.Boolean){}[0]
+
+    final val value // space.kscience.krig.api.expressions/BooleanConstant.value|{}value[0]
+        final fun <get-value>(): kotlin/Boolean // space.kscience.krig.api.expressions/BooleanConstant.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): kotlin/Boolean // space.kscience.krig.api.expressions/BooleanConstant.component1|component1(){}[0]
+    final fun copy(kotlin/Boolean = ...): space.kscience.krig.api.expressions/BooleanConstant // space.kscience.krig.api.expressions/BooleanConstant.copy|copy(kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/BooleanConstant.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/BooleanConstant.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/BooleanConstant.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/BooleanConstant> { // space.kscience.krig.api.expressions/BooleanConstant.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/BooleanConstant.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/BooleanConstant.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/BooleanConstant.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/BooleanConstant // space.kscience.krig.api.expressions/BooleanConstant.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/BooleanConstant) // space.kscience.krig.api.expressions/BooleanConstant.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.BooleanConstant){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/BooleanConstant.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/BooleanConstant> // space.kscience.krig.api.expressions/BooleanConstant.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/Comparison : space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/Comparison|null[0]
+    constructor <init>(space.kscience.krig.api.expressions/ComparisonOperation, space.kscience.krig.api.expressions/NumericExpression, space.kscience.krig.api.expressions/NumericExpression) // space.kscience.krig.api.expressions/Comparison.<init>|<init>(space.kscience.krig.api.expressions.ComparisonOperation;space.kscience.krig.api.expressions.NumericExpression;space.kscience.krig.api.expressions.NumericExpression){}[0]
+
+    final val left // space.kscience.krig.api.expressions/Comparison.left|{}left[0]
+        final fun <get-left>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Comparison.left.<get-left>|<get-left>(){}[0]
+    final val operation // space.kscience.krig.api.expressions/Comparison.operation|{}operation[0]
+        final fun <get-operation>(): space.kscience.krig.api.expressions/ComparisonOperation // space.kscience.krig.api.expressions/Comparison.operation.<get-operation>|<get-operation>(){}[0]
+    final val right // space.kscience.krig.api.expressions/Comparison.right|{}right[0]
+        final fun <get-right>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Comparison.right.<get-right>|<get-right>(){}[0]
+
+    final fun component1(): space.kscience.krig.api.expressions/ComparisonOperation // space.kscience.krig.api.expressions/Comparison.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Comparison.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Comparison.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.api.expressions/ComparisonOperation = ..., space.kscience.krig.api.expressions/NumericExpression = ..., space.kscience.krig.api.expressions/NumericExpression = ...): space.kscience.krig.api.expressions/Comparison // space.kscience.krig.api.expressions/Comparison.copy|copy(space.kscience.krig.api.expressions.ComparisonOperation;space.kscience.krig.api.expressions.NumericExpression;space.kscience.krig.api.expressions.NumericExpression){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Comparison.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Comparison.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Comparison.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/Comparison> { // space.kscience.krig.api.expressions/Comparison.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/Comparison.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Comparison.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Comparison.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/Comparison // space.kscience.krig.api.expressions/Comparison.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/Comparison) // space.kscience.krig.api.expressions/Comparison.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.Comparison){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/Comparison.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.expressions/Comparison.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Comparison> // space.kscience.krig.api.expressions/Comparison.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/Constant : space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/Constant|null[0]
+    constructor <init>(kotlin/Double) // space.kscience.krig.api.expressions/Constant.<init>|<init>(kotlin.Double){}[0]
+
+    final val value // space.kscience.krig.api.expressions/Constant.value|{}value[0]
+        final fun <get-value>(): kotlin/Double // space.kscience.krig.api.expressions/Constant.value.<get-value>|<get-value>(){}[0]
+
+    final fun component1(): kotlin/Double // space.kscience.krig.api.expressions/Constant.component1|component1(){}[0]
+    final fun copy(kotlin/Double = ...): space.kscience.krig.api.expressions/Constant // space.kscience.krig.api.expressions/Constant.copy|copy(kotlin.Double){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Constant.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Constant.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Constant.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/Constant> { // space.kscience.krig.api.expressions/Constant.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/Constant.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Constant.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Constant.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/Constant // space.kscience.krig.api.expressions/Constant.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/Constant) // space.kscience.krig.api.expressions/Constant.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.Constant){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/Constant.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Constant> // space.kscience.krig.api.expressions/Constant.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/NAry : space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/NAry|null[0]
+    constructor <init>(kotlin/String, kotlin.collections/List<space.kscience.krig.api.expressions/NumericExpression>) // space.kscience.krig.api.expressions/NAry.<init>|<init>(kotlin.String;kotlin.collections.List<space.kscience.krig.api.expressions.NumericExpression>){}[0]
 
     final val operands // space.kscience.krig.api.expressions/NAry.operands|{}operands[0]
-        final fun <get-operands>(): kotlin.collections/List<space.kscience.krig.api.expressions/Expression<kotlin/Double>> // space.kscience.krig.api.expressions/NAry.operands.<get-operands>|<get-operands>(){}[0]
+        final fun <get-operands>(): kotlin.collections/List<space.kscience.krig.api.expressions/NumericExpression> // space.kscience.krig.api.expressions/NAry.operands.<get-operands>|<get-operands>(){}[0]
     final val operation // space.kscience.krig.api.expressions/NAry.operation|{}operation[0]
         final fun <get-operation>(): kotlin/String // space.kscience.krig.api.expressions/NAry.operation.<get-operation>|<get-operation>(){}[0]
-    final val type // space.kscience.krig.api.expressions/NAry.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.api.expressions/NAry.type.<get-type>|<get-type>(){}[0]
 
     final fun component1(): kotlin/String // space.kscience.krig.api.expressions/NAry.component1|component1(){}[0]
-    final fun component2(): kotlin.collections/List<space.kscience.krig.api.expressions/Expression<kotlin/Double>> // space.kscience.krig.api.expressions/NAry.component2|component2(){}[0]
-    final fun copy(kotlin/String = ..., kotlin.collections/List<space.kscience.krig.api.expressions/Expression<kotlin/Double>> = ...): space.kscience.krig.api.expressions/NAry // space.kscience.krig.api.expressions/NAry.copy|copy(kotlin.String;kotlin.collections.List<space.kscience.krig.api.expressions.Expression<kotlin.Double>>){}[0]
+    final fun component2(): kotlin.collections/List<space.kscience.krig.api.expressions/NumericExpression> // space.kscience.krig.api.expressions/NAry.component2|component2(){}[0]
+    final fun copy(kotlin/String = ..., kotlin.collections/List<space.kscience.krig.api.expressions/NumericExpression> = ...): space.kscience.krig.api.expressions/NAry // space.kscience.krig.api.expressions/NAry.copy|copy(kotlin.String;kotlin.collections.List<space.kscience.krig.api.expressions.NumericExpression>){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/NAry.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/NAry.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.expressions/NAry.toString|toString(){}[0]
@@ -480,19 +594,73 @@ final class space.kscience.krig.api.expressions/NAry : space.kscience.krig.api.e
     }
 }
 
-final class space.kscience.krig.api.expressions/Unary : space.kscience.krig.api.expressions/Expression<kotlin/Double> { // space.kscience.krig.api.expressions/Unary|null[0]
-    constructor <init>(kotlin/String, space.kscience.krig.api.expressions/Expression<kotlin/Double>) // space.kscience.krig.api.expressions/Unary.<init>|<init>(kotlin.String;space.kscience.krig.api.expressions.Expression<kotlin.Double>){}[0]
+final class space.kscience.krig.api.expressions/Not : space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/Not|null[0]
+    constructor <init>(space.kscience.krig.api.expressions/Condition) // space.kscience.krig.api.expressions/Not.<init>|<init>(space.kscience.krig.api.expressions.Condition){}[0]
+
+    final val operand // space.kscience.krig.api.expressions/Not.operand|{}operand[0]
+        final fun <get-operand>(): space.kscience.krig.api.expressions/Condition // space.kscience.krig.api.expressions/Not.operand.<get-operand>|<get-operand>(){}[0]
+
+    final fun component1(): space.kscience.krig.api.expressions/Condition // space.kscience.krig.api.expressions/Not.component1|component1(){}[0]
+    final fun copy(space.kscience.krig.api.expressions/Condition = ...): space.kscience.krig.api.expressions/Not // space.kscience.krig.api.expressions/Not.copy|copy(space.kscience.krig.api.expressions.Condition){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Not.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Not.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Not.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/Not> { // space.kscience.krig.api.expressions/Not.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/Not.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Not.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Not.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/Not // space.kscience.krig.api.expressions/Not.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/Not) // space.kscience.krig.api.expressions/Not.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.Not){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/Not.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.expressions/Not.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Not> // space.kscience.krig.api.expressions/Not.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/Or : space.kscience.krig.api.expressions/Condition { // space.kscience.krig.api.expressions/Or|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.krig.api.expressions/Condition>) // space.kscience.krig.api.expressions/Or.<init>|<init>(kotlin.collections.List<space.kscience.krig.api.expressions.Condition>){}[0]
+
+    final val operands // space.kscience.krig.api.expressions/Or.operands|{}operands[0]
+        final fun <get-operands>(): kotlin.collections/List<space.kscience.krig.api.expressions/Condition> // space.kscience.krig.api.expressions/Or.operands.<get-operands>|<get-operands>(){}[0]
+
+    final fun component1(): kotlin.collections/List<space.kscience.krig.api.expressions/Condition> // space.kscience.krig.api.expressions/Or.component1|component1(){}[0]
+    final fun copy(kotlin.collections/List<space.kscience.krig.api.expressions/Condition> = ...): space.kscience.krig.api.expressions/Or // space.kscience.krig.api.expressions/Or.copy|copy(kotlin.collections.List<space.kscience.krig.api.expressions.Condition>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Or.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Or.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Or.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.expressions/Or> { // space.kscience.krig.api.expressions/Or.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.expressions/Or.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.expressions/Or.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.expressions/Or.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.expressions/Or // space.kscience.krig.api.expressions/Or.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.expressions/Or) // space.kscience.krig.api.expressions/Or.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.expressions.Or){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.expressions/Or.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.expressions/Or.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.expressions/Or> // space.kscience.krig.api.expressions/Or.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.api.expressions/Unary : space.kscience.krig.api.expressions/NumericExpression { // space.kscience.krig.api.expressions/Unary|null[0]
+    constructor <init>(kotlin/String, space.kscience.krig.api.expressions/NumericExpression) // space.kscience.krig.api.expressions/Unary.<init>|<init>(kotlin.String;space.kscience.krig.api.expressions.NumericExpression){}[0]
 
     final val argument // space.kscience.krig.api.expressions/Unary.argument|{}argument[0]
-        final fun <get-argument>(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Unary.argument.<get-argument>|<get-argument>(){}[0]
+        final fun <get-argument>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Unary.argument.<get-argument>|<get-argument>(){}[0]
     final val operation // space.kscience.krig.api.expressions/Unary.operation|{}operation[0]
         final fun <get-operation>(): kotlin/String // space.kscience.krig.api.expressions/Unary.operation.<get-operation>|<get-operation>(){}[0]
-    final val type // space.kscience.krig.api.expressions/Unary.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<kotlin/Double> // space.kscience.krig.api.expressions/Unary.type.<get-type>|<get-type>(){}[0]
 
     final fun component1(): kotlin/String // space.kscience.krig.api.expressions/Unary.component1|component1(){}[0]
-    final fun component2(): space.kscience.krig.api.expressions/Expression<kotlin/Double> // space.kscience.krig.api.expressions/Unary.component2|component2(){}[0]
-    final fun copy(kotlin/String = ..., space.kscience.krig.api.expressions/Expression<kotlin/Double> = ...): space.kscience.krig.api.expressions/Unary // space.kscience.krig.api.expressions/Unary.copy|copy(kotlin.String;space.kscience.krig.api.expressions.Expression<kotlin.Double>){}[0]
+    final fun component2(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.expressions/Unary.component2|component2(){}[0]
+    final fun copy(kotlin/String = ..., space.kscience.krig.api.expressions/NumericExpression = ...): space.kscience.krig.api.expressions/Unary // space.kscience.krig.api.expressions/Unary.copy|copy(kotlin.String;space.kscience.krig.api.expressions.NumericExpression){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.expressions/Unary.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.api.expressions/Unary.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.api.expressions/Unary.toString|toString(){}[0]
@@ -545,6 +713,30 @@ final class space.kscience.krig.api.features/MetadataFeature : space.kscience.kr
     }
 }
 
+final value class space.kscience.krig.api.descriptors/TypeId { // space.kscience.krig.api.descriptors/TypeId|null[0]
+    constructor <init>(kotlin/String) // space.kscience.krig.api.descriptors/TypeId.<init>|<init>(kotlin.String){}[0]
+
+    final val id // space.kscience.krig.api.descriptors/TypeId.id|{}id[0]
+        final fun <get-id>(): kotlin/String // space.kscience.krig.api.descriptors/TypeId.id.<get-id>|<get-id>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors/TypeId.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors/TypeId.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.descriptors/TypeId.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.descriptors/TypeId> { // space.kscience.krig.api.descriptors/TypeId.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.descriptors/TypeId.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.descriptors/TypeId.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.descriptors/TypeId.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeId.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.descriptors/TypeId) // space.kscience.krig.api.descriptors/TypeId.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.descriptors.TypeId){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.descriptors/TypeId.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.descriptors/TypeId> // space.kscience.krig.api.descriptors/TypeId.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final object space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys { // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys|null[0]
     final val standard // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.standard|{}standard[0]
         final fun <get-standard>(): kotlin.collections/Set<space.kscience.attributes.serialization/SerializableAttribute<*>> // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.standard.<get-standard>|<get-standard>(){}[0]
@@ -567,20 +759,20 @@ final object space.kscience.krig.api.descriptors/OperationAttributesSerializer :
 }
 
 final object space.kscience.krig.api.descriptors/TypeIds { // space.kscience.krig.api.descriptors/TypeIds|null[0]
-    final const val BOOLEAN // space.kscience.krig.api.descriptors/TypeIds.BOOLEAN|{}BOOLEAN[0]
-        final fun <get-BOOLEAN>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.BOOLEAN.<get-BOOLEAN>|<get-BOOLEAN>(){}[0]
-    final const val BYTES // space.kscience.krig.api.descriptors/TypeIds.BYTES|{}BYTES[0]
-        final fun <get-BYTES>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.BYTES.<get-BYTES>|<get-BYTES>(){}[0]
-    final const val DOUBLE // space.kscience.krig.api.descriptors/TypeIds.DOUBLE|{}DOUBLE[0]
-        final fun <get-DOUBLE>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.DOUBLE.<get-DOUBLE>|<get-DOUBLE>(){}[0]
-    final const val INT // space.kscience.krig.api.descriptors/TypeIds.INT|{}INT[0]
-        final fun <get-INT>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.INT.<get-INT>|<get-INT>(){}[0]
-    final const val LONG // space.kscience.krig.api.descriptors/TypeIds.LONG|{}LONG[0]
-        final fun <get-LONG>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.LONG.<get-LONG>|<get-LONG>(){}[0]
-    final const val META // space.kscience.krig.api.descriptors/TypeIds.META|{}META[0]
-        final fun <get-META>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.META.<get-META>|<get-META>(){}[0]
-    final const val STRING // space.kscience.krig.api.descriptors/TypeIds.STRING|{}STRING[0]
-        final fun <get-STRING>(): kotlin/String // space.kscience.krig.api.descriptors/TypeIds.STRING.<get-STRING>|<get-STRING>(){}[0]
+    final val BOOLEAN // space.kscience.krig.api.descriptors/TypeIds.BOOLEAN|{}BOOLEAN[0]
+        final fun <get-BOOLEAN>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.BOOLEAN.<get-BOOLEAN>|<get-BOOLEAN>(){}[0]
+    final val BYTES // space.kscience.krig.api.descriptors/TypeIds.BYTES|{}BYTES[0]
+        final fun <get-BYTES>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.BYTES.<get-BYTES>|<get-BYTES>(){}[0]
+    final val DOUBLE // space.kscience.krig.api.descriptors/TypeIds.DOUBLE|{}DOUBLE[0]
+        final fun <get-DOUBLE>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.DOUBLE.<get-DOUBLE>|<get-DOUBLE>(){}[0]
+    final val INT // space.kscience.krig.api.descriptors/TypeIds.INT|{}INT[0]
+        final fun <get-INT>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.INT.<get-INT>|<get-INT>(){}[0]
+    final val LONG // space.kscience.krig.api.descriptors/TypeIds.LONG|{}LONG[0]
+        final fun <get-LONG>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.LONG.<get-LONG>|<get-LONG>(){}[0]
+    final val META // space.kscience.krig.api.descriptors/TypeIds.META|{}META[0]
+        final fun <get-META>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.META.<get-META>|<get-META>(){}[0]
+    final val STRING // space.kscience.krig.api.descriptors/TypeIds.STRING|{}STRING[0]
+        final fun <get-STRING>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/TypeIds.STRING.<get-STRING>|<get-STRING>(){}[0]
 }
 
 final val space.kscience.krig.api.descriptors.attributes/access // space.kscience.krig.api.descriptors.attributes/access|@space.kscience.krig.api.descriptors.OperationDescriptor{}access[0]
@@ -607,15 +799,18 @@ final val space.kscience.krig.api.descriptors.attributes/retryPolicy // space.ks
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-retryPolicy>(): space.kscience.krig.api.descriptors.attributes/RetryPolicy? // space.kscience.krig.api.descriptors.attributes/retryPolicy.<get-retryPolicy>|<get-retryPolicy>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
 final val space.kscience.krig.api.descriptors.attributes/timeout // space.kscience.krig.api.descriptors.attributes/timeout|@space.kscience.krig.api.descriptors.OperationDescriptor{}timeout[0]
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-timeout>(): kotlin.time/Duration? // space.kscience.krig.api.descriptors.attributes/timeout.<get-timeout>|<get-timeout>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
+final val space.kscience.krig.api.descriptors.attributes/unit // space.kscience.krig.api.descriptors.attributes/unit|@space.kscience.krig.api.descriptors.OperationDescriptor{}unit[0]
+    final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-unit>(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/unit.<get-unit>|<get-unit>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
 
+final fun (kotlinx.serialization.descriptors/SerialDescriptor).space.kscience.krig.api.descriptors/toMetaDescriptor(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/toMetaDescriptor|toMetaDescriptor@kotlinx.serialization.descriptors.SerialDescriptor(){}[0]
 final fun (space.kscience.krig.api.descriptors/OperationDescriptor).space.kscience.krig.api.descriptors.attributes/binding(kotlin/String): space.kscience.dataforge.meta/Meta? // space.kscience.krig.api.descriptors.attributes/binding|binding@space.kscience.krig.api.descriptors.OperationDescriptor(kotlin.String){}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.api.descriptors/attr(space.kscience.attributes/Attribute<#A>, #B, kotlin/Function1<#A, #B>): kotlin.properties/ReadOnlyProperty<space.kscience.krig.api.descriptors/OperationDescriptor, #B> // space.kscience.krig.api.descriptors/attr|attr(space.kscience.attributes.Attribute<0:0>;0:1;kotlin.Function1<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.api.descriptors/attr(space.kscience.attributes/Attribute<#A>, kotlin/Function1<#A, #B?>): kotlin.properties/ReadOnlyProperty<space.kscience.krig.api.descriptors/OperationDescriptor, #B?> // space.kscience.krig.api.descriptors/attr|attr(space.kscience.attributes.Attribute<0:0>;kotlin.Function1<0:0,0:1?>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.attributes/Attribute<#A>).space.kscience.krig.api.descriptors/of(#A): space.kscience.krig.api.descriptors/OperationAttributeEntry<#A> // space.kscience.krig.api.descriptors/of|of@space.kscience.attributes.Attribute<0:0>(0:0){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.api.descriptors/OperationDescriptor).space.kscience.krig.api.descriptors/attribute(space.kscience.attributes/Attribute<#A>): #A? // space.kscience.krig.api.descriptors/attribute|attribute@space.kscience.krig.api.descriptors.OperationDescriptor(space.kscience.attributes.Attribute<0:0>){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> space.kscience.krig.api.descriptors/attr(kotlin/Boolean, space.kscience.attributes/Attribute<#A>, kotlin/Function1<#A, kotlin/Boolean>): kotlin.properties/ReadOnlyProperty<space.kscience.krig.api.descriptors/OperationDescriptor, kotlin/Boolean> // space.kscience.krig.api.descriptors/attr|attr(kotlin.Boolean;space.kscience.attributes.Attribute<0:0>;kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> space.kscience.krig.api.expressions/expressionTypeOf(#A): space.kscience.attributes/SafeType<#A> // space.kscience.krig.api.expressions/expressionTypeOf|expressionTypeOf(0:0){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.meta/serializableMetaConverter(kotlinx.serialization/KSerializer<#A>, kotlinx.serialization.json/Json = ...): space.kscience.dataforge.meta/MetaConverter<#A> // space.kscience.krig.api.meta/serializableMetaConverter|serializableMetaConverter(kotlinx.serialization.KSerializer<0:0>;kotlinx.serialization.json.Json){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.meta/serializableToMeta(kotlinx.serialization/KSerializer<#A>, #A, kotlinx.serialization.json/Json = ...): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.meta/serializableToMeta|serializableToMeta(kotlinx.serialization.KSerializer<0:0>;0:0;kotlinx.serialization.json.Json){0§<kotlin.Any?>}[0]
 final fun space.kscience.krig.api.descriptors/operationAttributes(kotlin/Function1<space.kscience.attributes/AttributesBuilder<space.kscience.krig.api.descriptors/OperationDescriptor>, kotlin/Unit>): space.kscience.attributes/Attributes // space.kscience.krig.api.descriptors/operationAttributes|operationAttributes(kotlin.Function1<space.kscience.attributes.AttributesBuilder<space.kscience.krig.api.descriptors.OperationDescriptor>,kotlin.Unit>){}[0]
 final fun space.kscience.krig.api.descriptors/operationAttributesOf(kotlin/Array<out space.kscience.krig.api.descriptors/OperationAttributeEntry<*>>...): space.kscience.attributes/Attributes // space.kscience.krig.api.descriptors/operationAttributesOf|operationAttributesOf(kotlin.Array<out|space.kscience.krig.api.descriptors.OperationAttributeEntry<*>>...){}[0]
-final fun space.kscience.krig.api.descriptors/typeIdOf(kotlinx.serialization/KSerializer<*>): kotlin/String // space.kscience.krig.api.descriptors/typeIdOf|typeIdOf(kotlinx.serialization.KSerializer<*>){}[0]
+final fun space.kscience.krig.api.descriptors/typeIdOf(kotlinx.serialization/KSerializer<*>): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.api.descriptors/typeIdOf|typeIdOf(kotlinx.serialization.KSerializer<*>){}[0]
+final inline fun <#A: reified kotlin/Any?> space.kscience.krig.api.descriptors/metaDescriptorOf(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/metaDescriptorOf|metaDescriptorOf(){0§<kotlin.Any?>}[0]

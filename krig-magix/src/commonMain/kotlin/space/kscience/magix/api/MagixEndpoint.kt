@@ -35,8 +35,3 @@ public interface MagixEndpoint : AutoCloseable {
     override fun close()
 
 }
-
-/**
- * An alias for [MagixEndpoint.broadcast] for more fluent DSL-like use.
- */
-public suspend fun MagixEndpoint.send(message: MagixMessage): Unit = broadcast(message)

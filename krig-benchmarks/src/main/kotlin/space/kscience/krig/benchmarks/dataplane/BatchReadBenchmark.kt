@@ -11,8 +11,6 @@ import kotlinx.benchmark.Blackhole
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -126,6 +124,5 @@ private class CoalescingBackend : SequentialBackend() {
 
 internal fun benchmarkEnvironment(): DeviceEnvironment = object : DeviceEnvironment {
     override val clock: Clock = Clock.System
-    override val deviceScope: CoroutineScope = CoroutineScope(SupervisorJob())
     override val name: Name = "bench.device".asName()
 }

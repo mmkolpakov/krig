@@ -12,20 +12,57 @@ public final class space/kscience/krig/api/context/AnonymousPrincipal : space/ks
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/context/DevicePrincipal : space/kscience/krig/api/context/Principal {
+	public static final field Companion Lspace/kscience/krig/api/context/DevicePrincipal$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/util/Set;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/Set;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Ljava/lang/String;Ljava/util/Set;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/api/context/DevicePrincipal;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/context/DevicePrincipal;Ljava/lang/String;Ljava/util/Set;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/api/context/DevicePrincipal;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getAttributes ()Lspace/kscience/dataforge/meta/Meta;
+	public fun getName ()Ljava/lang/String;
+	public fun getRoles ()Ljava/util/Set;
+	public final fun getVerifiedIdentity ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/context/DevicePrincipal$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/context/DevicePrincipal$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/context/DevicePrincipal;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/context/DevicePrincipal;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/context/DevicePrincipal$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/api/context/ExecutionContext {
 	public static final field Companion Lspace/kscience/krig/api/context/ExecutionContext$Companion;
-	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/krig/api/context/Principal;
 	public final fun component2-VDH_JW0 ()Ljava/lang/String;
 	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component4 ()Lspace/kscience/dataforge/meta/Meta;
-	public final fun component5 ()Lspace/kscience/attributes/Attributes;
-	public final fun copy-JkYp4CU (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/context/ExecutionContext;
-	public static synthetic fun copy-JkYp4CU$default (Lspace/kscience/krig/api/context/ExecutionContext;Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/context/ExecutionContext;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Lspace/kscience/krig/api/context/Principal;
+	public final fun component6 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component7 ()Lspace/kscience/attributes/Attributes;
+	public final fun copy-L8-ioJw (Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/context/ExecutionContext;
+	public static synthetic fun copy-L8-ioJw$default (Lspace/kscience/krig/api/context/ExecutionContext;Lspace/kscience/krig/api/context/Principal;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/context/ExecutionContext;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAttributes ()Lspace/kscience/attributes/Attributes;
+	public final fun getCallerIdentity ()Ljava/lang/String;
 	public final fun getCorrelationId-VDH_JW0 ()Ljava/lang/String;
+	public final fun getOnBehalfOf ()Lspace/kscience/krig/api/context/Principal;
 	public final fun getOriginDevice ()Lspace/kscience/dataforge/names/Name;
 	public final fun getPrincipal ()Lspace/kscience/krig/api/context/Principal;
 	public final fun getProperties ()Lspace/kscience/dataforge/meta/Meta;
@@ -176,15 +213,6 @@ public final class space/kscience/krig/api/identifiers/ControlsPermission$Device
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class space/kscience/krig/api/identifiers/ControlsPermissions {
-	public static final field INSTANCE Lspace/kscience/krig/api/identifiers/ControlsPermissions;
-	public final fun deviceExecute (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/ControlsPermission;
-	public final fun deviceRead (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/ControlsPermission;
-	public final fun deviceSubscribe (Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/ControlsPermission;
-	public final fun deviceSubscribe (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/ControlsPermission;
-	public final fun deviceWrite (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/ControlsPermission;
-}
-
 public final class space/kscience/krig/api/identifiers/CorrelationId {
 	public static final field Companion Lspace/kscience/krig/api/identifiers/CorrelationId$Companion;
 	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/api/identifiers/CorrelationId;
@@ -297,6 +325,38 @@ public final class space/kscience/krig/api/services/AuthorizationService$Default
 
 public final class space/kscience/krig/api/services/AuthorizationServiceKt {
 	public static final fun getAuthorizationService (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/api/services/AuthorizationService;
+}
+
+public final class space/kscience/krig/api/services/DefaultIdentityProvider : space/kscience/dataforge/context/AbstractPlugin, space/kscience/krig/api/services/IdentityProvider {
+	public fun <init> (Lspace/kscience/dataforge/meta/Meta;)V
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+	public fun resolve (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class space/kscience/krig/api/services/IdentityProvider : space/kscience/dataforge/context/Plugin {
+	public static final field Companion Lspace/kscience/krig/api/services/IdentityProvider$Companion;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+	public abstract fun resolve (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/api/services/IdentityProvider$Companion : space/kscience/dataforge/context/PluginFactory {
+	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
+	public fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/api/services/IdentityProvider;
+	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
+}
+
+public final class space/kscience/krig/api/services/IdentityProvider$DefaultImpls {
+	public static fun content (Lspace/kscience/krig/api/services/IdentityProvider;Ljava/lang/String;)Ljava/util/Map;
+	public static fun getDefaultChainTarget (Lspace/kscience/krig/api/services/IdentityProvider;)Ljava/lang/String;
+	public static fun getDefaultTarget (Lspace/kscience/krig/api/services/IdentityProvider;)Ljava/lang/String;
+	public static fun getName (Lspace/kscience/krig/api/services/IdentityProvider;)Lspace/kscience/dataforge/names/Name;
+	public static fun getSerializerModule (Lspace/kscience/krig/api/services/IdentityProvider;)Lkotlinx/serialization/modules/SerializersModule;
+	public static fun getTag (Lspace/kscience/krig/api/services/IdentityProvider;)Lspace/kscience/dataforge/context/PluginTag;
+	public static fun toMeta (Lspace/kscience/krig/api/services/IdentityProvider;)Lspace/kscience/dataforge/meta/Meta;
+}
+
+public final class space/kscience/krig/api/services/IdentityProviderKt {
+	public static final fun getIdentityProvider (Lspace/kscience/dataforge/context/Context;)Lspace/kscience/krig/api/services/IdentityProvider;
 }
 
 public final class space/kscience/krig/api/services/NoOpAuditService : space/kscience/dataforge/context/AbstractPlugin, space/kscience/krig/api/services/AuditService {

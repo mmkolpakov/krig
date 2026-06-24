@@ -1,5 +1,5 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
@@ -17,8 +17,10 @@ import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.contracts.execute
 import space.kscience.dataforge.names.parseAsName
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.hub.resolveDevice
 import space.kscience.krig.api.hub.resolveNode
+import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -26,7 +28,8 @@ import space.kscience.krig.core.contracts.asNode
 import space.kscience.krig.core.contracts.deviceTree
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 
@@ -93,28 +96,36 @@ class DeviceGroupTest {
         assertEquals("reset", result?.get("action".asName())?.value?.toString())
     }
 
+    /**
+     * An unknown name is a predictable client error: the outcome API returns an UnknownProperty
+     * fault and the group's lifecycle must stay operational (not promoted to Failed).
+     */
     @Test
-    fun unknownChildThrowsError() = runTest {
+    fun unknownChildYieldsFaultWithoutFailingLifecycle() = runTest {
         val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-fail"),
             children = mapOf("child1".asName() to StubDevice("child1")),
         )
-        assertFailsWith<IllegalStateException> {
-            group.readProperty("nonexistent.prop".parseAsName())
-        }
+        val outcome = group.readPropertyOutcome("nonexistent.prop".parseAsName())
+
+        val failure = assertIs<OperationOutcome.Fail>(outcome)
+        assertEquals(OperationFaultTypes.UnknownProperty, failure.fault.faultType)
+        assertFalse(group.lifecycleState is LifecycleState.Failed)
     }
 
     @Test
-    fun emptyPropertyNameThrowsError() = runTest {
+    fun emptyPropertyNameYieldsFaultWithoutFailingLifecycle() = runTest {
         val group = DeviceGroup(
             name = "hub".asName(),
             context = Context("comp-${cdTestSeq.addAndFetch(1)}-empty"),
             children = mapOf("child1".asName() to StubDevice("child1")),
         )
-        assertFailsWith<IllegalStateException> {
-            group.readProperty(Name.EMPTY)
-        }
+        val outcome = group.readPropertyOutcome(Name.EMPTY)
+
+        val failure = assertIs<OperationOutcome.Fail>(outcome)
+        assertEquals(OperationFaultTypes.UnknownProperty, failure.fault.faultType)
+        assertFalse(group.lifecycleState is LifecycleState.Failed)
     }
 
     @Test

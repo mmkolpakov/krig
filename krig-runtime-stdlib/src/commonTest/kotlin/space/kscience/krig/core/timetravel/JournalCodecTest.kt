@@ -26,7 +26,7 @@ class JournalCodecTest {
         val codec = MessageJournalCodec()
         val message = event(100, 3)
 
-        val decoded = codec.decode(codec.encode(message)).single()
+        val decoded = codec.decode(codec.encode(message))
 
         assertEquals(message, decoded)
     }
@@ -38,16 +38,14 @@ class JournalCodecTest {
         val serializer = PolymorphicSerializer(DeviceMessage::class)
         val migration = JournalMigration { entry ->
             if (entry.schema != oldSchema) {
-                sequenceOf(entry)
+                entry
             } else {
                 val value = entry.payload.int ?: 0
                 val message = event(entry.time.toEpochMilliseconds(), value)
-                sequenceOf(
-                    entry.copy(
-                        messageType = message.messageType,
-                        schema = StorageSchemas.deviceMessageV1,
-                        payload = serializableToMeta(serializer, message, json),
-                    ),
+                entry.copy(
+                    messageType = message.messageType,
+                    schema = StorageSchemas.deviceMessageV1,
+                    payload = serializableToMeta(serializer, message, json),
                 )
             }
         }

@@ -112,6 +112,8 @@ public fun Device.replayLog(): ReplayLog = ReplayLog(messageFlow)
  * wrappers opt in.
  * It reconstructs model state, not physical hardware state. After reconnecting a real
  * device, the backend remains the source of truth and state is refreshed by reads.
+ * For an expected-vs-actual twin, fold `PropertyKind.SETPOINT` events into the commanded model and
+ * `PropertyKind.MEASURED` events into the observed model; their divergence is the reconciliation signal.
  *
  * Typed form [DeviceReconstructible] provides compile-time binding to a specific [Device] for
  * use with [enableTimeTravel].

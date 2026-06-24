@@ -9,6 +9,7 @@ import kotlinx.io.IOException
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.DefaultQualityPolicy
 import space.kscience.krig.api.data.ObservedValue
@@ -78,6 +79,12 @@ public fun connectorAcquisitionReader(
 /**
  * Reader for [AcquisitionConnectors.KrigDevice] sources: resolves the device by source id and reads
  * the tagged properties in one [readBatchOutcome][Device.readBatchOutcome] call.
+ *
+ * Per-tag [timeoutMs][AcquisitionTagSpec.timeoutMs] is honoured at the batch granularity: the
+ * coalesced read is bounded by the **tightest** (smallest) declared timeout among the batch's tags,
+ * so no tag waits longer than its SLA. On expiry all tags in the batch fail with [TimeoutFault]
+ * (the read is a single coalesced operation and cannot be cancelled per-tag). Tags without a timeout
+ * impose no bound. This mirrors the per-tag [bySource] path, which had been the only one applying timeouts.
  */
 public fun deviceTreeAcquisitionReader(
     devices: Map<Name, Device>,
@@ -86,10 +93,25 @@ public fun deviceTreeAcquisitionReader(
         ?: return@AcquisitionSourceReader tags.failAll(
             GenericOperationFault(message = "Unknown device-tree source '${source.id}'."),
         )
-    val outcomes = device.readBatchOutcome(tags.map { it.address.asName() })
+    // For the krig.device connector the address is a property name in the device tree — i.e.
+    // semantically hierarchical ("engine.rpm" reads `rpm` from child `engine`), so it is parsed
+    // by dots rather than taken as a single token.
+    val addresses = tags.map { it.address.parseAsName() }
+    val batchTimeoutMs = tags.mapNotNull { it.timeoutMs }.minOrNull()
+    val outcomes = try {
+        if (batchTimeoutMs == null) {
+            device.readBatchOutcome(addresses)
+        } else {
+            withTimeout(batchTimeoutMs.milliseconds) { device.readBatchOutcome(addresses) }
+        }
+    } catch (_: TimeoutCancellationException) {
+        return@AcquisitionSourceReader tags.failAll(
+            TimeoutFault(operation = source.id, budget = batchTimeoutMs?.milliseconds),
+        )
+    }
     tags.associate { tag ->
         tag.id to (
-            outcomes[tag.address.asName()] ?: fail(
+            outcomes[tag.address.parseAsName()] ?: fail(
                 GenericOperationFault(
                     message = "Device '${source.id}' did not return property '${tag.address}'.",
                 ),
@@ -115,6 +137,10 @@ public fun DataAcquisitionConfiguration.tagsForTimer(timerId: String): List<Acqu
  * Polls every tag attached to [timerId] whenever [ticks] emits, grouped per source so batch-capable
  * connectors read once per tick. Tag faults and source failures become degraded observations rather
  * than cancelling the loop; parent cancellation still propagates. Emission preserves timer order.
+ *
+ * Configuration mismatches (unknown timer, tag, or source reference) are validated **here**, at
+ * flow construction — a config error must fail fast at wiring time, not kill the polling loop on
+ * its first tick.
  */
 public fun DataAcquisitionConfiguration.pollTimer(
     timerId: Name,
@@ -125,11 +151,15 @@ public fun DataAcquisitionConfiguration.pollTimer(
 ): Flow<SamplingObservation<AcquisitionTagSpec>> {
     val timerTags = tagsForTimer(timerId)
     val sourcesById = sources.associateBy { it.id }
-    return ticks.transform {
-        val byTagId = LinkedHashMap<Name, SamplingObservation<AcquisitionTagSpec>>(timerTags.size)
-        for ((sourceId, sourceTags) in timerTags.groupBy { it.sourceId }) {
+    val tagsBySource: List<Pair<AcquisitionSourceSpec, List<AcquisitionTagSpec>>> =
+        timerTags.groupBy { it.sourceId }.map { (sourceId, sourceTags) ->
             val source = sourcesById[sourceId]
                 ?: error("Acquisition timer '$timerId' references unknown source '$sourceId'.")
+            source to sourceTags
+        }
+    return ticks.transform {
+        val byTagId = LinkedHashMap<Name, SamplingObservation<AcquisitionTagSpec>>(timerTags.size)
+        for ((source, sourceTags) in tagsBySource) {
             val outcomes = reader.readSourceCatching(source, sourceTags)
             sourceTags.forEach { tag -> byTagId[tag.id] = tag.toObservation(outcomes[tag.id], clock, qualityPolicy) }
         }
@@ -180,10 +210,12 @@ private suspend fun AcquisitionSourceReader.readSourceCatching(
             message = e.message ?: "I/O failure while sampling acquisition source '${source.id}'.",
         ),
     )
-} catch (e: RuntimeException) {
+} catch (e: Exception) {
+    // Any non-cancellation connector failure degrades the affected tags to BAD rather than killing
+    // the polling loop. CancellationException is rethrown above; Error/OOM intentionally propagate.
     tags.failAll(
         GenericOperationFault(
-            message = e.message ?: "Runtime failure while sampling acquisition source '${source.id}'.",
+            message = e.message ?: "Failure while sampling acquisition source '${source.id}'.",
         ),
     )
 }
@@ -194,7 +226,7 @@ private suspend fun AcquisitionTagReader.readWithTimeout(
     val timeoutMs = tag.timeoutMs
     if (timeoutMs == null) read(tag) else withTimeout(timeoutMs.milliseconds) { read(tag) }
 } catch (_: TimeoutCancellationException) {
-    fail(TimeoutFault())
+    fail(TimeoutFault(operation = tag.id, budget = tag.timeoutMs?.milliseconds))
 } catch (e: CancellationException) {
     throw e
 } catch (e: OperationFaultException) {

@@ -19,7 +19,14 @@ internal class ContributesAggregator(
     private val environment: SymbolProcessorEnvironment,
 ) : Generator {
 
-    private companion object {
+    /**
+     * Annotation FQNs the aggregator matches by string (KSP processors run on a separate
+     * classpath and resolve symbols by name, so they cannot — and idiomatically should not —
+     * depend on the runtime artifacts they process). To avoid a *silent* break when these
+     * annotations are moved/renamed, [ContributesFqnGuardTest] asserts each constant against
+     * the real `::class.qualifiedName`. Keep that guard green before any package moves.
+     */
+    internal companion object {
         const val CONTRIBUTES_FQN = "space.kscience.krig.api.annotations.Contributes"
         const val TARGET_ID_FQN = "space.kscience.krig.api.discovery.TargetId"
         const val CONTRIBUTES_MANIFEST_FQN = "space.kscience.krig.assembly.ContributesManifest"
@@ -53,7 +60,14 @@ internal class ContributesAggregator(
 
         for (decl in resolver.getSymbolsWithAnnotation(CONTRIBUTES_FQN).filterIsInstance<KSClassDeclaration>()) {
             if (!decl.validate()) { deferred += decl; continue }
-            if (decl.classKind != ClassKind.OBJECT) continue
+            if (decl.classKind != ClassKind.OBJECT) {
+                environment.logger.error(
+                    "@Contributes supports only object declarations; " +
+                            "'${decl.qualifiedName?.asString()}' is ${decl.classKind.name.lowercase()}.",
+                    decl,
+                )
+                continue
+            }
             val targets = decl.resolveContributes() ?: continue
             for ((targetId, entry) in targets) {
                 bucketsByTarget.getOrPut(targetId) { mutableListOf() } += entry
@@ -264,7 +278,7 @@ internal class ContributesAggregator(
                 val fqn = entry.decl.qualifiedName?.asString() ?: continue
                 val keyLiteral = entry.manifestId ?: entry.decl.simpleName.asString()
                 val emit = if (entry.invokeAsFactory) "$fqn()" else fqn
-                appendLine("            \"$keyLiteral\".parseAsName() to $emit,")
+                appendLine("            \"${escapeStringLiteral(keyLiteral)}\".parseAsName() to $emit,")
             }
             appendLine("        )")
             appendLine("    }")
@@ -279,5 +293,20 @@ internal class ContributesAggregator(
             "ContributesAggregator: emitted $generatedPackage.$pluginName (target=$targetId, " +
                     "contributors=${contributors.size}).",
         )
+    }
+}
+
+/** Escapes a value for embedding into a generated Kotlin string literal. */
+private fun escapeStringLiteral(raw: String): String = buildString(raw.length) {
+    for (ch in raw) {
+        when (ch) {
+            '\\' -> append("\\\\")
+            '"' -> append("\\\"")
+            '$' -> append("\\$")
+            '\n' -> append("\\n")
+            '\r' -> append("\\r")
+            '\t' -> append("\\t")
+            else -> append(ch)
+        }
     }
 }

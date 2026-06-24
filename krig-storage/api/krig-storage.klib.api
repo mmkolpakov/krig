@@ -38,6 +38,7 @@ abstract interface space.kscience.krig.storage.journal/EventJournal : kotlin/Aut
     open fun observe(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.observe|observe(){}[0]
     open fun replay(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.replay|replay(kotlin.time.Instant;kotlin.time.Instant){}[0]
     open suspend fun record(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/EventJournal.record|record(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
+    open suspend fun truncateBefore(space.kscience.krig.storage.journal/EventCursor) // space.kscience.krig.storage.journal/EventJournal.truncateBefore|truncateBefore(space.kscience.krig.storage.journal.EventCursor){}[0]
     open suspend fun write(space.kscience.krig.api.messages/DeviceMessage): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/EventJournal.write|write(space.kscience.krig.api.messages.DeviceMessage){}[0]
     open suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/EventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
 }
@@ -114,6 +115,7 @@ final class space.kscience.krig.storage.journal/InMemoryEventJournal : space.ksc
     final fun replayFrom(space.kscience.krig.storage.journal/EventCursor?): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/InMemoryEventJournal.replayFrom|replayFrom(space.kscience.krig.storage.journal.EventCursor?){}[0]
     final fun replayRecords(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/InMemoryEventJournal.replayRecords|replayRecords(kotlin.time.Instant;kotlin.time.Instant){}[0]
     final fun size(): kotlin/Int // space.kscience.krig.storage.journal/InMemoryEventJournal.size|size(){}[0]
+    final suspend fun truncateBefore(space.kscience.krig.storage.journal/EventCursor) // space.kscience.krig.storage.journal/InMemoryEventJournal.truncateBefore|truncateBefore(space.kscience.krig.storage.journal.EventCursor){}[0]
     final suspend fun write(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/InMemoryEventJournal.write|write(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
     final suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/InMemoryEventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
 }
@@ -136,6 +138,23 @@ final class space.kscience.krig.storage.journal/ReplayRecord { // space.kscience
     final fun toString(): kotlin/String // space.kscience.krig.storage.journal/ReplayRecord.toString|toString(){}[0]
 }
 
+final class space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer : space.kscience.kmath.structures/Buffer<kotlin/Double?>, space.kscience.kmath.structures/FlaggedBuffer<kotlin/Double?> { // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer|null[0]
+    constructor <init>(kotlin/DoubleArray, kotlin/IntArray, space.kscience.krig.api.data/QualitySeverity = ...) // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.<init>|<init>(kotlin.DoubleArray;kotlin.IntArray;space.kscience.krig.api.data.QualitySeverity){}[0]
+
+    final val severityRanks // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.severityRanks|{}severityRanks[0]
+        final fun <get-severityRanks>(): kotlin/IntArray // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.severityRanks.<get-severityRanks>|<get-severityRanks>(){}[0]
+    final val size // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.size.<get-size>|<get-size>(){}[0]
+    final val values // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.values|{}values[0]
+        final fun <get-values>(): kotlin/DoubleArray // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.values.<get-values>|<get-values>(){}[0]
+
+    final fun get(kotlin/Int): kotlin/Double? // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.get|get(kotlin.Int){}[0]
+    final fun getFlag(kotlin/Int): kotlin/Byte // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.getFlag|getFlag(kotlin.Int){}[0]
+    final fun iterator(): kotlin.collections/Iterator<kotlin/Double?> // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.iterator|iterator(){}[0]
+    final fun severityAt(kotlin/Int): space.kscience.krig.api.data/QualitySeverity // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.severityAt|severityAt(kotlin.Int){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.toString|toString(){}[0]
+}
+
 final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk|null[0]
     constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow>){}[0]
 
@@ -152,6 +171,7 @@ final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk { 
     final fun column(kotlin/Int): space.kscience.kmath.structures/Float64Buffer // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.column|column(kotlin.Int){}[0]
     final fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
     final fun row(kotlin/Int): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.row|row(kotlin.Int){}[0]
+    final fun severityColumn(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.severityColumn|severityColumn(kotlin.Int){}[0]
     final fun value(kotlin/Int, kotlin/Int): kotlin/Double // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.value|value(kotlin.Int;kotlin.Int){}[0]
 }
 

@@ -1,6 +1,8 @@
-﻿package space.kscience.krig.simulation
+package space.kscience.krig.simulation
 
 import kotlinx.coroutines.*
+import space.kscience.krig.core.InternalKrigApi
+import space.kscience.krig.core.contracts.RuntimeClockSource
 import space.kscience.krig.core.operations.CompressedClock
 import space.kscience.dataforge.context.AbstractPlugin
 import space.kscience.dataforge.context.Context
@@ -12,8 +14,15 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToLong
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Instant
 import kotlin.time.TimeSource
 
+/**
+ * Implements the internal [Delay] interface — the only way to intercept `delay` for a custom
+ * dispatcher today. Known risk: `@InternalCoroutinesApi` carries no compatibility guarantees and a
+ * kotlinx.coroutines update may break this class; the usage is deliberately isolated to this one
+ * private dispatcher so such a break stays local.
+ */
 @OptIn(InternalCoroutinesApi::class)
 private class CompressedTimeDispatcher(
     val coroutineContext: CoroutineContext,
@@ -68,21 +77,28 @@ public sealed interface ClockMode {
  * }
  * ```
  */
-public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
+@OptIn(InternalKrigApi::class)
+public open class ClockManager(meta: Meta) : AbstractPlugin(meta), RuntimeClockSource {
     override val tag: PluginTag get() = Companion.tag
 
     @OptIn(ExperimentalCoroutinesApi::class)
     public val clockMode: ClockMode by lazy {
         when (meta["clock.mode"].string) {
             null, "system" -> ClockMode.System
-            "virtual" -> ClockMode.Virtual(DeterministicScheduler())
+            "virtual" -> {
+                // `clock.start` seeds the virtual epoch; without it virtual time starts at epoch 0.
+                val startMs = meta["clock.start"].string
+                    ?.let { Instant.parse(it).toEpochMilliseconds() }
+                    ?: 0L
+                ClockMode.Virtual(DeterministicScheduler(initialTimeMs = startMs))
+            }
             "compressed" -> ClockMode.Compressed(meta["clock.compression"].double ?: 1.0)
             else -> error("Can't resolve custom clock for $meta")
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    public open val clock: Clock by lazy {
+    override val clock: Clock by lazy {
         when (val mode = clockMode) {
             ClockMode.System -> Clock.System
             is ClockMode.Compressed -> CompressedClock(factor = mode.compression, baseClock = Clock.System)
@@ -92,7 +108,7 @@ public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
 
     /** Monotonic source paired with [clock] for elapsed-duration measurements. */
     @OptIn(ExperimentalCoroutinesApi::class)
-    public open val timeSource: TimeSource by lazy {
+    override val timeSource: TimeSource by lazy {
         when (val mode = clockMode) {
             is ClockMode.Virtual -> mode.scheduler.asTimeSource()
             else -> TimeSource.Monotonic
@@ -126,3 +142,11 @@ public open class ClockManager(meta: Meta) : AbstractPlugin(meta) {
         override fun build(context: Context, meta: Meta): ClockManager = ClockManager(Laminate(meta, context.properties))
     }
 }
+
+/**
+ * Intent-revealing alias for [ClockManager]: this plugin is the entry point for *simulation* —
+ * virtual/compressed time, deterministic scheduling and recurring tick tasks. The class keeps the
+ * historical name (and its `PluginTag("clock")`) for binary/Meta-config compatibility; new code may
+ * prefer `plugin(SimulationPlugin) { … }` to read intent.
+ */
+public typealias SimulationPlugin = ClockManager

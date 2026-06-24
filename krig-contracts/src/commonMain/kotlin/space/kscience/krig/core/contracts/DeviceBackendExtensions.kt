@@ -11,6 +11,7 @@ import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.map
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
+import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.dataforge.meta.*
 import kotlin.time.Clock
 
@@ -97,89 +98,38 @@ public fun metaOf(value: Boolean): Meta = MetaConverter.boolean.convert(value)
 /** Wrap a [String] into a root-value [Meta]. */
 public fun metaOf(value: String): Meta = MetaConverter.string.convert(value)
 
-/** Wrap a [Double] sample as observed root-value [Meta]. */
-public fun observedMeta(
-    value: Double,
+/** Wrap a typed sample as observed root-value [Meta] through an explicit [converter]. */
+public fun <T> observedMeta(
+    value: T,
+    converter: MetaConverter<T>,
     clock: Clock = Clock.System,
     quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<Meta?> = observedMeta(metaOf(value), clock, quality)
+): ObservedValue<Meta?> = observedMeta(converter.convert(value), clock, quality)
 
-/** Successful observed [Double] outcome encoded as root-value Meta. */
-public fun okObservedMeta(
-    value: Double,
+/** Successful observed typed outcome encoded as root-value Meta through an explicit [converter]. */
+public fun <T> okObservedMeta(
+    value: T,
+    converter: MetaConverter<T>,
     clock: Clock = Clock.System,
     quality: DataQuality = DataQuality.GOOD,
-): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, clock, quality))
+): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, converter, clock, quality))
 
-/** Wrap an [Int] sample as observed root-value [Meta]. */
-public fun observedMeta(
-    value: Int,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<Meta?> = observedMeta(metaOf(value), clock, quality)
+// Scalar accessors below rename DataForge's `Meta.double`/`Meta.int`/… on purpose: paired with
+// `metaOf(...)`, the `xxxValue` names make the root-value convention discoverable from one import.
 
-/** Successful observed [Int] outcome encoded as root-value Meta. */
-public fun okObservedMeta(
-    value: Int,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, clock, quality))
-
-/** Wrap a [Long] sample as observed root-value [Meta]. */
-public fun observedMeta(
-    value: Long,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<Meta?> = observedMeta(metaOf(value), clock, quality)
-
-/** Successful observed [Long] outcome encoded as root-value Meta. */
-public fun okObservedMeta(
-    value: Long,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, clock, quality))
-
-/** Wrap a [Boolean] sample as observed root-value [Meta]. */
-public fun observedMeta(
-    value: Boolean,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<Meta?> = observedMeta(metaOf(value), clock, quality)
-
-/** Successful observed [Boolean] outcome encoded as root-value Meta. */
-public fun okObservedMeta(
-    value: Boolean,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, clock, quality))
-
-/** Wrap a [String] sample as observed root-value [Meta]. */
-public fun observedMeta(
-    value: String,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): ObservedValue<Meta?> = observedMeta(metaOf(value), clock, quality)
-
-/** Successful observed [String] outcome encoded as root-value Meta. */
-public fun okObservedMeta(
-    value: String,
-    clock: Clock = Clock.System,
-    quality: DataQuality = DataQuality.GOOD,
-): OperationOutcome<ObservedValue<Meta?>> = OperationOutcome.Ok(observedMeta(value, clock, quality))
-
-/** Extract a [Double] from a root-value [Meta]. */
+/** Extract a [Double] from a root-value [Meta]; alias of DataForge `Meta.double`. */
 public val Meta.doubleValue: Double? get() = double
 
-/** Extract an [Int] from a root-value [Meta]. */
+/** Extract an [Int] from a root-value [Meta]; alias of DataForge `Meta.int`. */
 public val Meta.intValue: Int? get() = int
 
-/** Extract a [Long] from a root-value [Meta]. */
+/** Extract a [Long] from a root-value [Meta]; alias of DataForge `Meta.long`. */
 public val Meta.longValue: Long? get() = long
 
-/** Extract a [Boolean] from a root-value [Meta]. */
+/** Extract a [Boolean] from a root-value [Meta]; alias of DataForge `Meta.boolean`. */
 public val Meta.booleanValue: Boolean? get() = boolean
 
-/** Extract a [String] from a root-value [Meta]. */
+/** Extract a [String] from a root-value [Meta]; alias of DataForge `Meta.string`. */
 public val Meta.stringValue: String? get() = string
 
 /**
@@ -194,10 +144,11 @@ public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
 
 /**
  * Writes [value] to the connection's [spec]-typed property, encoding it through the spec's
- * own [MetaConverter].
+ * own [MetaConverter]. Requires a mutable contract — matching `Device.write`, so a read-only
+ * spec cannot be written through the backend either.
  */
 context(device: DeviceEnvironment)
-public suspend fun <T> DeviceBackend.write(spec: DevicePropertyContract<T>, value: T) {
+public suspend fun <T> DeviceBackend.write(spec: MutableDevicePropertyContract<T>, value: T) {
     this.write(spec.descriptor, spec.converter.convert(value)).getOrThrow()
 }
 

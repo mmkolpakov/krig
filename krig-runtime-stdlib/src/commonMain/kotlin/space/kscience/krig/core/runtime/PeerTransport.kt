@@ -1,4 +1,4 @@
-﻿@file:MustUseReturnValues
+@file:MustUseReturnValues
 
 package space.kscience.krig.core.runtime
 
@@ -12,9 +12,9 @@ import kotlin.jvm.JvmInline
 public value class PeerRoute(public val name: Name)
 
 /**
- * Pluggable P2P transport layer under [BinaryPeerConnection] and any device-link
- * abstraction implemented in transport-adapter modules. Distinct from pub/sub bus
- * transports — this is direct device-to-device.
+ * Pluggable P2P transport layer for any device-link abstraction implemented in
+ * transport-adapter modules (e.g. a content-addressable store built on [requestResponse]).
+ * Distinct from pub/sub bus transports — this is direct device-to-device.
  *
  * The four primitives map directly to RSocket semantics (request-response, request-stream,
  * request-channel, fire-and-forget) and also ride cleanly on gRPC (unary, server-streaming,

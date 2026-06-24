@@ -1,7 +1,11 @@
 package space.kscience.krig.dsl
 
+import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.TypeId
+import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
@@ -19,6 +23,8 @@ import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.pipeline.PipelineBuilder
+import space.kscience.krig.core.pipeline.PipelineProfile
+import space.kscience.krig.core.pipeline.PipelineProfileScope
 import space.kscience.krig.core.pipeline.wrapWithPipeline
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -42,11 +48,13 @@ public sealed interface DeviceBuilder {
     public val deviceContext: Context
 
     /**
-     * Allows string/Meta property calls not declared by a manifest or DSL property.
+     * Enables schema-less access to properties that are not declared by a manifest or DSL property.
      *
-     * When this flag is `true`, unknown calls are served through synthetic descriptors.
-     * Keep it `false` for contract-checked devices; enable it only for legacy adapters,
-     * probes, and notebook experiments where the schema is intentionally open.
+     * The default `false` keeps the device in strict contract mode: unknown Meta calls fail with
+     * `UnknownProperty`, which is the right default for production and edge deployments. Setting this
+     * to `true` serves unknown properties through synthetic `Meta` descriptors, preserving the
+     * dynamic surface needed by notebooks, REPL exploration, probes, and protocol adapters whose
+     * schema is discovered at runtime.
      */
     public var allowAdHocProperties: Boolean
 
@@ -64,6 +72,13 @@ public sealed interface DeviceBuilder {
         pipelineFeature: PipelineFeature<C, *>,
         configure: C.() -> Unit = {},
     )
+
+    /**
+     * Selects a runtime [PipelineProfile] applied after features/manifest defaults — e.g.
+     * `pipeline { profile(PipelineProfile.InMemory) }` to drop network QoS on a digital twin.
+     * Manifest/feature QoS is treated as the default and overridden by the profile.
+     */
+    public fun pipeline(configure: PipelineProfileScope.() -> Unit)
 }
 
 internal interface DescriptorSourceOwner {
@@ -119,6 +134,15 @@ public fun interface DeviceReadBlock<out T> {
     public suspend fun DeviceReadScope.read(): T
 }
 
+/**
+ * Quality-aware read block: returns the value together with its [ObservedValue.quality] and timestamp,
+ * so declarative devices (simulations, protocol stubs) can surface UNCERTAIN/BAD without acquisition
+ * overwriting it with GOOD. Used by `observedProperty(name) { observed(value, quality = …) }`.
+ */
+public fun interface DeviceObservedReadBlock {
+    public suspend fun DeviceReadScope.read(): ObservedValue<Any?>
+}
+
 /** Write block with a narrow self-device receiver. */
 public fun interface DeviceWriteBlock {
     public suspend fun DeviceWriteScope.write(value: Meta)
@@ -139,6 +163,9 @@ internal class DeviceBuilderCore internal constructor(
 
     @PublishedApi internal val pipeline: PipelineBuilder = PipelineBuilder()
 
+    private var pipelineProfile: PipelineProfile = PipelineProfile.Production
+
+    @Suppress("OVERRIDE_DEPRECATION")
     override var allowAdHocProperties: Boolean = false
 
     @PublishedApi
@@ -161,11 +188,17 @@ internal class DeviceBuilderCore internal constructor(
         pipelineFeature.install(config, pipeline)
     }
 
+    override fun pipeline(configure: PipelineProfileScope.() -> Unit) {
+        pipelineProfile = PipelineProfileScope().apply(configure).profile
+    }
+
     @PublishedApi
     internal suspend fun assemble(backend: DeviceBackend): Device {
         if (backend is TransportBackend) {
             pipeline.useConnectionState { backend.connectionState.value }
         }
+        // Profile runs after install()/manifest defaults — manifest QoS is the default, profile overrides.
+        pipelineProfile.applyTo(pipeline)
         val baseDevice = BackendDevice(
             backend = backend,
             name = deviceName,
@@ -173,7 +206,23 @@ internal class DeviceBuilderCore internal constructor(
             descriptorSource = descriptorSource,
             allowAdHocProperties = allowAdHocProperties,
         )
-        return wrapWithPipeline(baseDevice, pipeline, deviceName.toString())
+        val pipelined = wrapWithPipeline(baseDevice, pipeline, deviceName.toString(), runtime.context)
+        // A DSL sibling read/write of a contract-backed property is routed back through the assembled
+        // pipeline (timeouts/locks/gates); ad-hoc properties without a contract keep the direct path.
+        if (backend is DeclarativeBackendCore) {
+            backend.pipelineRead = { name ->
+                if (pipelined.propertySpec(name) != null) pipelined.readPropertyOutcome(name).getOrThrow() else null
+            }
+            backend.pipelineWrite = { name, value ->
+                if (pipelined.propertySpec(name) != null) {
+                    pipelined.writePropertyOutcome(name, value).getOrThrow()
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+        return pipelined
     }
 }
 
@@ -182,8 +231,8 @@ internal class DeviceBuilderCore internal constructor(
  * describe the device in-place; the builder synthesises a [DeviceBackend] automatically.
  *
  * Reader / writer / action lambdas receive narrow self-device scopes. The scopes expose
- * `clock`, `deviceScope`, `name`, and same-device `readProperty`/`writeProperty`/`execute`
- * helpers without leaking lifecycle controls from [Device].
+ * `clock`, `timeSource`, `name`, and same-device `readProperty`/`writeProperty`/`execute`
+ * helpers — but **not** `deviceScope`, so a read/write lambda cannot `launch` into device lifetime.
  *
  * ```kotlin
  * device("thermo") {
@@ -199,12 +248,13 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
 ) : DeviceBuilder by core {
 
     @PublishedApi
-    internal constructor(name: Name, context: Context) : this(DeviceBuilderCore(name, DeviceRuntime(context)))
+    internal constructor(name: Name, context: Context) : this(DeviceBuilderCore(name, DeviceRuntime.from(context)))
 
     @PublishedApi
     internal constructor(name: Name, runtime: DeviceRuntime) : this(DeviceBuilderCore(name, runtime))
 
     @PublishedApi internal val readers: MutableMap<Name, DeviceReadBlock<Any>> = mutableMapOf()
+    @PublishedApi internal val observedReaders: MutableMap<Name, DeviceObservedReadBlock> = mutableMapOf()
     @PublishedApi internal val writers: MutableMap<Name, DeviceWriteBlock> = mutableMapOf()
     @PublishedApi internal val valueWriters: MutableMap<Name, (Any?) -> Unit> = mutableMapOf()
     @PublishedApi internal val actions: MutableMap<Name, DeviceActionBlock> = mutableMapOf()
@@ -222,41 +272,79 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
         propertyDescriptors[name] = synthesizeProperty(name, mutable = false)
     }
 
+    /**
+     * Quality-aware read-only property. The [read] block returns an [ObservedValue] (value + quality +
+     * timestamp), so `readObserved`/acquisition see the declared quality instead of a forced GOOD.
+     *
+     * ```kotlin
+     * observedProperty("pressure") {
+     *     val raw = sensor.read()
+     *     if (raw == null) observed(null, quality = DataQuality.bad("sensor offline"))
+     *     else observed(raw)
+     * }
+     * ```
+     */
+    public fun observedProperty(name: String, read: DeviceObservedReadBlock): Unit =
+        observedProperty(name.asName(), read)
+
+    /** Quality-aware read-only property keyed by [Name]. */
+    public fun observedProperty(name: Name, read: DeviceObservedReadBlock) {
+        observedReaders[name] = read
+        // Value-only path (readProperty/typed read/subscribe diff): extract the value, fault on absence.
+        readers[name] = DeviceReadBlock {
+            val scope = this
+            val observed = with(read) { scope.read() }
+            observed.value ?: observedValueAbsent(name, observed.quality)
+        }
+        propertyDescriptors[name] = synthesizeProperty(name, mutable = false)
+    }
+
+    /** Registers a typed reader and a descriptor carrying the actual [TypeId] (not the erased META). */
+    private fun typedProperty(name: String, valueTypeId: TypeId, read: DeviceReadBlock<Any>) {
+        val key = name.asName()
+        readers[key] = read
+        propertyDescriptors[key] = synthesizeProperty(key, mutable = false, valueTypeId = valueTypeId)
+    }
+
     /** Typed read-only [Double] property. */
-    public fun propertyDouble(name: String, read: DeviceReadBlock<Double>): Unit = property(name, read)
+    public fun propertyDouble(name: String, read: DeviceReadBlock<Double>): Unit =
+        typedProperty(name, TypeIds.DOUBLE, read)
 
     /** Typed read-only [Int] property. */
-    public fun propertyInt(name: String, read: DeviceReadBlock<Int>): Unit = property(name, read)
+    public fun propertyInt(name: String, read: DeviceReadBlock<Int>): Unit =
+        typedProperty(name, TypeIds.INT, read)
 
     /** Typed read-only [Boolean] property. */
-    public fun propertyBoolean(name: String, read: DeviceReadBlock<Boolean>): Unit = property(name, read)
+    public fun propertyBoolean(name: String, read: DeviceReadBlock<Boolean>): Unit =
+        typedProperty(name, TypeIds.BOOLEAN, read)
 
     /** Typed read-only [String] property. */
-    public fun propertyString(name: String, read: DeviceReadBlock<String>): Unit = property(name, read)
+    public fun propertyString(name: String, read: DeviceReadBlock<String>): Unit =
+        typedProperty(name, TypeIds.STRING, read)
 
     /** Mutable [Double] property backed by an internal atomic cell. */
     public fun mutableProperty(name: String, initial: Double) {
-        declareCell(name, initial) { it.doubleValue ?: writeTypeError(name, "Double", it) }
+        declareCell(name, initial, TypeIds.DOUBLE) { it.doubleValue ?: writeTypeError(name, "Double", it) }
     }
 
     /** Mutable [Int] property. */
     public fun mutableProperty(name: String, initial: Int) {
-        declareCell(name, initial) { it.intValue ?: writeTypeError(name, "Int", it) }
+        declareCell(name, initial, TypeIds.INT) { it.intValue ?: writeTypeError(name, "Int", it) }
     }
 
     /** Mutable [Long] property. */
     public fun mutableProperty(name: String, initial: Long) {
-        declareCell(name, initial) { it.longValue ?: writeTypeError(name, "Long", it) }
+        declareCell(name, initial, TypeIds.LONG) { it.longValue ?: writeTypeError(name, "Long", it) }
     }
 
     /** Mutable [Boolean] property. */
     public fun mutableProperty(name: String, initial: Boolean) {
-        declareCell(name, initial) { it.booleanValue ?: writeTypeError(name, "Boolean", it) }
+        declareCell(name, initial, TypeIds.BOOLEAN) { it.booleanValue ?: writeTypeError(name, "Boolean", it) }
     }
 
     /** Mutable [String] property. */
     public fun mutableProperty(name: String, initial: String) {
-        declareCell(name, initial) { it.stringValue ?: writeTypeError(name, "String", it) }
+        declareCell(name, initial, TypeIds.STRING) { it.stringValue ?: writeTypeError(name, "String", it) }
     }
 
     /** Action that takes an optional [Meta] argument and returns an optional [Meta] result. */
@@ -349,7 +437,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
         }
 
     @OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
-    private fun <T : Any> declareCell(name: String, initial: T, decode: (Meta) -> T) {
+    private fun <T : Any> declareCell(name: String, initial: T, valueTypeId: TypeId, decode: (Meta) -> T) {
         val key = name.asName()
         // Atomic ensures visibility across coroutines on different dispatchers.
         val cell = kotlin.concurrent.atomics.AtomicReference(initial)
@@ -361,7 +449,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
             @Suppress("UNCHECKED_CAST")
             cell.store(checked as T)
         }
-        propertyDescriptors[key] = synthesizeProperty(key, mutable = true)
+        propertyDescriptors[key] = synthesizeProperty(key, mutable = true, valueTypeId = valueTypeId)
     }
 
     internal suspend fun build(): Device {
@@ -374,6 +462,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
             writers = writers.toMap(),
             valueWriters = valueWriters.toMap(),
             actions = actions.toMap(),
+            observedReaders = observedReaders.toMap(),
             stepBody = stepBody,
             closeBody = closeBody,
         )
@@ -415,7 +504,7 @@ public class ExplicitDeviceBuilder @PublishedApi internal constructor(
 
     @PublishedApi
     internal constructor(name: Name, context: Context, backend: DeviceBackend) :
-        this(DeviceBuilderCore(name, DeviceRuntime(context)), backend)
+        this(DeviceBuilderCore(name, DeviceRuntime.from(context)), backend)
 
     @PublishedApi
     internal constructor(name: Name, runtime: DeviceRuntime, backend: DeviceBackend) :

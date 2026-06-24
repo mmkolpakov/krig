@@ -1,6 +1,11 @@
 public abstract interface annotation class space/kscience/magix/api/ExperimentalMagixApi : java/lang/annotation/Annotation {
 }
 
+public final class space/kscience/magix/api/MagixAuthorizationKt {
+	public static final fun authorizedSubscribe (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixMessageFilter;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun authorizedSubscribe$default (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixMessageFilter;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
 public abstract interface class space/kscience/magix/api/MagixEndpoint : java/lang/AutoCloseable {
 	public abstract fun broadcast (Lspace/kscience/magix/api/MagixMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun close ()V
@@ -21,10 +26,6 @@ public abstract interface class space/kscience/magix/api/MagixEndpointFactory : 
 
 public final class space/kscience/magix/api/MagixEndpointFactory$Companion {
 	public static final field TARGET Ljava/lang/String;
-}
-
-public final class space/kscience/magix/api/MagixEndpointKt {
-	public static final fun send (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/magix/api/MagixEnvelope {
@@ -94,8 +95,8 @@ public final class space/kscience/magix/api/MagixFormat {
 public final class space/kscience/magix/api/MagixFormatKt {
 	public static final fun send (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun send$default (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/lang/Object;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonElement;Lkotlinx/serialization/json/JsonObject;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun subscribe (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/util/Collection;Ljava/util/Collection;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
-	public static synthetic fun subscribe$default (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/util/Collection;Ljava/util/Collection;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun subscribe (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/util/Collection;Ljava/util/Collection;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
+	public static synthetic fun subscribe$default (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixFormat;Lkotlinx/serialization/json/Json;Ljava/util/Collection;Ljava/util/Collection;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 }
 
 public final class space/kscience/magix/api/MagixMessage {

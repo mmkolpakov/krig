@@ -3,19 +3,25 @@
 rootProject.name = "krig"
 
 pluginManagement {
-    val kotlinVersion: String by extra
+    // Single source of truth for the Kotlin version: gradle/libs.versions.toml.
+    // The version catalog is not yet available inside pluginManagement, so read the entry directly.
+    val kotlinVersion: String = file("gradle/libs.versions.toml").readLines()
+        .first { it.trim().startsWith("kotlin = ") }
+        .substringAfter('"').substringBefore('"')
 
     repositories {
-        mavenLocal {
-            content {
-                excludeGroupByRegex("org\\.jetbrains\\.kotlin(\\..*)?")
-            }
-        }
         mavenCentral()
         gradlePluginPortal()
         maven("https://repo.kotlin.link")
         maven("https://maven.sciprog.center")
         google()
+        // Last on purpose: locally installed artifacts must never shadow published ones
+        // for third-party builds of the SDK.
+        mavenLocal {
+            content {
+                excludeGroupByRegex("org\\.jetbrains\\.kotlin(\\..*)?")
+            }
+        }
     }
 
     plugins {
@@ -29,15 +35,17 @@ plugins {
 
 dependencyResolutionManagement {
     repositories {
+        mavenCentral()
+        maven("https://repo.kotlin.link")
+        maven("https://maven.sciprog.center")
+        google()
+        // Last on purpose: locally installed artifacts must never shadow published ones
+        // for third-party builds of the SDK.
         mavenLocal {
             content {
                 excludeGroupByRegex("org\\.jetbrains\\.kotlin(\\..*)?")
             }
         }
-        mavenCentral()
-        maven("https://repo.kotlin.link")
-        maven("https://maven.sciprog.center")
-        google()
     }
 }
 
@@ -50,7 +58,6 @@ include(
     ":krig-messaging",
     ":krig-storage",
     ":krig-contracts",
-    ":krig-io",
     // Runtime
     ":krig-runtime",
     ":krig-runtime-stdlib",
@@ -67,6 +74,9 @@ include(
 
     // Analytics interop — JVM-only export of dense telemetry to Apache Arrow / Feather V2.
     ":krig-arrow",
+
+    // Analytics workspace — multiplatform DataForge Workspace tasks over krig event journals.
+    ":krig-analytics",
 
     // Build Tools.
     ":krig-ksp-processor",

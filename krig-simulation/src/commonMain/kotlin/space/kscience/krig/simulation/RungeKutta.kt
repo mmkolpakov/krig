@@ -24,15 +24,38 @@ public inline fun rungeKutta4(y: Double, dt: Duration, f: (Double) -> Double): D
     return y + h * (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0
 }
 
-/** Advances state vector [y] in place over [dt] with classic 4th-order Runge–Kutta for system [f]. */
-public fun rungeKutta4(y: DoubleArray, dt: Duration, f: Derivatives) {
+/**
+ * Pre-allocated scratch for the vector [rungeKutta4]. Allocate once (sized to the state vector) and
+ * reuse on every `step()`, so a high-rate simulation tick does not allocate the five stage arrays per
+ * call. The arithmetic is identical to the allocating overload, so bit-for-bit replay is preserved.
+ */
+public class RungeKuttaWorkspace(size: Int) {
+    init { require(size > 0) { "RungeKuttaWorkspace size must be positive, got $size." } }
+
+    internal val k1: DoubleArray = DoubleArray(size)
+    internal val k2: DoubleArray = DoubleArray(size)
+    internal val k3: DoubleArray = DoubleArray(size)
+    internal val k4: DoubleArray = DoubleArray(size)
+    internal val stage: DoubleArray = DoubleArray(size)
+
+    public val size: Int get() = k1.size
+}
+
+/**
+ * Advances state vector [y] in place over [dt] with classic 4th-order Runge–Kutta for system [f],
+ * reusing the caller-owned [workspace] for all stage buffers — allocation-free per call.
+ */
+public fun rungeKutta4(y: DoubleArray, dt: Duration, f: Derivatives, workspace: RungeKuttaWorkspace) {
+    require(workspace.size == y.size) {
+        "RungeKuttaWorkspace size ${workspace.size} does not match state vector size ${y.size}."
+    }
     val h = dt.toDouble(DurationUnit.SECONDS)
     val n = y.size
-    val k1 = DoubleArray(n)
-    val k2 = DoubleArray(n)
-    val k3 = DoubleArray(n)
-    val k4 = DoubleArray(n)
-    val stage = DoubleArray(n)
+    val k1 = workspace.k1
+    val k2 = workspace.k2
+    val k3 = workspace.k3
+    val k4 = workspace.k4
+    val stage = workspace.stage
 
     f.evaluate(y, k1)
     for (i in 0 until n) stage[i] = y[i] + 0.5 * h * k1[i]
@@ -43,3 +66,11 @@ public fun rungeKutta4(y: DoubleArray, dt: Duration, f: Derivatives) {
     f.evaluate(stage, k4)
     for (i in 0 until n) y[i] += h * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]) / 6.0
 }
+
+/**
+ * Allocating convenience overload: advances state vector [y] in place over [dt] with classic
+ * 4th-order Runge–Kutta. Allocates a fresh [RungeKuttaWorkspace] per call; for a hot simulation loop
+ * allocate one workspace and call the [workspace]-taking overload instead.
+ */
+public fun rungeKutta4(y: DoubleArray, dt: Duration, f: Derivatives): Unit =
+    rungeKutta4(y, dt, f, RungeKuttaWorkspace(y.size))

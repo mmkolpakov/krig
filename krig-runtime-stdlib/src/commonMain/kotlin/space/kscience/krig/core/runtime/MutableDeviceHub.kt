@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
@@ -6,6 +6,7 @@
 package space.kscience.krig.core.runtime
 
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,7 +27,7 @@ import space.kscience.krig.api.messages.DeviceDepartureReason
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceNode
 import space.kscience.krig.core.contracts.asNodeMap
-import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
+import space.kscience.krig.core.contracts.closeDeviceBounded
 import space.kscience.krig.core.contracts.ignoreNonCancellationFailure
 import space.kscience.krig.core.contracts.ignoreNonCancellationFailureSuspending
 import space.kscience.krig.core.hook.DeviceAttached
@@ -54,6 +55,14 @@ public open class MutableDeviceHub(
 
     private val topologyLock = SynchronizedObject()
     private var topologyState: HubState = HubState.Active(emptyMap())
+
+    /**
+     * Names the hub *owns* (manages the lifecycle of): hub-produced children and children attached
+     * with `owned = true` (the default). Owned children are closed by the hub on detach / close and
+     * released when the hub scope is cancelled (see [init]); children attached with `owned = false`
+     * are shared/external — the hub never closes them. Guarded by [topologyLock].
+     */
+    private val ownedChildren: MutableSet<Name> = mutableSetOf()
     private val mutableDevicesFlow: MutableStateFlow<Map<Name, Device>> = MutableStateFlow(emptyMap())
     private val mutableChildrenFlow: MutableStateFlow<Map<Name, DeviceNode>> = MutableStateFlow(emptyMap())
     private val mutableHubEvents: MutableSharedFlow<HubEvent> =
@@ -72,13 +81,12 @@ public open class MutableDeviceHub(
 
     override val devicesFlow: StateFlow<Map<Name, Device>> = mutableDevicesFlow.asStateFlow()
 
+    // O(1), allocation-free: the node map is materialised once per topology change in publishChildren
+    // and cached in mutableChildrenFlow, instead of rebuilding it (asNodeMap) on every children access.
     override val children: Map<Name, DeviceNode>
-        get() = devices.asNodeMap()
+        get() = mutableChildrenFlow.value
 
     override val childrenFlow: StateFlow<Map<Name, DeviceNode>> = mutableChildrenFlow.asStateFlow()
-
-    override fun content(target: String): Map<Name, Any> =
-        if (target == defaultTarget) children else super<DeviceGroup>.content(target)
 
     /**
      * Hot best-effort topology notifications for UI and local observers.
@@ -89,11 +97,37 @@ public open class MutableDeviceHub(
      */
     override val hubEvents: Flow<HubEvent> = mutableHubEvents.asSharedFlow()
 
+    init {
+        // Structured-concurrency safety: if the hub scope is cancelled directly (parent context
+        // cancelled without close()), release owned children so they cannot outlive the hub. Shared
+        // (owned = false) children are left to their own owners. Idempotent with the explicit close().
+        deviceScope.coroutineContext[Job]?.invokeOnCompletion {
+            val owned = synchronized(topologyLock) {
+                (topologyState as? HubState.Active)?.children?.filterKeys { it in ownedChildren }.orEmpty()
+            }
+            for (child in owned.values) ignoreNonCancellationFailure { child.close() }
+        }
+    }
+
     override suspend fun attach(name: Name, device: Device) {
-        attachAll(mapOf(name to device))
+        attachAll(mapOf(name to device), owned = true)
     }
 
     override suspend fun attachAll(devices: Map<Name, Device>) {
+        attachAll(devices, owned = true)
+    }
+
+    /**
+     * Attaches [device] under [name]. With `owned = true` (the default for [attach]) the hub manages
+     * its lifecycle (closes it on detach/close); with `owned = false` the device is shared/external
+     * and the hub never closes it.
+     */
+    public fun attach(name: Name, device: Device, owned: Boolean) {
+        attachAll(mapOf(name to device), owned)
+    }
+
+    /** Bulk [attach] with explicit ownership; see [attach]. */
+    public fun attachAll(devices: Map<Name, Device>, owned: Boolean) {
         if (devices.isEmpty()) return
         val events = synchronized(topologyLock) {
             val active = activeState()
@@ -103,6 +137,7 @@ public open class MutableDeviceHub(
             }
             val nextChildren = active.children + devices
             topologyState = HubState.Active(nextChildren)
+            if (owned) ownedChildren += devices.keys else ownedChildren -= devices.keys
             publishChildren(nextChildren)
             val now = clock.now()
             devices.map { (childName, child) -> HubEvent.Attached(childName, now, child::class.simpleName.orEmpty()) }
@@ -117,53 +152,57 @@ public open class MutableDeviceHub(
             val prev = active.children[name]
             val nextChildren = active.children + (name to device)
             topologyState = HubState.Active(nextChildren)
+            ownedChildren += name
             publishChildren(nextChildren)
             val event =
                 HubEvent.Replaced(
                     name = name,
                     time = clock.now(),
-                    previousContractFqName = prev?.let { it::class.simpleName.orEmpty() } ?: "",
-                    newContractFqName = device::class.simpleName.orEmpty(),
+                    previousType = prev?.let { it::class.simpleName.orEmpty() } ?: "",
+                    newType = device::class.simpleName.orEmpty(),
                 )
             prev to event
         }
         emitTopologyEvent(event)
         dispatchAttachedHooks(name, device)
         if (closePrevious && previous != null) {
-            ignoreCleanupFailureSuspending { previous.shutdown() }
+            closeDeviceBounded(previous) { previous.shutdown() }
         }
         return previous
     }
 
     override suspend fun detach(name: Name, reason: DeviceDepartureReason): Device? {
-        val (victim, event) = synchronized(topologyLock) {
+        val detached = synchronized(topologyLock) {
             val active = topologyState as? HubState.Active ?: return@synchronized null
             val prev = active.children[name] ?: return@synchronized null
             val nextChildren = active.children - name
+            val wasOwned = name in ownedChildren
+            ownedChildren -= name
             topologyState = HubState.Active(nextChildren)
             publishChildren(nextChildren)
-            prev to HubEvent.Detached(name, clock.now(), reason)
+            DetachOutcome(prev, wasOwned, HubEvent.Detached(name, clock.now(), reason))
         } ?: return null
-        emitTopologyEvent(event)
-        ignoreCleanupFailureSuspending { victim.shutdown() }
-        dispatchDetachedHooks(name, victim)
-        return victim
+        emitTopologyEvent(detached.event)
+        // Only owned children are closed by the hub; shared/external devices keep their own lifecycle.
+        if (detached.owned) closeDeviceBounded(detached.device) { detached.device.shutdown() }
+        dispatchDetachedHooks(name, detached.device)
+        return detached.device
     }
 
     override fun close() {
-        val (snapshot, events) = closeTopology() ?: return
-        events.forEach(::emitTopologyEvent)
-        for ((_, child) in snapshot) {
+        val snapshot = closeTopology() ?: return
+        snapshot.events.forEach(::emitTopologyEvent)
+        for ((_, child) in snapshot.owned) {
             ignoreNonCancellationFailure { child.close() }
         }
         super<DeviceGroup>.close()
     }
 
     override suspend fun shutdown() {
-        val (snapshot, events) = closeTopology() ?: return
-        events.forEach(::emitTopologyEvent)
-        for ((_, child) in snapshot) {
-            ignoreCleanupFailureSuspending { child.shutdown() }
+        val snapshot = closeTopology() ?: return
+        snapshot.events.forEach(::emitTopologyEvent)
+        for ((_, child) in snapshot.owned) {
+            closeDeviceBounded(child) { child.shutdown() }
         }
         super<DeviceGroup>.shutdown()
     }
@@ -171,14 +210,18 @@ public open class MutableDeviceHub(
     private fun activeState(): HubState.Active =
         topologyState as? HubState.Active ?: throw HubClosedException(name.toString())
 
-    private fun closeTopology(): Pair<Map<Name, Device>, List<HubEvent>>? = synchronized(topologyLock) {
+    private fun closeTopology(): CloseSnapshot? = synchronized(topologyLock) {
         val active = topologyState as? HubState.Active ?: return@synchronized null
         topologyState = HubState.Closed
+        val owned = active.children.filterKeys { it in ownedChildren }
+        ownedChildren.clear()
         publishChildren(emptyMap())
         val now = clock.now()
-        active.children to active.children.keys.map {
-            HubEvent.Detached(it, now, DeviceDepartureReason.ParentClosed)
-        }
+        // Detached events for every child (topology truly changes for all); only owned ones are closed.
+        CloseSnapshot(
+            owned = owned,
+            events = active.children.keys.map { HubEvent.Detached(it, now, DeviceDepartureReason.ParentClosed) },
+        )
     }
 
     private fun publishChildren(children: Map<Name, Device>) {
@@ -186,8 +229,10 @@ public open class MutableDeviceHub(
         mutableChildrenFlow.value = children.asNodeMap()
     }
 
+    // Best-effort hot notification (DROP_OLDEST): tryEmit never rejects, so the result is intentionally
+    // ignored. Durable topology history belongs to devicesFlow/childrenFlow and the event journal.
     private fun emitTopologyEvent(event: HubEvent) {
-        check(mutableHubEvents.tryEmit(event)) { "Hub event buffer rejected $event" }
+        mutableHubEvents.tryEmit(event)
     }
 
     private fun dispatchAttachedHooks(childName: Name, child: Device) {
@@ -211,6 +256,12 @@ private sealed interface HubState {
     data class Active(val children: Map<Name, Device>) : HubState
     data object Closed : HubState
 }
+
+/** Result of a [MutableDeviceHub.detach]: the removed device, whether the hub owned it, and the event. */
+private data class DetachOutcome(val device: Device, val owned: Boolean, val event: HubEvent)
+
+/** Snapshot taken when a hub closes: the owned children to release plus detach events for all children. */
+private data class CloseSnapshot(val owned: Map<Name, Device>, val events: List<HubEvent>)
 
 private const val HUB_EVENT_BUFFER_CAPACITY: Int = 1024
 

@@ -1,14 +1,11 @@
 package space.kscience.krig.core.pipeline
 
-import kotlinx.coroutines.currentCoroutineContext
 import space.kscience.dataforge.names.Name
-import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
-import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.descriptors.attributes.requiredCapabilityIds
 import space.kscience.krig.api.faults.AuthorizationFault
 import space.kscience.krig.api.faults.InvalidStateFault
-import space.kscience.krig.api.identifiers.ControlsPermissions
+import space.kscience.krig.api.identifiers.ControlsPermission
 import space.kscience.krig.api.identifiers.Permission
 import space.kscience.krig.api.lifecycle.ConnectionState
 import space.kscience.krig.api.lifecycle.LifecycleState
@@ -17,6 +14,7 @@ import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.api.result.toOutcome
 import space.kscience.krig.api.services.AuthorizationException
 import space.kscience.krig.api.services.AuthorizationService
+import space.kscience.krig.api.services.IdentityProvider
 import space.kscience.krig.core.contracts.CapabilityToggles
 
 /** Lifecycle states in which gated operations are permitted. */
@@ -106,9 +104,6 @@ private fun checkRequiredCapabilities(
     ).toOutcome()
 }
 
-private suspend fun currentPrincipal(): Principal =
-    currentCoroutineContext().executionContext?.principal ?: AnonymousPrincipal
-
 private suspend fun AuthorizationService.checkOrFault(
     principal: Principal,
     permission: Permission,
@@ -127,13 +122,14 @@ private suspend fun AuthorizationService.checkOrFault(
 public class DeviceAuthorizationGate(
     private val hostName: String,
     private val authorizationService: AuthorizationService,
+    private val identityProvider: IdentityProvider,
 ) : OperationGate {
     override suspend fun check(context: OperationContext): OperationOutcome<Unit> {
-        val principal = currentPrincipal()
+        val principal = currentPipelinePrincipal(identityProvider)
         val permission = when (context.kind) {
-            OperationKinds.Read -> ControlsPermissions.deviceRead(hostName, context.name.toString())
-            OperationKinds.Write -> ControlsPermissions.deviceWrite(hostName, context.name.toString())
-            OperationKinds.Action -> ControlsPermissions.deviceExecute(hostName, context.name.toString())
+            OperationKinds.Read -> ControlsPermission.DeviceRead(hostName, context.name.toString())
+            OperationKinds.Write -> ControlsPermission.DeviceWrite(hostName, context.name.toString())
+            OperationKinds.Action -> ControlsPermission.DeviceExecute(hostName, context.name.toString())
             else -> return okUnit()
         }
         return authorizationService.checkOrFault(principal, permission)

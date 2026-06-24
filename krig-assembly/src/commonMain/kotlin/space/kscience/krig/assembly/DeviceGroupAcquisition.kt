@@ -1,5 +1,15 @@
 package space.kscience.krig.assembly
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.faults.GenericOperationFault
@@ -33,9 +43,53 @@ public fun Device.flattenDevices(): Map<Name, Device> {
 }
 
 /**
+ * Reactive counterpart of [flattenDevices]: a cold [Flow] that re-emits the flat `path → Device` map
+ * whenever the topology changes anywhere in the subtree. It recurses over [DeviceNode.childrenFlow], so
+ * a change deep in a nested hub propagates up without manual cache invalidation — the staleness that
+ * makes a hand-rolled cache of [flattenDevices] unsafe for dynamic topologies. Keys follow the same
+ * single-token dotted-path convention as [flattenDevices].
+ */
+public fun Device.flatDevicesFlow(): Flow<Map<Name, Device>> = asNode().flatDevicesFlow(prefix = null)
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun DeviceNode.flatDevicesFlow(prefix: String?): Flow<Map<Name, Device>> =
+    childrenFlow.flatMapLatest { children ->
+        if (children.isEmpty()) {
+            flowOf(emptyMap())
+        } else {
+            val childFlows = children.map { (token, child) ->
+                val path = if (prefix == null) token.toString() else "$prefix.$token"
+                child.flatDevicesFlow(path).map { nested ->
+                    buildMap {
+                        child.device?.let { put(path.asName(), it) }
+                        putAll(nested)
+                    }
+                }
+            }
+            combine(childFlows) { maps ->
+                val flat = LinkedHashMap<Name, Device>()
+                for (map in maps) flat.putAll(map)
+                flat
+            }
+        }
+    }
+
+/**
+ * Materialises [flatDevicesFlow] into a [StateFlow] kept current in [scope], seeded eagerly with the
+ * present topology ([flattenDevices]). `flatDevicesIn(scope).value` is an O(1) lookup of the live flat
+ * map — the intended path for repeated source resolution (acquisition sessions) without re-walking the
+ * tree on every read.
+ */
+public fun Device.flatDevicesIn(scope: CoroutineScope): StateFlow<Map<Name, Device>> =
+    flatDevicesFlow().stateIn(scope, SharingStarted.Eagerly, flattenDevices())
+
+/**
  * Acquisition source reader over this device topology: resolves a source by its dotted path through
  * [flattenDevices] and reads the tagged properties in one batch. Replaces the manual
  * `deviceTreeAcquisitionReader(mapOf(...))` wiring when devices already live in a `deviceGroup { }`.
+ *
+ * Snapshots the topology once; for a hub whose children change at runtime, drive the reader from
+ * [flatDevicesIn]`(scope).value` so source resolution tracks the live tree.
  */
 public fun Device.acquisitionReader(): AcquisitionSourceReader =
     deviceTreeAcquisitionReader(flattenDevices())

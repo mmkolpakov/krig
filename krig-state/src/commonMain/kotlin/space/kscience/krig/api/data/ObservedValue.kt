@@ -44,11 +44,21 @@ public fun <T> observed(
 public val ObservedValue<*>.isGood: Boolean
     get() = quality.severity == QualitySeverity.GOOD
 
-/** `true` when this observation carries a non-null value regardless of quality. */
+/**
+ * `true` when this observation carries a non-null value regardless of quality.
+ *
+ * Only meaningful for nullable payloads (`ObservedValue<T?>`), where `null` models an absent
+ * sample; for non-nullable `T` this is always `true`.
+ */
 public val ObservedValue<*>.hasValue: Boolean
     get() = value != null
 
-/** `true` when the sample value is present and its quality is [DataQuality.GOOD]. */
+/**
+ * `true` when the sample value is present and its quality is [DataQuality.GOOD].
+ *
+ * The presence check matters only for nullable payloads (`ObservedValue<T?>`); for non-nullable
+ * `T` this reduces to [isGood].
+ */
 public val ObservedValue<*>.isUsable: Boolean
     get() = hasValue && isGood
 

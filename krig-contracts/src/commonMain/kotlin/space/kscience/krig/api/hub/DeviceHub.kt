@@ -14,9 +14,6 @@ import space.kscience.dataforge.names.Name
 @SubclassOptInRequired(UnstableKrigForSubclassing::class)
 public interface DeviceHub : Device, DeviceNode {
 
-    override fun content(target: String): Map<Name, Any> =
-        if (target == defaultTarget) children else emptyMap()
-
     /** Direct child devices owned by this hub. */
     public val devices: Map<Name, Device>
 

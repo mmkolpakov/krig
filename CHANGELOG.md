@@ -34,7 +34,6 @@ Current alpha-3 naming:
     `SerializersModuleGenerator`. Fine-grained incremental processing.
 -   **New devices DSL:** `KrigDsl.kt`, `ExpressionDsl.kt`, Device DSL builder
     (`propertyDouble`, `mutableProperty`, etc.), `DemoSuite.kt` with curated demos.
--   **New transport primitives:** Framer lives in `krig-io`.
 -   **New compiler flag:** `-Xreturn-value-checker=full` across all modules.
 
 ### Changed
@@ -81,6 +80,8 @@ Current alpha-3 naming:
 -   **Removed dependencies:** Arrow (`ArrowInterop.kt`), `ReadWriteMutex`,
     `PipelineExecutors`, `LockFreeSpscRings`, `PrimitiveSamplers`,
     `StoragePropertyHistory`, `StateValue`, `ValueWithTime`, polymorphic `Quality`.
+-   **Alpha breaking clean:** Removed `krig-io` and the old `Framer` module before public
+    API freeze.
 -   **Removed compiler flag:** `-Xcontext-parameters` (no longer needed on Kotlin 2.4.0-RC2).
 
 ## 1.0.0-alpha-1 - 2025-08-15

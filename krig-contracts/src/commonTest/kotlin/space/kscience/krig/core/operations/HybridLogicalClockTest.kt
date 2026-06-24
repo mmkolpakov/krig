@@ -1,5 +1,6 @@
-﻿package space.kscience.krig.core.operations
+package space.kscience.krig.core.operations
 
+import space.kscience.krig.api.data.HlcTimestamp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -34,11 +35,11 @@ class HybridLogicalClockTest {
         val c = hlc.tick()
 
         assertEquals(100L, a.physicalMilliseconds)
-        assertEquals(0, a.logicalCounter)
+        assertEquals(0L, a.logicalCounter)
         assertEquals(200L, b.physicalMilliseconds)
-        assertEquals(0, b.logicalCounter, "logical counter resets when physical time advances")
+        assertEquals(0L, b.logicalCounter, "logical counter resets when physical time advances")
         assertEquals(300L, c.physicalMilliseconds)
-        assertEquals(0, c.logicalCounter)
+        assertEquals(0L, c.logicalCounter)
         assertTrue(a < b)
         assertTrue(b < c)
     }
@@ -53,12 +54,12 @@ class HybridLogicalClockTest {
         val t3 = hlc.tick()
         val t4 = hlc.tick()
 
-        assertEquals(500L, t1.physicalMilliseconds); assertEquals(0, t1.logicalCounter)
-        assertEquals(500L, t2.physicalMilliseconds); assertEquals(1, t2.logicalCounter)
-        assertEquals(500L, t3.physicalMilliseconds); assertEquals(2, t3.logicalCounter)
+        assertEquals(500L, t1.physicalMilliseconds); assertEquals(0L, t1.logicalCounter)
+        assertEquals(500L, t2.physicalMilliseconds); assertEquals(1L, t2.logicalCounter)
+        assertEquals(500L, t3.physicalMilliseconds); assertEquals(2L, t3.logicalCounter)
         // Backwards: physical drops to 400, but HLC clamps to lastPhysicalMs (500) and bumps logical.
         assertEquals(500L, t4.physicalMilliseconds)
-        assertEquals(3, t4.logicalCounter)
+        assertEquals(3L, t4.logicalCounter)
         assertTrue(t1 < t2 && t2 < t3 && t3 < t4, "ticks must remain monotonically increasing")
     }
 
@@ -72,7 +73,7 @@ class HybridLogicalClockTest {
         val merged = hlc.update(remote)
 
         assertEquals(500L, merged.physicalMilliseconds)
-        assertEquals(8, merged.logicalCounter, "merge bumps remote logical by 1 when remote dominates physical")
+        assertEquals(8L, merged.logicalCounter, "merge bumps remote logical by 1 when remote dominates physical")
     }
 
     @Test
@@ -86,7 +87,7 @@ class HybridLogicalClockTest {
         val merged = hlc.update(HlcTimestamp(physicalMilliseconds = 10_000, logicalCounter = 7))
 
         assertEquals(1_000L, merged.physicalMilliseconds)
-        assertEquals(1, merged.logicalCounter, "far-future remote stamps should not poison local HLC")
+        assertEquals(1L, merged.logicalCounter, "far-future remote stamps should not poison local HLC")
     }
 
     @Test
@@ -98,7 +99,7 @@ class HybridLogicalClockTest {
         val merged = hlc.update(remote)
         assertEquals(100L, merged.physicalMilliseconds)
         // max(localLogical=1, remoteLogical=5) + 1 = 6
-        assertEquals(6, merged.logicalCounter)
+        assertEquals(6L, merged.logicalCounter)
     }
 
     @Test
@@ -109,7 +110,7 @@ class HybridLogicalClockTest {
         val remote = HlcTimestamp(physicalMilliseconds = 200, logicalCounter = 9)
         val merged = hlc.update(remote)
         assertEquals(1000L, merged.physicalMilliseconds, "physical now (1000) > both local (100) and remote (200)")
-        assertEquals(0, merged.logicalCounter, "fresh ms — logical counter resets")
+        assertEquals(0L, merged.logicalCounter, "fresh ms — logical counter resets")
     }
 
     @Test
@@ -122,7 +123,7 @@ class HybridLogicalClockTest {
         // Next tick still on ms=100 should produce logical=1 (only one tick has happened).
         val next = hlc.tick()
         assertEquals(100L, next.physicalMilliseconds)
-        assertEquals(1, next.logicalCounter)
+        assertEquals(1L, next.logicalCounter)
     }
 
     @Test
@@ -132,6 +133,6 @@ class HybridLogicalClockTest {
         val hlc = HybridLogicalClock(ScriptedClock(listOf(777)))
         val snap = hlc.snapshot()
         assertEquals(777L, snap.physicalMilliseconds)
-        assertEquals(0, snap.logicalCounter)
+        assertEquals(0L, snap.logicalCounter)
     }
 }

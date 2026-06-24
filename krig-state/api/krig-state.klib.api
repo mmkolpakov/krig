@@ -18,8 +18,8 @@ open annotation class space.kscience.krig.core/InternalKrigApi : kotlin/Annotati
     constructor <init>() // space.kscience.krig.core/InternalKrigApi.<init>|<init>(){}[0]
 }
 
-open annotation class space.kscience.krig.core/PerformancePitfall : kotlin/Annotation { // space.kscience.krig.core/PerformancePitfall|null[0]
-    constructor <init>() // space.kscience.krig.core/PerformancePitfall.<init>|<init>(){}[0]
+open annotation class space.kscience.krig.core/KrigPerformancePitfall : kotlin/Annotation { // space.kscience.krig.core/KrigPerformancePitfall|null[0]
+    constructor <init>() // space.kscience.krig.core/KrigPerformancePitfall.<init>|<init>(){}[0]
 }
 
 open annotation class space.kscience.krig.core/UnstableKrigForSubclassing : kotlin/Annotation { // space.kscience.krig.core/UnstableKrigForSubclassing|null[0]
@@ -113,6 +113,12 @@ sealed interface space.kscience.krig.api.lifecycle/LifecycleState { // space.ksc
         final fun hashCode(): kotlin/Int // space.kscience.krig.api.lifecycle/LifecycleState.Stopping.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.api.lifecycle/LifecycleState.Stopping.toString|toString(){}[0]
     }
+
+    final object Suspended : space.kscience.krig.api.lifecycle/LifecycleState { // space.kscience.krig.api.lifecycle/LifecycleState.Suspended|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.lifecycle/LifecycleState.Suspended.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.lifecycle/LifecycleState.Suspended.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.lifecycle/LifecycleState.Suspended.toString|toString(){}[0]
+    }
 }
 
 final class <#A: out kotlin/Any?> space.kscience.krig.api.data/ObservedValue : space.kscience.krig.api.data/Timed<#A> { // space.kscience.krig.api.data/ObservedValue|null[0]
@@ -160,7 +166,7 @@ final class <#A: out kotlin/Any?> space.kscience.krig.api.data/Timestamped : spa
     }
 }
 
-final class space.kscience.krig.api.data/DataQuality { // space.kscience.krig.api.data/DataQuality|null[0]
+final class space.kscience.krig.api.data/DataQuality : kotlin/Comparable<space.kscience.krig.api.data/DataQuality> { // space.kscience.krig.api.data/DataQuality|null[0]
     constructor <init>(space.kscience.krig.api.data/QualitySeverity, space.kscience.krig.api.data/QualityCode? = ..., kotlin/String? = ...) // space.kscience.krig.api.data/DataQuality.<init>|<init>(space.kscience.krig.api.data.QualitySeverity;space.kscience.krig.api.data.QualityCode?;kotlin.String?){}[0]
 
     final val code // space.kscience.krig.api.data/DataQuality.code|{}code[0]
@@ -173,6 +179,7 @@ final class space.kscience.krig.api.data/DataQuality { // space.kscience.krig.ap
         final fun <get-shortLabel>(): kotlin/String // space.kscience.krig.api.data/DataQuality.shortLabel.<get-shortLabel>|<get-shortLabel>(){}[0]
 
     final fun combine(space.kscience.krig.api.data/DataQuality): space.kscience.krig.api.data/DataQuality // space.kscience.krig.api.data/DataQuality.combine|combine(space.kscience.krig.api.data.DataQuality){}[0]
+    final fun compareTo(space.kscience.krig.api.data/DataQuality): kotlin/Int // space.kscience.krig.api.data/DataQuality.compareTo|compareTo(space.kscience.krig.api.data.DataQuality){}[0]
     final fun component1(): space.kscience.krig.api.data/QualitySeverity // space.kscience.krig.api.data/DataQuality.component1|component1(){}[0]
     final fun component2(): space.kscience.krig.api.data/QualityCode? // space.kscience.krig.api.data/DataQuality.component2|component2(){}[0]
     final fun component3(): kotlin/String? // space.kscience.krig.api.data/DataQuality.component3|component3(){}[0]
@@ -232,33 +239,36 @@ final class space.kscience.krig.api.data/DeviceSnapshot { // space.kscience.krig
     }
 }
 
-final class space.kscience.krig.core.operations/HlcTimestamp : kotlin/Comparable<space.kscience.krig.core.operations/HlcTimestamp> { // space.kscience.krig.core.operations/HlcTimestamp|null[0]
-    constructor <init>(kotlin/Long, kotlin/Int) // space.kscience.krig.core.operations/HlcTimestamp.<init>|<init>(kotlin.Long;kotlin.Int){}[0]
+final class space.kscience.krig.api.data/HlcTimestamp : kotlin/Comparable<space.kscience.krig.api.data/HlcTimestamp> { // space.kscience.krig.api.data/HlcTimestamp|null[0]
+    constructor <init>(kotlin/Long, kotlin/Long, space.kscience.dataforge.names/Name = ...) // space.kscience.krig.api.data/HlcTimestamp.<init>|<init>(kotlin.Long;kotlin.Long;space.kscience.dataforge.names.Name){}[0]
 
-    final val logicalCounter // space.kscience.krig.core.operations/HlcTimestamp.logicalCounter|{}logicalCounter[0]
-        final fun <get-logicalCounter>(): kotlin/Int // space.kscience.krig.core.operations/HlcTimestamp.logicalCounter.<get-logicalCounter>|<get-logicalCounter>(){}[0]
-    final val physicalMilliseconds // space.kscience.krig.core.operations/HlcTimestamp.physicalMilliseconds|{}physicalMilliseconds[0]
-        final fun <get-physicalMilliseconds>(): kotlin/Long // space.kscience.krig.core.operations/HlcTimestamp.physicalMilliseconds.<get-physicalMilliseconds>|<get-physicalMilliseconds>(){}[0]
+    final val logicalCounter // space.kscience.krig.api.data/HlcTimestamp.logicalCounter|{}logicalCounter[0]
+        final fun <get-logicalCounter>(): kotlin/Long // space.kscience.krig.api.data/HlcTimestamp.logicalCounter.<get-logicalCounter>|<get-logicalCounter>(){}[0]
+    final val nodeId // space.kscience.krig.api.data/HlcTimestamp.nodeId|{}nodeId[0]
+        final fun <get-nodeId>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.data/HlcTimestamp.nodeId.<get-nodeId>|<get-nodeId>(){}[0]
+    final val physicalMilliseconds // space.kscience.krig.api.data/HlcTimestamp.physicalMilliseconds|{}physicalMilliseconds[0]
+        final fun <get-physicalMilliseconds>(): kotlin/Long // space.kscience.krig.api.data/HlcTimestamp.physicalMilliseconds.<get-physicalMilliseconds>|<get-physicalMilliseconds>(){}[0]
 
-    final fun compareTo(space.kscience.krig.core.operations/HlcTimestamp): kotlin/Int // space.kscience.krig.core.operations/HlcTimestamp.compareTo|compareTo(space.kscience.krig.core.operations.HlcTimestamp){}[0]
-    final fun component1(): kotlin/Long // space.kscience.krig.core.operations/HlcTimestamp.component1|component1(){}[0]
-    final fun component2(): kotlin/Int // space.kscience.krig.core.operations/HlcTimestamp.component2|component2(){}[0]
-    final fun copy(kotlin/Long = ..., kotlin/Int = ...): space.kscience.krig.core.operations/HlcTimestamp // space.kscience.krig.core.operations/HlcTimestamp.copy|copy(kotlin.Long;kotlin.Int){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.operations/HlcTimestamp.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // space.kscience.krig.core.operations/HlcTimestamp.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // space.kscience.krig.core.operations/HlcTimestamp.toString|toString(){}[0]
+    final fun compareTo(space.kscience.krig.api.data/HlcTimestamp): kotlin/Int // space.kscience.krig.api.data/HlcTimestamp.compareTo|compareTo(space.kscience.krig.api.data.HlcTimestamp){}[0]
+    final fun component1(): kotlin/Long // space.kscience.krig.api.data/HlcTimestamp.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // space.kscience.krig.api.data/HlcTimestamp.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.api.data/HlcTimestamp.component3|component3(){}[0]
+    final fun copy(kotlin/Long = ..., kotlin/Long = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.api.data/HlcTimestamp.copy|copy(kotlin.Long;kotlin.Long;space.kscience.dataforge.names.Name){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/HlcTimestamp.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/HlcTimestamp.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.data/HlcTimestamp.toString|toString(){}[0]
 
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.core.operations/HlcTimestamp> { // space.kscience.krig.core.operations/HlcTimestamp.$serializer|null[0]
-        final val descriptor // space.kscience.krig.core.operations/HlcTimestamp.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.core.operations/HlcTimestamp.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/HlcTimestamp> { // space.kscience.krig.api.data/HlcTimestamp.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.data/HlcTimestamp.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/HlcTimestamp.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
 
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.core.operations/HlcTimestamp.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.core.operations/HlcTimestamp // space.kscience.krig.core.operations/HlcTimestamp.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.core.operations/HlcTimestamp) // space.kscience.krig.core.operations/HlcTimestamp.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.core.operations.HlcTimestamp){}[0]
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/HlcTimestamp.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.api.data/HlcTimestamp.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/HlcTimestamp) // space.kscience.krig.api.data/HlcTimestamp.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.HlcTimestamp){}[0]
     }
 
-    final object Companion { // space.kscience.krig.core.operations/HlcTimestamp.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.core.operations/HlcTimestamp> // space.kscience.krig.core.operations/HlcTimestamp.Companion.serializer|serializer(){}[0]
+    final object Companion { // space.kscience.krig.api.data/HlcTimestamp.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/HlcTimestamp> // space.kscience.krig.api.data/HlcTimestamp.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -339,3 +349,4 @@ final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/ObservedValue<#A>).spa
 final fun <#A: kotlin/Any?> (space.kscience.krig.api.data/Timed<#A>).space.kscience.krig.api.data/inRange(kotlin.ranges/ClosedRange<kotlin.time/Instant>): kotlin/Boolean // space.kscience.krig.api.data/inRange|inRange@space.kscience.krig.api.data.Timed<0:0>(kotlin.ranges.ClosedRange<kotlin.time.Instant>){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.data/observed(#A, kotlin.time/Clock = ..., space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.api.data/ObservedValue<#A> // space.kscience.krig.api.data/observed|observed(0:0;kotlin.time.Clock;space.kscience.krig.api.data.DataQuality){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> space.kscience.krig.api.data/timestamped(#A, kotlin.time/Clock = ...): space.kscience.krig.api.data/Timestamped<#A> // space.kscience.krig.api.data/timestamped|timestamped(0:0;kotlin.time.Clock){0§<kotlin.Any?>}[0]
+final fun space.kscience.krig.api.data/compareNames(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name): kotlin/Int // space.kscience.krig.api.data/compareNames|compareNames(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]

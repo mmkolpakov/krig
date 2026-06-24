@@ -36,7 +36,7 @@ import space.kscience.dataforge.names.Name
 public data class MagixEnvelope<T>(
     val data: T,
     val topic: Name? = null,
-    val headers: JsonObject = JsonObject(emptyMap()),
+    val headers: JsonObject = EmptyMagixHeaders,
     val format: String? = null,
 )
 
@@ -44,7 +44,7 @@ public data class MagixEnvelope<T>(
 public fun <T> envelopeOf(
     payload: T,
     topic: Name? = null,
-    headers: JsonObject = JsonObject(emptyMap()),
+    headers: JsonObject = EmptyMagixHeaders,
     format: String? = null,
 ): MagixEnvelope<T> = MagixEnvelope(data = payload, topic = topic, headers = headers, format = format)
 
@@ -57,7 +57,7 @@ public fun <T> JsonElement.Companion.encodeEnvelope(
     serializer: KSerializer<T>,
     payload: T,
     topic: Name? = null,
-    headers: JsonObject = JsonObject(emptyMap()),
+    headers: JsonObject = EmptyMagixHeaders,
     format: String? = null,
 ): JsonElement = json.encodeToJsonElement(
     MagixEnvelope.serializer(serializer),

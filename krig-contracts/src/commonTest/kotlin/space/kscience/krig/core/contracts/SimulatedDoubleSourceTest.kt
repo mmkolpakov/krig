@@ -1,6 +1,6 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 

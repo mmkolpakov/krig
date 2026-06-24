@@ -1,4 +1,4 @@
-﻿@file:OptIn(
+@file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )

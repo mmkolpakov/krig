@@ -9,7 +9,7 @@ import space.kscience.krig.core.contracts.manifestOf
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.doubleProperty
 import space.kscience.krig.core.meta.mutableDoubleProperty
@@ -17,7 +17,7 @@ import space.kscience.krig.dsl.device
 
 /**
  * Golden path: typed data plane with data quality and an unboxed sampler — no `Meta` literals in
- * the driver and no `@OptIn(PerformancePitfall)` on the read path. The driver speaks `Double`;
+ * the driver and no `@OptIn(KrigPerformancePitfall)` on the read path. The driver speaks `Double`;
  * quality rides as a typed [DataQuality] and never needs Meta parsing on read.
  */
 object GoldenSpec : DeviceContractBuilder() {
@@ -32,7 +32,7 @@ val GoldenManifest: DeviceManifest = manifestOf(
 )
 
 /** Typed in-memory backend: rpm with an unboxed sampler, temperature with quality. */
-fun goldenBackend() = backend {
+fun goldenBackend() = deviceBackend {
     var rpm = 0.0
     val rpmSampler = doubleSampler(capacity = 64)
 
@@ -62,7 +62,7 @@ suspend fun goldenPathDemo() {
 
     println("=== Golden path (typed data plane) ===")
 
-    // Typed writes/reads — no Meta, no @OptIn(PerformancePitfall).
+    // Typed writes/reads — no Meta, no @OptIn(KrigPerformancePitfall).
     sensor.write(GoldenSpec.rpm, 1_500.0)
     println("  rpm (typed): ${sensor.read(GoldenSpec.rpm)}")
 

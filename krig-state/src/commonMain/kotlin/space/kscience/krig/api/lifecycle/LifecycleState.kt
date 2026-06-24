@@ -23,6 +23,13 @@ public sealed interface LifecycleState {
 
     public data object Running : LifecycleState
 
+    /**
+     * Running but intentionally held: awaiting material, blocked by an interlock, or operator-paused.
+     * Distinct from [Stopped] (not shut down) and [Failed] (not faulted) — the device keeps its
+     * resources and can resume to [Running]. Gated operations are denied while suspended.
+     */
+    public data object Suspended : LifecycleState
+
     public data object Stopping : LifecycleState
 
     public data object Detaching : LifecycleState

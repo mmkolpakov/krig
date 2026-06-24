@@ -123,7 +123,7 @@ public fun <D : Device> D.withTimeTravel(
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
     retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
 ): TimeTravelSession {
-    enableTimeTravel(
+    val recording = enableTimeTravel(
         reconstructible = reconstructible,
         deviceName = deviceName,
         snapshotStore = snapshotStore,
@@ -134,12 +134,13 @@ public fun <D : Device> D.withTimeTravel(
         clock = clock,
         snapshotCodec = snapshotCodec,
         retentionPolicy = retentionPolicy,
-    ).let { }
+    )
     return TimeTravelSession(
         model = reconstructible,
         log = replayLog,
         snapshotStore = snapshotStore,
         deviceName = deviceName,
         snapshotCodec = snapshotCodec,
+        recording = recording,
     )
 }

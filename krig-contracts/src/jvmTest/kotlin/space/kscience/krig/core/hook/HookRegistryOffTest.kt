@@ -12,7 +12,7 @@ class HookRegistryOffTest {
         val registry = HookRegistry.buffered()
         val seen = mutableListOf<Int>()
         val handler: (Int) -> Unit = { seen += it }
-        registry.on(TestHook, handler)
+        registry.register(TestHook, handler)
         registry.handlersOf(TestHook).forEach { it(1) }
         registry.off(TestHook, handler)
         registry.handlersOf(TestHook).forEach { it(2) }
@@ -47,9 +47,9 @@ class HookRegistryOffTest {
         val a: (Int) -> Unit = { }
         val b: (Int) -> Unit = { }
         val c: (Int) -> Unit = { }
-        registry.on(TestHook, a)
-        registry.on(TestHook, b)
-        registry.on(TestHook, c)
+        registry.register(TestHook, a)
+        registry.register(TestHook, b)
+        registry.register(TestHook, c)
         registry.off(TestHook, b)
         assertEquals(listOf(a, c), registry.handlersOf(TestHook))
     }

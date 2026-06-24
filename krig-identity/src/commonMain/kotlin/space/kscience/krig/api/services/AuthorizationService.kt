@@ -14,7 +14,7 @@ public class AuthorizationException(message: String, cause: Throwable? = null) :
 public interface AuthorizationService : Plugin {
     override val tag: PluginTag get() = Companion.tag
 
-     /**
+    /**
      * Checks if [principal] has the required [permission].
      * @throws AuthorizationException if the check fails.
      */
@@ -39,6 +39,8 @@ private class DenyAllAuthorizationService(meta: Meta) : AbstractPlugin(meta), Au
     }
 }
 
+private val denyAllFallback: AuthorizationService = DenyAllAuthorizationService(Meta.EMPTY)
+
 
 /**
  * Reference [AuthorizationService] that grants every check. Insecure by design — intended for
@@ -57,7 +59,11 @@ public class AllowAllAuthorizationService private constructor(meta: Meta) : Abst
     }
 }
 
-/** Gets the [AuthorizationService] from a context, or throws if not installed. */
+/**
+ * Gets the [AuthorizationService] from a context. When no plugin is installed, returns a deny-all
+ * fallback — matching the interface contract «all actions are denied by default»: an unauthorized
+ * call then fails with [AuthorizationException] rather than [IllegalStateException].
+ */
 public val Context.authorizationService: AuthorizationService
     get() = plugins.find(true) { it is AuthorizationService } as? AuthorizationService
-        ?: error("AuthorizationService plugin is not installed in the context.")
+        ?: denyAllFallback

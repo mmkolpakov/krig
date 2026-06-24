@@ -5,13 +5,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import space.kscience.dataforge.meta.Meta
 import space.kscience.krig.api.identifiers.CorrelationId
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 
 /** Operation context that belongs to transport/storage frames, not payload DTOs. */
 @Serializable
 public data class MessageContext(
     public val correlationId: CorrelationId? = null,
     public val hlcTimestamp: HlcTimestamp? = null,
+    /**
+     * Cryptographically attested identity of the sending node (e.g. a SPIFFE ID from an mTLS peer
+     * certificate), stamped by an authenticating transport — distinct from any self-asserted
+     * `callerIdentity` string in a request payload. `null` for in-process or unauthenticated frames;
+     * an authorization service resolves a non-null value to a `DevicePrincipal`. The verifying
+     * transport is the only writer; the data model lives here so M2M identity travels with the frame.
+     */
+    public val verifiedIdentity: String? = null,
     public val attributes: Meta = Meta.EMPTY,
 ) {
     public companion object {

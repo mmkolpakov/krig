@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.descriptors.TypeId
 import space.kscience.krig.api.descriptors.TypeIds
 
 /**
@@ -81,18 +82,19 @@ public data class AcquisitionTimerSpec(
 }
 
 /**
- * One external tag mapped to an optional krig device property target.
+ * One external tag: a named, typed reference to a connector address.
  *
- * [address] is deliberately opaque. It may be a register, topic, path, node id, or any
- * other connector-owned string. The SDK validates references and type ids, not protocols.
+ * Acquisition is **ingress only** — it samples external sources into observations; routing a sample
+ * into a device property is the topology layer's job (`deviceGroup` / `linkPeriodic`), not a field
+ * here. [address] is deliberately opaque: a register, topic, path, node id, or any connector-owned
+ * string. The SDK validates references and type ids, not protocols.
  */
 @Serializable
 public data class AcquisitionTagSpec(
     public val id: Name,
     public val sourceId: Name,
     public val address: String,
-    public val valueTypeId: String = TypeIds.META,
-    public val target: AcquisitionTargetSpec? = null,
+    public val valueTypeId: TypeId = TypeIds.META,
     public val timeoutMs: Long? = null,
     public val bufferCapacity: Int = 1024,
     public val reduction: ReductionSpec = ReductionSpec.Last,
@@ -101,21 +103,8 @@ public data class AcquisitionTagSpec(
         require(id != Name.EMPTY) { "AcquisitionTagSpec id must not be empty" }
         require(sourceId != Name.EMPTY) { "AcquisitionTagSpec '$id' sourceId must not be empty" }
         require(address.isNotBlank()) { "AcquisitionTagSpec '$id' address must not be blank" }
-        require(valueTypeId.isNotBlank()) { "AcquisitionTagSpec '$id' valueTypeId must not be blank" }
         require(timeoutMs == null || timeoutMs > 0) { "AcquisitionTagSpec '$id' timeoutMs must be positive, got $timeoutMs" }
         require(bufferCapacity > 0) { "AcquisitionTagSpec '$id' bufferCapacity must be positive, got $bufferCapacity" }
-    }
-}
-
-/** Target property in the krig device tree. */
-@Serializable
-public data class AcquisitionTargetSpec(
-    public val deviceId: Name,
-    public val property: Name,
-) {
-    init {
-        require(deviceId != Name.EMPTY) { "AcquisitionTargetSpec deviceId must not be empty" }
-        require(property != Name.EMPTY) { "AcquisitionTargetSpec property must not be empty" }
     }
 }
 
@@ -144,9 +133,4 @@ public fun DataAcquisitionConfiguration.validate(): List<String> = buildList {
         }
     }
 
-    val targets = tags.mapNotNull { tag -> tag.target?.let { it.deviceId to it.property } }
-    val duplicateTargets = targets.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
-    duplicateTargets.forEach { (deviceId, property) ->
-        add("multiple acquisition tags target '$deviceId.$property'")
-    }
 }

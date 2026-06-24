@@ -2,7 +2,6 @@
 
 package space.kscience.krig.core.pipeline
 
-import kotlinx.coroutines.CancellationException
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
@@ -11,12 +10,12 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.GenericOperationFault
-import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.faults.faultDetails
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.OperationTracker
+import space.kscience.krig.core.contracts.trackReentrant
+import space.kscience.krig.core.contracts.decodeMetaOutcome
+import space.kscience.krig.core.contracts.encodeMetaOutcome
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -78,16 +77,7 @@ internal suspend fun <T> trackedOperation(
     tracker: OperationTracker?,
     block: suspend () -> OperationOutcome<T>,
 ): OperationOutcome<T> =
-    if (tracker == null) {
-        block()
-    } else {
-        tracker.enterOperation()
-        try {
-            block()
-        } finally {
-            tracker.exitOperation()
-        }
-    }
+    tracker?.trackReentrant(block) ?: block()
 
 internal data class CachedReader(
     val descriptor: PropertyDescriptor,
@@ -163,7 +153,13 @@ internal fun unknownProperty(propertyName: Name, operation: String): OperationOu
     OperationOutcome.Fail(
         GenericOperationFault(
             faultType = OperationFaultTypes.UnknownProperty,
-            message = "Cannot $operation property '$propertyName': no DevicePropertyContract is registered.",
+            message = when (operation) {
+                // A read-only property has a contract — just not a mutable one; say so explicitly.
+                "write" ->
+                    "Cannot write property '$propertyName': no mutable DevicePropertyContract is registered " +
+                            "(the property may be read-only)."
+                else -> "Cannot $operation property '$propertyName': no DevicePropertyContract is registered."
+            },
         ),
     )
 
@@ -175,47 +171,18 @@ internal fun unknownAction(actionName: Name): OperationOutcome.Fail =
         ),
     )
 
+// Single shared Meta↔typed codec (krig-contracts) — the typed builder and the control plane must
+// fail identically on the same bad payload.
 internal fun <T> decodeControlPlaneMeta(
     converter: MetaConverter<T>,
     value: Meta,
     kind: String,
     name: Name,
-): OperationOutcome<T> {
-    try {
-        converter.readOrNull(value)?.let { return OperationOutcome.Ok(it) }
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: OperationFaultException) {
-        return OperationOutcome.Fail(e.fault)
-    } catch (e: Exception) {
-        return invalidControlPlanePayload(kind, name, e.message ?: e.toString(), e)
-    }
-    return invalidControlPlanePayload(kind, name, "Payload does not match the registered converter.", null)
-}
+): OperationOutcome<T> = decodeMetaOutcome(converter, value, kind, name)
 
 internal fun <T> encodeControlPlaneMeta(
     converter: MetaConverter<T>,
     value: T,
     kind: String,
     name: Name,
-): OperationOutcome<Meta> = try {
-    OperationOutcome.Ok(converter.convert(value))
-} catch (e: CancellationException) {
-    throw e
-} catch (e: OperationFaultException) {
-    OperationOutcome.Fail(e.fault)
-} catch (e: Exception) {
-    invalidControlPlanePayload(kind, name, e.message ?: e.toString(), e)
-}
-
-private fun invalidControlPlanePayload(
-    kind: String,
-    name: Name,
-    message: String,
-    cause: Throwable?,
-): OperationOutcome.Fail =
-    OperationOutcome.Fail(
-        ValidationFault(
-            details = faultDetails(message = message, kind = kind, name = name, cause = cause),
-        ),
-    )
+): OperationOutcome<Meta> = encodeMetaOutcome(converter, value, kind, name)

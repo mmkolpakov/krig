@@ -1,8 +1,9 @@
 package space.kscience.magix.api
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -41,6 +42,10 @@ public data class MagixFormat<T>(
  * @param originFilter An optional list of source endpoint IDs to subscribe to.
  * @param targetFilter An optional list of target endpoint IDs to subscribe to.
  * @param topicPattern An optional topic pattern for more granular filtering.
+ * @param onDecodeError Decode-failure policy. On a shared bus a single peer publishing a
+ *   malformed or newer-format payload must not be able to kill every consumer's subscription,
+ *   so the default skips the offending message after reporting it to this callback. Rethrow
+ *   from the callback to restore fail-fast behaviour.
  * @return A [Flow] of pairs, containing the raw [MagixMessage] and the deserialized payload of type [T].
  */
 public fun <T> MagixEndpoint.subscribe(
@@ -49,11 +54,16 @@ public fun <T> MagixEndpoint.subscribe(
     originFilter: Collection<Name>? = null,
     targetFilter: Collection<Name?>? = null,
     topicPattern: Name? = null,
+    onDecodeError: (MagixMessage, SerializationException) -> Unit = { _, _ -> },
 ): Flow<Pair<MagixMessage, T>> = subscribe(
     MagixMessageFilter(format = format.formats, source = originFilter, target = targetFilter, topicPattern = topicPattern)
-).map { message ->
-    val value: T = json.decodeFromJsonElement(format.serializer, message.payload)
-    message to value
+).mapNotNull { message ->
+    try {
+        message to json.decodeFromJsonElement(format.serializer, message.payload)
+    } catch (e: SerializationException) {
+        onDecodeError(message, e)
+        null
+    }
 }
 
 /**
@@ -81,7 +91,7 @@ public suspend fun <T> MagixEndpoint.send(
     id: String? = null,
     parentId: String? = null,
     user: JsonElement? = null,
-    headers: JsonObject = JsonObject(emptyMap()),
+    headers: JsonObject = EmptyMagixHeaders,
 ) {
     val message = MagixMessage(
         format = format.defaultFormat,

@@ -5,6 +5,9 @@ import kotlinx.serialization.serializer
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeId
+import space.kscience.krig.api.descriptors.toMetaDescriptor
+import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
 import space.kscience.krig.api.descriptors.operationAttributes
@@ -21,7 +24,7 @@ import kotlin.properties.ReadOnlyProperty
  *
  * This builder records only contracts: descriptors and typed converters.
  * Hardware/simulation logic is supplied by a backend such as
- * [backend][space.kscience.krig.core.contracts.typed.backend].
+ * [deviceBackend][space.kscience.krig.core.contracts.deviceBackend].
  */
 public abstract class DeviceContractBuilder {
     @PublishedApi
@@ -57,7 +60,7 @@ public abstract class DeviceContractBuilder {
     /** Defines a read-only property contract with an explicit stable type id. */
     public fun <T> property(
         converter: MetaConverter<T>,
-        typeId: String,
+        typeId: TypeId,
         kind: PropertyKind = PropertyKind.PHYSICAL,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<T>>> =
         PropertyDelegateProvider { _, property ->
@@ -75,7 +78,7 @@ public abstract class DeviceContractBuilder {
     /** Defines a mutable property contract with an explicit stable type id. */
     public fun <T> mutableProperty(
         converter: MetaConverter<T>,
-        typeId: String,
+        typeId: TypeId,
         kind: PropertyKind = PropertyKind.PHYSICAL,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<T>>> =
         PropertyDelegateProvider { _, property ->
@@ -132,7 +135,7 @@ public fun <T> devicePropertyContract(
     name: Name,
     converter: MetaConverter<T>,
     kind: PropertyKind,
-    valueTypeId: String,
+    valueTypeId: TypeId,
 ): DevicePropertyContract<T> = SimpleDevicePropertyContract(
     name = name,
     descriptor = propertyDescriptor(name, kind, valueTypeId, mutable = false),
@@ -143,7 +146,7 @@ public fun <T> mutableDevicePropertyContract(
     name: Name,
     converter: MetaConverter<T>,
     kind: PropertyKind,
-    valueTypeId: String,
+    valueTypeId: TypeId,
 ): MutableDevicePropertyContract<T> = SimpleMutableDevicePropertyContract(
     name = name,
     descriptor = propertyDescriptor(name, kind, valueTypeId, mutable = true),
@@ -154,17 +157,36 @@ public fun <I, O> deviceActionContract(
     name: Name,
     inputConverter: MetaConverter<I>,
     outputConverter: MetaConverter<O>,
+    inputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
+    outputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
 ): DeviceActionContract<I, O> = SimpleDeviceActionContract(
     name = name,
-    descriptor = ActionDescriptor(name = name),
+    descriptor = ActionDescriptor(name, inputMetaDescriptor, outputMetaDescriptor),
     inputConverter = inputConverter,
     outputConverter = outputConverter,
+)
+
+/**
+ * [deviceActionContract] that derives the action's input/output [MetaDescriptor]s from the serializers
+ * of [I] and [O]. Use when both boundary types are `@Serializable`, so the contract self-describes its
+ * argument structure (and a JSON Schema for external clients) without hand-written descriptors.
+ */
+public inline fun <reified I, reified O> serializableActionContract(
+    name: Name,
+    inputConverter: MetaConverter<I>,
+    outputConverter: MetaConverter<O>,
+): DeviceActionContract<I, O> = deviceActionContract(
+    name = name,
+    inputConverter = inputConverter,
+    outputConverter = outputConverter,
+    inputMetaDescriptor = serializer<I>().descriptor.toMetaDescriptor(),
+    outputMetaDescriptor = serializer<O>().descriptor.toMetaDescriptor(),
 )
 
 private fun propertyDescriptor(
     name: Name,
     kind: PropertyKind,
-    valueTypeId: String,
+    valueTypeId: TypeId,
     mutable: Boolean,
 ): PropertyDescriptor = PropertyDescriptor(
     name = name,

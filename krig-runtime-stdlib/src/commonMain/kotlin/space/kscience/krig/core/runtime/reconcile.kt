@@ -26,6 +26,13 @@ public suspend fun DeviceHub.awaitChildren(
 }
 
 /**
+ * Default per-device production timeout for [reconcile]/[reconcileScoped]. A stuck `produce` call
+ * fails just that device (rolling back its partial resources via [ReconcileProductionScope]) instead
+ * of stalling the whole loop indefinitely. Pass `productionTimeout = null` to opt out explicitly.
+ */
+public val RECONCILE_DEFAULT_PRODUCTION_TIMEOUT: Duration = 30.seconds
+
+/**
  * Handle on a running reconcile loop. [job] ties the loop's lifetime to the scope; [events]
  * surfaces per-operation outcomes for observability (attach success/failure, detach
  * success/failure). Active subscribers observe a bounded best-effort stream; old
@@ -69,11 +76,11 @@ public class ReconcileProductionScope internal constructor() {
     }
 }
 
-private suspend inline fun ignoreRollbackFailure(block: suspend () -> Unit) {
+private suspend inline fun ignoreRollbackFailure(crossinline block: suspend () -> Unit) {
     try {
-        block()
-    } catch (e: CancellationException) {
-        throw e
+        // NonCancellable: rollback must release resources fully even if the reconciler is being
+        // cancelled mid-attach; otherwise a cancellation would leak the half-allocated resource.
+        withContext(NonCancellable) { block() }
     } catch (_: Exception) {
         // Rollback is best-effort; the original production/attach fault is the signal.
     }
@@ -87,13 +94,16 @@ private suspend inline fun ignoreRollbackFailure(block: suspend () -> Unit) {
  * Default `scope = context`; pass `CoroutineScope(context + Job())` to isolate the
  * reconciler's lifetime. Cancelling the returned [ReconcileLoop.job] stops the loop
  * but does not detach already-attached children.
+ *
+ * [productionTimeout] defaults to [RECONCILE_DEFAULT_PRODUCTION_TIMEOUT] so a hung producer cannot
+ * stall the loop; pass `null` to disable the timeout.
  */
 context(context: Context)
 public fun DeviceHub.reconcile(
     desired: Flow<Set<Name>>,
     produce: suspend (Name) -> Device,
     scope: CoroutineScope = context,
-    productionTimeout: Duration? = null,
+    productionTimeout: Duration? = RECONCILE_DEFAULT_PRODUCTION_TIMEOUT,
 ): ReconcileLoop = reconcileScoped(
     desired = desired,
     produce = { name -> produce(name) },
@@ -105,82 +115,92 @@ public fun DeviceHub.reconcile(
  * Scoped variant of [reconcile] for producers that need bracket-style rollback during
  * construction. Use [ReconcileProductionScope.onRollback] for sockets, transports, or
  * dispatchers created before the final [Device] instance is returned.
+ *
+ * [productionTimeout] defaults to [RECONCILE_DEFAULT_PRODUCTION_TIMEOUT]; pass `null` to disable it.
  */
 context(context: Context)
 public fun DeviceHub.reconcileScoped(
     desired: Flow<Set<Name>>,
     produce: suspend ReconcileProductionScope.(Name) -> Device,
     scope: CoroutineScope = context,
-    productionTimeout: Duration? = null,
+    productionTimeout: Duration? = RECONCILE_DEFAULT_PRODUCTION_TIMEOUT,
 ): ReconcileLoop {
     val events = MutableSharedFlow<ReconcileEvent>(
         extraBufferCapacity = RECONCILE_EVENT_BUFFER_CAPACITY,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     val job = scope.launch {
-        desired.distinctUntilChanged().collectLatest { desiredNames ->
-            val currentNames = devices.keys
-            val toAttach = desiredNames - currentNames
-            val toDetach = currentNames - desiredNames
-
-            if (toAttach.isNotEmpty()) {
-                supervisorScope {
-                    val results = toAttach.map { name ->
-                        async { produceForReconcile(name, produce, productionTimeout) }
-                    }.awaitAll()
-                    val produced = mutableListOf<ProducedDevice>()
-                    results.forEach { result ->
-                        when (result) {
-                            is ProducedDevice -> produced += result
-                            is FailedDeviceProduction ->
-                                events.tryEmit(ReconcileEvent.AttachFailed(result.name, result.cause))
-                        }
-                    }
-                    val deviceMap = produced.associate { it.name to it.device }
-                    if (deviceMap.isNotEmpty()) {
-                        var transferred = false
-                        try {
-                            attachAll(deviceMap)
-                            transferred = true
-                            deviceMap.forEach { (name, device) ->
-                                events.tryEmit(ReconcileEvent.Attached(name, device))
-                            }
-                        } catch (e: Throwable) {
-                            if (!transferred) {
-                                produced.forEach { it.rollback() }
-                            }
-                            if (e is CancellationException) throw e
-                            if (e is Error) throw e
-                            deviceMap.forEach { (name, _) ->
-                                events.tryEmit(ReconcileEvent.AttachFailed(name, e))
-                            }
-                        }
-                    }
-                }
+        // In-flight attach productions keyed by name. Using `collect` (not `collectLatest`) plus this
+        // map means a new `desired` never cancels a production that is still wanted — only the genuine
+        // delta is launched, and only productions for no-longer-desired names are cancelled. This kills
+        // the create/cancel thrashing of `collectLatest` under rapid `desired` churn.
+        val inflightAttach = mutableMapOf<Name, Job>()
+        desired.distinctUntilChanged().collect { desiredNames ->
+            // Drop completed productions so a previously-failed name becomes eligible to retry.
+            inflightAttach.entries.retainAll { !it.value.isCompleted }
+            // Cancel in-flight productions for names no longer desired (genuinely surplus work).
+            (inflightAttach.keys - desiredNames).toList().forEach { name ->
+                inflightAttach.remove(name)?.cancel()
             }
 
-            if (toDetach.isNotEmpty()) {
-                // Parallel detach with per-child isolation — a hanging or slow `device.close()`
-                // on one child never blocks the others. Mirrors the attach path above.
-                supervisorScope {
-                    toDetach.map { name ->
-                        async {
-                            try {
-                                if (detach(name, DeviceDepartureReason.Evicted) != null) {
-                                    events.tryEmit(ReconcileEvent.Detached(name))
-                                }
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                events.tryEmit(ReconcileEvent.DetachFailed(name, e))
-                            }
+            val currentNames = devices.keys
+            // Launch attaches only for the delta: desired, not yet attached, not already in flight.
+            val toAttach = desiredNames - currentNames - inflightAttach.keys
+            toAttach.forEach { name ->
+                inflightAttach[name] = launch { attachOneForReconcile(name, produce, productionTimeout, events) }
+            }
+
+            // Detach attached children no longer desired (parallel, per-child isolated).
+            val toDetach = currentNames - desiredNames
+            toDetach.forEach { name ->
+                launch {
+                    try {
+                        if (detach(name, DeviceDepartureReason.Evicted) != null) {
+                            events.tryEmit(ReconcileEvent.Detached(name))
                         }
-                    }.awaitAll()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        events.tryEmit(ReconcileEvent.DetachFailed(name, e))
+                    }
                 }
             }
         }
     }
     return ReconcileLoop(job = job, events = events.asSharedFlow())
+}
+
+/**
+ * Produces one device and atomically transfers it to this hub, emitting the matching
+ * [ReconcileEvent]. On any non-cancellation failure the partial production is rolled back and an
+ * [ReconcileEvent.AttachFailed] is emitted; cancellation (the name became undesired) rolls back and
+ * propagates so the in-flight job ends cleanly.
+ */
+private suspend fun DeviceHub.attachOneForReconcile(
+    name: Name,
+    produce: suspend ReconcileProductionScope.(Name) -> Device,
+    productionTimeout: Duration?,
+    events: MutableSharedFlow<ReconcileEvent>,
+) {
+    when (val result = produceForReconcile(name, produce, productionTimeout)) {
+        is ProducedDevice -> {
+            try {
+                attachAll(mapOf(name to result.device))
+                events.tryEmit(ReconcileEvent.Attached(name, result.device))
+            } catch (e: CancellationException) {
+                result.rollback()
+                throw e
+            } catch (e: Error) {
+                result.rollback()
+                throw e
+            } catch (e: Throwable) {
+                result.rollback()
+                events.tryEmit(ReconcileEvent.AttachFailed(name, e))
+            }
+        }
+
+        is FailedDeviceProduction -> events.tryEmit(ReconcileEvent.AttachFailed(name, result.cause))
+    }
 }
 
 private sealed interface DeviceProductionResult {

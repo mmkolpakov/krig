@@ -1,7 +1,7 @@
 @file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 
@@ -17,7 +17,7 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -120,7 +120,7 @@ class HlcStampingE2ETest {
         val firstStamp = assertNotNull(firstEnvelope.context.hlcTimestamp, "HLC was configured; stamp must be present.")
         // First tick at physical=1000 -> (1000, 0).
         assertEquals(1_000L, firstStamp.physicalMilliseconds)
-        assertEquals(0, firstStamp.logicalCounter)
+        assertEquals(0L, firstStamp.logicalCounter)
 
         val secondEnvelope = collectFirstFromDataFlow(device)
         val second = secondEnvelope.payload
@@ -128,7 +128,7 @@ class HlcStampingE2ETest {
         val secondStamp = assertNotNull(secondEnvelope.context.hlcTimestamp)
         // Same physical ms -> logical counter advances.
         assertEquals(1_000L, secondStamp.physicalMilliseconds)
-        assertEquals(1, secondStamp.logicalCounter)
+        assertEquals(1L, secondStamp.logicalCounter)
 
         val thirdEnvelope = collectFirstFromDataFlow(device)
         val third = thirdEnvelope.payload
@@ -136,7 +136,7 @@ class HlcStampingE2ETest {
         val thirdStamp = assertNotNull(thirdEnvelope.context.hlcTimestamp)
         // Physical advances -> logical resets.
         assertEquals(2_000L, thirdStamp.physicalMilliseconds)
-        assertEquals(0, thirdStamp.logicalCounter)
+        assertEquals(0L, thirdStamp.logicalCounter)
     }
 
     @Test

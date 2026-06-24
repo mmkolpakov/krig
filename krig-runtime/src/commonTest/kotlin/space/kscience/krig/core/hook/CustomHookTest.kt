@@ -22,7 +22,7 @@ class CustomHookTest {
     fun userDefinedHookRoundtripsThroughPipelineBuilder() = runTest {
         val pipeline = PipelineBuilder()
         val recorded = mutableListOf<Name>()
-        pipeline.on(MetricsPulseHook) { name -> recorded += name }
+        pipeline.register(MetricsPulseHook) { name -> recorded += name }
 
         // Third-party firing site — fully under user control.
         pipeline.handlersOf(MetricsPulseHook).forEach { it("sensor.x".asName()) }
@@ -35,9 +35,9 @@ class CustomHookTest {
     fun multipleHandlersPerHookFireInRegistrationOrder() = runTest {
         val pipeline = PipelineBuilder()
         val seen = mutableListOf<String>()
-        pipeline.on(MetricsPulseHook) { _ -> seen += "first" }
-        pipeline.on(MetricsPulseHook) { _ -> seen += "second" }
-        pipeline.on(MetricsPulseHook) { _ -> seen += "third" }
+        pipeline.register(MetricsPulseHook) { _: Name -> seen += "first" }
+        pipeline.register(MetricsPulseHook) { _: Name -> seen += "second" }
+        pipeline.register(MetricsPulseHook) { _: Name -> seen += "third" }
 
         pipeline.handlersOf(MetricsPulseHook).forEach { it("tick".asName()) }
 

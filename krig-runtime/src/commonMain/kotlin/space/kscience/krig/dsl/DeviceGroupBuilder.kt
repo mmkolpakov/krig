@@ -1,15 +1,17 @@
-@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
+@file:OptIn(space.kscience.krig.core.KrigPerformancePitfall::class)
 
 package space.kscience.krig.dsl
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.context.error
+import space.kscience.dataforge.context.logger
 import space.kscience.dataforge.misc.DFBuilder
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -22,6 +24,7 @@ import space.kscience.krig.core.state.DeviceState
 import space.kscience.krig.core.state.MutableDeviceState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Builder for composing named child devices into one [DeviceGroup].
@@ -40,7 +43,7 @@ public class DeviceGroupBuilder {
     private val devices = mutableMapOf<Name, Device>()
     private val deferredDevices = mutableMapOf<Name, DeclarativeDeviceBuilder.() -> Unit>()
     private val subGroups = mutableMapOf<Name, DeviceGroupBuilder>()
-    private val bindings = mutableListOf<CoroutineScope.() -> Job>()
+    private val bindings = mutableListOf<CoroutineScope.() -> Unit>()
 
     /** Register a pre-built device under the given [name]. */
     public fun device(name: String, device: Device) {
@@ -111,6 +114,27 @@ public class DeviceGroupBuilder {
                 val value = observed.value
                 if (value != null) target.updateState(ObservedValue(transform(value), observed.time, observed.quality))
             }.launchIn(this)
+        }
+    }
+
+    /**
+     * Typed periodic link: every [tick], copies [source]'s current observed state into [target].
+     * The zero-allocation, contract-typed counterpart of the string [wirePull] (which crosses the
+     * `Meta` boundary per tick); prefer it when device states are available as [DeviceState] handles.
+     */
+    public fun <T> linkPeriodic(
+        source: DeviceState<T>,
+        target: MutableDeviceState<T>,
+        tick: Duration = 10.milliseconds,
+    ) {
+        bindings += {
+            launch {
+                while (isActive) {
+                    val observed = source.stateValue
+                    if (observed.value != null) target.updateState(observed)
+                    delay(tick)
+                }
+            }
         }
     }
 
@@ -198,11 +222,10 @@ public class DeviceGroupBuilder {
             devices[subName] = subBuilder.start(subName.toString(), childContext, scope)
         }
 
-        // Activate reactive property bindings. Each binding's Job is scoped to the
-        // group's [scope]; cancellation of that scope cancels the binding too, so
-        // retaining a handle is unnecessary.
+        // Activate reactive property bindings in the group's [scope]. Cancelling the
+        // scope cancels each binding too, so no Job handle is retained.
         for (binding in bindings) {
-            binding(scope).invokeOnCompletion { }
+            binding(scope)
         }
         val group = DeviceGroup(name.asName(), context, devices.toMap())
 
@@ -215,10 +238,26 @@ public class DeviceGroupBuilder {
                 ?: error("wirePull target device '${wiring.targetName}' not found in group")
 
             scope.launch {
+                // A driver fault must not kill the wire (nor, under a non-supervisor scope, its
+                // siblings). Each cycle is isolated: on failure we log, back off (exponentially,
+                // capped), and retry; a clean cycle resets the backoff.
+                var backoff = WIRE_RETRY_MIN_BACKOFF
                 while (isActive) {
-                    val value = sourceDevice.readProperty(wiring.sourceProperty)
-                    targetDevice.writeProperty(wiring.targetProperty, value)
-                    delay(wiring.tick)
+                    try {
+                        val value = sourceDevice.readProperty(wiring.sourceProperty)
+                        targetDevice.writeProperty(wiring.targetProperty, value)
+                        backoff = WIRE_RETRY_MIN_BACKOFF
+                        delay(wiring.tick)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        context.logger.error(e) {
+                            "wirePull ${wiring.sourceName}.${wiring.sourceProperty} -> " +
+                                "${wiring.targetName}.${wiring.targetProperty} failed; retrying after $backoff"
+                        }
+                        delay(backoff)
+                        backoff = (backoff * 2).coerceAtMost(WIRE_RETRY_MAX_BACKOFF)
+                    }
                 }
             }
         }
@@ -231,10 +270,30 @@ public class DeviceGroupBuilder {
                 ?: error("wirePush target device '${wiring.targetName}' not found in group")
 
             scope.launch {
-                sourceDevice.propertyChangesFlow(space.kscience.krig.api.context.AnonymousPrincipal, wiring.sourceProperty)
-                    .collect { msg ->
-                        targetDevice.writeProperty(wiring.targetProperty, msg.value)
+                // Resubscribe with backoff if the source flow (or a target write) throws, so a
+                // transient driver fault cannot silently tear down the push wire.
+                var backoff = WIRE_RETRY_MIN_BACKOFF
+                while (isActive) {
+                    try {
+                        sourceDevice.propertyChangesFlow(
+                            space.kscience.krig.api.context.AnonymousPrincipal,
+                            wiring.sourceProperty,
+                        ).collect { msg ->
+                            targetDevice.writeProperty(wiring.targetProperty, msg.value)
+                            backoff = WIRE_RETRY_MIN_BACKOFF
+                        }
+                        break
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        context.logger.error(e) {
+                            "wirePush ${wiring.sourceName}.${wiring.sourceProperty} -> " +
+                                "${wiring.targetName}.${wiring.targetProperty} failed; resubscribing after $backoff"
+                        }
+                        delay(backoff)
+                        backoff = (backoff * 2).coerceAtMost(WIRE_RETRY_MAX_BACKOFF)
                     }
+                }
             }
         }
 
@@ -251,6 +310,12 @@ public class DeviceGroupBuilder {
     public suspend fun buildAndStart(name: String, context: Context): DeviceGroup =
         start(name, context, CoroutineScope(context.coroutineContext))
 }
+
+/** Backoff floor for a failed wiring cycle before the first retry. */
+private val WIRE_RETRY_MIN_BACKOFF: Duration = 100.milliseconds
+
+/** Backoff ceiling: exponential retry never waits longer than this between attempts. */
+private val WIRE_RETRY_MAX_BACKOFF: Duration = 30.seconds
 
 /**
  * Declaration of a cross-device property wiring (read from one → write to another).

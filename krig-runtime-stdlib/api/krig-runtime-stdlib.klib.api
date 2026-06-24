@@ -31,7 +31,7 @@ abstract fun interface space.kscience.krig.core.timetravel/CheckpointStrategy { 
 }
 
 abstract fun interface space.kscience.krig.core.timetravel/JournalMigration { // space.kscience.krig.core.timetravel/JournalMigration|null[0]
-    abstract fun migrate(space.kscience.krig.core.timetravel/JournalEntry): kotlin.sequences/Sequence<space.kscience.krig.core.timetravel/JournalEntry> // space.kscience.krig.core.timetravel/JournalMigration.migrate|migrate(space.kscience.krig.core.timetravel.JournalEntry){}[0]
+    abstract fun migrate(space.kscience.krig.core.timetravel/JournalEntry): space.kscience.krig.core.timetravel/JournalEntry? // space.kscience.krig.core.timetravel/JournalMigration.migrate|migrate(space.kscience.krig.core.timetravel.JournalEntry){}[0]
 }
 
 abstract fun interface space.kscience.krig.core.timetravel/SnapshotMigration { // space.kscience.krig.core.timetravel/SnapshotMigration|null[0]
@@ -69,6 +69,10 @@ abstract interface <#A: out kotlin/Any?> space.kscience.krig.core.state/DeviceSt
         open fun <get-valueFlow>(): kotlinx.coroutines.flow/Flow<#A?> // space.kscience.krig.core.state/DeviceState.valueFlow.<get-valueFlow>|<get-valueFlow>(){}[0]
 }
 
+abstract interface <#A: space.kscience.krig.core.contracts/Device> space.kscience.krig.core.timetravel/ContinuousReconstructible : space.kscience.krig.core.timetravel/DeviceReconstructible<#A> { // space.kscience.krig.core.timetravel/ContinuousReconstructible|null[0]
+    abstract suspend fun integrateTo(kotlin.time/Instant, space.kscience.krig.core.timetravel/TelemetryFeed) // space.kscience.krig.core.timetravel/ContinuousReconstructible.integrateTo|integrateTo(kotlin.time.Instant;space.kscience.krig.core.timetravel.TelemetryFeed){}[0]
+}
+
 abstract interface <#A: space.kscience.krig.core.contracts/Device> space.kscience.krig.core.timetravel/DeviceReconstructible : space.kscience.krig.core.timetravel/Reconstructible // space.kscience.krig.core.timetravel/DeviceReconstructible|null[0]
 
 abstract interface space.kscience.krig.core.dataforge/DeviceMessageFrameCodec { // space.kscience.krig.core.dataforge/DeviceMessageFrameCodec|null[0]
@@ -79,15 +83,6 @@ abstract interface space.kscience.krig.core.dataforge/DeviceMessageFrameCodec { 
 abstract interface space.kscience.krig.core.operations/SamplingClock { // space.kscience.krig.core.operations/SamplingClock|null[0]
     abstract fun markNow(): kotlin.time/TimeMark // space.kscience.krig.core.operations/SamplingClock.markNow|markNow(){}[0]
     abstract suspend fun delay(kotlin.time/Duration) // space.kscience.krig.core.operations/SamplingClock.delay|delay(kotlin.time.Duration){}[0]
-}
-
-abstract interface space.kscience.krig.core.runtime/BinaryPeerConnection : kotlin/AutoCloseable { // space.kscience.krig.core.runtime/BinaryPeerConnection|null[0]
-    abstract val peerId // space.kscience.krig.core.runtime/BinaryPeerConnection.peerId|{}peerId[0]
-        abstract fun <get-peerId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/BinaryPeerConnection.peerId.<get-peerId>|<get-peerId>(){}[0]
-
-    abstract suspend fun receive(kotlin/String): kotlin/ByteArray? // space.kscience.krig.core.runtime/BinaryPeerConnection.receive|receive(kotlin.String){}[0]
-    abstract suspend fun send(kotlin/String, kotlin/ByteArray) // space.kscience.krig.core.runtime/BinaryPeerConnection.send|send(kotlin.String;kotlin.ByteArray){}[0]
-    open fun close() // space.kscience.krig.core.runtime/BinaryPeerConnection.close|close(){}[0]
 }
 
 abstract interface space.kscience.krig.core.runtime/PeerTransport : kotlin/AutoCloseable { // space.kscience.krig.core.runtime/PeerTransport|null[0]
@@ -130,31 +125,14 @@ abstract interface space.kscience.krig.core.timetravel/SnapshotStore { // space.
     abstract suspend fun save(space.kscience.krig.core.timetravel/SnapshotEntry) // space.kscience.krig.core.timetravel/SnapshotStore.save|save(space.kscience.krig.core.timetravel.SnapshotEntry){}[0]
 }
 
-sealed interface space.kscience.krig.core.runtime/PeerRoutePrefix { // space.kscience.krig.core.runtime/PeerRoutePrefix|null[0]
-    abstract val name // space.kscience.krig.core.runtime/PeerRoutePrefix.name|{}name[0]
-        abstract fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/PeerRoutePrefix.name.<get-name>|<get-name>(){}[0]
+abstract interface space.kscience.krig.core.timetravel/TelemetryFeed { // space.kscience.krig.core.timetravel/TelemetryFeed|null[0]
+    abstract val rowCount // space.kscience.krig.core.timetravel/TelemetryFeed.rowCount|{}rowCount[0]
+        abstract fun <get-rowCount>(): kotlin/Int // space.kscience.krig.core.timetravel/TelemetryFeed.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    abstract val series // space.kscience.krig.core.timetravel/TelemetryFeed.series|{}series[0]
+        abstract fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.core.timetravel/TelemetryFeed.series.<get-series>|<get-series>(){}[0]
 
-    final class Custom : space.kscience.krig.core.runtime/PeerRoutePrefix { // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom|null[0]
-        constructor <init>(space.kscience.dataforge.names/Name) // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.<init>|<init>(space.kscience.dataforge.names.Name){}[0]
-
-        final val name // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.name|{}name[0]
-            final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.name.<get-name>|<get-name>(){}[0]
-
-        final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.component1|component1(){}[0]
-        final fun copy(space.kscience.dataforge.names/Name = ...): space.kscience.krig.core.runtime/PeerRoutePrefix.Custom // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.copy|copy(space.kscience.dataforge.names.Name){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.core.runtime/PeerRoutePrefix.Custom.toString|toString(){}[0]
-    }
-
-    final object BinaryDefault : space.kscience.krig.core.runtime/PeerRoutePrefix { // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault|null[0]
-        final val name // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault.name|{}name[0]
-            final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault.name.<get-name>|<get-name>(){}[0]
-
-        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // space.kscience.krig.core.runtime/PeerRoutePrefix.BinaryDefault.toString|toString(){}[0]
-    }
+    abstract fun timeAt(kotlin/Int): kotlin.time/Instant // space.kscience.krig.core.timetravel/TelemetryFeed.timeAt|timeAt(kotlin.Int){}[0]
+    abstract fun valueAt(kotlin/Int, kotlin/Int): kotlin/Double // space.kscience.krig.core.timetravel/TelemetryFeed.valueAt|valueAt(kotlin.Int;kotlin.Int){}[0]
 }
 
 sealed interface space.kscience.krig.core.runtime/ReconcileEvent { // space.kscience.krig.core.runtime/ReconcileEvent|null[0]
@@ -323,17 +301,6 @@ final class space.kscience.krig.core.operations/TimerState : kotlin/AutoCloseabl
     final fun close() // space.kscience.krig.core.operations/TimerState.close|close(){}[0]
 }
 
-final class space.kscience.krig.core.runtime/DefaultBinaryPeerConnection : space.kscience.krig.core.runtime/BinaryPeerConnection { // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection|null[0]
-    constructor <init>(space.kscience.krig.core.runtime/PeerTransport, space.kscience.krig.core.runtime/PeerRoutePrefix = ...) // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.<init>|<init>(space.kscience.krig.core.runtime.PeerTransport;space.kscience.krig.core.runtime.PeerRoutePrefix){}[0]
-
-    final val peerId // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.peerId|{}peerId[0]
-        final fun <get-peerId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.peerId.<get-peerId>|<get-peerId>(){}[0]
-
-    final fun close() // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.close|close(){}[0]
-    final suspend fun receive(kotlin/String): kotlin/ByteArray? // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.receive|receive(kotlin.String){}[0]
-    final suspend fun send(kotlin/String, kotlin/ByteArray) // space.kscience.krig.core.runtime/DefaultBinaryPeerConnection.send|send(kotlin.String;kotlin.ByteArray){}[0]
-}
-
 final class space.kscience.krig.core.runtime/HubClosedException : kotlin/IllegalStateException { // space.kscience.krig.core.runtime/HubClosedException|null[0]
     constructor <init>(kotlin/String) // space.kscience.krig.core.runtime/HubClosedException.<init>|<init>(kotlin.String){}[0]
 }
@@ -392,10 +359,10 @@ final class space.kscience.krig.core.timetravel/CheckpointContext { // space.ksc
 final class space.kscience.krig.core.timetravel/CounterfactualScope { // space.kscience.krig.core.timetravel/CounterfactualScope|null[0]
     constructor <init>() // space.kscience.krig.core.timetravel/CounterfactualScope.<init>|<init>(){}[0]
 
-    final fun inject(space.kscience.krig.api.messages/DeviceMessage) // space.kscience.krig.core.timetravel/CounterfactualScope.inject|inject(space.kscience.krig.api.messages.DeviceMessage){}[0]
     final fun mutate(kotlin.ranges/ClosedRange<kotlin.time/Instant>, space.kscience.dataforge.names/Name, kotlin/Function1<space.kscience.dataforge.meta/Meta, space.kscience.dataforge.meta/Meta>) // space.kscience.krig.core.timetravel/CounterfactualScope.mutate|mutate(kotlin.ranges.ClosedRange<kotlin.time.Instant>;space.kscience.dataforge.names.Name;kotlin.Function1<space.kscience.dataforge.meta.Meta,space.kscience.dataforge.meta.Meta>){}[0]
     final fun mutate(kotlin.time/Instant, space.kscience.dataforge.names/Name, kotlin/Function1<space.kscience.dataforge.meta/Meta, space.kscience.dataforge.meta/Meta>) // space.kscience.krig.core.timetravel/CounterfactualScope.mutate|mutate(kotlin.time.Instant;space.kscience.dataforge.names.Name;kotlin.Function1<space.kscience.dataforge.meta.Meta,space.kscience.dataforge.meta.Meta>){}[0]
     final fun mutate(space.kscience.krig.storage.journal/EventCursor, space.kscience.dataforge.names/Name, kotlin/Function1<space.kscience.dataforge.meta/Meta, space.kscience.dataforge.meta/Meta>) // space.kscience.krig.core.timetravel/CounterfactualScope.mutate|mutate(space.kscience.krig.storage.journal.EventCursor;space.kscience.dataforge.names.Name;kotlin.Function1<space.kscience.dataforge.meta.Meta,space.kscience.dataforge.meta.Meta>){}[0]
+    final fun replace(space.kscience.krig.api.messages/DeviceMessage) // space.kscience.krig.core.timetravel/CounterfactualScope.replace|replace(space.kscience.krig.api.messages.DeviceMessage){}[0]
     final fun replace(space.kscience.krig.storage.journal/EventCursor, space.kscience.krig.api.messages/DeviceMessage) // space.kscience.krig.core.timetravel/CounterfactualScope.replace|replace(space.kscience.krig.storage.journal.EventCursor;space.kscience.krig.api.messages.DeviceMessage){}[0]
 }
 
@@ -462,7 +429,7 @@ final class space.kscience.krig.core.timetravel/JournalMigrations { // space.ksc
     constructor <init>(kotlin.collections/List<space.kscience.krig.core.timetravel/JournalMigration> = ...) // space.kscience.krig.core.timetravel/JournalMigrations.<init>|<init>(kotlin.collections.List<space.kscience.krig.core.timetravel.JournalMigration>){}[0]
     constructor <init>(kotlin/Array<out space.kscience.krig.core.timetravel/JournalMigration>...) // space.kscience.krig.core.timetravel/JournalMigrations.<init>|<init>(kotlin.Array<out|space.kscience.krig.core.timetravel.JournalMigration>...){}[0]
 
-    final fun migrate(space.kscience.krig.core.timetravel/JournalEntry): kotlin.sequences/Sequence<space.kscience.krig.core.timetravel/JournalEntry> // space.kscience.krig.core.timetravel/JournalMigrations.migrate|migrate(space.kscience.krig.core.timetravel.JournalEntry){}[0]
+    final fun migrate(space.kscience.krig.core.timetravel/JournalEntry): space.kscience.krig.core.timetravel/JournalEntry? // space.kscience.krig.core.timetravel/JournalMigrations.migrate|migrate(space.kscience.krig.core.timetravel.JournalEntry){}[0]
 
     final object Companion { // space.kscience.krig.core.timetravel/JournalMigrations.Companion|null[0]
         final val empty // space.kscience.krig.core.timetravel/JournalMigrations.Companion.empty|{}empty[0]
@@ -496,8 +463,8 @@ final class space.kscience.krig.core.timetravel/KotlinxJsonJournalPayloadCodec :
 final class space.kscience.krig.core.timetravel/MessageJournalCodec { // space.kscience.krig.core.timetravel/MessageJournalCodec|null[0]
     constructor <init>(space.kscience.krig.core.timetravel/JournalPayloadCodec = ..., space.kscience.krig.core.timetravel/JournalMigrations = ..., space.kscience.krig.core.timetravel/StorageSchema = ...) // space.kscience.krig.core.timetravel/MessageJournalCodec.<init>|<init>(space.kscience.krig.core.timetravel.JournalPayloadCodec;space.kscience.krig.core.timetravel.JournalMigrations;space.kscience.krig.core.timetravel.StorageSchema){}[0]
 
-    final fun decode(space.kscience.krig.core.timetravel/JournalEntry): kotlin.sequences/Sequence<space.kscience.krig.api.messages/DeviceMessage> // space.kscience.krig.core.timetravel/MessageJournalCodec.decode|decode(space.kscience.krig.core.timetravel.JournalEntry){}[0]
-    final fun decodeEnvelope(space.kscience.krig.core.timetravel/JournalEntry): kotlin.sequences/Sequence<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.core.timetravel/MessageJournalCodec.decodeEnvelope|decodeEnvelope(space.kscience.krig.core.timetravel.JournalEntry){}[0]
+    final fun decode(space.kscience.krig.core.timetravel/JournalEntry): space.kscience.krig.api.messages/DeviceMessage? // space.kscience.krig.core.timetravel/MessageJournalCodec.decode|decode(space.kscience.krig.core.timetravel.JournalEntry){}[0]
+    final fun decodeEnvelope(space.kscience.krig.core.timetravel/JournalEntry): space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>? // space.kscience.krig.core.timetravel/MessageJournalCodec.decodeEnvelope|decodeEnvelope(space.kscience.krig.core.timetravel.JournalEntry){}[0]
     final fun encode(space.kscience.krig.api.messages/DeviceMessage, space.kscience.krig.api.messages/MessageContext = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.core.timetravel/JournalEntry // space.kscience.krig.core.timetravel/MessageJournalCodec.encode|encode(space.kscience.krig.api.messages.DeviceMessage;space.kscience.krig.api.messages.MessageContext;space.kscience.dataforge.names.Name){}[0]
     final fun encode(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>, space.kscience.dataforge.names/Name = ...): space.kscience.krig.core.timetravel/JournalEntry // space.kscience.krig.core.timetravel/MessageJournalCodec.encode|encode(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>;space.kscience.dataforge.names.Name){}[0]
 }
@@ -593,6 +560,8 @@ final class space.kscience.krig.core.timetravel/SnapshotMigrations { // space.ks
 final class space.kscience.krig.core.timetravel/TimeTravelSession { // space.kscience.krig.core.timetravel/TimeTravelSession|null[0]
     final val model // space.kscience.krig.core.timetravel/TimeTravelSession.model|{}model[0]
         final fun <get-model>(): space.kscience.krig.core.timetravel/Reconstructible // space.kscience.krig.core.timetravel/TimeTravelSession.model.<get-model>|<get-model>(){}[0]
+    final val recording // space.kscience.krig.core.timetravel/TimeTravelSession.recording|{}recording[0]
+        final fun <get-recording>(): kotlinx.coroutines/Job? // space.kscience.krig.core.timetravel/TimeTravelSession.recording.<get-recording>|<get-recording>(){}[0]
 
     final suspend fun branchAt(kotlin.time/Instant, kotlin.time/Instant = ...): space.kscience.krig.core.timetravel/BranchPoint // space.kscience.krig.core.timetravel/TimeTravelSession.branchAt|branchAt(kotlin.time.Instant;kotlin.time.Instant){}[0]
     final suspend fun counterfactual(kotlin.time/Instant, space.kscience.krig.api.data/DeviceSnapshot? = ..., kotlin/Function1<space.kscience.krig.api.messages/DeviceMessage, space.kscience.krig.api.messages/DeviceMessage>): space.kscience.krig.core.timetravel/TimeTravelSession // space.kscience.krig.core.timetravel/TimeTravelSession.counterfactual|counterfactual(kotlin.time.Instant;space.kscience.krig.api.data.DeviceSnapshot?;kotlin.Function1<space.kscience.krig.api.messages.DeviceMessage,space.kscience.krig.api.messages.DeviceMessage>){}[0]
@@ -661,7 +630,6 @@ open class space.kscience.krig.core.runtime/DeviceGroup : space.kscience.krig.co
         open fun <get-devices>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> // space.kscience.krig.core.runtime/DeviceGroup.devices.<get-devices>|<get-devices>(){}[0]
 
     open fun close() // space.kscience.krig.core.runtime/DeviceGroup.close|close(){}[0]
-    open fun content(kotlin/String): kotlin.collections/Map<space.kscience.dataforge.names/Name, kotlin/Any> // space.kscience.krig.core.runtime/DeviceGroup.content|content(kotlin.String){}[0]
     open suspend fun closeGracefully(kotlin.time/Duration) // space.kscience.krig.core.runtime/DeviceGroup.closeGracefully|closeGracefully(kotlin.time.Duration){}[0]
     open suspend fun doExecuteOutcome(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta?): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta?> // space.kscience.krig.core.runtime/DeviceGroup.doExecuteOutcome|doExecuteOutcome(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta?){}[0]
     open suspend fun doReadPropertyOutcome(space.kscience.dataforge.names/Name): space.kscience.krig.api.result/OperationOutcome<space.kscience.dataforge.meta/Meta> // space.kscience.krig.core.runtime/DeviceGroup.doReadPropertyOutcome|doReadPropertyOutcome(space.kscience.dataforge.names.Name){}[0]
@@ -688,8 +656,9 @@ open class space.kscience.krig.core.runtime/MutableDeviceHub : space.kscience.kr
     open val hubEvents // space.kscience.krig.core.runtime/MutableDeviceHub.hubEvents|{}hubEvents[0]
         open fun <get-hubEvents>(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.hub/HubEvent> // space.kscience.krig.core.runtime/MutableDeviceHub.hubEvents.<get-hubEvents>|<get-hubEvents>(){}[0]
 
+    final fun attach(space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device, kotlin/Boolean) // space.kscience.krig.core.runtime/MutableDeviceHub.attach|attach(space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.Device;kotlin.Boolean){}[0]
+    final fun attachAll(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>, kotlin/Boolean) // space.kscience.krig.core.runtime/MutableDeviceHub.attachAll|attachAll(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>;kotlin.Boolean){}[0]
     open fun close() // space.kscience.krig.core.runtime/MutableDeviceHub.close|close(){}[0]
-    open fun content(kotlin/String): kotlin.collections/Map<space.kscience.dataforge.names/Name, kotlin/Any> // space.kscience.krig.core.runtime/MutableDeviceHub.content|content(kotlin.String){}[0]
     open suspend fun attach(space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device) // space.kscience.krig.core.runtime/MutableDeviceHub.attach|attach(space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.Device){}[0]
     open suspend fun attachAll(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>) // space.kscience.krig.core.runtime/MutableDeviceHub.attachAll|attachAll(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>){}[0]
     open suspend fun detach(space.kscience.dataforge.names/Name, space.kscience.krig.api.messages/DeviceDepartureReason): space.kscience.krig.core.contracts/Device? // space.kscience.krig.core.runtime/MutableDeviceHub.detach|detach(space.kscience.dataforge.names.Name;space.kscience.krig.api.messages.DeviceDepartureReason){}[0]
@@ -717,23 +686,23 @@ final object space.kscience.krig.core.dataforge/DeviceMessageFrameKeys { // spac
         final fun <get-CORRELATION_ID>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.CORRELATION_ID.<get-CORRELATION_ID>|<get-CORRELATION_ID>(){}[0]
     final val HLC_LOGICAL // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_LOGICAL|{}HLC_LOGICAL[0]
         final fun <get-HLC_LOGICAL>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_LOGICAL.<get-HLC_LOGICAL>|<get-HLC_LOGICAL>(){}[0]
+    final val HLC_NODE // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_NODE|{}HLC_NODE[0]
+        final fun <get-HLC_NODE>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_NODE.<get-HLC_NODE>|<get-HLC_NODE>(){}[0]
     final val HLC_PHYSICAL_MS // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_PHYSICAL_MS|{}HLC_PHYSICAL_MS[0]
         final fun <get-HLC_PHYSICAL_MS>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.HLC_PHYSICAL_MS.<get-HLC_PHYSICAL_MS>|<get-HLC_PHYSICAL_MS>(){}[0]
     final val MESSAGE_TYPE // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.MESSAGE_TYPE|{}MESSAGE_TYPE[0]
         final fun <get-MESSAGE_TYPE>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.MESSAGE_TYPE.<get-MESSAGE_TYPE>|<get-MESSAGE_TYPE>(){}[0]
+    final val VERIFIED_IDENTITY // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.VERIFIED_IDENTITY|{}VERIFIED_IDENTITY[0]
+        final fun <get-VERIFIED_IDENTITY>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.dataforge/DeviceMessageFrameKeys.VERIFIED_IDENTITY.<get-VERIFIED_IDENTITY>|<get-VERIFIED_IDENTITY>(){}[0]
 }
 
 final object space.kscience.krig.core.dataforge/TimeSeriesTableColumns { // space.kscience.krig.core.dataforge/TimeSeriesTableColumns|null[0]
     final const val AGGREGATE_QUALITY // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.AGGREGATE_QUALITY|{}AGGREGATE_QUALITY[0]
         final fun <get-AGGREGATE_QUALITY>(): kotlin/String // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.AGGREGATE_QUALITY.<get-AGGREGATE_QUALITY>|<get-AGGREGATE_QUALITY>(){}[0]
+    final const val AGGREGATE_QUALITY_SEVERITY // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.AGGREGATE_QUALITY_SEVERITY|{}AGGREGATE_QUALITY_SEVERITY[0]
+        final fun <get-AGGREGATE_QUALITY_SEVERITY>(): kotlin/String // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.AGGREGATE_QUALITY_SEVERITY.<get-AGGREGATE_QUALITY_SEVERITY>|<get-AGGREGATE_QUALITY_SEVERITY>(){}[0]
     final const val EVENT_TIME // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.EVENT_TIME|{}EVENT_TIME[0]
         final fun <get-EVENT_TIME>(): kotlin/String // space.kscience.krig.core.dataforge/TimeSeriesTableColumns.EVENT_TIME.<get-EVENT_TIME>|<get-EVENT_TIME>(){}[0]
-}
-
-final object space.kscience.krig.core.expressions/OpRegistry { // space.kscience.krig.core.expressions/OpRegistry|null[0]
-    final fun registerBinary(kotlin/String, kotlin/Function2<kotlin/Double, kotlin/Double, kotlin/Double>) // space.kscience.krig.core.expressions/OpRegistry.registerBinary|registerBinary(kotlin.String;kotlin.Function2<kotlin.Double,kotlin.Double,kotlin.Double>){}[0]
-    final fun registerNAry(kotlin/String, kotlin/Function1<kotlin.collections/List<kotlin/Double>, kotlin/Double>) // space.kscience.krig.core.expressions/OpRegistry.registerNAry|registerNAry(kotlin.String;kotlin.Function1<kotlin.collections.List<kotlin.Double>,kotlin.Double>){}[0]
-    final fun registerUnary(kotlin/String, kotlin/Function1<kotlin/Double, kotlin/Double>) // space.kscience.krig.core.expressions/OpRegistry.registerUnary|registerUnary(kotlin.String;kotlin.Function1<kotlin.Double,kotlin.Double>){}[0]
 }
 
 final object space.kscience.krig.core.timetravel/StorageSchemas { // space.kscience.krig.core.timetravel/StorageSchemas|null[0]
@@ -747,6 +716,8 @@ final val space.kscience.krig.core.dataforge/binaryPayload // space.kscience.kri
     final fun (space.kscience.dataforge.io/Envelope).<get-binaryPayload>(): space.kscience.dataforge.io/Binary? // space.kscience.krig.core.dataforge/binaryPayload.<get-binaryPayload>|<get-binaryPayload>@space.kscience.dataforge.io.Envelope(){}[0]
 final val space.kscience.krig.core.dataforge/binaryTypeId // space.kscience.krig.core.dataforge/binaryTypeId|@space.kscience.dataforge.io.Envelope{}binaryTypeId[0]
     final fun (space.kscience.dataforge.io/Envelope).<get-binaryTypeId>(): kotlin/String? // space.kscience.krig.core.dataforge/binaryTypeId.<get-binaryTypeId>|<get-binaryTypeId>@space.kscience.dataforge.io.Envelope(){}[0]
+final val space.kscience.krig.core.runtime/RECONCILE_DEFAULT_PRODUCTION_TIMEOUT // space.kscience.krig.core.runtime/RECONCILE_DEFAULT_PRODUCTION_TIMEOUT|{}RECONCILE_DEFAULT_PRODUCTION_TIMEOUT[0]
+    final fun <get-RECONCILE_DEFAULT_PRODUCTION_TIMEOUT>(): kotlin.time/Duration // space.kscience.krig.core.runtime/RECONCILE_DEFAULT_PRODUCTION_TIMEOUT.<get-RECONCILE_DEFAULT_PRODUCTION_TIMEOUT>|<get-RECONCILE_DEFAULT_PRODUCTION_TIMEOUT>(){}[0]
 final val space.kscience.krig.core.state/timestamp // space.kscience.krig.core.state/timestamp|@space.kscience.krig.core.state.DeviceState<0:0>{0§<kotlin.Any?>}timestamp[0]
     final fun <#A1: kotlin/Any?> (space.kscience.krig.core.state/DeviceState<#A1>).<get-timestamp>(): kotlin.time/Instant // space.kscience.krig.core.state/timestamp.<get-timestamp>|<get-timestamp>@space.kscience.krig.core.state.DeviceState<0:0>(){0§<kotlin.Any?>}[0]
 final val space.kscience.krig.core.state/value // space.kscience.krig.core.state/value|@space.kscience.krig.core.state.DeviceState<0:0>{0§<kotlin.Any?>}value[0]
@@ -769,6 +740,8 @@ final fun (space.kscience.krig.core.timetravel/Reconstructible).space.kscience.k
 final fun (space.kscience.krig.core.timetravel/Timeline).space.kscience.krig.core.timetravel/merge(space.kscience.krig.core.timetravel/Timeline, kotlin/Function2<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>, space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>, kotlin/Int> = ...): space.kscience.krig.core.timetravel/Timeline // space.kscience.krig.core.timetravel/merge|merge@space.kscience.krig.core.timetravel.Timeline(space.kscience.krig.core.timetravel.Timeline;kotlin.Function2<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>,space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>,kotlin.Int>){}[0]
 final fun (space.kscience.krig.storage.journal/EventJournal).space.kscience.krig.core.dataforge/asDataSource(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta = ...): space.kscience.dataforge.data/DataSource<kotlin.collections/List<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>> // space.kscience.krig.core.dataforge/asDataSource|asDataSource@space.kscience.krig.storage.journal.EventJournal(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.core.dataforge/asTable(): space.kscience.tables/Table<kotlin/Any?> // space.kscience.krig.core.dataforge/asTable|asTable@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.core.timetravel/asTelemetryFeed(): space.kscience.krig.core.timetravel/TelemetryFeed // space.kscience.krig.core.timetravel/asTelemetryFeed|asTelemetryFeed@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.core.timetravel/asTimeline(space.kscience.dataforge.names/Name): space.kscience.krig.core.timetravel/Timeline // space.kscience.krig.core.timetravel/asTimeline|asTimeline@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(space.kscience.dataforge.names.Name){}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?, #C: kotlin/Any?> (space.kscience.krig.core.state/DeviceState<#A>).space.kscience.krig.core.state/combine(space.kscience.krig.core.state/DeviceState<#B>, kotlin/Function2<#A?, #B?, #C?>): space.kscience.krig.core.state/DeviceStateWithDependencies<#C> // space.kscience.krig.core.state/combine|combine@space.kscience.krig.core.state.DeviceState<0:0>(space.kscience.krig.core.state.DeviceState<0:1>;kotlin.Function2<0:0?,0:1?,0:2?>){0§<kotlin.Any?>;1§<kotlin.Any?>;2§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (space.kscience.krig.core.state/DeviceState<#A>).space.kscience.krig.core.state/flatMap(kotlin/Function1<#A?, space.kscience.krig.core.state/DeviceState<#B>>): space.kscience.krig.core.state/DeviceStateWithDependencies<#B> // space.kscience.krig.core.state/flatMap|flatMap@space.kscience.krig.core.state.DeviceState<0:0>(kotlin.Function1<0:0?,space.kscience.krig.core.state.DeviceState<0:1>>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> (space.kscience.krig.core.state/DeviceState<#A>).space.kscience.krig.core.state/map(kotlin/Function1<#A?, #B?>): space.kscience.krig.core.state/DeviceStateWithDependencies<#B> // space.kscience.krig.core.state/map|map@space.kscience.krig.core.state.DeviceState<0:0>(kotlin.Function1<0:0?,0:1?>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
@@ -797,8 +770,11 @@ final fun space.kscience.krig.core.operations/sharedTicks(kotlinx.coroutines/Cor
 final fun space.kscience.krig.core.operations/systemClockState(): space.kscience.krig.core.operations/ClockState // space.kscience.krig.core.operations/systemClockState|systemClockState(){}[0]
 final fun space.kscience.krig.core.runtime/deviceHub(kotlin/String, space.kscience.dataforge.context/Context): space.kscience.krig.core.runtime/MutableDeviceHub // space.kscience.krig.core.runtime/deviceHub|deviceHub(kotlin.String;space.kscience.dataforge.context.Context){}[0]
 final fun space.kscience.krig.core.runtime/deviceHub(space.kscience.dataforge.names/Name, space.kscience.dataforge.context/Context): space.kscience.krig.core.runtime/MutableDeviceHub // space.kscience.krig.core.runtime/deviceHub|deviceHub(space.kscience.dataforge.names.Name;space.kscience.dataforge.context.Context){}[0]
+final fun space.kscience.krig.core.timetravel/metaJournalMigration(space.kscience.krig.core.timetravel/StorageSchema, space.kscience.krig.core.timetravel/StorageSchema, kotlin/Function1<space.kscience.dataforge.meta/MetaTransformationBuilder, kotlin/Unit>): space.kscience.krig.core.timetravel/JournalMigration // space.kscience.krig.core.timetravel/metaJournalMigration|metaJournalMigration(space.kscience.krig.core.timetravel.StorageSchema;space.kscience.krig.core.timetravel.StorageSchema;kotlin.Function1<space.kscience.dataforge.meta.MetaTransformationBuilder,kotlin.Unit>){}[0]
+final fun space.kscience.krig.core.timetravel/metaJournalMigration(space.kscience.krig.core.timetravel/StorageSchema, space.kscience.krig.core.timetravel/StorageSchema, space.kscience.dataforge.meta/MetaTransformation): space.kscience.krig.core.timetravel/JournalMigration // space.kscience.krig.core.timetravel/metaJournalMigration|metaJournalMigration(space.kscience.krig.core.timetravel.StorageSchema;space.kscience.krig.core.timetravel.StorageSchema;space.kscience.dataforge.meta.MetaTransformation){}[0]
 final inline fun <#A: reified kotlin/Any?> (space.kscience.krig.storage.timeseries/TimeSeries<#A>).space.kscience.krig.core.dataforge/asDataSource(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta = ...): space.kscience.dataforge.data/DataSource<kotlin.collections/List<space.kscience.krig.storage.timeseries/TimeSeriesSample<#A>>> // space.kscience.krig.core.dataforge/asDataSource|asDataSource@space.kscience.krig.storage.timeseries.TimeSeries<0:0>(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){0§<kotlin.Any?>}[0]
-final suspend fun (space.kscience.krig.api.expressions/Expression<kotlin/Double>).space.kscience.krig.core.expressions/compile(space.kscience.krig.core.expressions/ExpressionContext): space.kscience.krig.core.state/DeviceState<kotlin/Double> // space.kscience.krig.core.expressions/compile|compile@space.kscience.krig.api.expressions.Expression<kotlin.Double>(space.kscience.krig.core.expressions.ExpressionContext){}[0]
+final suspend fun (space.kscience.krig.api.expressions/Condition).space.kscience.krig.core.expressions/compile(space.kscience.krig.core.expressions/ExpressionContext): space.kscience.krig.core.state/DeviceState<kotlin/Boolean> // space.kscience.krig.core.expressions/compile|compile@space.kscience.krig.api.expressions.Condition(space.kscience.krig.core.expressions.ExpressionContext){}[0]
+final suspend fun (space.kscience.krig.api.expressions/NumericExpression).space.kscience.krig.core.expressions/compile(space.kscience.krig.core.expressions/ExpressionContext): space.kscience.krig.core.state/DeviceState<kotlin/Double> // space.kscience.krig.core.expressions/compile|compile@space.kscience.krig.api.expressions.NumericExpression(space.kscience.krig.core.expressions.ExpressionContext){}[0]
 final suspend fun (space.kscience.krig.api.hub/DeviceHub).space.kscience.krig.core.runtime/awaitChildren(kotlin.collections/Set<space.kscience.dataforge.names/Name>, kotlin.time/Duration = ...): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device> // space.kscience.krig.core.runtime/awaitChildren|awaitChildren@space.kscience.krig.api.hub.DeviceHub(kotlin.collections.Set<space.kscience.dataforge.names.Name>;kotlin.time.Duration){}[0]
 final suspend fun (space.kscience.krig.core.runtime/PeerTransportFactory).space.kscience.krig.core.runtime/connect(space.kscience.dataforge.names/Name): space.kscience.krig.core.runtime/PeerTransport // space.kscience.krig.core.runtime/connect|connect@space.kscience.krig.core.runtime.PeerTransportFactory(space.kscience.dataforge.names.Name){}[0]
 final suspend fun (space.kscience.krig.core.timetravel/Reconstructible).space.kscience.krig.core.timetravel/branchAt(space.kscience.krig.storage.journal/CursorReplayLog, kotlin.time/Instant, kotlin.time/Instant = ...): space.kscience.krig.core.timetravel/BranchPoint // space.kscience.krig.core.timetravel/branchAt|branchAt@space.kscience.krig.core.timetravel.Reconstructible(space.kscience.krig.storage.journal.CursorReplayLog;kotlin.time.Instant;kotlin.time.Instant){}[0]

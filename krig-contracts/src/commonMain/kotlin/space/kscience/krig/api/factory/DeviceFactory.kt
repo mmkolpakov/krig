@@ -1,11 +1,7 @@
 package space.kscience.krig.api.factory
 
-import space.kscience.krig.api.descriptors.ActionDescriptor
-import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.features.PipelineFeatureSpec
 import space.kscience.krig.api.utils.unit
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Factory
 import space.kscience.dataforge.meta.Meta
@@ -15,9 +11,10 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
 
 /**
- * A [DeviceManifest] that constructs its own device. Typed [C] config, DataForge
- * `Factory<D>` wiring. Subclasses implement [create] and override [DeviceManifest]
- * members as needed.
+ * Constructs a device from typed [C] config, wired as a DataForge `Factory<D>`. A factory is a pure
+ * *constructor*, not a catalog document: the exportable [DeviceManifest][space.kscience.krig.core.contracts.DeviceManifest]
+ * (descriptors, features, version) is a separate concern owned by the manifest catalog, so a factory
+ * neither *is-a* nor carries a manifest. Subclasses implement [create].
  *
  * ```kotlin
  * public object ThermoFactory : DeviceFactory<Device, ThermoConfig>(
@@ -31,19 +28,9 @@ import space.kscience.dataforge.names.parseAsName
  */
 @DfType(DeviceFactory.TYPE)
 public abstract class DeviceFactory<D : Device, C>(
-    override val id: Name,
+    public val id: Name,
     public val configConverter: MetaConverter<C>,
-) : DeviceManifest, Factory<D> {
-
-    // --- Sensible DeviceManifest defaults — subclasses override as needed ---
-
-    override val version: String get() = "0.1.0"
-    override val features: Map<Name, PipelineFeatureSpec> get() = emptyMap()
-    override val properties: Map<Name, PropertyDescriptor> get() = emptyMap()
-    override val actions: Map<Name, ActionDescriptor> get() = emptyMap()
-    override val meta: Meta get() = Meta.EMPTY
-    override val deviceContractFqName: String get() =
-        "space.kscience.krig.core.contracts.Device"
+) : Factory<D> {
 
     /** Synchronous construction. I/O belongs in `Device.start` or the backend's `connect()`. */
     public abstract fun create(context: Context, config: C): D

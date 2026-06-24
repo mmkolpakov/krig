@@ -171,7 +171,7 @@ public final class space/kscience/krig/concurrency/StateFlowWaitKt {
 	public static final fun waitUntil (Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public class space/kscience/krig/simulation/ClockManager : space/kscience/dataforge/context/AbstractPlugin {
+public class space/kscience/krig/simulation/ClockManager : space/kscience/dataforge/context/AbstractPlugin, space/kscience/krig/core/contracts/RuntimeClockSource {
 	public static final field Companion Lspace/kscience/krig/simulation/ClockManager$Companion;
 	public fun <init> (Lspace/kscience/dataforge/meta/Meta;)V
 	public fun getClock ()Lkotlin/time/Clock;
@@ -256,9 +256,26 @@ public final class space/kscience/krig/simulation/ProcessDslKt {
 public abstract interface class space/kscience/krig/simulation/ProcessScope : kotlinx/coroutines/CoroutineScope {
 }
 
+public final class space/kscience/krig/simulation/RealTimePacingScheduler : space/kscience/krig/simulation/SimulationScheduler {
+	public fun <init> ()V
+	public fun <init> (Lkotlin/time/Clock;J)V
+	public synthetic fun <init> (Lkotlin/time/Clock;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun advanceBy-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun asClock ()Lkotlin/time/Clock;
+	public fun asDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public fun asTimeSource ()Lkotlin/time/TimeSource;
+	public fun getCurrentTimeMs ()J
+}
+
 public final class space/kscience/krig/simulation/RungeKuttaKt {
 	public static final fun rungeKutta4-8Mi8wO0 (DJLkotlin/jvm/functions/Function1;)D
 	public static final fun rungeKutta4-8Mi8wO0 ([DJLspace/kscience/krig/simulation/Derivatives;)V
+	public static final fun rungeKutta4-dWUq8MI ([DJLspace/kscience/krig/simulation/Derivatives;Lspace/kscience/krig/simulation/RungeKuttaWorkspace;)V
+}
+
+public final class space/kscience/krig/simulation/RungeKuttaWorkspace {
+	public fun <init> (I)V
+	public final fun getSize ()I
 }
 
 public abstract interface class space/kscience/krig/simulation/SimulationContext : kotlinx/coroutines/CoroutineScope {

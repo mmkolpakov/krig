@@ -1,5 +1,5 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -68,13 +68,13 @@ class DeviceBackendBuilderTest {
     private fun pvDescriptor() = PropertyDescriptor(
         "processVariable".asName(),
         PropertyKind.PHYSICAL,
-        "kotlin.Double",
+        TypeIds.DOUBLE,
     )
 
     private fun inputDescriptor() = PropertyDescriptor(
         "input".asName(),
         PropertyKind.LOGICAL,
-        "kotlin.Double",
+        TypeIds.DOUBLE,
     )
 
     @Test
@@ -108,11 +108,11 @@ class DeviceBackendBuilderTest {
         }
         val device = stubDevice()
         context(device) {
-            transducer.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(3.0)).getOrThrow()
-            transducer.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, "kotlin.Double"), metaOf(4.0)).getOrThrow()
+            transducer.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(3.0)).getOrThrow()
+            transducer.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(4.0)).getOrThrow()
         }
         val sum = context(device) {
-            transducer.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, "kotlin.Double"))
+            transducer.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, TypeIds.DOUBLE))
         }.getOrThrow().doubleValue ?: 0.0
         assertEquals(7.0, sum, "Computed property should reflect current cell values")
         // The builder returns DeviceBackend, not SteppedBackend, when `onStep` is omitted.
@@ -126,7 +126,7 @@ class DeviceBackendBuilderTest {
         }
         val device = stubDevice()
         val outcome = context(device) {
-            backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, "kotlin.Double"))
+            backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE))
         }
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
         val fault = outcome.fault as GenericOperationFault
@@ -144,7 +144,7 @@ class DeviceBackendBuilderTest {
         val device = stubDevice()
         val outcome = context(device) {
             backend.write(
-                PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
+                PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
                 metaOf(2.0),
             )
         }
@@ -160,7 +160,7 @@ class DeviceBackendBuilderTest {
 
         val outcome = context(device) {
             backend.write(
-                PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, "kotlin.Double"),
+                PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
                 Meta { "bad" put "payload" },
             )
         }
@@ -201,7 +201,7 @@ class DeviceBackendBuilderTest {
         val time = Instant.fromEpochMilliseconds(5)
         val quality = DataQuality(QualitySeverity.UNCERTAIN)
         val backend = deviceBackend {
-            readObserved(BackendSpec.value) { ObservedValue(12.5, time, quality) }
+            observedReader(BackendSpec.value) { ObservedValue(12.5, time, quality) }
         }
         val device = stubDevice()
 
@@ -222,7 +222,7 @@ class DeviceBackendBuilderTest {
     fun binaryReaderUsesBinaryPath() = runTest {
         val payload = byteArrayOf(9, 8, 7)
         val backend = deviceBackend {
-            readBytes(BackendSpec.value) { payload }
+            bytesReader(BackendSpec.value) { payload }
         }
         val device = stubDevice()
 

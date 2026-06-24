@@ -5,10 +5,10 @@ import java.lang.management.ManagementFactory
 import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
+import space.kscience.attributes.safeTypeOf
 import space.kscience.krig.core.contracts.sampling.FlowSampler
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.sampling.sampler
 
 /**
  * Allocation probe for the telemetry hot path.
@@ -59,7 +59,7 @@ fun main() {
     val ops = 5_000_000L
     val warmup = 2_000_000L
 
-    val boxed: FlowSampler<Double> = sampler(capacity = 1024)
+    val boxed: FlowSampler<Double> = FlowSampler(safeTypeOf(), capacity = 1024)
     val ring: RingDoubleSampler = doubleSampler(capacity = 1024)
     var counter = 0.0
 

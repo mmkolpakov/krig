@@ -1,4 +1,4 @@
-@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
+@file:OptIn(space.kscience.krig.core.KrigPerformancePitfall::class)
 
 package space.kscience.krig.core.contracts
 
@@ -39,6 +39,19 @@ class FlowSamplerContractTest {
         job.join()
 
         assertEquals(listOf(3, 4), collected, "new collector must not see pre-subscription values")
+    }
+
+    @Test
+    fun drainOverrunCountReportsSamplesLostBetweenSnapshots() {
+        val sampler = RingDoubleSampler(capacity = 4)
+        assertEquals(0L, sampler.drainOverrunCount(), "no writes yet")
+
+        repeat(4) { sampler.publishDouble(it.toDouble()) } // fills exactly, no loss
+        assertEquals(0L, sampler.drainOverrunCount())
+
+        repeat(10) { sampler.publishDouble(it.toDouble()) } // 10 writes into capacity-4 ring → 6 lost
+        assertEquals(6L, sampler.drainOverrunCount())
+        assertEquals(0L, sampler.drainOverrunCount(), "counter resets after draining")
     }
 
     @Test

@@ -86,9 +86,6 @@ public fun OperationOutcome<*>.faultOrNull(): OperationFault? = when (this) {
     is OperationOutcome.Fail -> fault
 }
 
-/** Alias of [getOrElse]. */
-public inline fun <T> OperationOutcome<T>.recover(fallback: (OperationFault) -> T): T = getOrElse(fallback)
-
 public inline fun <T> OperationOutcome<T>.onSuccess(action: (T) -> Unit): OperationOutcome<T> {
     if (this is OperationOutcome.Ok) action(value)
     return this

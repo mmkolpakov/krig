@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.staleDataQuality
-import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.currentCoroutineContext
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.TimeMark
@@ -49,7 +49,7 @@ public fun fixedRateTicks(
     require(tick > Duration.ZERO) { "tick must be positive, got $tick" }
     val origin = clock.markNow()
     var nextTick = tick
-    while (coroutineContext.isActive) {
+    while (currentCoroutineContext().isActive) {
         val remaining = nextTick - origin.elapsedNow()
         if (remaining > Duration.ZERO) {
             clock.delay(remaining)

@@ -6,7 +6,6 @@ import kotlinx.benchmark.Benchmark
 import kotlinx.benchmark.Blackhole
 import kotlinx.benchmark.Param
 import kotlinx.benchmark.Scope
-import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.arrow.ArrowCompression

@@ -1,7 +1,7 @@
 @file:OptIn(
     kotlinx.coroutines.ExperimentalCoroutinesApi::class,
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -345,6 +345,27 @@ class PipelineDeviceCacheTest {
     }
 
     @Test
+    fun batchReadDecoratorWrapsTheBatchReadPlane() = runTest {
+        val delegate = CountingPipelineDevice()
+        val cacheHit = object : BatchReadDecorator {
+            override fun decorate(
+                original: suspend (Collection<Name>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>,
+            ): suspend (Collection<Name>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>> = { names ->
+                names.associateWith {
+                    OperationOutcome.Ok(ObservedValue(MetaConverter.double.convert(99.0), delegate.clock.now(), DataQuality.GOOD))
+                }
+            }
+        }
+        val device = PipelineDevice(delegate = delegate, batchReadDecorators = listOf(cacheHit))
+
+        val outcome = device.readBatchOutcome(listOf(delegate.valueSpec.name)).getValue(delegate.valueSpec.name)
+
+        val ok = assertIs<OperationOutcome.Ok<ObservedValue<Meta?>>>(outcome)
+        assertEquals(99.0, MetaConverter.double.read(ok.value.value!!))
+        assertEquals(0, delegate.batchReadCalls.value, "cache decorator must short-circuit the delegate batch read")
+    }
+
+    @Test
     fun batchWriteOutcomePassesThroughPipeline() = runTest {
         val delegate = CountingPipelineDevice()
         val gateNames = mutableListOf<Name>()
@@ -417,5 +438,25 @@ class PipelineDeviceCacheTest {
         job.cancelAndJoin()
 
         assertTrue(delegate.lifecycleState !is LifecycleState.Failed)
+    }
+
+    @Test
+    fun batchPipelineRuntimeExceptionMarksDeviceFailed() = runTest {
+        val delegate = CountingPipelineDevice()
+        // A hard bug in the pipeline layer (decorator), not a per-property domain fault: it must
+        // promote the device to Failed and rethrow, consistent with the single-op path.
+        val boom = object : BatchReadDecorator {
+            override fun decorate(
+                original: suspend (Collection<Name>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>,
+            ): suspend (Collection<Name>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>> = {
+                throw IllegalStateException("systemic batch failure")
+            }
+        }
+        val device = PipelineDevice(delegate = delegate, batchReadDecorators = listOf(boom))
+
+        assertFailsWith<IllegalStateException> {
+            device.readBatchOutcome(listOf(delegate.valueSpec.name))
+        }
+        assertIs<LifecycleState.Failed>(delegate.lifecycleState)
     }
 }

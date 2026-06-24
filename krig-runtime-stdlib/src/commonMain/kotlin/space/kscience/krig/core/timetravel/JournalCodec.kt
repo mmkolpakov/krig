@@ -20,20 +20,25 @@ import space.kscience.krig.storage.journal.EventCursor
 import space.kscience.krig.storage.journal.ReplayRecord
 import kotlin.time.Instant
 
-/** Transforms stored journal entries before decoding them into current DTOs. */
+/**
+ * Transforms one stored journal entry before decoding it into a current DTO. A migration may keep,
+ * replace, or drop ([migrate] returns `null`) an entry, but **cannot split** it into several: a
+ * stored entry is one physical fact bound to one storage cursor, so a one-to-many rewrite would make
+ * a branch on a sub-entry ambiguous. Schema drift changes the payload, not the count of facts.
+ */
 public fun interface JournalMigration {
-    public fun migrate(entry: JournalEntry): Sequence<JournalEntry>
+    public fun migrate(entry: JournalEntry): JournalEntry?
 }
 
-/** Ordered journal migration chain. A migration may drop, keep, replace, or split entries. */
+/** Ordered journal migration chain. Each migration may drop, keep, or replace an entry (never split). */
 public class JournalMigrations(
     private val migrations: List<JournalMigration> = emptyList(),
 ) {
     public constructor(vararg migrations: JournalMigration) : this(migrations.toList())
 
-    public fun migrate(entry: JournalEntry): Sequence<JournalEntry> =
-        migrations.fold(sequenceOf(entry)) { entries, migration ->
-            entries.flatMap(migration::migrate)
+    public fun migrate(entry: JournalEntry): JournalEntry? =
+        migrations.fold<JournalMigration, JournalEntry?>(entry) { current, migration ->
+            current?.let(migration::migrate)
         }
 
     public companion object {
@@ -89,11 +94,13 @@ public class MessageJournalCodec(
         subject: Name = envelope.payload.sourceDevice ?: Name.EMPTY,
     ): JournalEntry = encode(envelope.payload, envelope.context, subject)
 
-    public fun decode(entry: JournalEntry): Sequence<DeviceMessage> =
-        decodeEnvelope(entry).map { it.payload }
+    /** Decodes the (possibly migrated) message, or `null` when a migration dropped the entry. */
+    public fun decode(entry: JournalEntry): DeviceMessage? =
+        decodeEnvelope(entry)?.payload
 
-    public fun decodeEnvelope(entry: JournalEntry): Sequence<DeviceMessageFrame<DeviceMessage>> =
-        migrations.migrate(entry).map { migrated ->
+    /** Decodes the (possibly migrated) frame, or `null` when a migration dropped the entry. */
+    public fun decodeEnvelope(entry: JournalEntry): DeviceMessageFrame<DeviceMessage>? =
+        migrations.migrate(entry)?.let { migrated ->
             DeviceMessageFrame(
                 payload = payloadCodec.decode(migrated.payload),
                 context = migrated.context,
@@ -111,7 +118,7 @@ public fun CursorJournal.asReplayLog(codec: MessageJournalCodec = MessageJournal
         override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> =
             flow {
                 replayEntries(after).collect { record ->
-                    for (envelope in codec.decodeEnvelope(record.entry)) {
+                    codec.decodeEnvelope(record.entry)?.let { envelope ->
                         emit(ReplayRecord(record.cursor, envelope))
                     }
                 }

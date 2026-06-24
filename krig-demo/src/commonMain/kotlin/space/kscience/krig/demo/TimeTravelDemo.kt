@@ -20,7 +20,7 @@ import space.kscience.krig.api.messages.frame
 import space.kscience.krig.api.messages.withHlcStamp
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigStorageJson
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.krig.core.timetravel.CursorJournal
 import space.kscience.krig.core.timetravel.ExperimentalTimeTravelApi
 import space.kscience.krig.core.timetravel.InMemorySnapshotStore
@@ -176,7 +176,7 @@ private fun counterMigrationCodec(): MessageJournalCodec {
     val serializer = PolymorphicSerializer(DeviceMessage::class)
     val migration = JournalMigration { entry ->
         if (entry.schema != oldCounterSchema) {
-            sequenceOf(entry)
+            entry
         } else {
             val value = entry.payload.int ?: 0
             val message = PropertyChangedMessage(
@@ -185,12 +185,10 @@ private fun counterMigrationCodec(): MessageJournalCodec {
                 value = Meta(value.asValue()),
                 sourceDevice = entry.subject,
             )
-            sequenceOf(
-                entry.copy(
-                    messageType = message.messageType,
-                    schema = StorageSchemas.deviceMessageV1,
-                    payload = serializableToMeta(serializer, message, json),
-                ),
+            entry.copy(
+                messageType = message.messageType,
+                schema = StorageSchemas.deviceMessageV1,
+                payload = serializableToMeta(serializer, message, json),
             )
         }
     }

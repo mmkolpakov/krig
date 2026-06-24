@@ -1,5 +1,5 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -18,6 +18,7 @@ import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readBinaryOutcome
@@ -48,7 +49,7 @@ class BackendBuilderTest {
     fun backendExposesReadersWritersSamplersAndActionsWithoutUserCasts() = runTest {
         var value = 0.0
         val sampler = doubleSampler(capacity = 8)
-        val backend = backend {
+        val backend = deviceBackend {
             reader(Spec.value) { value }
             writer(Spec.value) { next ->
                 value = next
@@ -69,7 +70,7 @@ class BackendBuilderTest {
     @Test
     fun backendProvidesMetaControlPlaneBoundary() = runTest {
         var value = 0.0
-        val backend = backend {
+        val backend = deviceBackend {
             reader(Spec.value) { value }
             writer(Spec.value) { next -> value = next }
             action(Spec.command) { command -> "ack:$command" }
@@ -87,7 +88,7 @@ class BackendBuilderTest {
 
     @Test
     fun invalidMetaWriteReturnsValidationFault() = runTest {
-        val backend = backend {
+        val backend = deviceBackend {
             writer(Spec.value) { }
         }
         val device = stubDevice()
@@ -102,7 +103,7 @@ class BackendBuilderTest {
 
     @Test
     fun backendCanExposeProtocolNeutralBatchReads() = runTest {
-        val backend = backend {
+        val backend = deviceBackend {
             batchMetaReader { descriptors ->
                 descriptors.associate { descriptor ->
                     descriptor.name to OperationOutcome.Ok(metaOf(42.0))
@@ -124,7 +125,7 @@ class BackendBuilderTest {
     fun observedReaderPreservesQualityAcrossMetaBoundary() = runTest {
         val time = Instant.fromEpochMilliseconds(42)
         val quality = DataQuality(QualitySeverity.UNCERTAIN)
-        val backend = backend {
+        val backend = deviceBackend {
             observedReader(Spec.value) { ObservedValue(7.5, time, quality) }
         }
         val device = stubDevice()
@@ -142,7 +143,7 @@ class BackendBuilderTest {
     @Test
     fun batchObservedReaderPreservesPerPropertyQuality() = runTest {
         val quality = DataQuality(QualitySeverity.UNCERTAIN)
-        val backend = backend {
+        val backend = deviceBackend {
             batchObservedReader { descriptors ->
                 val time = clock.now()
                 descriptors.associate { descriptor ->
@@ -164,7 +165,7 @@ class BackendBuilderTest {
     @Test
     fun batchBinaryReaderKeepsPayloadOffMetaPath() = runTest {
         val payload = byteArrayOf(5, 6, 7)
-        val backend = backend {
+        val backend = deviceBackend {
             batchBinaryReader { descriptors ->
                 descriptors.associate { descriptor ->
                     descriptor.name to OperationOutcome.Ok(payload.asBinary())
@@ -183,7 +184,7 @@ class BackendBuilderTest {
     @Test
     fun batchWriterUsesSingleBackendBody() = runTest {
         var received = emptyMap<Name, Meta>()
-        val backend = backend {
+        val backend = deviceBackend {
             batchWriter { values ->
                 received = values.mapKeys { (descriptor, _) -> descriptor.name }
                 values.entries.associate { (descriptor, _) ->
@@ -205,7 +206,7 @@ class BackendBuilderTest {
     @Test
     fun binaryReaderKeepsBytesOffMetaPath() = runTest {
         val payload = byteArrayOf(1, 2, 3, 4)
-        val backend = backend {
+        val backend = deviceBackend {
             bytesReader(Spec.load) { payload }
         }
         val device = stubDevice()
@@ -219,7 +220,7 @@ class BackendBuilderTest {
 
     @Test
     fun binaryReadFailsWhenNoBinaryReaderExists() = runTest {
-        val backend = backend {
+        val backend = deviceBackend {
             reader(Spec.load) { 12.5 }
         }
         val device = stubDevice()

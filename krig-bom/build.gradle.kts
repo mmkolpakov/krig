@@ -5,19 +5,28 @@ plugins {
 
 description = "krig Bill of Materials — version-aligned dependency constraints for all published modules"
 
-val excludedModules = setOf(
-    "krig-demo",
-    "krig-jupyter",
-    "krig-bom",
+val publishedModules = listOf(
+    ":krig-state",
+    ":krig-identity",
+    ":krig-model",
+    ":krig-operation",
+    ":krig-messaging",
+    ":krig-storage",
+    ":krig-contracts",
+    ":krig-runtime",
+    ":krig-runtime-stdlib",
+    ":krig-assembly",
+    ":krig-magix",
+    ":krig-simulation",
+    ":krig-arrow",
+    ":krig-analytics",
 )
 
 dependencies {
     constraints {
-        rootProject.subprojects
-            .filter { it.name !in excludedModules && it.plugins.hasPlugin("maven-publish") }
-            .forEach { subproject ->
-                api(subproject)
-            }
+        publishedModules.forEach { path ->
+            api(project(path))
+        }
 
         // Align KMath versions for downstream consumers.
         api(libs.kmath.core)

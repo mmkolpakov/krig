@@ -15,17 +15,17 @@ import space.kscience.krig.api.data.observed
  */
 public class VirtualMutableDeviceState<T>(initialValue: T) : MutableDeviceState<T> {
 
-    private val flow = MutableStateFlow<ObservedValue<T?>>(observed(initialValue))
+    override val stateFlow: StateFlow<ObservedValue<T?>>
+        field = MutableStateFlow<ObservedValue<T?>>(observed(initialValue))
 
-    override val stateFlow: StateFlow<ObservedValue<T?>> get() = flow
-    override val stateValue: ObservedValue<T?> get() = flow.value
+    override val stateValue: ObservedValue<T?> get() = stateFlow.value
 
     override suspend fun update(value: T, quality: DataQuality) {
-        flow.value = observed(value, quality = quality)
+        stateFlow.value = observed(value, quality = quality)
     }
 
     override suspend fun updateState(stateValue: ObservedValue<T?>) {
-        flow.value = stateValue
+        stateFlow.value = stateValue
     }
 
     override fun toString(): String = "VirtualMutableDeviceState(value=$value)"

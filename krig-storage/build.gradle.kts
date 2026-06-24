@@ -15,6 +15,7 @@ kotlin {
                 api(libs.kmath.core)
                 api(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.atomicfu)
+                implementation(libs.kotlinx.collections.immutable)
             }
         }
     }

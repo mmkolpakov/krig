@@ -79,7 +79,6 @@ public class KrigJupyterIntegration : JupyterIntegration() {
                 """
                 <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #4a90e2;">
                   <div><b>Device</b> <code>${device.name.escape()}</code> $badge</div>
-                  <div style="color: #666;">context: <code>${device.context.name.escape()}</code></div>
                   <div style="color: #666;">properties: ${device.propertyDescriptors.size}; actions: ${device.actionDescriptors.size}</div>
                 </div>
                 """.trimIndent()
@@ -92,7 +91,7 @@ public class KrigJupyterIntegration : JupyterIntegration() {
                 <div style="font-family: system-ui, monospace; padding: 6px; background: #f6f8fa;">
                   <b>${msg::class.simpleName}</b>
                   <span style="color: #888; margin-left: 8px;">${msg.time}</span>
-                  <span style="color: #888; margin-left: 8px;">from ${msg.sourceDevice}</span>
+                  <span style="color: #888; margin-left: 8px;">from ${msg.sourceDevice.escape()}</span>
                 </div>
                 """.trimIndent()
             )
@@ -209,6 +208,7 @@ internal fun LifecycleState.htmlBadge(): String {
         LifecycleState.Detached -> "#888"
         LifecycleState.Starting, LifecycleState.Attaching -> "#4a90e2"
         LifecycleState.Stopping, LifecycleState.Detaching -> "#aa8844"
+        LifecycleState.Suspended -> "#c8a020"
         LifecycleState.Stopped -> "#bbb"
     }
     val label = this::class.simpleName ?: "?"
@@ -225,5 +225,5 @@ private fun DataQuality.htmlBadge(): String {
     return """<span$title style="padding: 1px 5px; border-radius: 2px; background: $colour; color: white; font-size: 10px;">$label</span>"""
 }
 
-private fun Any?.escape(): String = (this?.toString() ?: "")
+internal fun Any?.escape(): String = (this?.toString() ?: "")
     .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")

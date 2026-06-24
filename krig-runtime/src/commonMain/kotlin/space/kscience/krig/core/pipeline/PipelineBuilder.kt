@@ -34,11 +34,12 @@ public class PipelineBuilder : HookRegistry {
         val timeout: Duration? = null,
         val retry: RetryPolicy? = null,
         val latencyBudget: Duration? = null,
+        val batchExecutionMode: BatchExecutionMode = BatchExecutionMode.Sequential,
     )
 
     private val hookRegistry: HookRegistry = HookRegistry.buffered()
 
-    override fun <H : Any> on(hook: Hook<H>, handler: H): Unit = hookRegistry.on(hook, handler)
+    @IgnorableReturnValue
     override fun <H : Any> register(hook: Hook<H>, handler: H): HookRegistration =
         hookRegistry.register(hook, handler)
     override fun <H : Any> off(hook: Hook<H>, handler: H): Unit = hookRegistry.off(hook, handler)
@@ -52,6 +53,8 @@ public class PipelineBuilder : HookRegistry {
         AtomicReference(persistentMapOf())
     private val readDecoratorsRef: AtomicReference<PersistentList<ReadDecorator>> =
         AtomicReference(persistentListOf())
+    private val batchReadDecoratorsRef: AtomicReference<PersistentList<BatchReadDecorator>> =
+        AtomicReference(persistentListOf())
 
     public val capabilities: AttributesBuilder<Capability<*>> = AttributesBuilder()
 
@@ -59,9 +62,21 @@ public class PipelineBuilder : HookRegistry {
     @InternalKrigApi
     public var connectionStateProvider: (() -> ConnectionState)? = null
 
+    private val suppressDescriptorQosRef: AtomicReference<Boolean> = AtomicReference(false)
+
+    /**
+     * Ignore descriptor-level operational QoS (manifest timeout/retry) for every kind, leaving
+     * only kind-level defaults. Used by digital-twin profiles: hardware deadlines authored in the
+     * manifest have no meaning for an in-process model.
+     */
+    public fun suppressDescriptorQos(suppress: Boolean = true) {
+        suppressDescriptorQosRef.store(suppress)
+    }
+
     public fun gates(kind: OperationKind): List<OperationGate> = gates.load()[kind].orEmpty()
     public fun observers(kind: OperationKind): List<OperationObserver> = observers.load()[kind].orEmpty()
     public val readDecorators: List<ReadDecorator> get() = readDecoratorsRef.load()
+    public val batchReadDecorators: List<BatchReadDecorator> get() = batchReadDecoratorsRef.load()
 
     public fun gate(kind: OperationKind, gate: OperationGate) {
         gates.update { it.append(kind, gate) }
@@ -75,6 +90,10 @@ public class PipelineBuilder : HookRegistry {
         readDecoratorsRef.update { it.add(decorator) }
     }
 
+    public fun decorateBatchRead(decorator: BatchReadDecorator) {
+        batchReadDecoratorsRef.update { it.add(decorator) }
+    }
+
     public fun timeout(kind: OperationKind, timeout: Duration?) {
         updatePolicy(kind) { it.copy(timeout = timeout) }
     }
@@ -85,6 +104,16 @@ public class PipelineBuilder : HookRegistry {
 
     public fun latencyBudget(kind: OperationKind, budget: Duration?) {
         updatePolicy(kind) { it.copy(latencyBudget = budget) }
+    }
+
+    /**
+     * Declares how this device's backend services batches of [kind]. Default is
+     * [BatchExecutionMode.Sequential]; a driver that reads/writes a batch as one transaction
+     * (OPC UA read, Modbus block) sets [BatchExecutionMode.Coalescing] so whole-batch timeouts
+     * use the maximum member budget rather than their sum.
+     */
+    public fun batchExecutionMode(kind: OperationKind, mode: BatchExecutionMode) {
+        updatePolicy(kind) { it.copy(batchExecutionMode = mode) }
     }
 
     @InternalKrigApi
@@ -120,9 +149,11 @@ public class PipelineBuilder : HookRegistry {
         gates.load().values.all { it.isEmpty() } &&
             observers.load().values.all { it.isEmpty() } &&
             readDecorators.isEmpty() &&
+            batchReadDecorators.isEmpty() &&
             policies.load().isEmpty() &&
             capabilities.attributes().isEmpty() &&
             connectionStateProvider == null &&
+            !suppressDescriptorQosRef.load() &&
             hookRegistry.isEmpty()
 
     @InternalKrigApi
@@ -134,6 +165,8 @@ public class PipelineBuilder : HookRegistry {
             defaultTimeout = policy?.timeout,
             defaultRetry = policy?.retry,
             defaultLatencyBudget = policy?.latencyBudget,
+            suppressDescriptorQos = suppressDescriptorQosRef.load(),
+            batchExecutionMode = policy?.batchExecutionMode ?: BatchExecutionMode.Sequential,
         )
     }
 

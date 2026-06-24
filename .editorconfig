@@ -1,0 +1,22 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = false
+
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+max_line_length = 140
+
+# Never auto-collapse imports into wildcards: explicit imports stay reviewable and ABI-diff friendly.
+# (Existing intentional wildcards in DSL-heavy demo/notebook code are left untouched.)
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+[*.{json,yml,yaml,md}]
+indent_size = 2

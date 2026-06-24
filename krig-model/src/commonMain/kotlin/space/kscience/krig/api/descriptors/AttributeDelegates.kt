@@ -18,12 +18,13 @@ public fun <A, V> attr(
 }
 
 /**
- * A specialized delegate for boolean flags that should default to [defaultValue] if the attribute is missing.
+ * A delegate variant with a fallback for absent attributes: yields `selector(attribute)`
+ * when the attribute is present and [default] otherwise.
  */
-public fun <A> attr(
-    defaultValue: Boolean,
+public fun <A, V> attr(
     key: Attribute<A>,
-    selector: (A) -> Boolean,
-): ReadOnlyProperty<OperationDescriptor, Boolean> = ReadOnlyProperty { thisRef, _ ->
-    thisRef.attribute(key)?.let(selector) ?: defaultValue
+    default: V,
+    selector: (A) -> V,
+): ReadOnlyProperty<OperationDescriptor, V> = ReadOnlyProperty { thisRef, _ ->
+    thisRef.attribute(key)?.let(selector) ?: default
 }

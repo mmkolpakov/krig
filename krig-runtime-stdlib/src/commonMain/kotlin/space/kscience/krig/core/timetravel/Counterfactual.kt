@@ -119,9 +119,8 @@ public suspend fun Reconstructible.whatIf(
 }
 
 /**
- * Receiver for the counterfactual DSL. Use [inject] to wholly replace an event at the
- * branch point, or [mutate] to patch a [PropertyChangedMessage]'s value in a type-safe
- * way.
+ * Receiver for the counterfactual DSL. Use [replace] to wholly substitute a logged event,
+ * or [mutate] to patch a [PropertyChangedMessage]'s value in a type-safe way.
  */
 public class CounterfactualScope {
     internal val injections: MutableList<DeviceMessage> = mutableListOf()
@@ -130,8 +129,13 @@ public class CounterfactualScope {
     internal val cursorReplacements: MutableMap<EventCursor, DeviceMessage> = mutableMapOf()
     internal val cursorMutations: MutableMap<Pair<EventCursor, Name>, Meta.() -> Meta> = mutableMapOf()
 
-    /** Registers a complete event to inject at the branch point. */
-    public fun inject(event: DeviceMessage) {
+    /**
+     * Registers a whole-event **replacement**: during replay, the logged event with the matching
+     * key — `(time, property)` for [PropertyChangedMessage], `(messageType, time)` otherwise —
+     * is substituted by [event]. When no logged event matches the key, nothing is added: this is
+     * a replacement, not an insertion of new history.
+     */
+    public fun replace(event: DeviceMessage) {
         injections += event
     }
 
@@ -204,12 +208,12 @@ public class CounterfactualScope {
 
 /**
  * DSL wrapper over the functional [counterfactual] API. Inside [body], call
- * `inject(message)` to substitute events, or `mutate(time, property) { ... }` to
+ * `replace(message)` to substitute logged events, or `mutate(time, property) { ... }` to
  * patch property values.
  *
  * ```kotlin
  * reconstructible.counterfactualScope(replayLog, at = branch.at, snapshot = branch.baseSnapshot) {
- *     inject(PropertyChangedMessage(
+ *     replace(PropertyChangedMessage(
  *         time = branch.at, property = "temperature".asName(), value = metaOf(250.0)
  *     ))
  *     mutate(time = branch.at, property = "pressure".asName()) {

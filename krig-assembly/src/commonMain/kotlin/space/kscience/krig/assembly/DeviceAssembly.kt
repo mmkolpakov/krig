@@ -44,28 +44,7 @@ public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDevice(
 ): Device {
     val device = create(context, config)
     val builder = PipelineBuilder().apply(configure)
-    return wrapWithPipeline(device, builder, id.toString())
-}
-
-/**
- * End-to-end materialization: [DeviceFactory] → validated Manifest → running [Device].
- * Features from the Manifest are matched by id against [features]. Unknown ids fail by
- * default. Validation runs via [ManifestValidationHook][space.kscience.krig.core.operations.ManifestValidationHook]s
- * registered in [context] per [validationPolicy]; absence of a validation PipelineFeatureSpec module
- * on the classpath is equivalent to [ManifestValidationPolicy.Skip].
- */
-public suspend fun <D : Device, C> DeviceFactory<D, C>.assembleDeviceFromManifest(
-    context: Context,
-    config: C,
-    features: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
-    unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
-    validationPolicy: ManifestValidationPolicy = ManifestValidationPolicy.FailOnError,
-    configure: PipelineBuilder.() -> Unit = {},
-): Device {
-    this.validateOrThrow(context, validationPolicy)
-    val builder = materializePipeline(this, features, unknownPipelineFeaturePolicy).apply(configure)
-    val device = create(context, config)
-    return wrapWithPipeline(device, builder, id.toString())
+    return wrapWithPipeline(device, builder, id.toString(), context)
 }
 
 /** Validates [this] and wraps an externally-constructed [device] with its operation pipeline. */
@@ -79,7 +58,7 @@ public suspend fun DeviceManifest.assemblePipeline(
 ): Device {
     validateOrThrow(context, validationPolicy)
     val builder = materializePipeline(this, features, unknownPipelineFeaturePolicy).apply(configure)
-    return wrapWithPipeline(device, builder, id.toString())
+    return wrapWithPipeline(device, builder, id.toString(), context)
 }
 
 private fun DeviceManifest.validateOrThrow(

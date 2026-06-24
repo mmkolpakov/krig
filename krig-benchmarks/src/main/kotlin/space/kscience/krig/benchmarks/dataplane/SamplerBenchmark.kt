@@ -7,10 +7,10 @@ import kotlinx.benchmark.Blackhole
 import kotlinx.benchmark.Scope
 import kotlinx.benchmark.Setup
 import kotlinx.benchmark.State
+import space.kscience.attributes.safeTypeOf
 import space.kscience.krig.core.contracts.sampling.FlowSampler
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
-import space.kscience.krig.core.contracts.sampling.sampler
 
 /** Boxed flow sampler against the primitive double ring. */
 @State(Scope.Benchmark)
@@ -21,7 +21,8 @@ open class SamplerBenchmark {
 
     @Setup
     open fun setup() {
-        boxed = sampler(capacity = 1024)
+        // Force the boxed path explicitly: the smart sampler<Double>() now routes to the unboxed ring.
+        boxed = FlowSampler(safeTypeOf(), capacity = 1024)
         ring = doubleSampler(capacity = 1024)
     }
 

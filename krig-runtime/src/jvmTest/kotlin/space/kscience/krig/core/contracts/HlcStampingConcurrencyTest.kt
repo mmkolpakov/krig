@@ -1,7 +1,7 @@
 @file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
 )
 
 package space.kscience.krig.core.contracts
@@ -19,7 +19,7 @@ import kotlinx.coroutines.withTimeout
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.krig.core.operations.HybridLogicalClock
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta

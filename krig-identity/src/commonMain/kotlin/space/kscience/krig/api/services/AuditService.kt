@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.services
+package space.kscience.krig.api.services
 
 import space.kscience.krig.api.context.Principal
 import space.kscience.dataforge.context.*
@@ -44,7 +44,13 @@ public class NoOpAuditService private constructor(meta: Meta) : AbstractPlugin(m
     }
 }
 
-/** Gets the [AuditService] from a context. Falls back to a no-op if no service is installed. */
+private val noOpFallback: AuditService = NoOpAuditService.build(Global, Meta.EMPTY)
+
+/**
+ * Gets the [AuditService] from a context. Falls back to a shared no-op instance if no service is
+ * installed — this accessor sits on the `isActive` fast path before every audit record, so the
+ * fallback must not allocate per call.
+ */
 public val Context.auditService: AuditService
     get() = plugins.find(true) { it is AuditService } as? AuditService
-        ?: AuditService.build(this, Meta.EMPTY)
+        ?: noOpFallback

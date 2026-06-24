@@ -32,7 +32,7 @@ class OperationDescriptorSerializationTest {
         val descriptor = PropertyDescriptor(
             name = "pump.rpm".asName(),
             kind = PropertyKind.PHYSICAL,
-            valueTypeId = "kotlin.Double",
+            valueTypeId = TypeIds.DOUBLE,
             attributes = operationAttributesOf(
                 OperationAttributeKeys.Metadata of MetadataAttribute(description = "Pump speed"),
                 OperationAttributeKeys.Access of AccessAttribute(readable = true, mutable = true),
@@ -52,6 +52,22 @@ class OperationDescriptorSerializationTest {
         assertEquals(listOf(ResourceLock("bus.rs485".asName())), decoded.requiredLocks)
         assertEquals(2, decoded.retryPolicy?.maxAttempts)
         assertEquals(250.milliseconds, decoded.timeout)
+    }
+
+    @Test
+    fun targetActualPropertyKindsRoundTrip() {
+        for (kind in listOf(PropertyKind.SETPOINT, PropertyKind.MEASURED)) {
+            val descriptor = PropertyDescriptor(
+                name = "loop.temperature".asName(),
+                kind = kind,
+                valueTypeId = TypeIds.DOUBLE,
+            )
+            val decoded = json.decodeFromString<PropertyDescriptor>(json.encodeToString(descriptor))
+            assertEquals(kind, decoded.kind)
+        }
+
+        assertTrue(json.encodeToString<PropertyKind>(PropertyKind.SETPOINT).contains("kind.setpoint"))
+        assertTrue(json.encodeToString<PropertyKind>(PropertyKind.MEASURED).contains("kind.measured"))
     }
 
     @Test

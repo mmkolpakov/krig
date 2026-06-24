@@ -70,8 +70,27 @@ public final class space/kscience/krig/core/dataforge/DeviceMessageFrameKeys {
 	public final fun getATTRIBUTES ()Lspace/kscience/dataforge/names/Name;
 	public final fun getCORRELATION_ID ()Lspace/kscience/dataforge/names/Name;
 	public final fun getHLC_LOGICAL ()Lspace/kscience/dataforge/names/Name;
+	public final fun getHLC_NODE ()Lspace/kscience/dataforge/names/Name;
 	public final fun getHLC_PHYSICAL_MS ()Lspace/kscience/dataforge/names/Name;
 	public final fun getMESSAGE_TYPE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getVERIFIED_IDENTITY ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/core/dataforge/FileEnvelopeEventJournal : space/kscience/krig/storage/journal/EventJournal {
+	public fun <init> (Ljava/nio/file/Path;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/dataforge/DeviceMessageFrameCodec;I)V
+	public synthetic fun <init> (Ljava/nio/file/Path;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/dataforge/DeviceMessageFrameCodec;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun close ()V
+	public fun observe ()Lkotlinx/coroutines/flow/Flow;
+	public fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
+	public fun readAll ()Lkotlinx/coroutines/flow/Flow;
+	public fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public fun replayFrom (Lspace/kscience/krig/storage/journal/EventCursor;)Lkotlinx/coroutines/flow/Flow;
+	public fun replayRecords (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public fun truncateBefore (Lspace/kscience/krig/storage/journal/EventCursor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/dataforge/KotlinxJsonDeviceMessageFrameCodec : space/kscience/krig/core/dataforge/DeviceMessageFrameCodec {
@@ -89,6 +108,7 @@ public final class space/kscience/krig/core/dataforge/KrigDataSourcesKt {
 
 public final class space/kscience/krig/core/dataforge/TimeSeriesTableColumns {
 	public static final field AGGREGATE_QUALITY Ljava/lang/String;
+	public static final field AGGREGATE_QUALITY_SEVERITY Ljava/lang/String;
 	public static final field EVENT_TIME Ljava/lang/String;
 	public static final field INSTANCE Lspace/kscience/krig/core/dataforge/TimeSeriesTableColumns;
 }
@@ -96,6 +116,10 @@ public final class space/kscience/krig/core/dataforge/TimeSeriesTableColumns {
 public final class space/kscience/krig/core/dataforge/TimeSeriesTablesKt {
 	public static final fun asTable (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;)Lspace/kscience/tables/Table;
 	public static final fun asTable (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;)Lspace/kscience/tables/Table;
+}
+
+public final class space/kscience/krig/core/expressions/ConditionEvaluatorKt {
+	public static final fun compile (Lspace/kscience/krig/api/expressions/Condition;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/expressions/ExpressionContext {
@@ -107,14 +131,7 @@ public final class space/kscience/krig/core/expressions/ExpressionContext$Compan
 }
 
 public final class space/kscience/krig/core/expressions/ExpressionEvaluatorKt {
-	public static final fun compile (Lspace/kscience/krig/api/expressions/Expression;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class space/kscience/krig/core/expressions/OpRegistry {
-	public static final field INSTANCE Lspace/kscience/krig/core/expressions/OpRegistry;
-	public final fun registerBinary (Ljava/lang/String;Lkotlin/jvm/functions/Function2;)V
-	public final fun registerNAry (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
-	public final fun registerUnary (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun compile (Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/operations/ClockState {
@@ -182,31 +199,10 @@ public final class space/kscience/krig/core/operations/TimerState : java/lang/Au
 	public final fun getTicks ()Lkotlinx/coroutines/flow/StateFlow;
 }
 
-public abstract interface class space/kscience/krig/core/runtime/BinaryPeerConnection : java/lang/AutoCloseable {
-	public fun close ()V
-	public abstract fun getPeerId ()Lspace/kscience/dataforge/names/Name;
-	public abstract fun receive (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public abstract fun send (Ljava/lang/String;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
-public final class space/kscience/krig/core/runtime/BinaryPeerConnection$DefaultImpls {
-	public static fun close (Lspace/kscience/krig/core/runtime/BinaryPeerConnection;)V
-}
-
-public final class space/kscience/krig/core/runtime/DefaultBinaryPeerConnection : space/kscience/krig/core/runtime/BinaryPeerConnection {
-	public fun <init> (Lspace/kscience/krig/core/runtime/PeerTransport;Lspace/kscience/krig/core/runtime/PeerRoutePrefix;)V
-	public synthetic fun <init> (Lspace/kscience/krig/core/runtime/PeerTransport;Lspace/kscience/krig/core/runtime/PeerRoutePrefix;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun close ()V
-	public fun getPeerId ()Lspace/kscience/dataforge/names/Name;
-	public fun receive (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun send (Ljava/lang/String;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-}
-
 public class space/kscience/krig/core/runtime/DeviceGroup : space/kscience/krig/core/contracts/AbstractDevice, space/kscience/krig/core/contracts/DeviceNode {
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/context/Context;Ljava/util/Map;)V
 	public fun close ()V
 	public fun closeGracefully-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
 	protected fun doExecuteOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected fun doReadPropertyOutcome (Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected fun doWritePropertyOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -227,9 +223,10 @@ public final class space/kscience/krig/core/runtime/HubClosedException : java/la
 public class space/kscience/krig/core/runtime/MutableDeviceHub : space/kscience/krig/core/runtime/DeviceGroup, space/kscience/krig/api/hub/DeviceHub {
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/context/Context;)V
 	public fun attach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun attach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;Z)V
 	public fun attachAll (Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun attachAll (Ljava/util/Map;Z)V
 	public fun close ()V
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
 	public fun detach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun getChildren ()Ljava/util/Map;
 	public fun getChildrenFlow ()Lkotlinx/coroutines/flow/StateFlow;
@@ -258,29 +255,6 @@ public final class space/kscience/krig/core/runtime/PeerRoute {
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (Lspace/kscience/dataforge/names/Name;)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()Lspace/kscience/dataforge/names/Name;
-}
-
-public abstract interface class space/kscience/krig/core/runtime/PeerRoutePrefix {
-	public abstract fun getName ()Lspace/kscience/dataforge/names/Name;
-}
-
-public final class space/kscience/krig/core/runtime/PeerRoutePrefix$BinaryDefault : space/kscience/krig/core/runtime/PeerRoutePrefix {
-	public static final field INSTANCE Lspace/kscience/krig/core/runtime/PeerRoutePrefix$BinaryDefault;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getName ()Lspace/kscience/dataforge/names/Name;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class space/kscience/krig/core/runtime/PeerRoutePrefix$Custom : space/kscience/krig/core/runtime/PeerRoutePrefix {
-	public fun <init> (Lspace/kscience/dataforge/names/Name;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/runtime/PeerRoutePrefix$Custom;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/runtime/PeerRoutePrefix$Custom;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/runtime/PeerRoutePrefix$Custom;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getName ()Lspace/kscience/dataforge/names/Name;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class space/kscience/krig/core/runtime/PeerTransport : java/lang/AutoCloseable {
@@ -361,6 +335,7 @@ public final class space/kscience/krig/core/runtime/ReconcileEvent$Detached : sp
 public final class space/kscience/krig/core/runtime/ReconcileKt {
 	public static final fun awaitChildren-exY8QGI (Lspace/kscience/krig/api/hub/DeviceHub;Ljava/util/Set;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun awaitChildren-exY8QGI$default (Lspace/kscience/krig/api/hub/DeviceHub;Ljava/util/Set;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun getRECONCILE_DEFAULT_PRODUCTION_TIMEOUT ()J
 	public static final fun reconcile-BAu0izY (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/api/hub/DeviceHub;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
 	public static final fun reconcile-BAu0izY (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
 	public static synthetic fun reconcile-BAu0izY$default (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/api/hub/DeviceHub;Lkotlinx/coroutines/flow/Flow;Lkotlin/jvm/functions/Function2;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Duration;ILjava/lang/Object;)Lspace/kscience/krig/core/runtime/ReconcileLoop;
@@ -498,6 +473,10 @@ public final class space/kscience/krig/core/timetravel/CheckpointingKt {
 	public static synthetic fun runCheckpointing$default (Lspace/kscience/krig/core/timetravel/Reconstructible;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/core/timetravel/SnapshotStore;Lspace/kscience/krig/core/timetravel/CheckpointStrategy;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Clock;Lspace/kscience/krig/core/timetravel/SnapshotCodec;Lspace/kscience/krig/core/timetravel/SnapshotRetentionPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/Job;
 }
 
+public abstract interface class space/kscience/krig/core/timetravel/ContinuousReconstructible : space/kscience/krig/core/timetravel/DeviceReconstructible {
+	public abstract fun integrateTo (Lkotlin/time/Instant;Lspace/kscience/krig/core/timetravel/TelemetryFeed;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class space/kscience/krig/core/timetravel/CounterfactualKt {
 	public static final fun branchAt (Lspace/kscience/krig/core/timetravel/Reconstructible;Lspace/kscience/krig/storage/journal/CursorReplayLog;Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun branchAt$default (Lspace/kscience/krig/core/timetravel/Reconstructible;Lspace/kscience/krig/storage/journal/CursorReplayLog;Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
@@ -516,10 +495,10 @@ public final class space/kscience/krig/core/timetravel/CounterfactualKt {
 
 public final class space/kscience/krig/core/timetravel/CounterfactualScope {
 	public fun <init> ()V
-	public final fun inject (Lspace/kscience/krig/api/messages/DeviceMessage;)V
 	public final fun mutate (Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)V
 	public final fun mutate (Lkotlin/time/Instant;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)V
 	public final fun mutate (Lspace/kscience/krig/storage/journal/EventCursor;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)V
+	public final fun replace (Lspace/kscience/krig/api/messages/DeviceMessage;)V
 	public final fun replace (Lspace/kscience/krig/storage/journal/EventCursor;Lspace/kscience/krig/api/messages/DeviceMessage;)V
 }
 
@@ -530,6 +509,10 @@ public abstract interface class space/kscience/krig/core/timetravel/CursorJourna
 
 public final class space/kscience/krig/core/timetravel/CursorJournal$DefaultImpls {
 	public static synthetic fun replayEntries$default (Lspace/kscience/krig/core/timetravel/CursorJournal;Lspace/kscience/krig/storage/journal/EventCursor;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class space/kscience/krig/core/timetravel/DenseChunkTimelineKt {
+	public static final fun asTimeline (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 }
 
 public abstract interface class space/kscience/krig/core/timetravel/DeviceReconstructible : space/kscience/krig/core/timetravel/Reconstructible {
@@ -598,7 +581,7 @@ public final class space/kscience/krig/core/timetravel/JournalEntry$Companion {
 }
 
 public abstract interface class space/kscience/krig/core/timetravel/JournalMigration {
-	public abstract fun migrate (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lkotlin/sequences/Sequence;
+	public abstract fun migrate (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lspace/kscience/krig/core/timetravel/JournalEntry;
 }
 
 public final class space/kscience/krig/core/timetravel/JournalMigrations {
@@ -607,7 +590,7 @@ public final class space/kscience/krig/core/timetravel/JournalMigrations {
 	public fun <init> (Ljava/util/List;)V
 	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> ([Lspace/kscience/krig/core/timetravel/JournalMigration;)V
-	public final fun migrate (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lkotlin/sequences/Sequence;
+	public final fun migrate (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lspace/kscience/krig/core/timetravel/JournalEntry;
 }
 
 public final class space/kscience/krig/core/timetravel/JournalMigrations$Companion {
@@ -643,12 +626,17 @@ public final class space/kscience/krig/core/timetravel/KotlinxJsonJournalPayload
 public final class space/kscience/krig/core/timetravel/MessageJournalCodec {
 	public synthetic fun <init> (Lspace/kscience/krig/core/timetravel/JournalPayloadCodec;Lspace/kscience/krig/core/timetravel/JournalMigrations;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lspace/kscience/krig/core/timetravel/JournalPayloadCodec;Lspace/kscience/krig/core/timetravel/JournalMigrations;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun decode (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lkotlin/sequences/Sequence;
-	public final fun decodeEnvelope (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lkotlin/sequences/Sequence;
+	public final fun decode (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lspace/kscience/krig/api/messages/DeviceMessage;
+	public final fun decodeEnvelope (Lspace/kscience/krig/core/timetravel/JournalEntry;)Lspace/kscience/krig/api/messages/DeviceMessageFrame;
 	public final fun encode (Lspace/kscience/krig/api/messages/DeviceMessage;Lspace/kscience/krig/api/messages/MessageContext;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/timetravel/JournalEntry;
 	public final fun encode (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/timetravel/JournalEntry;
 	public static synthetic fun encode$default (Lspace/kscience/krig/core/timetravel/MessageJournalCodec;Lspace/kscience/krig/api/messages/DeviceMessage;Lspace/kscience/krig/api/messages/MessageContext;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/timetravel/JournalEntry;
 	public static synthetic fun encode$default (Lspace/kscience/krig/core/timetravel/MessageJournalCodec;Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/timetravel/JournalEntry;
+}
+
+public final class space/kscience/krig/core/timetravel/MetaJournalMigrationKt {
+	public static final fun metaJournalMigration-IhbhgOU (Ljava/lang/String;Ljava/lang/String;Ljava/util/Collection;)Lspace/kscience/krig/core/timetravel/JournalMigration;
+	public static final fun metaJournalMigration-Mmdkgus (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/timetravel/JournalMigration;
 }
 
 public abstract interface class space/kscience/krig/core/timetravel/Reconstructible {
@@ -821,6 +809,17 @@ public final class space/kscience/krig/core/timetravel/StorageSchemas {
 	public final fun getDeviceSnapshotV1-nVEU2CI ()Ljava/lang/String;
 }
 
+public abstract interface class space/kscience/krig/core/timetravel/TelemetryFeed {
+	public abstract fun getRowCount ()I
+	public abstract fun getSeries ()Ljava/util/List;
+	public abstract fun timeAt (I)Lkotlin/time/Instant;
+	public abstract fun valueAt (II)D
+}
+
+public final class space/kscience/krig/core/timetravel/TelemetryFeedKt {
+	public static final fun asTelemetryFeed (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;)Lspace/kscience/krig/core/timetravel/TelemetryFeed;
+}
+
 public final class space/kscience/krig/core/timetravel/TimeTravelAssemblyKt {
 	public static final fun defaultTimeTravelMessageFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun enableTimeTravel (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/timetravel/DeviceReconstructible;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/timetravel/SnapshotStore;Lspace/kscience/krig/core/timetravel/CheckpointStrategy;Lkotlinx/coroutines/flow/Flow;Lkotlinx/coroutines/CoroutineScope;Lkotlin/time/Clock;Lspace/kscience/krig/core/timetravel/SnapshotCodec;Lspace/kscience/krig/core/timetravel/SnapshotRetentionPolicy;)Lkotlin/Pair;
@@ -848,6 +847,7 @@ public final class space/kscience/krig/core/timetravel/TimeTravelSession {
 	public final fun counterfactual (Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun counterfactual$default (Lspace/kscience/krig/core/timetravel/TimeTravelSession;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getModel ()Lspace/kscience/krig/core/timetravel/Reconstructible;
+	public final fun getRecording ()Lkotlinx/coroutines/Job;
 	public final fun replayUntil (Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun replayUntil$default (Lspace/kscience/krig/core/timetravel/TimeTravelSession;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DeviceSnapshot;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun seek (Lkotlin/time/Instant;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

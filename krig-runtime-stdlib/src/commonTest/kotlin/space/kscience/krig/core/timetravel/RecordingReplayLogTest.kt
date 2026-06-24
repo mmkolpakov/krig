@@ -7,7 +7,7 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.messages.DeviceAttachedMessage
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.withHlcStamp
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.krig.storage.journal.SequenceCursor
 import space.kscience.dataforge.names.asName

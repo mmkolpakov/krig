@@ -20,6 +20,7 @@ public abstract interface class space/kscience/krig/storage/journal/EventJournal
 	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
 	public fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public fun truncateBefore (Lspace/kscience/krig/storage/journal/EventCursor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun write (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -32,6 +33,7 @@ public final class space/kscience/krig/storage/journal/EventJournal$DefaultImpls
 	public static fun record (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun replay (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
 	public static fun replayRecords (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
+	public static fun truncateBefore (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/storage/journal/EventCursor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun write (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun writeAll (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
@@ -53,6 +55,7 @@ public final class space/kscience/krig/storage/journal/InMemoryEventJournal : sp
 	public fun replayFrom (Lspace/kscience/krig/storage/journal/EventCursor;)Lkotlinx/coroutines/flow/Flow;
 	public fun replayRecords (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
 	public final fun size ()I
+	public fun truncateBefore (Lspace/kscience/krig/storage/journal/EventCursor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessage;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun write (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -126,6 +129,20 @@ public final class space/kscience/krig/storage/profile/StorageProfiles {
 	public final fun getTimeSeriesRows-AxcpUGA ()Lspace/kscience/dataforge/names/Name;
 }
 
+public final class space/kscience/krig/storage/quality/KrigFlaggedDoubleBuffer : space/kscience/kmath/structures/Buffer, space/kscience/kmath/structures/FlaggedBuffer {
+	public synthetic fun <init> ([D[IIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> ([D[IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun get (I)Ljava/lang/Double;
+	public synthetic fun get (I)Ljava/lang/Object;
+	public fun getFlag (I)B
+	public final fun getSeverityRanks ()[I
+	public fun getSize ()I
+	public final fun getValues ()[D
+	public fun iterator ()Ljava/util/Iterator;
+	public final fun severityAt-HzU0MKM (I)I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk {
 	public fun <init> (Ljava/util/List;Ljava/util/List;)V
 	public final fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
@@ -136,6 +153,7 @@ public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesC
 	public final fun getTimes ()Ljava/util/List;
 	public final fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
 	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesRow;
+	public final fun severityColumn (I)[I
 	public final fun value (II)D
 }
 

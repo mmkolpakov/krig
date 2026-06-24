@@ -21,8 +21,9 @@ public class PipelineFeatureScope<C : Any>(
     public val config: C,
     public val pipeline: PipelineBuilder,
 ) {
+    /** Registers a device-lifetime [hook] handler; the removal handle is intentionally not retained. */
     public fun <H : Any> on(hook: Hook<H>, handler: H) {
-        pipeline.on(hook, handler)
+        pipeline.register(hook, handler)
     }
 
     public fun gate(kind: OperationKind, gate: OperationGate): Unit = pipeline.gate(kind, gate)

@@ -1,11 +1,13 @@
 public abstract interface annotation class space/kscience/krig/api/annotations/PolymorphicBase : java/lang/annotation/Annotation {
 }
 
-public final class space/kscience/krig/api/data/DataQuality {
+public final class space/kscience/krig/api/data/DataQuality : java/lang/Comparable {
 	public static final field Companion Lspace/kscience/krig/api/data/DataQuality$Companion;
 	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun combine (Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/DataQuality;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/api/data/DataQuality;)I
 	public final fun component1-cyedemc ()I
 	public final fun component2-DUyD1u4 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
@@ -70,6 +72,44 @@ public final synthetic class space/kscience/krig/api/data/DeviceSnapshot$$serial
 
 public final class space/kscience/krig/api/data/DeviceSnapshot$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/data/HlcTimestamp : java/lang/Comparable {
+	public static final field Companion Lspace/kscience/krig/api/data/HlcTimestamp$Companion;
+	public fun <init> (JJLspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (JJLspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo (Lspace/kscience/krig/api/data/HlcTimestamp;)I
+	public final fun component1 ()J
+	public final fun component2 ()J
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (JJLspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/data/HlcTimestamp;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/data/HlcTimestamp;JJLspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/data/HlcTimestamp;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLogicalCounter ()J
+	public final fun getNodeId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getPhysicalMilliseconds ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/data/HlcTimestamp$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/data/HlcTimestamp$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/data/HlcTimestamp;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/data/HlcTimestamp;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/data/HlcTimestamp$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/data/HlcTimestampKt {
+	public static final fun compareNames (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)I
 }
 
 public final class space/kscience/krig/api/data/ObservedValue : space/kscience/krig/api/data/Timed {
@@ -292,6 +332,13 @@ public final class space/kscience/krig/api/lifecycle/LifecycleState$Stopping : s
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/lifecycle/LifecycleState$Suspended : space/kscience/krig/api/lifecycle/LifecycleState {
+	public static final field INSTANCE Lspace/kscience/krig/api/lifecycle/LifecycleState$Suspended;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/utils/ValueConvertersKt {
 	public static final fun getUnit (Lspace/kscience/dataforge/meta/MetaConverter$Companion;)Lspace/kscience/dataforge/meta/MetaConverter;
 }
@@ -302,40 +349,9 @@ public abstract interface annotation class space/kscience/krig/core/Experimental
 public abstract interface annotation class space/kscience/krig/core/InternalKrigApi : java/lang/annotation/Annotation {
 }
 
-public abstract interface annotation class space/kscience/krig/core/PerformancePitfall : java/lang/annotation/Annotation {
+public abstract interface annotation class space/kscience/krig/core/KrigPerformancePitfall : java/lang/annotation/Annotation {
 }
 
 public abstract interface annotation class space/kscience/krig/core/UnstableKrigForSubclassing : java/lang/annotation/Annotation {
-}
-
-public final class space/kscience/krig/core/operations/HlcTimestamp : java/lang/Comparable {
-	public static final field Companion Lspace/kscience/krig/core/operations/HlcTimestamp$Companion;
-	public fun <init> (JI)V
-	public synthetic fun compareTo (Ljava/lang/Object;)I
-	public fun compareTo (Lspace/kscience/krig/core/operations/HlcTimestamp;)I
-	public final fun component1 ()J
-	public final fun component2 ()I
-	public final fun copy (JI)Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/operations/HlcTimestamp;JIILjava/lang/Object;)Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getLogicalCounter ()I
-	public final fun getPhysicalMilliseconds ()J
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class space/kscience/krig/core/operations/HlcTimestamp$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lspace/kscience/krig/core/operations/HlcTimestamp$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/core/operations/HlcTimestamp;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/core/operations/HlcTimestamp$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

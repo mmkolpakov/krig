@@ -36,10 +36,8 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
         source("stand", connector = "external.virtual")
         tag("rpm")
             .from("stand", "rpm", TypeIds.DOUBLE, timeout = 50.milliseconds)
-            .toTarget(pump.name, PumpSpec.rpm.name)
         tag("temperature")
             .from("stand", "temperature", TypeIds.DOUBLE, timeout = 50.milliseconds)
-            .withoutTarget()
         timer("fast", 10.milliseconds) {
             samples("rpm", "temperature")
         }
@@ -55,12 +53,10 @@ suspend fun externalPollingDemo(): Unit = supervisorScope {
             .take(4)
             .toList()
             .also { values ->
+                // Acquisition is ingress-only; routing a sample into a device property is the
+                // caller's concern (topology layer). Here we route the "rpm" tag to the pump by id.
                 values.forEach { observation ->
-                    val target = observation.spec.target
-                    if (
-                        target?.deviceId == pump.name &&
-                        target.property == PumpSpec.rpm.name
-                    ) {
+                    if (observation.spec.id == "rpm".asName()) {
                         val value = requireNotNull(observation.observed.requireUsableValue()) {
                             "rpm observation passed quality checks with null payload"
                         }

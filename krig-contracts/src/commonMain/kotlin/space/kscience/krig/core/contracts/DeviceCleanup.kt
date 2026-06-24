@@ -5,17 +5,24 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.core.InternalKrigApi
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
- * Device-level graceful shutdown contract. Implementations stop accepting new
- * operations, wait for in-flight work up to the requested timeout, then shut down.
+ * Device-level graceful shutdown contract. Implementations stop accepting new operations, wait for
+ * in-flight tracked work up to the requested timeout, then shut down.
+ *
+ * Drain covers *tracked operations* only, not fire-and-forget coroutines launched into the device
+ * scope — put hardware safe-state in the shutdown path, not in a pending background job.
  */
 public interface GracefullyCloseable {
     public suspend fun closeGracefully(drainTimeout: Duration)
@@ -96,6 +103,48 @@ public suspend inline fun ignoreCleanupFailureSuspending(crossinline block: susp
     } catch (e: Exception) {
         CleanupFailureReporting.report(e)
         // Cleanup is best-effort; callers are already leaving the ownership scope.
+    }
+}
+
+/** Default budget for one device's stop step before it is abandoned to keep the parent responsive. */
+@InternalKrigApi
+public val DEFAULT_DEVICE_SHUTDOWN_TIMEOUT: Duration = 10.seconds
+
+/** Reported when a device did not stop within its budget; its scope is abandoned rather than awaited. */
+@InternalKrigApi
+public class DeviceShutdownTimeoutException(deviceName: Name, timeout: Duration) :
+    Exception("Device '$deviceName' did not stop within $timeout; abandoned to keep the parent responsive")
+
+/**
+ * Runs [stop] under [timeout] so a hung child never blocks the parent. On timeout (or cooperative
+ * cancellation that [stop] honours) the failure is reported and a non-suspending [Device.close] is
+ * attempted as a last resort. A truly non-cooperative blocking call cannot be force-killed in
+ * coroutines — drivers must keep `shutdown()` cancellable (offload blocking I/O to a dispatcher).
+ */
+@InternalKrigApi
+public suspend fun closeDeviceBounded(
+    child: Device,
+    timeout: Duration = DEFAULT_DEVICE_SHUTDOWN_TIMEOUT,
+    stop: suspend () -> Unit,
+) {
+    val finished = withTimeoutOrNull(timeout) {
+        try {
+            stop()
+        } catch (timeout: TimeoutCancellationException) {
+            throw timeout // let withTimeoutOrNull report the timeout
+        } catch (cancel: CancellationException) {
+            // A real cancellation of our own scope must propagate; a cancellation thrown by the
+            // child's cleanup must not abort the parent's shutdown — suppress only the latter.
+            if (!currentCoroutineContext().isActive) throw cancel
+            CleanupFailureReporting.report(cancel)
+        } catch (e: Exception) {
+            CleanupFailureReporting.report(e)
+        }
+        true
+    }
+    if (finished == null) {
+        CleanupFailureReporting.report(DeviceShutdownTimeoutException(child.name, timeout))
+        ignoreNonCancellationFailure { child.close() }
     }
 }
 

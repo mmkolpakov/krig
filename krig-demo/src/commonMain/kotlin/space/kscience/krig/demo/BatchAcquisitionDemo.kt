@@ -19,7 +19,7 @@ import space.kscience.krig.core.contracts.manifestOf
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.okObservedMeta
 import space.kscience.krig.core.contracts.read
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.doubleProperty
 import space.kscience.krig.core.meta.mutableDoubleProperty
@@ -98,7 +98,7 @@ private class BatchStandDriver {
         BatchPlcSpec.mode.name to metaOf(mode),
     )
 
-    fun backend() = backend {
+    fun backend() = deviceBackend {
         reader(BatchPlcSpec.rpm) { MetaConverter.double.read(values.getValue(BatchPlcSpec.rpm.name)) }
         writer(BatchPlcSpec.rpm) { value -> values[BatchPlcSpec.rpm.name] = metaOf(value) }
         reader(BatchPlcSpec.temperature) {

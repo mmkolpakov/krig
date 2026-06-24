@@ -1,7 +1,7 @@
 @file:Suppress("RemoveRedundantQualifierName")
 @file:OptIn(
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -35,8 +35,13 @@ import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.operations.ResourceLockRegistry
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -55,6 +60,7 @@ public class PipelineDevice @InternalKrigApi constructor(
     @property:InternalKrigApi public val delegate: Device,
     operationSpecs: Map<OperationKind, OperationPipelineSpec> = emptyMap(),
     readDecorators: List<ReadDecorator> = emptyList(),
+    batchReadDecorators: List<BatchReadDecorator> = emptyList(),
     registry: ResourceLockRegistry = ResourceLockRegistry(),
     capabilities: Attributes = Attributes.EMPTY,
 ) : Device by delegate, LifecycleStateHolder, CapabilityHost, DeviceNode {
@@ -64,6 +70,7 @@ public class PipelineDevice @InternalKrigApi constructor(
         hostName = name,
         operationSpecs = operationSpecs,
         readDecorators = readDecorators,
+        batchReadDecorators = batchReadDecorators,
         lockRegistry = registry,
         timeSource = timeSource,
     )
@@ -89,10 +96,11 @@ public class PipelineDevice @InternalKrigApi constructor(
     override val childrenFlow: StateFlow<Map<Name, DeviceNode>>
         get() = (delegate as? DeviceNode)?.childrenFlow ?: EmptyDeviceNodeChildren
 
-    override fun content(target: String): Map<Name, Any> =
-        if (target == defaultTarget) children else delegate.content(target)
-
     // --- Capability host: own registry merged with the delegate ---
+
+    /** Capability background scope: child of the (delegated) [deviceScope], supervised. */
+    override val capabilityScope: CoroutineScope =
+        CoroutineScope(deviceScope.coroutineContext + SupervisorJob(deviceScope.coroutineContext[Job]))
 
     override val capabilityToggles: CapabilityToggles =
         (delegate as? CapabilityHost)?.capabilityToggles ?: CapabilityToggles()
@@ -120,8 +128,17 @@ public class PipelineDevice @InternalKrigApi constructor(
         (delegate as? LifecycleStateHolder)?.updateLifecycleState(state)
     }
 
+    /**
+     * Best-effort, non-suspending close. [CoroutineStart.UNDISPATCHED] starts detach immediately,
+     * and only the cleanup body switches to [NonCancellable], so `delegate.close()` cannot abort a
+     * capability `onDetach` at its first suspension point. Prefer [shutdown] for orderly release.
+     */
     override fun close() {
-        deviceScope.launch(start = CoroutineStart.UNDISPATCHED) { capabilityRegistry.detachOnce(this@PipelineDevice) }
+        deviceScope.launch(start = CoroutineStart.UNDISPATCHED) {
+            withContext(NonCancellable) {
+                capabilityRegistry.detachOnce(this@PipelineDevice)
+            }
+        }
         delegate.close()
     }
 
@@ -143,6 +160,27 @@ public class PipelineDevice @InternalKrigApi constructor(
             block()
         } catch (e: OperationFaultException) {
             OperationOutcome.Fail(e.fault)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: RuntimeException) {
+            markFailure(e)
+        }
+
+    /**
+     * Batch failure policy, consistent with [guardingLifecycle]. Per-property faults stay in the
+     * result map as `Fail` (the engine fans them out — errors-as-values for every member). An
+     * operation fault that escapes the terminal maps to a uniform `Fail` for every requested name,
+     * while a hard [RuntimeException] promotes the device to [LifecycleState.Failed] and rethrows —
+     * so a systemic bug in the batch terminal is not masked as a set of per-property failures.
+     */
+    private suspend fun <T> guardingBatchLifecycle(
+        names: Collection<Name>,
+        block: suspend () -> Map<Name, OperationOutcome<T>>,
+    ): Map<Name, OperationOutcome<T>> =
+        try {
+            block()
+        } catch (e: OperationFaultException) {
+            names.associateWith { OperationOutcome.Fail(e.fault) }
         } catch (e: CancellationException) {
             throw e
         } catch (e: RuntimeException) {
@@ -239,24 +277,33 @@ public class PipelineDevice @InternalKrigApi constructor(
             }
         }
 
+    // Batch operations use [guardingBatchLifecycle] instead of the single-op [guardingLifecycle]:
+    // the engine maps per-property failures into the result map (errors-as-values for every member),
+    // so a member fault must not promote the whole device to Failed; but a hard RuntimeException that
+    // escapes the terminal still promotes the device to Failed, consistent with the single-op path.
     override suspend fun readBatchOutcome(
         properties: Collection<Name>,
     ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
-        engine.pipelinedBatchRead(properties, OperationNames.BatchRead) { names ->
-            delegate.readBatchOutcome(names)
+        guardingBatchLifecycle(properties) {
+            val terminal = engine.decorateObservedBatchRead { names -> delegate.readBatchOutcome(names) }
+            engine.pipelinedBatchRead(properties, OperationNames.BatchRead, terminal)
         }
 
     override suspend fun readBatchBinaryOutcome(
         properties: Collection<Name>,
     ): Map<Name, OperationOutcome<Binary>> =
-        engine.pipelinedBatchRead(properties, OperationNames.BatchReadBinary) { names ->
-            delegate.readBatchBinaryOutcome(names)
+        guardingBatchLifecycle(properties) {
+            engine.pipelinedBatchRead(properties, OperationNames.BatchReadBinary) { names ->
+                delegate.readBatchBinaryOutcome(names)
+            }
         }
 
     override suspend fun writeBatchOutcome(
         values: Map<Name, Meta>,
     ): Map<Name, OperationOutcome<Unit>> =
-        engine.pipelinedBatchWrite(values)
+        guardingBatchLifecycle(values.keys) {
+            engine.pipelinedBatchWrite(values)
+        }
 
     override suspend fun writePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         guardingLifecycle {

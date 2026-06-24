@@ -1,6 +1,5 @@
 package space.kscience.krig.core.dataforge
 
-import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.identifiers.CorrelationId
@@ -8,7 +7,7 @@ import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.frame
-import space.kscience.krig.core.operations.HlcTimestamp
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.dataforge.meta.MetaConverter
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,5 +44,33 @@ class DeviceMessageFrameCodecTest {
         assertEquals(frame.payload, decoded.payload)
         assertEquals(CorrelationId("trace-7"), decoded.context.correlationId)
         assertEquals(HlcTimestamp(42, 3), decoded.context.hlcTimestamp)
+    }
+
+    @Test
+    fun verifiedIdentitySurvivesEnvelopeRoundTrip() {
+        val frame = PropertyChangedMessage(
+            time = Instant.fromEpochMilliseconds(1),
+            property = "rpm".asName(),
+            value = MetaConverter.double.convert(1.0),
+            sourceDevice = "pump".asName(),
+        ).frame(MessageContext(verifiedIdentity = "spiffe://trust-domain/workload/pump"))
+
+        val decoded = codec.decode(codec.encode(frame))
+
+        assertEquals("spiffe://trust-domain/workload/pump", decoded.context.verifiedIdentity)
+    }
+
+    @Test
+    fun blankVerifiedIdentityIsNotPersisted() {
+        val frame = PropertyChangedMessage(
+            time = Instant.fromEpochMilliseconds(1),
+            property = "rpm".asName(),
+            value = MetaConverter.double.convert(1.0),
+            sourceDevice = "pump".asName(),
+        ).frame(MessageContext(verifiedIdentity = "   "))
+
+        val decoded = codec.decode(codec.encode(frame))
+
+        assertEquals(null, decoded.context.verifiedIdentity)
     }
 }

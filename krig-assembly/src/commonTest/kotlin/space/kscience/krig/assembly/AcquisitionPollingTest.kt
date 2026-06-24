@@ -35,7 +35,7 @@ class AcquisitionPollingTest {
     fun pollTimerEmitsConfiguredTagsInTimerOrder() = runTest {
         val config = dataAcquisition {
             source("stand", connector = "external.virtual")
-            tag("rpm").from("stand", "rpm", TypeIds.DOUBLE).toTarget("pump", "rpm")
+            tag("rpm").from("stand", "rpm", TypeIds.DOUBLE)
             tag("temperature").from("stand", "temperature", TypeIds.DOUBLE)
             timer("fast", 10.milliseconds) {
                 samples("rpm", "temperature")

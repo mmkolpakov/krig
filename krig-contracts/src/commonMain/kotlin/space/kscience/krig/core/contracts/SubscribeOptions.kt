@@ -1,7 +1,9 @@
 package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.sample
 import space.kscience.dataforge.names.Name
@@ -11,20 +13,33 @@ import space.kscience.krig.api.messages.DeviceMessageFrame
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+/** Overflow behaviour for a bounded subscription queue (source- or client-side). */
+public enum class DiscardPolicy {
+    /** Keep the newest samples; drop the oldest on overflow (DDS `KEEP_LAST`, default). */
+    KeepLatest,
+
+    /** Keep the oldest queued samples; drop incoming ones on overflow. */
+    KeepOldest,
+}
+
 /**
- * Consumer-side shaping options for [Device.subscribe]. Source-side overrides are an
- * integration concern; the SDK applies these options as Flow operators on the returned
- * stream — no extra round-trip to the backend.
+ * Subscription shaping options. Source-capable backends (OPC UA, ПЛК) honour these at the source via
+ * [DeviceBackend.applySubscribeOptions] and report the actually-applied values as
+ * [AppliedSubscribeOptions]; whatever the source does not apply, the SDK shapes client-side as Flow
+ * operators on the returned stream.
  *
- * @property maxRateHz Optional upper bound on per-tag event rate, applied via
- *                    [kotlinx.coroutines.flow.sample]. `null` leaves the stream unsampled.
- * @property typeFilter Optional whitelist of wire message types
- *                    ([DeviceMessage.messageType] / `DeviceMessageType` constants). Empty =
- *                    pass everything.
+ * @property maxRateHz Optional upper bound on per-tag event rate (client fallback via
+ *                    [kotlinx.coroutines.flow.sample]). `null` leaves the stream unsampled.
+ * @property typeFilter Optional whitelist of wire message types ([DeviceMessage.messageType]).
+ *                    Empty = pass everything.
+ * @property queueSize Optional bounded queue depth. `null` leaves buffering to the consumer.
+ * @property discardPolicy Overflow behaviour for [queueSize] (DDS-style KEEP_LAST/KEEP_ALL-ish).
  */
 public data class SubscribeOptions(
     public val maxRateHz: Double? = null,
     public val typeFilter: Set<String> = emptySet(),
+    public val queueSize: Int? = null,
+    public val discardPolicy: DiscardPolicy = DiscardPolicy.KeepLatest,
 ) {
     public companion object {
         /** No shaping — the raw flow from the device. */
@@ -32,6 +47,22 @@ public data class SubscribeOptions(
 
         /** Shorthand: rate-limit to [hz] samples / second. */
         public fun rate(hz: Double): SubscribeOptions = SubscribeOptions(maxRateHz = hz)
+    }
+}
+
+/**
+ * The subscription parameters a backend actually applied at the source, mirroring OPC UA's
+ * `revisedSamplingInterval`/`revisedQueueSize`. `null` fields mean the source did not constrain that
+ * dimension and the SDK applies the requested [SubscribeOptions] value client-side instead.
+ */
+public data class AppliedSubscribeOptions(
+    public val revisedMaxRateHz: Double? = null,
+    public val revisedQueueSize: Int? = null,
+    public val discardPolicy: DiscardPolicy = DiscardPolicy.KeepLatest,
+) {
+    public companion object {
+        /** Source applied nothing; the SDK shapes the stream entirely client-side. */
+        public val ClientSide: AppliedSubscribeOptions = AppliedSubscribeOptions()
     }
 }
 
@@ -70,6 +101,14 @@ private fun Flow<DeviceMessageFrame<DeviceMessage>>.shapedBy(
     if (options.typeFilter.isNotEmpty()) {
         val allowed = options.typeFilter
         shaped = shaped.filter { it.payload.messageType in allowed }
+    }
+    options.queueSize?.let { capacity ->
+        require(capacity > 0) { "queueSize must be positive, got $capacity" }
+        val overflow = when (options.discardPolicy) {
+            DiscardPolicy.KeepLatest -> BufferOverflow.DROP_OLDEST
+            DiscardPolicy.KeepOldest -> BufferOverflow.DROP_LATEST
+        }
+        shaped = shaped.buffer(capacity, onBufferOverflow = overflow)
     }
     return shaped
 }

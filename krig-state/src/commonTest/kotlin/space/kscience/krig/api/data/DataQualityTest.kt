@@ -35,12 +35,53 @@ class DataQualityTest {
     }
 
     @Test
-    fun combineKeepsLeftQualityOnTie() {
-        val first = DataQuality(QualitySeverity.BAD, QualityCode("test.timeout"))
-        val second = DataQuality(QualitySeverity.BAD, QualityCode("test.communication"))
+    fun combineBreaksTiesDeterministicallyAndCommutatively() {
+        val timeout = DataQuality(QualitySeverity.BAD, QualityCode("test.timeout"))
+        val communication = DataQuality(QualitySeverity.BAD, QualityCode("test.communication"))
 
-        assertEquals(first, first.combine(second))
-        assertEquals(second, second.combine(first))
+        // Equal severity: the tie-break is order-independent, so both operand orders agree.
+        assertEquals(timeout, timeout.combine(communication))
+        assertEquals(timeout, communication.combine(timeout))
+    }
+
+    @Test
+    fun combineFormsBoundedJoinSemilattice() {
+        val samples = listOf(
+            DataQuality.GOOD,
+            DataQuality(QualitySeverity.UNCERTAIN, QualityCode("test.stale")),
+            DataQuality(QualitySeverity.BAD, QualityCode("test.timeout"), "io"),
+            DataQuality(QualitySeverity.BAD, QualityCode("test.communication")),
+            DataQuality(QualitySeverity(500), QualityCode("test.critical")),
+        )
+
+        for (a in samples) {
+            assertEquals(a, a.combine(a), "idempotent")
+            assertEquals(a, a.combine(DataQuality.GOOD), "GOOD is the right identity")
+            assertEquals(a, DataQuality.GOOD.combine(a), "GOOD is the left identity")
+            for (b in samples) {
+                assertEquals(a.combine(b), b.combine(a), "commutative")
+                for (c in samples) {
+                    assertEquals(
+                        a.combine(b).combine(c),
+                        a.combine(b.combine(c)),
+                        "associative",
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun combineAllIsIndependentOfOrder() {
+        val samples = listOf(
+            DataQuality(QualitySeverity.UNCERTAIN, QualityCode("test.stale")),
+            DataQuality(QualitySeverity.BAD, QualityCode("test.timeout")),
+            DataQuality(QualitySeverity.BAD, QualityCode("test.communication")),
+            DataQuality.GOOD,
+        )
+
+        assertEquals(samples.combineAll(), samples.reversed().combineAll())
+        assertEquals(samples.combineAll(), samples.shuffled().combineAll())
     }
 
     @Test

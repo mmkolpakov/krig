@@ -1,8 +1,8 @@
 package space.kscience.krig.api.messages
 
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.meta.int
+import space.kscience.dataforge.meta.seal
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.meta.toMutableMeta
 import space.kscience.dataforge.names.Name
@@ -43,7 +43,8 @@ public fun MessageContext.withQuality(quality: DataQuality): MessageContext {
     }
     val merged = attributes.toMutableMeta()
     merged[MESSAGE_QUALITY_KEY] = quality.toMeta()
-    return copy(attributes = merged)
+    // Seal before storing: the context is an immutable value object and may be shared across coroutines.
+    return copy(attributes = merged.seal())
 }
 
 /** The quality mirrored into [attributes], or `null` when absent. */

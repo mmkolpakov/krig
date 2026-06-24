@@ -81,7 +81,7 @@ public fun WaltzRfc1Message.toMagixMessage(
         id = id,
         parentId = parentId,
         user = user,
-        headers = envelopeHeaders?.takeIf { isKrigEnvelope } ?: JsonObject(emptyMap()),
+        headers = envelopeHeaders?.takeIf { isKrigEnvelope } ?: EmptyMagixHeaders,
     )
 }
 

@@ -39,16 +39,31 @@ public data class DataQuality(
     public val severity: QualitySeverity,
     public val code: QualityCode? = null,
     public val detail: String? = null,
-) {
+) : Comparable<DataQuality> {
     /**
-     * Worst-wins merge.
-     *
-     * If severities are equal, the left operand wins; details from the losing side
-     * are discarded. This keeps expression math cheap and deterministic. Use a
-     * domain-specific aggregation policy when multi-cause provenance is required.
+     * Total order used by [combine]. The primary key is [severity] (worse is greater);
+     * ties are broken deterministically by [code] then [detail], where an absent value
+     * sorts below a present one and present values compare lexicographically. The order
+     * is consistent with [equals], so [compareTo] returns `0` only for equal qualities.
      */
-    public fun combine(other: DataQuality): DataQuality =
-        if (severity >= other.severity) this else other
+    override fun compareTo(other: DataQuality): Int {
+        val bySeverity = severity.compareTo(other.severity)
+        if (bySeverity != 0) return bySeverity
+        val byCode = compareValues(code?.id, other.code?.id)
+        if (byCode != 0) return byCode
+        return compareValues(detail, other.detail)
+    }
+
+    /**
+     * Worst-wins join: the least upper bound of the two qualities under [compareTo].
+     *
+     * Forms a bounded join-semilattice. The operation is idempotent, commutative and
+     * associative, and [GOOD] is the identity (bottom) element. Reducing a collection of
+     * qualities therefore yields the same result regardless of order (see [combineAll]).
+     * The deterministic tie-break keeps a single representative when severities are equal;
+     * use a domain-specific policy when multi-cause provenance must be preserved.
+     */
+    public fun combine(other: DataQuality): DataQuality = maxOf(this, other)
 
     /** Compact human-facing label: severity plus optional stable quality code. */
     public val shortLabel: String
@@ -59,7 +74,7 @@ public data class DataQuality(
     }
 }
 
-/** Worst-wins reduction over a collection of qualities. */
+/** Worst-wins reduction over a collection of qualities: the supremum under the [DataQuality] order. */
 public fun Iterable<DataQuality>.combineAll(): DataQuality {
     var result = DataQuality.GOOD
     for (q in this) result = result.combine(q)

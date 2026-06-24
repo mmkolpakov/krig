@@ -2,6 +2,7 @@ package space.kscience.krig.core.contracts
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
+import kotlinx.coroutines.CoroutineScope
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.capabilities.Capability
@@ -15,6 +16,14 @@ import space.kscience.krig.core.capabilities.CapabilityKey
 @InternalKrigApi
 public interface CapabilityHost {
     public val installedCapabilities: Collection<Capability<*>>
+
+    /**
+     * Scope for background work started by a capability's `onAttach`. A child of the host's device
+     * scope (with a `SupervisorJob`, so one capability's failure does not tear down the others), it is
+     * cancelled when the host closes — capability jobs must launch here, never in `GlobalScope`, so
+     * they cannot outlive the host.
+     */
+    public val capabilityScope: CoroutineScope
 
     public val capabilityToggles: CapabilityToggles
 

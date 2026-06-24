@@ -21,16 +21,18 @@ public interface DeviceMessage {
     public val sourceDevice: Name?
     public val targetDevice: Name?
     public val time: Instant
-
-    /**
-     * Creates a copy of this message with the source device name transformed by [block].
-     * Used by composite devices to correctly namespace messages from their children.
-     */
-    public fun changeSource(block: (Name) -> Name): DeviceMessage
 }
 
-/** A message that initiates a request and expects a response. */
-public interface RequestMessage : DeviceMessage
+/**
+ * A message that initiates a request and expects a response.
+ *
+ * [callerIdentity] carries the ingress caller identity as an opaque wire string (typically a
+ * `Principal.name`); the receiving runtime resolves it to a typed `Principal` via an identity
+ * provider before authorization (see `RequestMessage.executionContext`).
+ */
+public interface RequestMessage : DeviceMessage {
+    public val callerIdentity: String?
+}
 
 /** A message that is a response to a [RequestMessage]. */
 public interface ResponseMessage : DeviceMessage

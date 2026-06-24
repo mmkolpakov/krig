@@ -1,6 +1,6 @@
 @file:OptIn(
     space.kscience.krig.core.ExperimentalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
 )
 
 package space.kscience.krig.demo

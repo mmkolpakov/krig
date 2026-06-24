@@ -17,7 +17,12 @@ public sealed interface HubEvent {
     public data class Attached(
         override val name: Name,
         override val time: Instant,
-        public val deviceContractFqName: String,
+        /**
+         * Diagnostic label of the attached device implementation. Producers supply the most
+         * stable identity they know (a manifest id when available, otherwise the runtime
+         * class's simple name); the label is for humans and logs, not for dispatch.
+         */
+        public val deviceType: String,
     ) : HubEvent
 
     @Serializable
@@ -33,7 +38,9 @@ public sealed interface HubEvent {
     public data class Replaced(
         override val name: Name,
         override val time: Instant,
-        public val previousContractFqName: String,
-        public val newContractFqName: String,
+        /** Diagnostic label of the replaced device implementation; see [Attached.deviceType]. */
+        public val previousType: String,
+        /** Diagnostic label of the replacement device implementation; see [Attached.deviceType]. */
+        public val newType: String,
     ) : HubEvent
 }

@@ -23,7 +23,11 @@ public interface DeviceState<out T> {
     /** Emits a new item whenever the value, timestamp, or quality changes. */
     public val stateFlow: Flow<ObservedValue<T?>>
 
-    /** Emits only the value part of the state on each change. */
+    /**
+     * Emits only the value part of the state on each [stateFlow] emission. Because the source
+     * fires on value, timestamp, *or* quality changes, consecutive identical values are possible;
+     * apply `distinctUntilChanged()` downstream when only value transitions matter.
+     */
     public val valueFlow: Flow<T?> get() = stateFlow.map { it.value }
 }
 

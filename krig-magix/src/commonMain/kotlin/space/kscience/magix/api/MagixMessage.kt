@@ -6,6 +6,13 @@ import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.names.Name
 
 /**
+ * Shared immutable empty-headers instance reused as the default for [MagixMessage], [MagixEnvelope]
+ * and [MagixEndpoint.send]. A `JsonObject` is immutable, so one instance is safe to share — this avoids
+ * allocating a throwaway `JsonObject(emptyMap())` for every header-less message on the hot path.
+ */
+internal val EmptyMagixHeaders: JsonObject = JsonObject(emptyMap())
+
+/**
  * Serializable KRig/DataForge Magix message.
  *
  * `sourceEndpoint` / `targetEndpoint` / `topic` are typed [Name] in Kotlin but serialise as
@@ -26,7 +33,7 @@ public data class MagixMessage(
     val id: String? = null,
     val parentId: String? = null,
     val user: JsonElement? = null,
-    val headers: JsonObject = JsonObject(emptyMap()),
+    val headers: JsonObject = EmptyMagixHeaders,
 )
 
 /** Reads an optional structured header by [name]. */

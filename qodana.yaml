@@ -24,6 +24,8 @@ exclude:
       - krig-ksp-processor/src/test/kotlin/space/kscience/krig/ksp/SerializersModuleGeneratorTest.kt
   - name: All
     paths:
+      - krig-demo
+      - krig-benchmarks
       - build
       - buildSrc/build
       - krig-assembly/build
@@ -32,7 +34,6 @@ exclude:
       - krig-contracts/build
       - krig-demo/build
       - krig-identity/build
-      - krig-io/build
       - krig-jupyter/build
       - krig-ksp-processor/build
       - krig-magix/build

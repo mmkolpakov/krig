@@ -40,8 +40,8 @@ public interface Capability<S : Any> {
     public val key: CapabilityKey<*>
 
     /**
-     * Live runtime state. May be `Unit` for purely behavioural capabilities (e.g. legacy
-     * lifecycle), an aggregate of `MutableStateFlow`s, or any plain mutable holder.
+     * Live runtime state. May be `Unit` for purely behavioural capabilities, an aggregate of
+     * `MutableStateFlow`s, or any plain mutable holder.
      */
     public val state: S
 

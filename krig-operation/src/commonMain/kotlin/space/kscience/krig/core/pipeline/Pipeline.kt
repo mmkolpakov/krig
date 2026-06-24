@@ -3,10 +3,14 @@
 package space.kscience.krig.core.pipeline
 
 import kotlin.time.TimeSource
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultException
@@ -15,6 +19,8 @@ import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
+import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.data.compareNames
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.result.OperationOutcome
@@ -25,30 +31,20 @@ import space.kscience.krig.core.operations.ResourceLockRegistry
 import kotlin.time.Duration
 
 /**
- * Composable middleware pipeline — a fixed-order chain of interceptors compiled
- * once at reader/writer/action creation time. Each interceptor wraps the next call;
- * the hot path invokes the pre-built chain with zero GC pressure.
- *
- * Minimal suspend operation pipeline for control-plane policies.
+ * Coroutine-scoped record of resource locks already held on the current call path. Lets a nested
+ * operation re-enter a resource its caller holds instead of self-deadlocking on the non-reentrant
+ * [kotlinx.coroutines.sync.Mutex] (same coroutine = sequential, so re-entry is safe).
  */
-public class Pipeline<I, O> {
-    private val interceptors: MutableList<suspend (I, suspend (I) -> O) -> O> = mutableListOf()
-
-    /** Concatenates [interceptor] at the start of the chain (outermost wrapper). */
-    public fun prepend(interceptor: suspend (I, suspend (I) -> O) -> O) {
-        interceptors.add(0, interceptor)
-    }
-
-    /** Builds the compiled executor — call once, reuse forever. */
-    public fun build(terminal: suspend (I) -> O): suspend (I) -> O =
-        interceptors.foldRight(terminal) { interceptor, next ->
-            { input -> interceptor(input, next) }
-        }
+@InternalKrigApi
+public class HeldResourceLocks(public val names: Set<Name>) :
+    AbstractCoroutineContextElement(Key) {
+    public companion object Key : CoroutineContext.Key<HeldResourceLocks>
 }
 
 /**
- * Locks each resource once in deterministic order. Resource locks are exclusive;
- * duplicate resource names are merged before acquisition.
+ * Locks each resource once in deterministic order (exclusive; duplicate names merged). Resources
+ * already held by the caller (see [HeldResourceLocks]) are skipped, so re-entrant operation chains
+ * do not deadlock the non-reentrant mutex.
  */
 @OptIn(InternalKrigApi::class)
 @InternalKrigApi
@@ -58,13 +54,18 @@ public suspend fun <R> acquireAllLocks(
     block: suspend () -> R,
 ): R {
     if (locks.isEmpty()) return block()
-    val ordered = locks.canonicalizeLocks()
-    return acquireRecursively(registry, ordered, 0, block)
+    val held = currentCoroutineContext()[HeldResourceLocks]?.names.orEmpty()
+    val ordered = locks.canonicalizeLocks().filterNot { it.resourceName in held }
+    if (ordered.isEmpty()) return block()
+    val nextHeld = held + ordered.map { it.resourceName }
+    return acquireRecursively(registry, ordered, 0) {
+        withContext(HeldResourceLocks(nextHeld)) { block() }
+    }
 }
 
 private fun List<ResourceLock>.canonicalizeLocks(): List<ResourceLock> =
     distinctBy { it.resourceName }
-        .sortedBy { it.resourceName.toString() }
+        .sortedWith { left, right -> compareNames(left.resourceName, right.resourceName) }
 
 @OptIn(InternalKrigApi::class)
 private suspend fun <R> acquireRecursively(
@@ -120,6 +121,7 @@ public suspend fun <R> catchingOperationOutcome(block: suspend () -> R): Operati
 @InternalKrigApi
 public suspend fun <R> withGlobalTimeout(
     timeout: Duration?,
+    operation: Name? = null,
     block: suspend () -> OperationOutcome<R>,
 ): OperationOutcome<R> =
     if (timeout == null) {
@@ -128,7 +130,7 @@ public suspend fun <R> withGlobalTimeout(
         try {
             withTimeout(timeout) { block() }
         } catch (_: TimeoutCancellationException) {
-            OperationOutcome.Fail(TimeoutFault())
+            OperationOutcome.Fail(TimeoutFault(operation = operation, budget = timeout))
         }
     }
 
@@ -138,56 +140,38 @@ private fun nextRetryDelay(current: Duration, policy: RetryPolicy): Duration {
     return if (candidate > policy.maxDelay) policy.maxDelay else candidate
 }
 
-/** Timing wrapper: captures duration + fault for observers. */
+/**
+ * Folds this interceptor chain over a fixed [plan] and [terminal] into a single executor, once.
+ *
+ * The chain is composed outside-in (the first interceptor is the outermost), and [observers] wrap the
+ * whole chain with timing and fault capture (always in `finally`, never altering operation semantics).
+ * Because the [plan] is baked in here, the result is a zero-argument-header executor that a typed
+ * reader/writer/action compiles **once** and reuses across calls — the `proceed` closures are
+ * allocated at compile time, not per invocation, so the hot path stays allocation-free.
+ */
 @InternalKrigApi
-public fun <I, O> Pipeline<I, OperationOutcome<O>>.wrapWithTiming(
-    observers: suspend (durationNanos: Long, fault: OperationFault?) -> Unit,
-) {
-    prepend { input, next ->
-        val mark = TimeSource.Monotonic.markNow()
-        var captured: OperationFault? = null
-        try {
-            val result = next(input)
-            captured = result.faultOrNull()
-            result
-        }
-        catch (e: OperationFaultException) {
-            captured = e.fault
-            OperationOutcome.Fail(e.fault)
-        }
-        catch (e: CancellationException) { throw e }
-        catch (e: Throwable) {
-            captured = faultForThrowable(e)
-            throw e
-        }
-        finally {
-            ignoreObserverFailure { observers(mark.elapsedNow().inWholeNanoseconds, captured) }
-        }
+public fun List<OperationInterceptor>.compileChain(
+    plan: OperationPlan,
+    observers: List<OperationObserver>,
+    timeSource: TimeSource,
+    terminal: OperationTerminal,
+): suspend (Any?) -> OperationOutcome<Any?> {
+    var proceed: OperationProceed = terminal
+    for (index in indices.reversed()) {
+        val interceptor = this[index]
+        val next = proceed
+        proceed = { payload -> interceptor.intercept(plan, payload, next) }
     }
-}
-
-/** Wraps the complete operation in one timeout budget. */
-@InternalKrigApi
-public fun <I, O> Pipeline<I, OperationOutcome<O>>.wrapWithGlobalTimeout(
-    timeout: Duration?,
-) {
-    prepend { input, next -> withGlobalTimeout(timeout) { next(input) } }
-}
-
-/** Wraps only IO/driver work in retry semantics. */
-@InternalKrigApi
-public fun <I, O> Pipeline<I, OperationOutcome<O>>.wrapWithIoRetry(
-    retry: RetryPolicy?,
-) {
-    prepend { input, next -> withIoRetry(retry) { next(input) } }
+    val chain = proceed
+    return { payload -> observeOperation(plan, observers, timeSource) { chain(payload) } }
 }
 
 /**
- * Compiles policy middleware shared by typed readers, writers, and actions.
- *
- * The payload is erased here because gates, locks, timeouts, retries, and observers
- * operate on [OperationPlan]. Typed facades validate descriptors and converters before
- * values cross this boundary.
+ * Compiles the built-in policy chain (`timeout → gates → retry → locks`) shared by typed readers,
+ * writers, and actions, returning an executor that takes the reusable [OperationPlan] header and a
+ * per-call [OperationTerminal] separately. Typed facades that read one descriptor repeatedly should
+ * instead compile a chain once via [compileChain]; this form serves the dynamic Meta and batch paths
+ * where the terminal varies per call.
  */
 @InternalKrigApi
 public fun compileOperationExecutor(
@@ -195,24 +179,34 @@ public fun compileOperationExecutor(
     observers: List<OperationObserver>,
     registry: ResourceLockRegistry,
     timeSource: TimeSource = TimeSource.Monotonic,
-): suspend (OperationPlan, Any?) -> OperationOutcome<Any?> = { plan, payload ->
+): suspend (OperationPlan, Any?, OperationTerminal) -> OperationOutcome<Any?> {
+    val interceptors = defaultOperationInterceptors(gates, registry)
+    return { plan, payload, terminal ->
+        interceptors.compileChain(plan, observers, timeSource, terminal)(payload)
+    }
+}
+
+/**
+ * Runs [block] under observer timing and fault capture. The duration and any fault (returned as a
+ * failure, raised as [OperationFaultException], or synthesized from a `Throwable`) are reported to
+ * [observers] in `finally`; observer failures are swallowed so observability never changes semantics.
+ */
+@InternalKrigApi
+public suspend fun observeOperation(
+    plan: OperationPlan,
+    observers: List<OperationObserver>,
+    timeSource: TimeSource,
+    block: suspend () -> OperationOutcome<Any?>,
+): OperationOutcome<Any?> {
     val mark = timeSource.markNow()
     var captured: OperationFault? = null
     try {
-        val result = withGlobalTimeout(plan.policy.timeout) {
-            for (gate in gates) {
-                val gateResult = gate.check(plan.context)
-                if (gateResult is OperationOutcome.Fail) return@withGlobalTimeout gateResult
-            }
-            withIoRetry(plan.policy.retry) {
-                acquireAllLocks(registry, plan.policy.locks) { plan.terminal(payload) }
-            }
-        }
+        val result = block()
         captured = result.faultOrNull()
-        result
+        return result
     } catch (e: OperationFaultException) {
         captured = e.fault
-        OperationOutcome.Fail(e.fault)
+        return OperationOutcome.Fail(e.fault)
     } catch (e: CancellationException) {
         throw e
     } catch (e: Throwable) {
@@ -237,7 +231,9 @@ private fun faultForThrowable(e: Throwable): GenericOperationFault =
 private suspend inline fun ignoreObserverFailure(block: suspend () -> Unit) {
     try {
         block()
-    } catch (_: Throwable) {
-        // Observability must never change operation semantics.
+    } catch (ce: CancellationException) {
+        throw ce
+    } catch (_: Exception) {
+        // Observability must never change operation semantics; cancellation and fatal errors must.
     }
 }

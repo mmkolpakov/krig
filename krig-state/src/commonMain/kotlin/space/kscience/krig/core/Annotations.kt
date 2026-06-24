@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.core
+package space.kscience.krig.core
 
 /**
  * Marks declarations that are internal to the project.
@@ -41,8 +41,8 @@ public annotation class UnstableKrigForSubclassing
 @RequiresOptIn(
     message = "This API allocates Meta or boxes typed values on the hot path. " +
             "Prefer typed primitive accessors (TypedReader, TypedSampler, RingDoubleSampler) " +
-            "for high-frequency reads. Opt in with @OptIn(PerformancePitfall::class).",
+            "for high-frequency reads. Opt in with @OptIn(KrigPerformancePitfall::class).",
     level = RequiresOptIn.Level.WARNING,
 )
 @Retention(AnnotationRetention.BINARY)
-public annotation class PerformancePitfall
+public annotation class KrigPerformancePitfall

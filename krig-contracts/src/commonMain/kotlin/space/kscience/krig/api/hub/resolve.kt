@@ -1,4 +1,4 @@
-﻿@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 
 package space.kscience.krig.api.hub
 

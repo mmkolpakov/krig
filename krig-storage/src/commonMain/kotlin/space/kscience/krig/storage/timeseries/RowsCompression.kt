@@ -3,6 +3,7 @@ package space.kscience.krig.storage.timeseries
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.Serializable
+import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.DataQuality
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.milliseconds
@@ -42,7 +43,7 @@ public data class RowsCompression(
 public fun <T> TimeSeriesChunk<T>.compressRows(compression: RowsCompression = RowsCompression.Default): TimeSeriesChunk<T> {
     if (rows.isEmpty() || compression == RowsCompression.None) return this
     val compressed = ArrayList<TimeSeriesRow<T>>(rows.size)
-    val previousValues: MutableMap<Any, Any?> = mutableMapOf()
+    val previousValues: MutableMap<Name, T> = mutableMapOf()
     var previousQuality: DataQuality? = null
     var lastKeptTime: Instant? = null
 

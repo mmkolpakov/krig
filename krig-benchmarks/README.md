@@ -47,3 +47,18 @@ JMH-backed scenarios use `kotlinx-benchmark`:
 ```shell
 ./gradlew :krig-benchmarks:benchmark
 ```
+
+## Transport encoding
+
+The transport probe compares per-message `DeviceMessage` encoding with a columnar Arrow batch:
+
+- JSON, CBOR, and ProtoBuf payload sizes and round-trips;
+- Magix JSON envelope overhead;
+- Arrow IPC sizes with and without ZSTD compression;
+- per-value allocation and encode time for a fixed batch.
+
+```shell
+./gradlew :krig-benchmarks:transportProbe
+```
+
+The report is written to `krig-benchmarks/build/krig-benchmarks/transport-results.md`.

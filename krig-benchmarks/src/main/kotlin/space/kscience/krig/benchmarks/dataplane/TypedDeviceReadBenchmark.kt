@@ -28,7 +28,7 @@ import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.krig.core.meta.doubleProperty
 import space.kscience.krig.core.meta.mutableDoubleProperty
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.dsl.device
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -90,7 +90,7 @@ internal val BenchSensorManifest: DeviceManifest = manifestOf(
     version = "1.0.0",
 )
 
-internal fun benchSensorBackend() = backend {
+internal fun benchSensorBackend() = deviceBackend {
     var rpm = 1_200.0
     reader(BenchSensorSpec.rpm) { rpm }
     writer(BenchSensorSpec.rpm) { value -> rpm = value }

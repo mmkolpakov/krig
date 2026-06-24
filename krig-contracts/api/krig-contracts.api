@@ -47,23 +47,15 @@ public abstract interface annotation class space/kscience/krig/api/discovery/Tar
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public abstract class space/kscience/krig/api/factory/DeviceFactory : space/kscience/dataforge/context/Factory, space/kscience/krig/core/contracts/DeviceManifest {
+public abstract class space/kscience/krig/api/factory/DeviceFactory : space/kscience/dataforge/context/Factory {
 	public static final field Companion Lspace/kscience/krig/api/factory/DeviceFactory$Companion;
 	public static final field TYPE Ljava/lang/String;
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;)V
 	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
 	public final fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/Device;
 	public abstract fun create (Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/Device;
-	public fun get (Ljava/lang/String;)Lspace/kscience/krig/api/features/PipelineFeatureSpec;
-	public fun get (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/features/PipelineFeatureSpec;
-	public fun getActions ()Ljava/util/Map;
 	public final fun getConfigConverter ()Lspace/kscience/dataforge/meta/MetaConverter;
-	public fun getDeviceContractFqName ()Ljava/lang/String;
-	public fun getFeatures ()Ljava/util/Map;
-	public fun getId ()Lspace/kscience/dataforge/names/Name;
-	public fun getMeta ()Lspace/kscience/dataforge/meta/Meta;
-	public fun getProperties ()Ljava/util/Map;
-	public fun getVersion ()Ljava/lang/String;
+	public final fun getId ()Lspace/kscience/dataforge/names/Name;
 }
 
 public final class space/kscience/krig/api/factory/DeviceFactory$Companion {
@@ -76,10 +68,24 @@ public final class space/kscience/krig/api/factory/DeviceFactoryKt {
 	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
 }
 
+public abstract interface class space/kscience/krig/api/factory/DeviceTemplate : space/kscience/dataforge/context/Factory {
+	public abstract fun getDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public abstract fun getId ()Lspace/kscience/dataforge/names/Name;
+	public fun validate (Lspace/kscience/dataforge/meta/Meta;)Z
+}
+
+public final class space/kscience/krig/api/factory/DeviceTemplate$DefaultImpls {
+	public static fun validate (Lspace/kscience/krig/api/factory/DeviceTemplate;Lspace/kscience/dataforge/meta/Meta;)Z
+}
+
+public final class space/kscience/krig/api/factory/DeviceTemplateKt {
+	public static final fun DeviceTemplate (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceTemplate;
+	public static final fun asTemplate (Lspace/kscience/krig/api/factory/DeviceFactory;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/api/factory/DeviceTemplate;
+}
+
 public abstract interface class space/kscience/krig/api/hub/DeviceHub : space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/DeviceNode {
 	public abstract fun attach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun attachAll (Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
 	public abstract fun detach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun detach$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun getDevices ()Ljava/util/Map;
@@ -93,12 +99,9 @@ public final class space/kscience/krig/api/hub/DeviceHub$DefaultImpls {
 	public static fun action (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public static fun actionSpec (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public static fun close (Lspace/kscience/krig/api/hub/DeviceHub;)V
-	public static fun content (Lspace/kscience/krig/api/hub/DeviceHub;Ljava/lang/String;)Ljava/util/Map;
 	public static synthetic fun detach$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static fun executeOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun getChildrenFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/StateFlow;
-	public static fun getDefaultChainTarget (Lspace/kscience/krig/api/hub/DeviceHub;)Ljava/lang/String;
-	public static fun getDefaultTarget (Lspace/kscience/krig/api/hub/DeviceHub;)Ljava/lang/String;
 	public static fun getMessageFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getMessagePayloadFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlin/time/TimeSource;
@@ -198,11 +201,9 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/DeviceRuntime;)V
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
-	public fun capability (Lspace/kscience/krig/core/capabilities/CapabilityKey;)Lspace/kscience/krig/core/capabilities/Capability;
 	public fun close ()V
 	public fun closeGracefully-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected final fun closeGracefullyUsing-KLykuaI (JLkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
 	protected fun doExecuteOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected fun doReadBatchBinaryOutcome (Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	protected fun doReadBatchOutcome (Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -215,15 +216,12 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public final fun executeOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun executeOutcome (Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun getActionDescriptors ()Ljava/util/Map;
+	public fun getCapabilityScope ()Lkotlinx/coroutines/CoroutineScope;
 	public fun getCapabilityToggles ()Lspace/kscience/krig/core/contracts/CapabilityToggles;
 	public fun getClock ()Lkotlin/time/Clock;
-	public fun getContext ()Lspace/kscience/dataforge/context/Context;
+	public final fun getContext ()Lspace/kscience/dataforge/context/Context;
 	public synthetic fun getControlFlow ()Lkotlinx/coroutines/flow/Flow;
-	public final fun getControlFlow ()Lkotlinx/coroutines/flow/SharedFlow;
 	public synthetic fun getDataFlow ()Lkotlinx/coroutines/flow/Flow;
-	public final fun getDataFlow ()Lkotlinx/coroutines/flow/SharedFlow;
-	public fun getDefaultChainTarget ()Ljava/lang/String;
-	public fun getDefaultTarget ()Ljava/lang/String;
 	public fun getDeviceScope ()Lkotlinx/coroutines/CoroutineScope;
 	public final fun getInstalledCapabilities ()Ljava/util/Collection;
 	public fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
@@ -231,7 +229,6 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public fun getMessageFlow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getMessagePayloadFlow ()Lkotlinx/coroutines/flow/Flow;
 	protected final fun getMessaging ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
-	public fun getMeta ()Lspace/kscience/dataforge/meta/ObservableMeta;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
 	public fun getPropertyDescriptors ()Ljava/util/Map;
 	public final fun getRuntime ()Lspace/kscience/krig/core/contracts/DeviceRuntime;
@@ -258,6 +255,28 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public fun writeOutcome (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun writePropertyOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedWriter;
+}
+
+public final class space/kscience/krig/core/contracts/AppliedSubscribeOptions {
+	public static final field Companion Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Double;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun copy (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDiscardPolicy ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun getRevisedMaxRateHz ()Ljava/lang/Double;
+	public final fun getRevisedQueueSize ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/contracts/AppliedSubscribeOptions$Companion {
+	public final fun getClientSide ()Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
 }
 
 public final class space/kscience/krig/core/contracts/BackendCoreKt {
@@ -287,11 +306,10 @@ public final class space/kscience/krig/core/contracts/ConnectionProperty {
 	public final fun setValue (Ljava/lang/Object;)V
 }
 
-public abstract interface class space/kscience/krig/core/contracts/Device : java/lang/AutoCloseable, space/kscience/dataforge/context/ContextAware, space/kscience/dataforge/provider/Provider, space/kscience/krig/core/contracts/DeviceEnvironment, space/kscience/krig/core/contracts/typed/TypedDevice {
+public abstract interface class space/kscience/krig/core/contracts/Device : java/lang/AutoCloseable, space/kscience/krig/core/contracts/DeviceEnvironment, space/kscience/krig/core/contracts/typed/TypedDevice {
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public fun close ()V
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
 	public abstract fun executeOutcome (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun executeOutcome$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun getActionDescriptors ()Ljava/util/Map;
@@ -302,7 +320,6 @@ public abstract interface class space/kscience/krig/core/contracts/Device : java
 	public abstract fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
 	public fun getMessageFlow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getMessagePayloadFlow ()Lkotlinx/coroutines/flow/Flow;
-	public abstract fun getMeta ()Lspace/kscience/dataforge/meta/ObservableMeta;
 	public abstract fun getName ()Lspace/kscience/dataforge/names/Name;
 	public abstract fun getPropertyDescriptors ()Ljava/util/Map;
 	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
@@ -327,11 +344,8 @@ public final class space/kscience/krig/core/contracts/Device$DefaultImpls {
 	public static fun action (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public static fun actionSpec (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public static fun close (Lspace/kscience/krig/core/contracts/Device;)V
-	public static fun content (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;)Ljava/util/Map;
 	public static fun executeOutcome (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun executeOutcome$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static fun getDefaultChainTarget (Lspace/kscience/krig/core/contracts/Device;)Ljava/lang/String;
-	public static fun getDefaultTarget (Lspace/kscience/krig/core/contracts/Device;)Ljava/lang/String;
 	public static fun getMessageFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getMessagePayloadFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/core/contracts/Device;)Lkotlin/time/TimeSource;
@@ -354,6 +368,7 @@ public final class space/kscience/krig/core/contracts/Device$DefaultImpls {
 }
 
 public abstract interface class space/kscience/krig/core/contracts/DeviceBackend : java/lang/AutoCloseable {
+	public fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun close ()V
 	public abstract fun execute (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun read (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -368,6 +383,7 @@ public abstract interface class space/kscience/krig/core/contracts/DeviceBackend
 }
 
 public final class space/kscience/krig/core/contracts/DeviceBackend$DefaultImpls {
+	public static fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchBinary (Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchObserved (Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBinary (Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -382,25 +398,27 @@ public final class space/kscience/krig/core/contracts/DeviceBackendBuilder {
 	public final fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/jvm/functions/Function2;)V
 	public final fun actionMeta (Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/jvm/functions/Function2;)V
 	public final fun batchBinaryReader (Lkotlin/jvm/functions/Function3;)V
+	public final fun batchMetaReader (Lkotlin/jvm/functions/Function3;)V
 	public final fun batchObservedReader (Lkotlin/jvm/functions/Function3;)V
 	public final fun batchWriter (Lkotlin/jvm/functions/Function3;)V
+	public final fun binaryReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
+	public final fun bytesReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
 	public final fun computed (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
 	public final fun computed (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
+	public final fun observedReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
 	public final fun onClose (Lkotlin/jvm/functions/Function0;)V
 	public final fun onStep (Lkotlin/jvm/functions/Function1;)V
-	public final fun read (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun readBinary (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun readBytes (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun readObserved (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
 	public final fun readable (Ljava/lang/String;Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
 	public final fun readable (Lspace/kscience/krig/core/meta/DevicePropertyContract;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
+	public final fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
+	public final fun sampler (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function0;)V
 	public final fun writable (Ljava/lang/String;Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
 	public final fun writable (Lspace/kscience/krig/core/meta/DevicePropertyContract;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
-	public final fun write (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
+	public final fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
 }
 
 public final class space/kscience/krig/core/contracts/DeviceBackendBuilderKt {
-	public static final fun deviceBackend (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/DeviceBackend;
+	public static final fun deviceBackend (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
 	public static final fun steppedBackend (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/SteppedBackend;
 }
 
@@ -420,62 +438,42 @@ public final class space/kscience/krig/core/contracts/DeviceBackendExtensionsKt 
 	public static final fun metaOf (J)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun metaOf (Ljava/lang/String;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun metaOf (Z)Lspace/kscience/dataforge/meta/Meta;
-	public static final fun observedMeta (DLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static final fun observedMeta (ILkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static final fun observedMeta (JLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static final fun observedMeta (Ljava/lang/String;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
+	public static final fun observedMeta (Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static final fun observedMeta (Lspace/kscience/dataforge/meta/Meta;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static final fun observedMeta (ZLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static synthetic fun observedMeta$default (DLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static synthetic fun observedMeta$default (ILkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static synthetic fun observedMeta$default (JLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static synthetic fun observedMeta$default (Ljava/lang/String;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
+	public static synthetic fun observedMeta$default (Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
 	public static synthetic fun observedMeta$default (Lspace/kscience/dataforge/meta/Meta;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static synthetic fun observedMeta$default (ZLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/data/ObservedValue;
-	public static final fun okObservedMeta (DLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static final fun okObservedMeta (ILkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static final fun okObservedMeta (JLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static final fun okObservedMeta (Ljava/lang/String;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static final fun okObservedMeta (Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
 	public static final fun okObservedMeta (Lspace/kscience/dataforge/meta/Meta;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static final fun okObservedMeta (ZLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static synthetic fun okObservedMeta$default (DLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static synthetic fun okObservedMeta$default (ILkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static synthetic fun okObservedMeta$default (JLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static synthetic fun okObservedMeta$default (Ljava/lang/String;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
+	public static synthetic fun okObservedMeta$default (Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
 	public static synthetic fun okObservedMeta$default (Lspace/kscience/dataforge/meta/Meta;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static synthetic fun okObservedMeta$default (ZLkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/api/result/OperationOutcome;
 	public static final fun read (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBinaryBlock (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBinaryOutcome (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBytes (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readBytesOutcome (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readObservedOrThrow (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun write (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/meta/DevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun write (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun writeBytes (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/core/contracts/DeviceBackend;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;[BLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceCoreKt {
 	public static final fun execute (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun execute$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun executeId (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun executeId$default (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun executePath (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun executePath$default (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun getActionNames (Lspace/kscience/krig/core/contracts/Device;)Ljava/util/Set;
+	public static final fun getFaultMessageFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun getPropertyNames (Lspace/kscience/krig/core/contracts/Device;)Ljava/util/Set;
 	public static final fun readProperty (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun readPropertyId (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun readPropertyPath (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun subscribeFromContext (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun subscribePayloadsFromContext (Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun writeProperty (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static final fun writePropertyId (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun writePropertyPath (Lspace/kscience/krig/core/contracts/Device;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract interface class space/kscience/krig/core/contracts/DeviceEnvironment {
 	public abstract fun getClock ()Lkotlin/time/Clock;
-	public abstract fun getDeviceScope ()Lkotlinx/coroutines/CoroutineScope;
 	public abstract fun getName ()Lspace/kscience/dataforge/names/Name;
 	public fun getTimeSource ()Lkotlin/time/TimeSource;
 }
@@ -490,6 +488,11 @@ public final class space/kscience/krig/core/contracts/DeviceExtensionsKt {
 	public static final fun executeOutcome (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun read (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun write (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/contracts/DeviceLoopKt {
+	public static final fun runDeviceLoop-MSY_5wg (JLkotlin/time/Duration;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun runDeviceLoop-MSY_5wg$default (JLkotlin/time/Duration;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public abstract interface class space/kscience/krig/core/contracts/DeviceManifest {
@@ -551,7 +554,9 @@ public final class space/kscience/krig/core/contracts/DeviceMessaging {
 }
 
 public final class space/kscience/krig/core/contracts/DeviceMessaging$Companion {
+	public final fun fromMeta (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public final fun getDefault ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
+	public final fun resolve (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceMessaging$Strategy : java/lang/Enum {
@@ -563,18 +568,14 @@ public final class space/kscience/krig/core/contracts/DeviceMessaging$Strategy :
 	public static fun values ()[Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
 }
 
-public abstract interface class space/kscience/krig/core/contracts/DeviceNode : space/kscience/dataforge/provider/Provider {
-	public fun content (Ljava/lang/String;)Ljava/util/Map;
+public abstract interface class space/kscience/krig/core/contracts/DeviceNode {
 	public abstract fun getChildren ()Ljava/util/Map;
 	public fun getChildrenFlow ()Lkotlinx/coroutines/flow/StateFlow;
 	public abstract fun getDevice ()Lspace/kscience/krig/core/contracts/Device;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceNode$DefaultImpls {
-	public static fun content (Lspace/kscience/krig/core/contracts/DeviceNode;Ljava/lang/String;)Ljava/util/Map;
 	public static fun getChildrenFlow (Lspace/kscience/krig/core/contracts/DeviceNode;)Lkotlinx/coroutines/flow/StateFlow;
-	public static fun getDefaultChainTarget (Lspace/kscience/krig/core/contracts/DeviceNode;)Ljava/lang/String;
-	public static fun getDefaultTarget (Lspace/kscience/krig/core/contracts/DeviceNode;)Ljava/lang/String;
 }
 
 public final class space/kscience/krig/core/contracts/DeviceNodeBatchOperationsKt {
@@ -605,6 +606,7 @@ public final class space/kscience/krig/core/contracts/DeviceNodeKt {
 }
 
 public final class space/kscience/krig/core/contracts/DeviceRuntime {
+	public static final field Companion Lspace/kscience/krig/core/contracts/DeviceRuntime$Companion;
 	public fun <init> (Lspace/kscience/dataforge/context/Context;Lkotlin/time/Clock;Lspace/kscience/krig/core/contracts/DeviceMessaging;Lspace/kscience/krig/core/operations/HybridLogicalClock;Lkotlin/time/TimeSource;)V
 	public synthetic fun <init> (Lspace/kscience/dataforge/context/Context;Lkotlin/time/Clock;Lspace/kscience/krig/core/contracts/DeviceMessaging;Lspace/kscience/krig/core/operations/HybridLogicalClock;Lkotlin/time/TimeSource;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/context/Context;
@@ -624,11 +626,49 @@ public final class space/kscience/krig/core/contracts/DeviceRuntime {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/core/contracts/DeviceRuntime$Companion {
+	public final fun from (Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/contracts/DeviceMessaging;Z)Lspace/kscience/krig/core/contracts/DeviceRuntime;
+	public static synthetic fun from$default (Lspace/kscience/krig/core/contracts/DeviceRuntime$Companion;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/contracts/DeviceMessaging;ZILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceRuntime;
+}
+
 public final class space/kscience/krig/core/contracts/DeviceScopeElement$Key : kotlin/coroutines/CoroutineContext$Key {
+}
+
+public final class space/kscience/krig/core/contracts/DiscardPolicy : java/lang/Enum {
+	public static final field KeepLatest Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public static final field KeepOldest Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public static fun values ()[Lspace/kscience/krig/core/contracts/DiscardPolicy;
 }
 
 public abstract interface class space/kscience/krig/core/contracts/GracefullyCloseable {
 	public abstract fun closeGracefully-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/contracts/MetaBackendAdapter : space/kscience/krig/core/contracts/DeviceBackend {
+	public fun <init> (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)V
+	public synthetic fun <init> (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun close ()V
+	public fun execute (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun read (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun readBatchBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun readBatchObserved (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun readBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun readObserved (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun shutdown (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun write (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeBatch (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writeBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/io/Binary;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/contracts/MetaBackendAdapterKt {
+	public static final fun metaBackendOf (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/DeviceBackend;
+	public static synthetic fun metaBackendOf$default (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceBackend;
+}
+
+public final class space/kscience/krig/core/contracts/OperationTrackingScope$Key : kotlin/coroutines/CoroutineContext$Key {
 }
 
 public abstract interface class space/kscience/krig/core/contracts/SteppedBackend : space/kscience/krig/core/contracts/DeviceBackend {
@@ -636,6 +676,7 @@ public abstract interface class space/kscience/krig/core/contracts/SteppedBacken
 }
 
 public final class space/kscience/krig/core/contracts/SteppedBackend$DefaultImpls {
+	public static fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/SteppedBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchBinary (Lspace/kscience/krig/core/contracts/SteppedBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchObserved (Lspace/kscience/krig/core/contracts/SteppedBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBinary (Lspace/kscience/krig/core/contracts/SteppedBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -648,14 +689,18 @@ public final class space/kscience/krig/core/contracts/SteppedBackend$DefaultImpl
 public final class space/kscience/krig/core/contracts/SubscribeOptions {
 	public static final field Companion Lspace/kscience/krig/core/contracts/SubscribeOptions$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/Double;Ljava/util/Set;)V
-	public synthetic fun <init> (Ljava/lang/Double;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Double;
 	public final fun component2 ()Ljava/util/Set;
-	public final fun copy (Ljava/lang/Double;Ljava/util/Set;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/SubscribeOptions;Ljava/lang/Double;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun copy (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/SubscribeOptions;Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDiscardPolicy ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
 	public final fun getMaxRateHz ()Ljava/lang/Double;
+	public final fun getQueueSize ()Ljava/lang/Integer;
 	public final fun getTypeFilter ()Ljava/util/Set;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -678,6 +723,7 @@ public abstract interface class space/kscience/krig/core/contracts/TransportBack
 }
 
 public final class space/kscience/krig/core/contracts/TransportBackend$DefaultImpls {
+	public static fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/TransportBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchBinary (Lspace/kscience/krig/core/contracts/TransportBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchObserved (Lspace/kscience/krig/core/contracts/TransportBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBinary (Lspace/kscience/krig/core/contracts/TransportBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -688,7 +734,9 @@ public final class space/kscience/krig/core/contracts/TransportBackend$DefaultIm
 }
 
 public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSampler : space/kscience/krig/core/contracts/typed/TypedSampler {
-	public synthetic fun <init> (ILkotlin/reflect/KType;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILkotlin/reflect/KType;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ILkotlin/reflect/KType;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun drainOverrunCount ()J
 	public final fun emitToFlow (Ljava/lang/Object;)V
 	protected final fun emitToFlowIfObserved (Lkotlin/jvm/functions/Function0;)V
 	public final fun flow ()Lkotlinx/coroutines/flow/Flow;
@@ -696,32 +744,37 @@ public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSa
 	protected final fun getHasFlowSubscribers ()Z
 	public final fun getHasLatest ()Z
 	protected final fun getLock ()Ljava/lang/Object;
+	public final fun getTracksQuality ()Z
 	public final fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	protected final fun hasLatestLocked ()Z
+	public final fun latestSeverity-5e092yg ()Lspace/kscience/krig/api/data/QualitySeverity;
 	protected final fun oldestSlotLocked ()I
 	protected final fun reserveSlotLocked ()I
+	protected final fun reserveSlotLocked (I)I
 	protected final fun sizeLocked ()I
+	public final fun snapshotSeverityRanks ()[I
 }
 
 public final class space/kscience/krig/core/contracts/sampling/FlowSampler : space/kscience/krig/core/contracts/sampling/AbstractRingSampler {
-	public synthetic fun <init> (Lkotlin/reflect/KType;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/reflect/KType;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/reflect/KType;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/reflect/KType;IZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun latest ()Ljava/lang/Object;
 	public final fun publish (Ljava/lang/Object;)V
+	public final fun publish-Hib2M5Q (Ljava/lang/Object;I)V
 	public fun snapshot ()Ljava/util/List;
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/core/contracts/sampling/FlowSamplerKt {
-	public static final fun doubleSampler (I)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
+	public static final fun doubleSampler (IZ)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
 	public static final fun doubleSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
-	public static synthetic fun doubleSampler$default (IILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
-	public static final fun intSampler (I)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
+	public static synthetic fun doubleSampler$default (IZILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
+	public static final fun intSampler (IZ)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
 	public static final fun intSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
-	public static synthetic fun intSampler$default (IILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
-	public static final fun longSampler (I)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
+	public static synthetic fun intSampler$default (IZILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
+	public static final fun longSampler (IZ)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
 	public static final fun longSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
-	public static synthetic fun longSampler$default (IILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
+	public static synthetic fun longSampler$default (IZILjava/lang/Object;)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
 	public static final fun requireDoubleSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingDoubleSampler;
 	public static final fun requireIntSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingIntSampler;
 	public static final fun requireLongSampler (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/sampling/RingLongSampler;
@@ -729,61 +782,48 @@ public final class space/kscience/krig/core/contracts/sampling/FlowSamplerKt {
 
 public final class space/kscience/krig/core/contracts/sampling/RingDoubleSampler : space/kscience/krig/core/contracts/sampling/AbstractRingSampler {
 	public fun <init> ()V
-	public fun <init> (I)V
-	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (IZ)V
+	public synthetic fun <init> (IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun latest ()Ljava/lang/Double;
 	public synthetic fun latest ()Ljava/lang/Object;
 	public final fun latestDoubleOr (D)D
 	public final fun latestDoubleOrNaN ()D
 	public final fun publish (D)V
+	public final fun publish-Hib2M5Q (DI)V
 	public final fun publishDouble (D)V
+	public final fun publishDouble (DI)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotDoubleArray ()[D
 }
 
 public final class space/kscience/krig/core/contracts/sampling/RingIntSampler : space/kscience/krig/core/contracts/sampling/AbstractRingSampler {
 	public fun <init> ()V
-	public fun <init> (I)V
-	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (IZ)V
+	public synthetic fun <init> (IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun latest ()Ljava/lang/Integer;
 	public synthetic fun latest ()Ljava/lang/Object;
 	public final fun latestIntOr (I)I
 	public final fun publish (I)V
+	public final fun publish-Hib2M5Q (II)V
 	public final fun publishInt (I)V
+	public final fun publishInt (II)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotIntArray ()[I
 }
 
 public final class space/kscience/krig/core/contracts/sampling/RingLongSampler : space/kscience/krig/core/contracts/sampling/AbstractRingSampler {
 	public fun <init> ()V
-	public fun <init> (I)V
-	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (IZ)V
+	public synthetic fun <init> (IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun latest ()Ljava/lang/Long;
 	public synthetic fun latest ()Ljava/lang/Object;
 	public final fun latestLongOr (J)J
 	public final fun publish (J)V
+	public final fun publish-Hib2M5Q (JI)V
 	public final fun publishLong (J)V
+	public final fun publishLong (JI)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotLongArray ()[J
-}
-
-public final class space/kscience/krig/core/contracts/typed/BackendBuilder {
-	public final fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/jvm/functions/Function2;)V
-	public final fun batchBinaryReader (Lkotlin/jvm/functions/Function3;)V
-	public final fun batchMetaReader (Lkotlin/jvm/functions/Function3;)V
-	public final fun batchObservedReader (Lkotlin/jvm/functions/Function3;)V
-	public final fun batchWriter (Lkotlin/jvm/functions/Function3;)V
-	public final fun binaryReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun bytesReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun observedReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun onClose (Lkotlin/jvm/functions/Function0;)V
-	public final fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
-	public final fun sampler (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function0;)V
-	public final fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
-}
-
-public final class space/kscience/krig/core/contracts/typed/BackendBuilderKt {
-	public static final fun backend (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
 }
 
 public abstract interface class space/kscience/krig/core/contracts/typed/TypedAction {
@@ -824,13 +864,18 @@ public final class space/kscience/krig/core/contracts/typed/TypedDevice$DefaultI
 
 public abstract interface class space/kscience/krig/core/contracts/typed/TypedDeviceBackend : space/kscience/krig/core/contracts/DeviceBackend, space/kscience/krig/core/contracts/typed/TypedBackend {
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public fun actionSpecs ()Ljava/util/Map;
 	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public fun propertySpecs ()Ljava/util/Map;
 }
 
 public final class space/kscience/krig/core/contracts/typed/TypedDeviceBackend$DefaultImpls {
 	public static fun action (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public static fun actionSpec (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public static fun actionSpecs (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;)Ljava/util/Map;
+	public static fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun propertySpec (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public static fun propertySpecs (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;)Ljava/util/Map;
 	public static fun readBatchBinary (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBatchObserved (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readBinary (Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -880,12 +925,15 @@ public abstract interface class space/kscience/krig/core/hook/HookRegistry {
 	public abstract fun handlersOf (Lspace/kscience/krig/core/hook/Hook;)Ljava/util/List;
 	public abstract fun isEmpty ()Z
 	public abstract fun off (Lspace/kscience/krig/core/hook/Hook;Ljava/lang/Object;)V
-	public abstract fun on (Lspace/kscience/krig/core/hook/Hook;Ljava/lang/Object;)V
 	public abstract fun register (Lspace/kscience/krig/core/hook/Hook;Ljava/lang/Object;)Lspace/kscience/krig/core/hook/HookRegistration;
 }
 
 public final class space/kscience/krig/core/hook/HookRegistry$Companion {
 	public final fun buffered ()Lspace/kscience/krig/core/hook/HookRegistry;
+}
+
+public final class space/kscience/krig/core/hook/HookRegistryKt {
+	public static final fun register (Lspace/kscience/krig/core/hook/HookRegistry;Lkotlinx/coroutines/CoroutineScope;Lspace/kscience/krig/core/hook/Hook;Ljava/lang/Object;)Lspace/kscience/krig/core/hook/HookRegistration;
 }
 
 public abstract interface class space/kscience/krig/core/meta/DeviceActionContract {
@@ -902,10 +950,10 @@ public abstract class space/kscience/krig/core/meta/DeviceContractBuilder {
 	public final fun getPropertyContracts ()Ljava/util/List;
 	public final fun getRegisteredActionContracts ()Ljava/util/List;
 	public final fun getRegisteredPropertyContracts ()Ljava/util/List;
-	public final fun mutableProperty (Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
-	public static synthetic fun mutableProperty$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
-	public final fun property (Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
-	public static synthetic fun property$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+	public final fun mutableProperty-67lcQx0 (Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
+	public static synthetic fun mutableProperty-67lcQx0$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+	public final fun property-67lcQx0 (Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
+	public static synthetic fun property-67lcQx0$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/dataforge/meta/MetaConverter;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
 	public final fun registerActionContract (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public final fun registerPropertyContract (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public final fun serializableMutableProperty (Lkotlinx/serialization/KSerializer;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
@@ -915,9 +963,10 @@ public abstract class space/kscience/krig/core/meta/DeviceContractBuilder {
 }
 
 public final class space/kscience/krig/core/meta/DeviceContractBuilderKt {
-	public static final fun deviceActionContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;)Lspace/kscience/krig/core/meta/DeviceActionContract;
-	public static final fun devicePropertyContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
-	public static final fun mutableDevicePropertyContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;
+	public static final fun deviceActionContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public static synthetic fun deviceActionContract$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public static final fun devicePropertyContract-uOl0zu4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public static final fun mutableDevicePropertyContract-uOl0zu4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;
 }
 
 public final class space/kscience/krig/core/meta/DeviceContractBuilderPrimitivesKt {
@@ -964,11 +1013,15 @@ public abstract interface class space/kscience/krig/core/meta/MutableDevicePrope
 }
 
 public final class space/kscience/krig/core/operations/HybridLogicalClock {
-	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun snapshot ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun tick ()Lspace/kscience/krig/core/operations/HlcTimestamp;
-	public final fun update (Lspace/kscience/krig/core/operations/HlcTimestamp;)Lspace/kscience/krig/core/operations/HlcTimestamp;
+	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun snapshot ()Lspace/kscience/krig/api/data/HlcTimestamp;
+	public final fun tick ()Lspace/kscience/krig/api/data/HlcTimestamp;
+	public final fun update (Lspace/kscience/krig/api/data/HlcTimestamp;)Lspace/kscience/krig/api/data/HlcTimestamp;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/BatchReadDecorator {
+	public abstract fun decorate (Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
 }
 
 public abstract interface class space/kscience/krig/core/pipeline/ReadDecorator {

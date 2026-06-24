@@ -3,6 +3,7 @@ package space.kscience.krig.dsl
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeId
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
@@ -14,6 +15,8 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.operationFault
 import space.kscience.krig.api.faults.validationFault
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.runCatchingOperation
@@ -37,7 +40,6 @@ import space.kscience.dataforge.meta.MetaRepr
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlin.time.Duration
@@ -157,10 +159,19 @@ internal class DeclarativeBackendCore(
     val writers: Map<Name, DeviceWriteBlock>,
     val valueWriters: Map<Name, (Any?) -> Unit>,
     val actions: Map<Name, DeviceActionBlock>,
+    val observedReaders: Map<Name, DeviceObservedReadBlock>,
     val closeBody: (() -> Unit)?,
 ) : DeviceBackend {
     private val scopeLock = SynchronizedObject()
     private var cachedScope: DeclarativeScope? = null
+
+    // Routes a DSL scope's sibling read/write through the assembled operation pipeline (timeouts,
+    // resource locks, gates) instead of straight to the backend, so a computed property reading a
+    // contract-backed sibling honours that contract's QoS. Wired once after assembly; returns `null`
+    // (read) / `false` (write) for properties without a registered contract, so schema-less members
+    // keep the direct path. Re-entrant calls are safe: held resource locks are skipped, not re-acquired.
+    internal var pipelineRead: (suspend (Name) -> Meta?)? = null
+    internal var pipelineWrite: (suspend (Name, Meta) -> Boolean)? = null
 
     context(device: DeviceEnvironment)
     private fun scope(): DeclarativeScope {
@@ -186,18 +197,24 @@ internal class DeclarativeBackendCore(
         when (val outcome = readValue(property.name)) {
             is OperationOutcome.Fail -> outcome
             is OperationOutcome.Ok -> runCatchingOperation {
-                when (val value = outcome.value) {
-                    is Meta -> value
-                    is Double -> metaOf(value)
-                    is Int -> metaOf(value)
-                    is Long -> metaOf(value)
-                    is Boolean -> metaOf(value)
-                    is String -> metaOf(value)
-                    is MetaRepr -> value.toMeta()
-                    else -> unsupportedDeclarativeValue(property.name, value)
-                }
+                declarativeValueToMeta(property.name, outcome.value)
             }
         }
+
+    /**
+     * Quality-aware read for properties declared via `observedProperty(name) { ObservedValue(...) }`.
+     * Other properties fall back to the [DeviceBackend] default (a successful Meta read marked GOOD),
+     * so existing declarations keep their zero-overhead value path.
+     */
+    context(device: DeviceEnvironment)
+    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
+        val block = observedReaders[property.name] ?: return super.readObserved(property)
+        return runCatchingOperation {
+            val scope = scope()
+            val observed = with(block) { scope.read() }
+            observed.map { raw -> raw?.let { declarativeValueToMeta(property.name, it) } }
+        }
+    }
 
     context(device: DeviceEnvironment)
     suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta): OperationOutcome<Unit> {
@@ -258,16 +275,18 @@ private class DeclarativeScope(
     val environment: DeviceEnvironment,
 ) : DeviceActionScope {
     override val clock get() = environment.clock
-    override val deviceScope: CoroutineScope get() = environment.deviceScope
+    override val timeSource get() = environment.timeSource
     override val name: Name get() = environment.name
 
     override suspend fun readProperty(name: Name): Meta =
-        context(environment) {
-            core.read(synthesizeProperty(name, mutable = core.writers.containsKey(name))).getOrThrow()
-        }
+        core.pipelineRead?.invoke(name)
+            ?: context(environment) {
+                core.read(synthesizeProperty(name, mutable = core.writers.containsKey(name))).getOrThrow()
+            }
 
-    override suspend fun <T> read(spec: DevicePropertyContract<T>): T =
-        context(environment) {
+    override suspend fun <T> read(spec: DevicePropertyContract<T>): T {
+        core.pipelineRead?.invoke(spec.name)?.let { return spec.converter.read(it) }
+        return context(environment) {
             val value = core.readValue(spec.name).getOrThrow()
             @Suppress("UNCHECKED_CAST")
             when (value) {
@@ -275,6 +294,7 @@ private class DeclarativeScope(
                 else -> value as T
             }
         }
+    }
 
     override suspend fun readDouble(name: Name): Double =
         readDeclarativeValue(name, "Double") { value ->
@@ -322,12 +342,16 @@ private class DeclarativeScope(
         }
 
     override suspend fun writeProperty(name: Name, value: Meta) {
+        val write = core.pipelineWrite
+        if (write != null && write(name, value)) return
         context(environment) {
             core.write(synthesizeProperty(name, mutable = true), value).getOrThrow()
         }
     }
 
     override suspend fun <T> write(spec: MutableDevicePropertyContract<T>, value: T) {
+        val routed = core.pipelineWrite
+        if (routed != null && routed(spec.name, spec.converter.convert(value))) return
         context(environment) {
             core.writeValue(spec.name, value) { raw ->
                 @Suppress("UNCHECKED_CAST")
@@ -361,13 +385,18 @@ private class DeclarativeScope(
         return result?.let(spec.outputConverter::read)
     }
 
-    private suspend fun <T : Any> readDeclarativeValue(name: Name, expected: String, decode: (Any) -> T?): T =
-        context(environment) {
+    private suspend fun <T : Any> readDeclarativeValue(name: Name, expected: String, decode: (Any) -> T?): T {
+        val routed: Any? = core.pipelineRead?.invoke(name)
+        if (routed != null) return decode(routed) ?: readTypeError(name, expected, routed)
+        return context(environment) {
             val value = core.readValue(name).getOrThrow()
             decode(value) ?: readTypeError(name, expected, value)
         }
+    }
 
     private suspend fun writeDeclarativeValue(name: Name, value: Any, toMeta: () -> Meta) {
+        val write = core.pipelineWrite
+        if (write != null && write(name, toMeta())) return
         context(environment) {
             core.writeValue(name, value) { toMeta() }.getOrThrow()
         }
@@ -380,17 +409,22 @@ internal fun declarativeBackend(
     writers: Map<Name, DeviceWriteBlock>,
     valueWriters: Map<Name, (Any?) -> Unit>,
     actions: Map<Name, DeviceActionBlock>,
+    observedReaders: Map<Name, DeviceObservedReadBlock> = emptyMap(),
     stepBody: ((Duration) -> Unit)?,
     closeBody: (() -> Unit)?,
 ): DeviceBackend {
-    val core = DeclarativeBackendCore(readers, writers, valueWriters, actions, closeBody)
+    val core = DeclarativeBackendCore(readers, writers, valueWriters, actions, observedReaders, closeBody)
     return if (stepBody != null) SteppedBackend(core, stepBody) else core
 }
 
-internal fun synthesizeProperty(name: Name, mutable: Boolean): PropertyDescriptor = PropertyDescriptor(
+internal fun synthesizeProperty(
+    name: Name,
+    mutable: Boolean,
+    valueTypeId: TypeId = TypeIds.META,
+): PropertyDescriptor = PropertyDescriptor(
     name = name,
     kind = PropertyKind.LOGICAL,
-    valueTypeId = TypeIds.META,
+    valueTypeId = valueTypeId,
     metaDescriptor = MetaDescriptor(),
     attributes = operationAttributes {
         OperationAttributeKeys.Access(AccessAttribute(readable = true, mutable = mutable))
@@ -406,6 +440,32 @@ internal fun writeTypeError(property: String, expected: String, got: Meta): Noth
                 OperationFaultDetails.MESSAGE put "Property '$property' write requires a scalar $expected value."
                 "actual" put got.toString()
             },
+        ),
+    )
+
+/** Maps a non-null declarative value to [Meta], shared by the value path and the observed path. */
+private fun declarativeValueToMeta(property: Name, value: Any): Meta =
+    when (value) {
+        is Meta -> value
+        is Double -> metaOf(value)
+        is Int -> metaOf(value)
+        is Long -> metaOf(value)
+        is Boolean -> metaOf(value)
+        is String -> metaOf(value)
+        is MetaRepr -> value.toMeta()
+        else -> unsupportedDeclarativeValue(property, value)
+    }
+
+/**
+ * The value-only read path cannot represent absence, so an observed property whose block yields a
+ * `null` value (e.g. unavailable, quality BAD) faults here; quality-aware callers use [DeclarativeBackendCore.readObserved].
+ */
+internal fun observedValueAbsent(property: Name, quality: DataQuality): Nothing =
+    throw OperationFaultException(
+        GenericOperationFault(
+            faultType = OperationFaultTypes.UnsupportedValue,
+            message = "Observed property '$property' produced no value on the value-only path (quality=$quality). " +
+                    "Read it through readObserved to receive the null value with its quality.",
         ),
     )
 
@@ -446,16 +506,17 @@ private fun writeFault(property: Name, value: Any?, cause: Exception): Validatio
     )
 
 // ── DSL action return helpers (usable inside `device { action("x") { ... } }` blocks) ──
+// Named noResult/metaResult on purpose: `ok`/`okUnit` would collide with
+// space.kscience.krig.api.result.ok/okUnit (OperationOutcome constructors) under dual import.
 
-/** Shorthand for an action that returns no result. Equivalent to `null`. */
-@Suppress("SameReturnValue")
-public fun okUnit(): Meta? = null
+/** Sentinel for an action that returns no result. Equivalent to `null`. */
+public val noResult: Meta? = null
 
 /** Shorthand for an action that succeeds with a [Meta] payload. */
-public fun ok(value: Meta): Meta = value
+public fun metaResult(value: Meta): Meta = value
 
 /** Shorthand for an action that succeeds with a numeric result. */
-public fun ok(value: Number): Meta? = when (value) {
+public fun metaResult(value: Number): Meta? = when (value) {
     is Double -> metaOf(value)
     is Int -> metaOf(value)
     is Long -> metaOf(value)
@@ -463,7 +524,7 @@ public fun ok(value: Number): Meta? = when (value) {
 }
 
 /** Shorthand for an action that succeeds with a string result. */
-public fun ok(value: String): Meta = metaOf(value)
+public fun metaResult(value: String): Meta = metaOf(value)
 
 /** Shorthand for an action that succeeds with a boolean result. */
-public fun ok(value: Boolean): Meta = metaOf(value)
+public fun metaResult(value: Boolean): Meta = metaOf(value)

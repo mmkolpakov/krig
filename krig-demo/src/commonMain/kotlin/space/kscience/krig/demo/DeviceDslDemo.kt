@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.yield
 import kotlin.time.Instant
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.state.collectPropertyHistory
 import space.kscience.krig.dsl.device
-import space.kscience.krig.dsl.okUnit
+import space.kscience.krig.dsl.noResult
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 
@@ -25,7 +25,7 @@ import space.kscience.dataforge.names.asName
  *
  * Run: `./gradlew :krig-demo:jvmRun`
  */
-@OptIn(PerformancePitfall::class)
+@OptIn(KrigPerformancePitfall::class)
 suspend fun deviceDslDemo(): Unit = coroutineScope {
     val ctx = demoContext("demo")
 
@@ -38,7 +38,7 @@ suspend fun deviceDslDemo(): Unit = coroutineScope {
         mutableProperty("setpoint", initial = 20.0)
         action("reset") { _ ->
             writeDouble("setpoint", 20.0)
-            okUnit()
+            noResult
         }
     }
     println("  sensor: ${thermo.readProperty("sensor".asName())}")

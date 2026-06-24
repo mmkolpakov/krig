@@ -5,8 +5,11 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.modules.SerializersModuleCollector
+import space.kscience.krig.api.messages.DeviceMessage
+import space.kscience.krig.api.messages.DeviceMessageType
 import kotlin.reflect.KClass
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -46,8 +49,27 @@ class SerialNameConventionTest {
         }
     }
 
+    /**
+     * [DeviceMessageType.all] is assembled by hand; the compiler cannot notice a missed entry when
+     * a new message type is registered. This test pins the manual registry to the serializers module.
+     */
+    @Test
+    fun deviceMessageTypeAllMatchesRegisteredSubclasses() {
+        val collector = NameCollectingCollector()
+        krigApiSerializersModule.dumpTo(collector)
+
+        val registered = collector.deviceMessageNames.toSet()
+
+        assertEquals(
+            registered,
+            DeviceMessageType.all,
+            "DeviceMessageType.all must list exactly the @SerialName of every registered DeviceMessage subclass",
+        )
+    }
+
     private class NameCollectingCollector : SerializersModuleCollector {
         val collected: MutableList<Pair<KClass<*>, String>> = mutableListOf()
+        val deviceMessageNames: MutableList<String> = mutableListOf()
 
         override fun <T : Any> contextual(kClass: KClass<T>, provider: (List<KSerializer<*>>) -> KSerializer<*>) {
             // no-op
@@ -62,6 +84,9 @@ class SerialNameConventionTest {
             // For sealed polymorphic descriptors the serialName stands for the whole hierarchy.
             if (descriptor.kind == PolymorphicKind.SEALED) return
             collected += actualClass to descriptor.serialName
+            if (baseClass == DeviceMessage::class) {
+                deviceMessageNames += descriptor.serialName
+            }
         }
 
         override fun <Base : Any> polymorphicDefaultDeserializer(

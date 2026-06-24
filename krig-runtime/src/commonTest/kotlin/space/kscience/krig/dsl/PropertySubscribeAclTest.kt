@@ -1,5 +1,5 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -54,14 +54,14 @@ class PropertySubscribeAclTest {
     @Test
     fun propertyScopedGrantAuthorizesThatProperty() = runTest {
         val device = aclDevice("acl-prop-grant")
-        val alice = SimplePrincipal("alice", roles = setOf("device.subscribe.d.rpm"))
+        val alice = SimplePrincipal("alice", roles = setOf("device.subscribe:d:rpm"))
         device.ensureAuthorized(alice, rpm)
     }
 
     @Test
     fun deviceWideGrantAuthorizesAnyProperty() = runTest {
         val device = aclDevice("acl-device-grant")
-        val bob = SimplePrincipal("bob", roles = setOf("device.subscribe.d"))
+        val bob = SimplePrincipal("bob", roles = setOf("device.subscribe:d"))
         device.ensureAuthorized(bob, rpm)
     }
 
@@ -75,14 +75,14 @@ class PropertySubscribeAclTest {
     @Test
     fun grantForAnotherPropertyIsRejected() = runTest {
         val device = aclDevice("acl-wrong-prop")
-        val carol = SimplePrincipal("carol", roles = setOf("device.subscribe.d.temperature"))
+        val carol = SimplePrincipal("carol", roles = setOf("device.subscribe:d:temperature"))
         assertFailsWith<AuthorizationException> { device.ensureAuthorized(carol, rpm) }
     }
 
     @Test
     fun propertyGrantDoesNotWidenToDeviceWideSubscribe() = runTest {
         val device = aclDevice("acl-no-widen")
-        val alice = SimplePrincipal("alice", roles = setOf("device.subscribe.d.rpm"))
+        val alice = SimplePrincipal("alice", roles = setOf("device.subscribe:d:rpm"))
         assertFailsWith<AuthorizationException> { device.ensureAuthorized(alice) }
     }
 }

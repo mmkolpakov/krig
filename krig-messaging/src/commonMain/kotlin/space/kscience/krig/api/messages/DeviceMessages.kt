@@ -25,9 +25,6 @@ public data class PropertyChangedMessage(
     public val quality: DataQuality = DataQuality.GOOD,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.PropertyChanged
-
-    override fun changeSource(block: (Name) -> Name): PropertyChangedMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /**
@@ -49,9 +46,6 @@ public data class FaultMessage(
     public val scope: Meta = Meta.EMPTY,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.Fault
-
-    override fun changeSource(block: (Name) -> Name): FaultMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /** Conventional [FaultMessage.scope] keys for fault origin context. */
@@ -74,9 +68,6 @@ public data class DeviceAttachedMessage(
     override val targetDevice: Name? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceAttached
-
-    override fun changeSource(block: (Name) -> Name): DeviceAttachedMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /**
@@ -91,29 +82,26 @@ public data class DeviceDetachedMessage(
     override val targetDevice: Name? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceDetached
-
-    override fun changeSource(block: (Name) -> Name): DeviceDetachedMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /**
  * Client-initiated request to read a property. Counterpart to the device-emitted
  * [PropertyChangedMessage] notification. Answered with [PropertyReadResponse] or a
  * [FaultMessage].
+ *
+ * @property callerIdentity Identity of the caller for security/audit purposes;
+ *   carries `Principal.name` — roles are resolved against the local identity store on receipt.
  */
 @Serializable
 @SerialName(DeviceMessageType.PropertyReadRequest)
 public data class PropertyReadRequest(
     override val time: Instant,
     public val property: Name,
-    public val callerIdentity: String? = null,
+    override val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.PropertyReadRequest
-
-    override fun changeSource(block: (Name) -> Name): PropertyReadRequest =
-        copy(sourceDevice = sourceDevice?.let(block))
 }
 
 /**
@@ -131,26 +119,25 @@ public data class PropertyReadResponse(
     public val quality: DataQuality = DataQuality.GOOD,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyReadResponse
-
-    override fun changeSource(block: (Name) -> Name): PropertyReadResponse =
-        copy(sourceDevice = sourceDevice?.let(block))
 }
 
-/** Client-initiated request to write a mutable property. Ack is [PropertyWriteResponse]. */
+/**
+ * Client-initiated request to write a mutable property. Ack is [PropertyWriteResponse].
+ *
+ * @property callerIdentity Identity of the caller for security/audit purposes;
+ *   carries `Principal.name` — roles are resolved against the local identity store on receipt.
+ */
 @Serializable
 @SerialName(DeviceMessageType.PropertyWriteRequest)
 public data class PropertyWriteRequest(
     override val time: Instant,
     public val property: Name,
     public val value: Meta,
-    public val callerIdentity: String? = null,
+    override val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.PropertyWriteRequest
-
-    override fun changeSource(block: (Name) -> Name): PropertyWriteRequest =
-        copy(sourceDevice = sourceDevice?.let(block))
 }
 
 /**
@@ -168,33 +155,28 @@ public data class PropertyWriteResponse(
     public val observedQuality: DataQuality? = null,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.PropertyWriteResponse
-
-    override fun changeSource(block: (Name) -> Name): PropertyWriteResponse =
-        copy(sourceDevice = sourceDevice?.let(block))
 }
 
 /**
  * Requests execution of a named action on a target device.
- * Sent by a remote client or bridge; consumed by [IngressBridge] or similar handler.
+ * Sent by a remote client or a transport bridge that routes requests into the local runtime.
  *
  * @property actionName The action to invoke on the target device.
  * @property argument Optional input argument for the action.
- * @property callerIdentity Identity of the caller for security/audit purposes.
+ * @property callerIdentity Identity of the caller for security/audit purposes;
+ *   carries `Principal.name` — roles are resolved against the local identity store on receipt.
  */
 @Serializable
 @SerialName(DeviceMessageType.ActionExecuteRequest)
 public data class ActionRequestMessage(
     override val time: Instant,
-    public val actionName: String,
+    public val actionName: Name,
     public val argument: Meta? = null,
-    public val callerIdentity: String? = null,
+    override val callerIdentity: String? = null,
     override val sourceDevice: Name?,
     override val targetDevice: Name?,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.ActionExecuteRequest
-
-    override fun changeSource(block: (Name) -> Name): ActionRequestMessage =
-        copy(sourceDevice = sourceDevice?.let(block))
 }
 
 /**
@@ -211,9 +193,93 @@ public data class ActionResponseMessage(
     override val targetDevice: Name?,
 ) : ResponseMessage {
     override val messageType: String get() = DeviceMessageType.ActionExecuteResponse
+}
 
-    override fun changeSource(block: (Name) -> Name): ActionResponseMessage =
-        copy(sourceDevice = sourceDevice?.let(block))
+/**
+ * Requests cancellation of an in-flight action. The action is identified by the request envelope's
+ * correlation id (the same one carried by the original [ActionRequestMessage]); [actionName] is a
+ * routing aid. The receiving runtime cancels the coroutine executing the action, surfacing as a
+ * `CancellationException` to the running `execute`. There is no dedicated response: cancellation is
+ * observed as the action's own terminal [FaultMessage]/[ActionResponseMessage].
+ */
+@Serializable
+@SerialName(DeviceMessageType.ActionExecuteCancel)
+public data class ActionCancelMessage(
+    override val time: Instant,
+    public val actionName: Name,
+    override val callerIdentity: String? = null,
+    override val sourceDevice: Name?,
+    override val targetDevice: Name?,
+) : RequestMessage {
+    override val messageType: String get() = DeviceMessageType.ActionExecuteCancel
+}
+
+/** One property/value pair in a batch message; [quality] is meaningful for reads and ignored on writes. */
+@Serializable
+public data class BatchPropertyValue(
+    public val property: Name,
+    public val value: Meta,
+    public val quality: DataQuality = DataQuality.GOOD,
+)
+
+/**
+ * Client-initiated request to read several properties in one round-trip — the wire counterpart of
+ * `Device.readBatchOutcome`. Answered with [BatchReadResponse]; per-property failures arrive as
+ * [FaultMessage]s correlated to this request.
+ */
+@Serializable
+@SerialName(DeviceMessageType.BatchReadRequest)
+public data class BatchReadRequest(
+    override val time: Instant,
+    public val properties: List<Name>,
+    override val callerIdentity: String? = null,
+    override val sourceDevice: Name?,
+    override val targetDevice: Name?,
+) : RequestMessage {
+    override val messageType: String get() = DeviceMessageType.BatchReadRequest
+}
+
+/** Successful values for a [BatchReadRequest]. Properties that failed are omitted and reported as faults. */
+@Serializable
+@SerialName(DeviceMessageType.BatchReadResponse)
+public data class BatchReadResponse(
+    override val time: Instant,
+    public val values: List<BatchPropertyValue>,
+    override val sourceDevice: Name?,
+    override val targetDevice: Name?,
+) : ResponseMessage {
+    override val messageType: String get() = DeviceMessageType.BatchReadResponse
+}
+
+/**
+ * Client-initiated request to write several mutable properties in one round-trip — the wire
+ * counterpart of `Device.writeBatchOutcome`. Acknowledged by [BatchWriteResponse].
+ */
+@Serializable
+@SerialName(DeviceMessageType.BatchWriteRequest)
+public data class BatchWriteRequest(
+    override val time: Instant,
+    public val values: List<BatchPropertyValue>,
+    override val callerIdentity: String? = null,
+    override val sourceDevice: Name?,
+    override val targetDevice: Name?,
+) : RequestMessage {
+    override val messageType: String get() = DeviceMessageType.BatchWriteRequest
+}
+
+/**
+ * Ack for [BatchWriteRequest]. [observed] is a non-binding hint mirroring [PropertyWriteResponse];
+ * the canonical post-write values still arrive as [PropertyChangedMessage] notifications.
+ */
+@Serializable
+@SerialName(DeviceMessageType.BatchWriteResponse)
+public data class BatchWriteResponse(
+    override val time: Instant,
+    public val observed: List<BatchPropertyValue> = emptyList(),
+    override val sourceDevice: Name?,
+    override val targetDevice: Name?,
+) : ResponseMessage {
+    override val messageType: String get() = DeviceMessageType.BatchWriteResponse
 }
 
 /**
@@ -247,9 +313,6 @@ public data class DeviceOnlineMessage(
     override val targetDevice: Name? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceOnline
-
-    override fun changeSource(block: (Name) -> Name): DeviceOnlineMessage =
-        copy(sourceDevice = block(sourceDevice))
 }
 
 /**
@@ -266,7 +329,36 @@ public data class DeviceOfflineMessage(
     override val targetDevice: Name? = null,
 ) : DeviceMessage {
     override val messageType: String get() = DeviceMessageType.DeviceOffline
+}
 
-    override fun changeSource(block: (Name) -> Name): DeviceOfflineMessage =
-        copy(sourceDevice = block(sourceDevice))
+/**
+ * One row of a dense double time-series chunk, lifted onto the event plane so a columnar capture can
+ * join an event [space.kscience.krig.api.messages.DeviceMessageFrame] stream (e.g. via `Timeline.merge`)
+ * for replay and digital-twin reconstruction. [series] names align positionally with [values]; optional
+ * [qualities] (empty = all `GOOD`) align too.
+ *
+ * This is a replay/event-plane DTO, not the high-frequency write path: the dense column store
+ * (`DenseDoubleTimeSeriesChunk`) stays the zero-allocation sink, and rows are lifted to messages only
+ * for offline coordination.
+ */
+@Serializable
+@SerialName(DeviceMessageType.TimeSeriesRow)
+public data class TimeSeriesRowMessage(
+    override val time: Instant,
+    public val series: List<Name>,
+    public val values: List<Double>,
+    override val sourceDevice: Name,
+    override val targetDevice: Name? = null,
+    public val qualities: List<DataQuality> = emptyList(),
+) : DeviceMessage {
+    init {
+        require(values.size == series.size) {
+            "TimeSeriesRowMessage has ${values.size} values for ${series.size} series."
+        }
+        require(qualities.isEmpty() || qualities.size == series.size) {
+            "TimeSeriesRowMessage qualities must be empty or match ${series.size} series, got ${qualities.size}."
+        }
+    }
+
+    override val messageType: String get() = DeviceMessageType.TimeSeriesRow
 }

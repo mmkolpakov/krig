@@ -1,5 +1,5 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
 )
 @file:Suppress("unused")
 

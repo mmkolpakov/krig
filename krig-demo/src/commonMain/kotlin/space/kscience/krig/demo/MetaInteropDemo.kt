@@ -4,7 +4,7 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.toJson
 import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.core.PerformancePitfall
+import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.readProperty
@@ -15,7 +15,7 @@ import space.kscience.krig.dsl.device
 /**
  * Meta/JSON boundary beside the typed hot path.
  */
-@OptIn(PerformancePitfall::class)
+@OptIn(KrigPerformancePitfall::class)
 suspend fun metaInteropDemo() {
     val ctx = demoContext("meta-interop-demo")
     val pump = device("interopPump", pumpBackend(), ctx) {

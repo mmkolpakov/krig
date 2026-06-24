@@ -2,6 +2,7 @@
 
 package space.kscience.krig.core.timetravel
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.DeviceSnapshot
@@ -22,6 +23,12 @@ public class TimeTravelSession internal constructor(
     private val snapshotStore: SnapshotStore,
     private val deviceName: Name,
     private val snapshotCodec: SnapshotCodec,
+    /**
+     * Handle of the live recording wiring when this session was created by `withTimeTravel`;
+     * cancel it to stop recording without tearing down the device scope. `null` for sessions
+     * over an already-recorded log.
+     */
+    public val recording: Job? = null,
 ) {
     /** Reconstructs model state as of [at], resuming from the nearest stored snapshot. */
     @IgnorableReturnValue

@@ -5,6 +5,9 @@ package space.kscience.krig.storage.journal
 import kotlin.time.Instant
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -73,8 +76,23 @@ public interface EventJournal : CursorReplayLog, ReplaySink, AutoCloseable {
 
     /**
      * Hot tail flow of new appends. Emits subsequent writes, never the historical backlog.
+     *
+     * An *optional* capability: the default is an empty flow, meaning «this backend exposes no
+     * live tail» — subscribers complete without receiving anything. Backends that can observe
+     * appends (in-memory, file) override this; consumers that require a tail should verify the
+     * backend documents support rather than assume it.
      */
     public fun observe(): Flow<DeviceMessageFrame<DeviceMessage>> = emptyFlow()
+
+    /**
+     * Drops every record up to and including [upTo], reclaiming space once those events are covered
+     * by a durable snapshot. Counterpart to a snapshot store's retention prune; the cursor is the
+     * monotonic anchor returned by [write], so truncation never shifts the meaning of a later cursor.
+     *
+     * An *optional* capability: the default retains everything (no-op), meaning «this backend does
+     * not reclaim history». Backends that can prune (in-memory, file, SQL) override it.
+     */
+    public suspend fun truncateBefore(upTo: EventCursor): Unit = Unit
 
     override fun close(): Unit = Unit
 }
@@ -105,8 +123,9 @@ public inline fun <reified T : DeviceMessage> EventJournal.readTyped(
 ): Flow<T> = read(messageType, range, sourceDevice, targetDevice).payloads().filterIsInstance<T>()
 
 /**
- * In-memory [EventJournal]. Ordered O(1) append; reads share one cached immutable snapshot that is
- * rebuilt only after the next append, so concurrent readers never each copy the full history.
+ * In-memory [EventJournal]. The history is a [PersistentList], so [snapshot] returns the current
+ * immutable backing reference in O(1) — even when reads interleave with writes — and a reader never
+ * copies the full history. Append and capacity eviction are structural (persistent add / removeAt(0)).
  *
  * Cursors are monotonic [SequenceCursor]s assigned at [write], so dropping old records at [capacity]
  * never shifts the meaning of a stored cursor. This is the single in-memory substrate behind both
@@ -128,9 +147,17 @@ public class InMemoryEventJournal(
     }
 
     private val lock = SynchronizedObject()
-    private val events: ArrayDeque<ReplayRecord> = ArrayDeque(minOf(capacity, 1024))
+    private var events: PersistentList<ReplayRecord> = persistentListOf()
+
+    /**
+     * Logical window start: the live history is `events[head, events.size)`. Eviction past [capacity]
+     * advances [head] in O(1) instead of rebuilding the persistent vector per write (`removeAt(0)`
+     * would be O(N)); the dead prefix is physically dropped in one batched rebuild once it reaches
+     * [compactionThreshold], so eviction is amortized O(capacity / compactionThreshold) per write.
+     */
+    private var head: Int = 0
+    private val compactionThreshold: Int = maxOf(1, minOf(1024, capacity))
     private var nextSequence: Long = 0
-    private var cachedSnapshot: List<ReplayRecord>? = null
     private val pendingTail: ArrayDeque<DeviceMessageFrame<DeviceMessage>> = ArrayDeque()
     private var tailDraining: Boolean = false
     private val tail = MutableSharedFlow<DeviceMessageFrame<DeviceMessage>>(
@@ -193,19 +220,41 @@ public class InMemoryEventJournal(
 
     override fun observe(): Flow<DeviceMessageFrame<DeviceMessage>> = tail.asSharedFlow()
 
-    public fun size(): Int = synchronized(lock) { events.size }
+    override suspend fun truncateBefore(upTo: EventCursor) {
+        require(upTo is SequenceCursor) {
+            "InMemoryEventJournal can truncate only by SequenceCursor, got ${upTo::class}."
+        }
+        synchronized(lock) {
+            while (head < events.size && (events[head].cursor as SequenceCursor).sequence <= upTo.sequence) {
+                head++
+            }
+            if (head >= compactionThreshold) {
+                events = events.subList(head, events.size).toPersistentList()
+                head = 0
+            }
+        }
+    }
 
-    /** Reuses the cached immutable view; rebuilt lazily after the next append. */
+    public fun size(): Int = synchronized(lock) { events.size - head }
+
+    /**
+     * Returns the live history as an O(1) view over the immutable backing list (sub-list view when a
+     * dead prefix is pending compaction). The persistent structure is shared with writers, so a reader
+     * never copies the full history and a later compaction cannot mutate an already-returned view.
+     */
     private fun snapshot(): List<ReplayRecord> = synchronized(lock) {
-        cachedSnapshot ?: events.toList().also { cachedSnapshot = it }
+        if (head == 0) events else events.subList(head, events.size)
     }
 
     private fun appendBounded(record: ReplayRecord) {
-        if (events.size >= capacity) {
-            events.removeFirst()
+        events = events.add(record)
+        // Evict the oldest in O(1) by advancing the logical window; physically drop the dead prefix
+        // only once it grows to a batch, amortizing the persistent rebuild over many writes.
+        if (events.size - head > capacity) head++
+        if (head >= compactionThreshold) {
+            events = events.subList(head, events.size).toPersistentList()
+            head = 0
         }
-        events.addLast(record)
-        cachedSnapshot = null
     }
 
     private fun sequenceAfter(after: EventCursor?): Long {

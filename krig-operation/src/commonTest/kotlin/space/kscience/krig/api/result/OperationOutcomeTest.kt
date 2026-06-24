@@ -28,11 +28,11 @@ class OperationOutcomeTest {
     }
 
     @Test
-    fun recoverFallsBackOnFailure() {
+    fun getOrElseFallsBackOnFailure() {
         val s: OperationOutcome<Int> = OperationOutcome.Ok(2)
         val f: OperationOutcome<Int> = OperationOutcome.Fail(sampleFault)
-        assertEquals(2, s.recover { 99 })
-        assertEquals(99, f.recover { 99 })
+        assertEquals(2, s.getOrElse { 99 })
+        assertEquals(99, f.getOrElse { 99 })
     }
 
     @Test

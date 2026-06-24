@@ -1,4 +1,4 @@
-﻿@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
+@file:OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
 
 package space.kscience.krig.core.timetravel
 

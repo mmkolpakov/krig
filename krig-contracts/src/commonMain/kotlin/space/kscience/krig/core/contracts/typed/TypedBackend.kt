@@ -28,7 +28,7 @@ public interface TypedBackend {
     public fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O>? = null
 }
 
-/** Backend type returned by [backend][space.kscience.krig.core.contracts.typed.backend]. */
+/** Backend type returned by [deviceBackend][space.kscience.krig.core.contracts.deviceBackend]. */
 @OptIn(UnstableKrigForSubclassing::class)
 public interface TypedDeviceBackend : DeviceBackend, TypedBackend {
     /** Registered typed property spec by name, used to keep the Meta boundary converter-aware. */
@@ -36,4 +36,10 @@ public interface TypedDeviceBackend : DeviceBackend, TypedBackend {
 
     /** Registered typed action spec by name, used to keep the Meta boundary converter-aware. */
     public fun actionSpec(name: Name): DeviceActionContract<*, *>? = null
+
+    /** All registered property specs keyed by name — the enumeration counterpart of [propertySpec]. */
+    public fun propertySpecs(): Map<Name, DevicePropertyContract<*>> = emptyMap()
+
+    /** All registered action specs keyed by name — the enumeration counterpart of [actionSpec]. */
+    public fun actionSpecs(): Map<Name, DeviceActionContract<*, *>> = emptyMap()
 }

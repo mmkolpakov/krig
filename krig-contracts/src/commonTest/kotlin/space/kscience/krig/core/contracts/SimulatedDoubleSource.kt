@@ -1,7 +1,7 @@
 @file:OptIn(
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
 )
 
 package space.kscience.krig.core.contracts
@@ -28,7 +28,7 @@ import space.kscience.krig.api.descriptors.PropertyKind
 
 /**
  * Minimal in-tree fixture: one atomic `Double` cell reachable through the typed reader /
- * writer surface and the legacy Meta-boxed path. Test-only; lives in `commonTest`
+ * writer surface and the Meta-boxed path. Test-only; lives in `commonTest`
  * and is not published.
  */
 class SimulatedDoubleSource(

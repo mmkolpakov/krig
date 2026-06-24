@@ -36,3 +36,21 @@ public data object AnonymousPrincipal : Principal {
     override val roles: Set<String> = emptySet()
     override val attributes: Meta = Meta.EMPTY
 }
+
+/**
+ * Machine-to-machine identity of a peer node whose [verifiedIdentity] was cryptographically attested
+ * by the transport (an mTLS peer certificate or a signed token), not a self-asserted string. The
+ * [verifiedIdentity] is a stable workload identifier such as a SPIFFE ID (`spiffe://trust-domain/path`);
+ * [name] mirrors it for display. Authorization services map a [DevicePrincipal] to roles. A node is
+ * represented by this type only when an authenticating transport populated
+ * `MessageContext.verifiedIdentity`; unauthenticated peers stay [AnonymousPrincipal].
+ */
+@Serializable
+@SerialName("principal.device")
+public data class DevicePrincipal(
+    public val verifiedIdentity: String,
+    override val roles: Set<String> = emptySet(),
+    override val attributes: Meta = Meta.EMPTY,
+) : Principal {
+    override val name: String get() = verifiedIdentity
+}

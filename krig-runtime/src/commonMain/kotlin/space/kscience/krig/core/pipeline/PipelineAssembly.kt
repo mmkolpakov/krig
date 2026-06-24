@@ -1,5 +1,8 @@
 package space.kscience.krig.core.pipeline
 
+import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.context.logger
+import space.kscience.dataforge.context.warn
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.faults.OperationFaultDetails
@@ -10,6 +13,7 @@ import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.services.auditService
 import space.kscience.krig.api.services.authorizationService
+import space.kscience.krig.api.services.identityProvider
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.capabilities.LifecycleManagingCapability
@@ -36,12 +40,13 @@ public suspend fun wrapWithPipeline(
     device: Device,
     builder: PipelineBuilder,
     deviceName: String,
+    context: Context,
     autoInstallDefaults: Boolean = true,
 ): Device {
     if (device is PipelineDevice && builder.isEmpty()) return device
 
     if (autoInstallDefaults && device !is PipelineDevice) {
-        installDefaults(builder, device, deviceName)
+        installDefaults(builder, device, deviceName, context)
     }
 
     val capabilitiesSnapshot = builder.capabilities.attributes()
@@ -56,6 +61,7 @@ public suspend fun wrapWithPipeline(
             OperationKinds.Action to builder.operationSpec(OperationKinds.Action),
         ),
         readDecorators = builder.readDecorators,
+        batchReadDecorators = builder.batchReadDecorators,
         registry = registry,
         capabilities = capabilitiesSnapshot,
     )
@@ -80,6 +86,7 @@ public suspend fun wrapWithPipeline(
  */
 @ExperimentalKrigApi
 public suspend fun Device.withOperationPipeline(
+    context: Context,
     deviceName: String = name.toString(),
     autoInstallDefaults: Boolean = true,
     configure: PipelineBuilder.() -> Unit,
@@ -87,6 +94,7 @@ public suspend fun Device.withOperationPipeline(
     device = this,
     builder = PipelineBuilder().apply(configure),
     deviceName = deviceName,
+    context = context,
     autoInstallDefaults = autoInstallDefaults,
 )
 
@@ -95,9 +103,11 @@ private fun installDefaults(
     builder: PipelineBuilder,
     device: Device,
     deviceName: String,
+    context: Context,
 ) {
-    val authService = device.context.authorizationService
-    val auditService = device.context.auditService
+    val authService = context.authorizationService
+    val auditService = context.auditService
+    val identityProvider = context.identityProvider
     val lifecycle: () -> LifecycleState = { device.lifecycleState }
     val connection = builder.connectionStateProvider
     val capabilityToggles = (device as? CapabilityHost)?.capabilityToggles
@@ -112,35 +122,37 @@ private fun installDefaults(
         add(LifecycleGate(deviceName, lifecycle))
         if (connection != null) add(ConnectionStateGate(deviceName, connection))
         if (capabilityToggles != null) add(CapabilityGate(deviceName, capabilityToggles))
-        add(DeviceAuthorizationGate(deviceName, authService))
+        add(DeviceAuthorizationGate(deviceName, authService, identityProvider))
     }
 
     val actionGates = buildList {
         add(LifecycleGate(deviceName, lifecycle))
         if (connection != null) add(ConnectionStateGate(deviceName, connection))
         if (capabilityToggles != null) add(CapabilityGate(deviceName, capabilityToggles))
-        add(DeviceAuthorizationGate(deviceName, authService))
+        add(DeviceAuthorizationGate(deviceName, authService, identityProvider))
     }
 
     builder.prependGates(OperationKinds.Read, readGates)
     builder.prependGates(OperationKinds.Write, writeGates)
     builder.prependGates(OperationKinds.Action, actionGates)
 
+    // Violations must reach an operator: by default they go to the device context logger.
+    val onLatencyViolation: (String) -> Unit = { message -> context.logger.warn { message } }
     val readObservers = mutableListOf<OperationObserver>(
-        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Read).defaultLatencyBudget),
+        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Read).defaultLatencyBudget, onLatencyViolation),
     )
     val writeObservers = mutableListOf<OperationObserver>(
-        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Write).defaultLatencyBudget),
+        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Write).defaultLatencyBudget, onLatencyViolation),
     )
     val actionObservers = mutableListOf<OperationObserver>(
-        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Action).defaultLatencyBudget),
+        LatencyBudgetObserver(builder.operationSpec(OperationKinds.Action).defaultLatencyBudget, onLatencyViolation),
     )
 
     if (auditService.isActive) {
         val auditSink = BufferedAuditSink(device.deviceScope, auditService)
-        readObservers += BufferedAuditObserver(deviceName, auditSink)
-        writeObservers += BufferedAuditObserver(deviceName, auditSink)
-        actionObservers += BufferedAuditObserver(deviceName, auditSink)
+        readObservers += BufferedAuditObserver(deviceName, auditSink, identityProvider)
+        writeObservers += BufferedAuditObserver(deviceName, auditSink, identityProvider)
+        actionObservers += BufferedAuditObserver(deviceName, auditSink, identityProvider)
     }
 
     builder.prependObservers(OperationKinds.Read, readObservers)
@@ -156,16 +168,19 @@ public fun materializePipeline(
     features: Map<Name, PipelineFeatureSpec>,
     catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
     unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    profile: PipelineProfile = PipelineProfile.Production,
 ): PipelineBuilder = materializePipelineOutcome(
     features = features,
     catalog = catalog,
     unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
+    profile = profile,
 ).getOrThrow()
 
 public fun materializePipelineOutcome(
     features: Map<Name, PipelineFeatureSpec>,
     catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
     unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    profile: PipelineProfile = PipelineProfile.Production,
 ): OperationOutcome<PipelineBuilder> {
     val builder = PipelineBuilder()
     for ((id, pipelineFeatureSpec) in features) {
@@ -181,6 +196,8 @@ public fun materializePipelineOutcome(
             if (outcome is OperationOutcome.Fail) return outcome
         }
     }
+    // Manifest/feature QoS is the default; the runtime profile overrides it (laminate).
+    profile.applyTo(builder)
     return OperationOutcome.Ok(builder)
 }
 
@@ -188,20 +205,24 @@ public fun materializePipeline(
     manifest: DeviceManifest,
     catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
     unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    profile: PipelineProfile = PipelineProfile.Production,
 ): PipelineBuilder = materializePipeline(
     features = manifest.features,
     catalog = catalog,
     unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
+    profile = profile,
 )
 
 public fun materializePipelineOutcome(
     manifest: DeviceManifest,
     catalog: PipelineFeatureCatalog = PipelineFeatureCatalog.Empty,
     unknownPipelineFeaturePolicy: UnknownPipelineFeaturePolicy = UnknownPipelineFeaturePolicy.Fail,
+    profile: PipelineProfile = PipelineProfile.Production,
 ): OperationOutcome<PipelineBuilder> = materializePipelineOutcome(
     features = manifest.features,
     catalog = catalog,
     unknownPipelineFeaturePolicy = unknownPipelineFeaturePolicy,
+    profile = profile,
 )
 
 private fun invalidPipelineFeatureSpec(

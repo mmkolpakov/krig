@@ -38,8 +38,8 @@ public final class space/kscience/krig/api/descriptors/ActionDescriptor$Companio
 }
 
 public final class space/kscience/krig/api/descriptors/AttributeDelegatesKt {
+	public static final fun attr (Lspace/kscience/attributes/Attribute;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
 	public static final fun attr (Lspace/kscience/attributes/Attribute;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
-	public static final fun attr (ZLspace/kscience/attributes/Attribute;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
 }
 
 public final class space/kscience/krig/api/descriptors/OperationAttributeEntry {
@@ -86,22 +86,21 @@ public final class space/kscience/krig/api/descriptors/OperationDescriptorKt {
 public final class space/kscience/krig/api/descriptors/PropertyDescriptor : space/kscience/krig/api/descriptors/OperationDescriptor {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/PropertyDescriptor$Companion;
 	public static final field TYPE Ljava/lang/String;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)V
 	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/krig/api/descriptors/PropertyKind;
-	public final fun component3 ()Ljava/lang/String;
+	public final fun component3-DjDdlIg ()Ljava/lang/String;
 	public final fun component4 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun component5 ()Lspace/kscience/attributes/Attributes;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public final fun copy-ihGm534 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public static synthetic fun copy-ihGm534$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun findAttribute (Lspace/kscience/attributes/Attribute;)Ljava/lang/Object;
 	public fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public final fun getKind ()Lspace/kscience/krig/api/descriptors/PropertyKind;
 	public final fun getMetaDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
-	public final fun getValueTypeId ()Ljava/lang/String;
+	public final fun getValueTypeId-DjDdlIg ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -137,6 +136,14 @@ public final class space/kscience/krig/api/descriptors/PropertyKind$LOGICAL : sp
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/descriptors/PropertyKind$MEASURED : space/kscience/krig/api/descriptors/PropertyKind {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/PropertyKind$MEASURED;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/descriptors/PropertyKind$PHYSICAL : space/kscience/krig/api/descriptors/PropertyKind {
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/PropertyKind$PHYSICAL;
 	public fun equals (Ljava/lang/Object;)Z
@@ -145,15 +152,57 @@ public final class space/kscience/krig/api/descriptors/PropertyKind$PHYSICAL : s
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/descriptors/PropertyKind$SETPOINT : space/kscience/krig/api/descriptors/PropertyKind {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/PropertyKind$SETPOINT;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/descriptors/SerialDescriptorMetaKt {
+	public static final fun toMetaDescriptor (Lkotlinx/serialization/descriptors/SerialDescriptor;)Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+}
+
+public final class space/kscience/krig/api/descriptors/TypeId {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/TypeId$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/api/descriptors/TypeId;
+	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public final fun getId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/TypeId$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/TypeId$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-IAk2wck (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-Rbzrf5M (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/String;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/TypeId$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/api/descriptors/TypeIds {
-	public static final field BOOLEAN Ljava/lang/String;
-	public static final field BYTES Ljava/lang/String;
-	public static final field DOUBLE Ljava/lang/String;
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/TypeIds;
-	public static final field INT Ljava/lang/String;
-	public static final field LONG Ljava/lang/String;
-	public static final field META Ljava/lang/String;
-	public static final field STRING Ljava/lang/String;
+	public final fun getBOOLEAN-DjDdlIg ()Ljava/lang/String;
+	public final fun getBYTES-DjDdlIg ()Ljava/lang/String;
+	public final fun getDOUBLE-DjDdlIg ()Ljava/lang/String;
+	public final fun getINT-DjDdlIg ()Ljava/lang/String;
+	public final fun getLONG-DjDdlIg ()Ljava/lang/String;
+	public final fun getMETA-DjDdlIg ()Ljava/lang/String;
+	public final fun getSTRING-DjDdlIg ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/api/descriptors/TypeIdsKt {
@@ -270,18 +319,21 @@ public final class space/kscience/krig/api/descriptors/attributes/GeneralAttribu
 	public static final fun getRequiredLocks (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/util/List;
 	public static final fun getRetryPolicy (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
 	public static final fun getTimeout (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lkotlin/time/Duration;
+	public static final fun getUnit (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/String;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/MetadataAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/MetadataAttribute;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDescription ()Ljava/lang/String;
+	public final fun getUnit ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -384,19 +436,45 @@ public final class space/kscience/krig/api/descriptors/attributes/RetryPolicy$Co
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/expressions/Binary : space/kscience/krig/api/expressions/Expression {
-	public static final field Companion Lspace/kscience/krig/api/expressions/Binary$Companion;
-	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;Lspace/kscience/krig/api/expressions/Expression;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lspace/kscience/krig/api/expressions/Expression;
-	public final fun component3 ()Lspace/kscience/krig/api/expressions/Expression;
-	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;Lspace/kscience/krig/api/expressions/Expression;)Lspace/kscience/krig/api/expressions/Binary;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Binary;Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;Lspace/kscience/krig/api/expressions/Expression;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Binary;
+public final class space/kscience/krig/api/expressions/And : space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/And$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lspace/kscience/krig/api/expressions/And;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/And;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/And;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getLeft ()Lspace/kscience/krig/api/expressions/Expression;
+	public final fun getOperands ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/expressions/And$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/And$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/And;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/And;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/And$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Binary : space/kscience/krig/api/expressions/NumericExpression {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Binary$Companion;
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun component3 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;)Lspace/kscience/krig/api/expressions/Binary;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Binary;Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Binary;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLeft ()Lspace/kscience/krig/api/expressions/NumericExpression;
 	public final fun getOperation ()Ljava/lang/String;
-	public final fun getRight ()Lspace/kscience/krig/api/expressions/Expression;
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
+	public final fun getRight ()Lspace/kscience/krig/api/expressions/NumericExpression;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -416,7 +494,7 @@ public final class space/kscience/krig/api/expressions/Binary$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/expressions/Binding : space/kscience/krig/api/expressions/Expression {
+public final class space/kscience/krig/api/expressions/Binding : space/kscience/krig/api/expressions/NumericExpression {
 	public static final field Companion Lspace/kscience/krig/api/expressions/Binding$Companion;
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
@@ -426,7 +504,6 @@ public final class space/kscience/krig/api/expressions/Binding : space/kscience/
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
 	public final fun getPropertyName ()Lspace/kscience/dataforge/names/Name;
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -446,48 +523,117 @@ public final class space/kscience/krig/api/expressions/Binding$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/expressions/Constant : space/kscience/krig/api/expressions/Expression {
-	public static final field Companion Lspace/kscience/krig/api/expressions/Constant$Companion;
-	public fun <init> (Ljava/lang/Object;)V
-	public final fun component1 ()Ljava/lang/Object;
-	public final fun copy (Ljava/lang/Object;)Lspace/kscience/krig/api/expressions/Constant;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Constant;Ljava/lang/Object;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Constant;
+public final class space/kscience/krig/api/expressions/BooleanConstant : space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/BooleanConstant$Companion;
+	public fun <init> (Z)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lspace/kscience/krig/api/expressions/BooleanConstant;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/BooleanConstant;ZILjava/lang/Object;)Lspace/kscience/krig/api/expressions/BooleanConstant;
 	public fun equals (Ljava/lang/Object;)Z
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
-	public final fun getValue ()Ljava/lang/Object;
+	public final fun getValue ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/expressions/BooleanConstant$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/BooleanConstant$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/BooleanConstant;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/BooleanConstant;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/BooleanConstant$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Comparison : space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Comparison$Companion;
+	public fun <init> (Lspace/kscience/krig/api/expressions/ComparisonOperation;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;)V
+	public final fun component1 ()Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public final fun component2 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun component3 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun copy (Lspace/kscience/krig/api/expressions/ComparisonOperation;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;)Lspace/kscience/krig/api/expressions/Comparison;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Comparison;Lspace/kscience/krig/api/expressions/ComparisonOperation;Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/api/expressions/NumericExpression;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Comparison;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLeft ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun getOperation ()Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public final fun getRight ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/expressions/Comparison$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/Comparison$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/Comparison;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/Comparison;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Comparison$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/ComparisonOperation : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/api/expressions/ComparisonOperation$Companion;
+	public static final field EQUAL Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static final field GREATER Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static final field GREATER_OR_EQUAL Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static final field LESS Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static final field LESS_OR_EQUAL Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static final field NOT_EQUAL Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/api/expressions/ComparisonOperation;
+	public static fun values ()[Lspace/kscience/krig/api/expressions/ComparisonOperation;
+}
+
+public final class space/kscience/krig/api/expressions/ComparisonOperation$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Condition$Companion;
+}
+
+public final class space/kscience/krig/api/expressions/Condition$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Constant : space/kscience/krig/api/expressions/NumericExpression {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Constant$Companion;
+	public fun <init> (D)V
+	public final fun component1 ()D
+	public final fun copy (D)Lspace/kscience/krig/api/expressions/Constant;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Constant;DILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Constant;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()D
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
 public final synthetic class space/kscience/krig/api/expressions/Constant$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public fun <init> (Lkotlinx/serialization/KSerializer;)V
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/Constant$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/Constant;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/Constant;)V
-	public final fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/api/expressions/Constant$Companion {
-	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public abstract interface class space/kscience/krig/api/expressions/Expression {
-	public static final field Companion Lspace/kscience/krig/api/expressions/Expression$Companion;
-	public abstract fun getType-V0oMfBY ()Lkotlin/reflect/KType;
-}
-
-public final class space/kscience/krig/api/expressions/Expression$Companion {
-	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-}
-
-public final class space/kscience/krig/api/expressions/ExpressionKt {
-	public static final fun expressionTypeOf (Ljava/lang/Object;)Lkotlin/reflect/KType;
-}
-
-public final class space/kscience/krig/api/expressions/NAry : space/kscience/krig/api/expressions/Expression {
+public final class space/kscience/krig/api/expressions/NAry : space/kscience/krig/api/expressions/NumericExpression {
 	public static final field Companion Lspace/kscience/krig/api/expressions/NAry$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
 	public final fun component1 ()Ljava/lang/String;
@@ -497,7 +643,6 @@ public final class space/kscience/krig/api/expressions/NAry : space/kscience/kri
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getOperands ()Ljava/util/List;
 	public final fun getOperation ()Ljava/lang/String;
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -517,17 +662,78 @@ public final class space/kscience/krig/api/expressions/NAry$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/api/expressions/Unary : space/kscience/krig/api/expressions/Expression {
-	public static final field Companion Lspace/kscience/krig/api/expressions/Unary$Companion;
-	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Lspace/kscience/krig/api/expressions/Expression;
-	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;)Lspace/kscience/krig/api/expressions/Unary;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Unary;Ljava/lang/String;Lspace/kscience/krig/api/expressions/Expression;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Unary;
+public final class space/kscience/krig/api/expressions/Not : space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Not$Companion;
+	public fun <init> (Lspace/kscience/krig/api/expressions/Condition;)V
+	public final fun component1 ()Lspace/kscience/krig/api/expressions/Condition;
+	public final fun copy (Lspace/kscience/krig/api/expressions/Condition;)Lspace/kscience/krig/api/expressions/Not;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Not;Lspace/kscience/krig/api/expressions/Condition;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Not;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getArgument ()Lspace/kscience/krig/api/expressions/Expression;
+	public final fun getOperand ()Lspace/kscience/krig/api/expressions/Condition;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/expressions/Not$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/Not$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/Not;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/Not;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Not$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/api/expressions/NumericExpression {
+	public static final field Companion Lspace/kscience/krig/api/expressions/NumericExpression$Companion;
+}
+
+public final class space/kscience/krig/api/expressions/NumericExpression$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Or : space/kscience/krig/api/expressions/Condition {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Or$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lspace/kscience/krig/api/expressions/Or;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Or;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Or;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOperands ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/expressions/Or$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/expressions/Or$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/expressions/Or;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/expressions/Or;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Or$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/Unary : space/kscience/krig/api/expressions/NumericExpression {
+	public static final field Companion Lspace/kscience/krig/api/expressions/Unary$Companion;
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;)Lspace/kscience/krig/api/expressions/Unary;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/expressions/Unary;Ljava/lang/String;Lspace/kscience/krig/api/expressions/NumericExpression;ILjava/lang/Object;)Lspace/kscience/krig/api/expressions/Unary;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgument ()Lspace/kscience/krig/api/expressions/NumericExpression;
 	public final fun getOperation ()Ljava/lang/String;
-	public fun getType-V0oMfBY ()Lkotlin/reflect/KType;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }

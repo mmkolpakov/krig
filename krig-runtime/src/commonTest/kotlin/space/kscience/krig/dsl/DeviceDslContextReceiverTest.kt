@@ -1,11 +1,10 @@
 @file:OptIn(
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 package space.kscience.krig.dsl
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -136,7 +135,6 @@ class DeviceDslContextReceiverTest {
         )
         val env = object : DeviceEnvironment {
             override val clock: Clock = Clock.System
-            override val deviceScope: CoroutineScope = this@runTest
             override val name = "plain-env".asName()
         }
 

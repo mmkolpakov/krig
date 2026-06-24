@@ -20,6 +20,8 @@ dependencies {
     api(project(":krig-assembly"))
     api(project(":krig-simulation"))
     api(project(":krig-magix"))
+
+    testImplementation(kotlin("test-junit5"))
 }
 
 publishing {

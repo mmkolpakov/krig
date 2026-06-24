@@ -7,6 +7,7 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.result.OperationOutcome
+import kotlin.time.Duration
 
 /** Standard krig operation-fault types. Integrations can add their own [Name]s. */
 public object OperationFaultTypes {
@@ -113,6 +114,10 @@ public data class ValidationFault(
 @Serializable
 @SerialName("fault.timeout")
 public data class TimeoutFault(
+    /** The operation that exceeded its budget, when known. */
+    val operation: Name? = null,
+    /** The exhausted time budget, when known. */
+    val budget: Duration? = null,
     override val faultType: Name = OperationFaultTypes.Timeout,
 ) : OperationFault {
     override fun toMeta(): Meta = serializableToMeta(serializer(), this)

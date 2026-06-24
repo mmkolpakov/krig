@@ -1,4 +1,4 @@
-﻿@file:OptIn(space.kscience.krig.core.PerformancePitfall::class)
+@file:OptIn(space.kscience.krig.core.KrigPerformancePitfall::class)
 
 package space.kscience.krig.core.contracts
 

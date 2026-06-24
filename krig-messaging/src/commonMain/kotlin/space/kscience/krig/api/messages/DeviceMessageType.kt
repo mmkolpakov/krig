@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.api.messages
+package space.kscience.krig.api.messages
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
@@ -24,8 +24,14 @@ public object DeviceMessageType {
     public const val PropertyWriteResponse: String = "property.write.response"
     public const val ActionExecuteRequest: String = "action.execute.request"
     public const val ActionExecuteResponse: String = "action.execute.response"
+    public const val ActionExecuteCancel: String = "action.execute.cancel"
+    public const val BatchReadRequest: String = "property.read-batch.request"
+    public const val BatchReadResponse: String = "property.read-batch.response"
+    public const val BatchWriteRequest: String = "property.write-batch.request"
+    public const val BatchWriteResponse: String = "property.write-batch.response"
     public const val DeviceOnline: String = "device.online"
     public const val DeviceOffline: String = "device.offline"
+    public const val TimeSeriesRow: String = "timeseries.row"
 
     public val all: Set<String> = setOf(
         PropertyChanged,
@@ -38,8 +44,14 @@ public object DeviceMessageType {
         PropertyWriteResponse,
         ActionExecuteRequest,
         ActionExecuteResponse,
+        ActionExecuteCancel,
+        BatchReadRequest,
+        BatchReadResponse,
+        BatchWriteRequest,
+        BatchWriteResponse,
         DeviceOnline,
         DeviceOffline,
+        TimeSeriesRow,
     )
 }
 

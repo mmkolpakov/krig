@@ -33,7 +33,7 @@ public interface DeviceBackend : AutoCloseable {
     /**
      * Reads a property together with measurement quality.
      *
-     * Default preserves the legacy Meta path and marks a successful transport read as GOOD.
+     * Default preserves the plain Meta read path and marks a successful transport read as GOOD.
      * Protocol integrations that can surface sensor/protocol status codes override this
      * method so acquisition and expressions do not overwrite UNCERTAIN/BAD observations.
      */
@@ -107,6 +107,20 @@ public interface DeviceBackend : AutoCloseable {
 
     context(device: DeviceEnvironment)
     public suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?>
+
+    /**
+     * Negotiates source-side subscription shaping for [property]. Source-capable backends (OPC UA
+     * `MonitoredItem`, ПЛК) sample/queue at the source and return the actually-applied parameters
+     * (revised rate / queue), mirroring OPC UA's `revisedSamplingInterval`. The default applies
+     * nothing at the source ([AppliedSubscribeOptions.ClientSide]); the SDK then shapes the stream
+     * client-side from the requested [SubscribeOptions]. Declared in the contract so adding
+     * source-side shaping to a driver is not a breaking signature change after 1.0.
+     */
+    context(device: DeviceEnvironment)
+    public suspend fun applySubscribeOptions(
+        property: PropertyDescriptor,
+        options: SubscribeOptions,
+    ): AppliedSubscribeOptions = AppliedSubscribeOptions.ClientSide
 
     /** Suspends until backend-owned resources are released. Default delegates to [close]. */
     public suspend fun shutdown() {

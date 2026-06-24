@@ -8,8 +8,11 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.context.executionContext
+import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.data.toDataQuality
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.lifecycle.LifecycleState
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.messages.FaultMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.InternalKrigApi
@@ -115,6 +118,33 @@ public suspend fun <T : Any> Device.typedPropertyState(
     }
     val initial = read(spec)
     return typedPropertyFlow(principal, spec, options).stateIn(scope, SharingStarted.Eagerly, initial)
+}
+
+/**
+ * Quality-aware, **resilient** state of [spec]: current value plus live updates, each carrying its
+ * timestamp and [ObservedValue.quality]. Unlike [typedPropertyState] (which needs a readable initial
+ * value and surfaces a read failure as an exception), this never fails on construction — if the
+ * initial read fails (e.g. a sensor is offline at start-up) the seed is `value = null` with the
+ * fault's [quality][space.kscience.krig.api.data.DataQuality] (typically `BAD`/`UNCERTAIN`), so a UI
+ * dashboard starts with a degraded indicator instead of crashing. Prefer this for control-room views
+ * and watchdogs; use [typedPropertyState] when a non-null value is guaranteed.
+ */
+public suspend fun <T : Any> Device.observedPropertyState(
+    principal: Principal,
+    spec: DevicePropertyContract<T>,
+    scope: CoroutineScope = deviceScope,
+    options: SubscribeOptions = SubscribeOptions.Unthrottled,
+): StateFlow<ObservedValue<T?>> {
+    val initial: ObservedValue<T?> = when (val outcome = readObservedOutcome(spec.name)) {
+        is OperationOutcome.Ok -> {
+            val observed = outcome.value
+            ObservedValue(observed.value?.let { spec.converter.read(it) }, observed.time, observed.quality)
+        }
+        is OperationOutcome.Fail -> ObservedValue(null, clock.now(), outcome.fault.toDataQuality())
+    }
+    return propertyChangesFlow(principal, spec.name, options)
+        .map { msg -> ObservedValue(spec.converter.read(msg.value), msg.time, msg.quality) }
+        .stateIn(scope, SharingStarted.Eagerly, initial)
 }
 
 /**

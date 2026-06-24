@@ -15,7 +15,7 @@ public open class OperationException(message: String, cause: Throwable? = null) 
  * (retry loops, gate denials).
  */
 public class OperationFaultException(public val fault: OperationFault, cause: Throwable? = null) :
-    OperationException("A predictable business fault occurred: ${fault::class.simpleName}: ${fault.message}", cause)
+    OperationException("A predictable business fault occurred: ${fault.displayType}: ${fault.message}", cause)
 
 /** Device property access failed. */
 public class DevicePropertyException(

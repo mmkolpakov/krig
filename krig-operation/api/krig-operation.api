@@ -278,15 +278,18 @@ public final class space/kscience/krig/api/faults/SerializableOperationFailure$C
 
 public final class space/kscience/krig/api/faults/TimeoutFault : space/kscience/krig/api/faults/OperationFault {
 	public static final field Companion Lspace/kscience/krig/api/faults/TimeoutFault$Companion;
-	public fun <init> ()V
-	public fun <init> (Lspace/kscience/dataforge/names/Name;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/TimeoutFault;
-	public static synthetic fun copy$default (Lspace/kscience/krig/api/faults/TimeoutFault;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/TimeoutFault;
+	public final fun component2-FghU774 ()Lkotlin/time/Duration;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy-Kx4hsE0 (Lspace/kscience/dataforge/names/Name;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/api/faults/TimeoutFault;
+	public static synthetic fun copy-Kx4hsE0$default (Lspace/kscience/krig/api/faults/TimeoutFault;Lspace/kscience/dataforge/names/Name;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/api/faults/TimeoutFault;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBudget-FghU774 ()Lkotlin/time/Duration;
 	public fun getFaultType ()Lspace/kscience/dataforge/names/Name;
 	public fun getMessage ()Ljava/lang/String;
+	public final fun getOperation ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
 	public fun toMeta ()Lspace/kscience/dataforge/meta/Meta;
 	public fun toString ()Ljava/lang/String;
@@ -457,7 +460,6 @@ public final class space/kscience/krig/api/result/OperationOutcomeKt {
 	public static final fun okUnit ()Lspace/kscience/krig/api/result/OperationOutcome;
 	public static final fun onFailure (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
 	public static final fun onSuccess (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/result/OperationOutcome;
-	public static final fun recover (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
 	public static final fun runCatchingOperation (Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/api/result/OperationOutcome;
 	public static final fun then (Lspace/kscience/krig/api/result/OperationOutcome;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun toOutcome (Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/api/result/OperationOutcome;
@@ -465,6 +467,25 @@ public final class space/kscience/krig/api/result/OperationOutcomeKt {
 
 public final class space/kscience/krig/core/operations/ResourceLockRegistry {
 	public fun <init> ()V
+}
+
+public final class space/kscience/krig/core/pipeline/BatchExecutionMode : java/lang/Enum {
+	public static final field Coalescing Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
+	public static final field Sequential Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
+	public static fun values ()[Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
+}
+
+public final class space/kscience/krig/core/pipeline/BuiltinInterceptorKeys {
+	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/BuiltinInterceptorKeys;
+	public final fun getGates ()Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;
+	public final fun getLocks ()Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;
+	public final fun getRetry ()Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;
+	public final fun getTimeout ()Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;
+}
+
+public final class space/kscience/krig/core/pipeline/HeldResourceLocks$Key : kotlin/coroutines/CoroutineContext$Key {
 }
 
 public final class space/kscience/krig/core/pipeline/OperationContext {
@@ -487,6 +508,24 @@ public final class space/kscience/krig/core/pipeline/OperationContext {
 
 public abstract interface class space/kscience/krig/core/pipeline/OperationGate {
 	public abstract fun check (Lspace/kscience/krig/core/pipeline/OperationContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/OperationInterceptor {
+	public abstract fun getKey ()Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;
+	public abstract fun intercept (Lspace/kscience/krig/core/pipeline/OperationPlan;Ljava/lang/Object;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationInterceptorKey {
+	public fun <init> (Ljava/lang/String;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/OperationInterceptorKt {
+	public static final fun replace (Ljava/util/List;Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;Lspace/kscience/krig/core/pipeline/OperationInterceptor;)Ljava/util/List;
+	public static final fun without (Ljava/util/List;Lspace/kscience/krig/core/pipeline/OperationInterceptorKey;)Ljava/util/List;
 }
 
 public final class space/kscience/krig/core/pipeline/OperationKind {
@@ -523,32 +562,30 @@ public abstract interface class space/kscience/krig/core/pipeline/OperationObser
 
 public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
 	public static final field Companion Lspace/kscience/krig/core/pipeline/OperationPipelineSpec$Companion;
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3-FghU774 ()Lkotlin/time/Duration;
 	public final fun component4 ()Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
 	public final fun component5-FghU774 ()Lkotlin/time/Duration;
-	public final fun copy-DlrPkwI (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
-	public static synthetic fun copy-DlrPkwI$default (Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public final fun component6 ()Z
+	public final fun component7 ()Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
+	public final fun copy-pQyb5r8 (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public static synthetic fun copy-pQyb5r8$default (Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBatchExecutionMode ()Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
 	public final fun getDefaultLatencyBudget-FghU774 ()Lkotlin/time/Duration;
 	public final fun getDefaultRetry ()Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
 	public final fun getDefaultTimeout-FghU774 ()Lkotlin/time/Duration;
 	public final fun getGates ()Ljava/util/List;
 	public final fun getObservers ()Ljava/util/List;
+	public final fun getSuppressDescriptorQos ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/core/pipeline/OperationPipelineSpec$Companion {
 	public final fun getEmpty ()Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
-}
-
-public final class space/kscience/krig/core/pipeline/Pipeline {
-	public fun <init> ()V
-	public final fun build (Lkotlin/jvm/functions/Function2;)Lkotlin/jvm/functions/Function2;
-	public final fun prepend (Lkotlin/jvm/functions/Function3;)V
 }
 

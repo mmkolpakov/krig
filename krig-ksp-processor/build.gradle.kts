@@ -9,6 +9,8 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation(libs.kctfork.core)
     testImplementation(libs.kctfork.ksp)
+    testImplementation(project(":krig-contracts"))
+    testImplementation(project(":krig-assembly"))
 }
 
 kotlin {

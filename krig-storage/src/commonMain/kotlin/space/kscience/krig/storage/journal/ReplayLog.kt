@@ -18,8 +18,13 @@ public interface EventCursor : Comparable<EventCursor>
 /** Monotonic sequence cursor assigned by an [EventJournal] when an event is written. */
 @JvmInline
 public value class SequenceCursor(public val sequence: Long) : EventCursor {
-    override fun compareTo(other: EventCursor): Int =
-        sequence.compareTo((other as SequenceCursor).sequence)
+    override fun compareTo(other: EventCursor): Int {
+        require(other is SequenceCursor) {
+            "SequenceCursor is comparable only with SequenceCursor, got ${other::class.simpleName}: " +
+                    "cursors from different journal backends have no common order."
+        }
+        return sequence.compareTo(other.sequence)
+    }
 }
 
 /**

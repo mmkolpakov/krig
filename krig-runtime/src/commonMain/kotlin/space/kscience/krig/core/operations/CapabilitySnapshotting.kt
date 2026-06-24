@@ -4,13 +4,17 @@ package space.kscience.krig.core.operations
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
+import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.data.Snapshotting
+import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.meta.serializableMetaConverter
 import space.kscience.krig.api.meta.serializableToMeta
 import space.kscience.krig.api.serialization.krigJson
 import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.contracts.CapabilityHost
+import space.kscience.krig.core.timetravel.Reconstructible
 import space.kscience.dataforge.meta.Meta
+import kotlin.time.Instant
 
 private val defaultCapabilitySnapshotCodec: CapabilitySnapshotCodec =
     KotlinxJsonCapabilitySnapshotCodec()
@@ -71,6 +75,33 @@ public suspend fun CapabilityHost.restoreCapabilitySnapshots(
         if (cap !is Snapshotting<*>) continue
         val raw = snapshots[cap.key.id.toString()] ?: continue
         codec.restore(cap, raw)
+    }
+}
+
+/**
+ * Convenience bridge from a [CapabilityHost] to a [Reconstructible] whose entire reconstructible
+ * state lives in capability snapshots: `captureSnapshot` collects
+ * [captureCapabilitySnapshots], `restoreSnapshot` feeds [restoreCapabilitySnapshots], and `applyEvent`
+ * is a no-op (capabilities checkpoint their own runtime state rather than folding the replay log).
+ *
+ * For models whose state IS a replay fold, use the `MetaConverter`-aware `stateModel` overload instead.
+ */
+public fun CapabilityHost.asReconstructible(
+    codec: CapabilitySnapshotCodec = defaultCapabilitySnapshotCodec,
+): Reconstructible = object : Reconstructible {
+    override suspend fun applyEvent(event: DeviceMessage) {
+        // Capabilities snapshot their own runtime state; there is no per-event fold here.
+    }
+
+    override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
+        DeviceSnapshot(
+            at = at,
+            state = Meta.EMPTY,
+            capabilitySnapshots = captureCapabilitySnapshots(codec),
+        )
+
+    override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
+        restoreCapabilitySnapshots(snapshot.capabilitySnapshots, codec)
     }
 }
 

@@ -11,9 +11,10 @@ import space.kscience.dataforge.names.asName
 /**
  * Serializable descriptor for a device.
  *
- * Contains names, types, units, constraints, and [PipelineFeatureSpec] configurations.
- * Typed converters stay in `DevicePropertyContract` / `DeviceActionContract`;
- * executable bindings stay in backends.
+ * Contains names, types, constraints, and [PipelineFeatureSpec] configurations. Measurement
+ * units are deliberately not modelled (see `GeneralAttributes`); attach them as descriptor
+ * attributes when a domain needs them. Typed converters stay in `DevicePropertyContract` /
+ * `DeviceActionContract`; executable bindings stay in backends.
  */
 @DfType(DeviceManifest.TYPE)
 public interface DeviceManifest {

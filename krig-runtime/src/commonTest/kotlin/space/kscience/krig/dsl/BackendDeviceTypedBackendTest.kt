@@ -1,6 +1,6 @@
 @file:OptIn(
     space.kscience.krig.core.InternalKrigApi::class,
-    space.kscience.krig.core.PerformancePitfall::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
 )
 
@@ -35,7 +35,7 @@ import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
-import space.kscience.krig.core.contracts.typed.backend
+import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.contracts.typed.TypedBackend
@@ -81,7 +81,7 @@ class BackendDeviceTypedBackendTest {
 
     @Test
     fun backendDeviceUsesBackendSpecForMetaBoundaryValidation() = runTest {
-        val backend = backend {
+        val backend = deviceBackend {
             reader(valueSpec) { 0.0 }
             writer(valueSpec) { }
         }
@@ -103,7 +103,7 @@ class BackendDeviceTypedBackendTest {
         val payload = byteArrayOf(13, 0)
         var binaryRequests: List<Name> = emptyList()
         var writeRequests: Map<Name, Meta> = emptyMap()
-        val backend = backend {
+        val backend = deviceBackend {
             batchBinaryReader { descriptors ->
                 binaryRequests = descriptors.map { it.name }
                 descriptors.associate { descriptor ->
@@ -137,7 +137,7 @@ class BackendDeviceTypedBackendTest {
     @Test
     fun backendDeviceUsesTypedBackendSpecsForBatchWithoutDescriptorSource() = runTest {
         var batchRequests: List<Name> = emptyList()
-        val backend = backend {
+        val backend = deviceBackend {
             reader(valueSpec) { 7.0 }
             batchObservedReader { descriptors ->
                 batchRequests = descriptors.map { it.name }

@@ -1,4 +1,4 @@
-﻿package space.kscience.krig.core.operations
+package space.kscience.krig.core.operations
 
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
