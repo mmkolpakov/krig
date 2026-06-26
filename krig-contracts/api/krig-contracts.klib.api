@@ -701,7 +701,7 @@ final class space.kscience.krig.core.contracts/SubscribeOptions { // space.kscie
 }
 
 final class space.kscience.krig.core.operations/HybridLogicalClock { // space.kscience.krig.core.operations/HybridLogicalClock|null[0]
-    constructor <init>(kotlin.time/Clock = ..., kotlin.time/Duration? = ..., space.kscience.dataforge.names/Name = ...) // space.kscience.krig.core.operations/HybridLogicalClock.<init>|<init>(kotlin.time.Clock;kotlin.time.Duration?;space.kscience.dataforge.names.Name){}[0]
+    constructor <init>(kotlin.time/Clock = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.data/HlcNodeId = ...) // space.kscience.krig.core.operations/HybridLogicalClock.<init>|<init>(kotlin.time.Clock;kotlin.time.Duration?;space.kscience.krig.api.data.HlcNodeId){}[0]
 
     final fun snapshot(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.snapshot|snapshot(){}[0]
     final fun tick(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.tick|tick(){}[0]
@@ -727,6 +727,8 @@ final object space.kscience.krig.core.hook/DeviceAttached : space.kscience.krig.
 
 final object space.kscience.krig.core.hook/DeviceDetached : space.kscience.krig.core.hook/Hook<kotlin.coroutines/SuspendFunction2<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device, kotlin/Unit>> // space.kscience.krig.core.hook/DeviceDetached|null[0]
 
+final val space.kscience.krig.api.utils/unit // space.kscience.krig.api.utils/unit|@space.kscience.dataforge.meta.MetaConverter.Companion{}unit[0]
+    final fun (space.kscience.dataforge.meta/MetaConverter.Companion).<get-unit>(): space.kscience.dataforge.meta/MetaConverter<kotlin/Unit> // space.kscience.krig.api.utils/unit.<get-unit>|<get-unit>@space.kscience.dataforge.meta.MetaConverter.Companion(){}[0]
 final val space.kscience.krig.core.capabilities/capabilityValues // space.kscience.krig.core.capabilities/capabilityValues|@space.kscience.attributes.Attributes{}capabilityValues[0]
     final fun (space.kscience.attributes/Attributes).<get-capabilityValues>(): kotlin.collections/Collection<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.capabilities/capabilityValues.<get-capabilityValues>|<get-capabilityValues>@space.kscience.attributes.Attributes(){}[0]
 final val space.kscience.krig.core.capabilities/values // space.kscience.krig.core.capabilities/values|@space.kscience.attributes.AttributesBuilder<space.kscience.krig.core.capabilities.Capability<*>>{}values[0]

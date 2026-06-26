@@ -6,15 +6,20 @@
 package space.kscience.krig.core.operations
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.currentTime
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
+import space.kscience.krig.core.contracts.CleanupFailureReporting
+import space.kscience.krig.core.contracts.CleanupTimeoutException
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.runtime.MutableDeviceHub
+import space.kscience.krig.core.runtime.RECONCILE_DEFAULT_ROLLBACK_TIMEOUT
 import space.kscience.krig.core.runtime.awaitChildren
 import space.kscience.krig.core.runtime.reconcile
 import space.kscience.krig.core.runtime.reconcileScoped
@@ -23,7 +28,9 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(InternalKrigApi::class, ExperimentalCoroutinesApi::class)
 class DeviceReconcilerTest {
@@ -88,5 +95,38 @@ class DeviceReconcilerTest {
         assertEquals(1, rollbackCount)
 
         loop.job.cancel()
+    }
+
+    @Test
+    fun reconcileScopedBoundsRollbackCleanupWhenProductionFails() = runTest {
+        val context = Context("hub-scoped-rollback-timeout")
+        val hub = MutableDeviceHub("hub".asName(), context)
+        val desired = MutableStateFlow(setOf("motorA".asName()))
+        val failures = mutableListOf<Exception>()
+        CleanupFailureReporting.install { failure -> failures += failure }
+
+        try {
+            val loop = context(context) {
+                hub.reconcileScoped(
+                    desired = desired,
+                    produce = {
+                        onRollback {
+                            delay(RECONCILE_DEFAULT_ROLLBACK_TIMEOUT + 1.seconds)
+                        }
+                        error("port failed")
+                    },
+                    scope = this@runTest,
+                )
+            }
+            advanceUntilIdle()
+
+            assertTrue(hub.devices.isEmpty())
+            assertEquals(RECONCILE_DEFAULT_ROLLBACK_TIMEOUT.inWholeMilliseconds, currentTime)
+            assertIs<CleanupTimeoutException>(failures.single())
+
+            loop.job.cancel()
+        } finally {
+            CleanupFailureReporting.install(null)
+        }
     }
 }

@@ -167,18 +167,18 @@ class BackendDeviceTypedBackendTest {
         val started = CompletableDeferred<Unit>()
         val never = CompletableDeferred<Unit>()
         val backend = object : DeviceBackend {
-            context(device: DeviceEnvironment)
+            context(env: DeviceEnvironment)
             override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
                 started.complete(Unit)
                 never.await()
                 return OperationOutcome.Ok(Meta.EMPTY)
             }
 
-            context(device: DeviceEnvironment)
+            context(env: DeviceEnvironment)
             override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
                 okUnit()
 
-            context(device: DeviceEnvironment)
+            context(env: DeviceEnvironment)
             override suspend fun execute(
                 action: space.kscience.krig.api.descriptors.ActionDescriptor,
                 argument: Meta?,
@@ -252,19 +252,19 @@ class BackendDeviceTypedBackendTest {
                 null
             }
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
             metaReads += 1
             return OperationOutcome.Ok(metaOf(-1.0))
         }
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
             metaWrites += 1
             return okUnit()
         }
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun execute(
             action: space.kscience.krig.api.descriptors.ActionDescriptor,
             argument: Meta?,
@@ -279,18 +279,18 @@ class BackendDeviceTypedBackendTest {
         var lastValue: Meta? = null
             private set
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
             OperationOutcome.Ok(metaOf(7.0))
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
             lastWrite = property.name
             lastValue = value
             return okUnit()
         }
 
-        context(device: DeviceEnvironment)
+        context(env: DeviceEnvironment)
         override suspend fun execute(
             action: space.kscience.krig.api.descriptors.ActionDescriptor,
             argument: Meta?,

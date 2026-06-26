@@ -1,3 +1,5 @@
+@file:OptIn(space.kscience.krig.core.InternalKrigApi::class)
+
 package space.kscience.krig.core.runtime
 
 import kotlinx.coroutines.*
@@ -7,6 +9,9 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.hub.DeviceHub
 import space.kscience.krig.api.messages.DeviceDepartureReason
+import space.kscience.krig.core.contracts.CleanupFailureReporting
+import space.kscience.krig.core.contracts.CleanupTimeoutException
+import space.kscience.krig.core.contracts.DEFAULT_DEVICE_SHUTDOWN_TIMEOUT
 import space.kscience.krig.core.contracts.Device
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -31,6 +36,9 @@ public suspend fun DeviceHub.awaitChildren(
  * of stalling the whole loop indefinitely. Pass `productionTimeout = null` to opt out explicitly.
  */
 public val RECONCILE_DEFAULT_PRODUCTION_TIMEOUT: Duration = 30.seconds
+
+/** Default budget for one rollback cleanup block in [reconcileScoped]. */
+internal val RECONCILE_DEFAULT_ROLLBACK_TIMEOUT: Duration = DEFAULT_DEVICE_SHUTDOWN_TIMEOUT
 
 /**
  * Handle on a running reconcile loop. [job] ties the loop's lifetime to the scope; [events]
@@ -69,19 +77,31 @@ public class ReconcileProductionScope internal constructor() {
         rollbacks += cleanup
     }
 
-    internal suspend fun rollback() {
+    internal suspend fun rollback(timeout: Duration = RECONCILE_DEFAULT_ROLLBACK_TIMEOUT) {
         rollbacks.asReversed().forEach { cleanup ->
-            ignoreRollbackFailure { cleanup() }
+            ignoreRollbackFailure(timeout) { cleanup() }
         }
     }
 }
 
-private suspend inline fun ignoreRollbackFailure(crossinline block: suspend () -> Unit) {
+private suspend inline fun ignoreRollbackFailure(
+    timeout: Duration = RECONCILE_DEFAULT_ROLLBACK_TIMEOUT,
+    crossinline block: suspend () -> Unit,
+) {
     try {
         // NonCancellable: rollback must release resources fully even if the reconciler is being
-        // cancelled mid-attach; otherwise a cancellation would leak the half-allocated resource.
-        withContext(NonCancellable) { block() }
-    } catch (_: Exception) {
+        // cancelled mid-attach; the local timeout keeps cooperative cleanup from hanging forever.
+        withContext(NonCancellable) {
+            val finished = withTimeoutOrNull(timeout) {
+                block()
+                true
+            }
+            if (finished == null) {
+                CleanupFailureReporting.report(CleanupTimeoutException(timeout))
+            }
+        }
+    } catch (e: Exception) {
+        CleanupFailureReporting.report(e)
         // Rollback is best-effort; the original production/attach fault is the signal.
     }
 }
@@ -98,11 +118,11 @@ private suspend inline fun ignoreRollbackFailure(crossinline block: suspend () -
  * [productionTimeout] defaults to [RECONCILE_DEFAULT_PRODUCTION_TIMEOUT] so a hung producer cannot
  * stall the loop; pass `null` to disable the timeout.
  */
-context(context: Context)
+context(dataforgeContext: Context)
 public fun DeviceHub.reconcile(
     desired: Flow<Set<Name>>,
     produce: suspend (Name) -> Device,
-    scope: CoroutineScope = context,
+    scope: CoroutineScope = dataforgeContext,
     productionTimeout: Duration? = RECONCILE_DEFAULT_PRODUCTION_TIMEOUT,
 ): ReconcileLoop = reconcileScoped(
     desired = desired,
@@ -118,11 +138,11 @@ public fun DeviceHub.reconcile(
  *
  * [productionTimeout] defaults to [RECONCILE_DEFAULT_PRODUCTION_TIMEOUT]; pass `null` to disable it.
  */
-context(context: Context)
+context(dataforgeContext: Context)
 public fun DeviceHub.reconcileScoped(
     desired: Flow<Set<Name>>,
     produce: suspend ReconcileProductionScope.(Name) -> Device,
-    scope: CoroutineScope = context,
+    scope: CoroutineScope = dataforgeContext,
     productionTimeout: Duration? = RECONCILE_DEFAULT_PRODUCTION_TIMEOUT,
 ): ReconcileLoop {
     val events = MutableSharedFlow<ReconcileEvent>(
@@ -247,15 +267,15 @@ private suspend fun produceForReconcile(
 /**
  * Explicit-parameter overload of [reconcileScoped] for call sites where no [Context] is
  * ambient (e.g. `runBlocking {}`, simple `main()` demos). Delegates to the
- * context-parameter version via `context(context)`.
+ * context-parameter version via `context(dataforgeContext)`.
  */
 public fun DeviceHub.reconcileScoped(
-    context: Context,
+    dataforgeContext: Context,
     desired: Flow<Set<Name>>,
     produce: suspend ReconcileProductionScope.(Name) -> Device,
-    scope: CoroutineScope = context,
+    scope: CoroutineScope = dataforgeContext,
     productionTimeout: Duration? = null,
-): ReconcileLoop = context(context) {
+): ReconcileLoop = context(dataforgeContext) {
     reconcileScoped(
         desired = desired,
         produce = produce,
@@ -267,15 +287,15 @@ public fun DeviceHub.reconcileScoped(
 /**
  * Explicit-parameter overload of [reconcile] for call sites where no [Context] is
  * ambient (e.g. `runBlocking {}`, simple `main()` demos). Delegates to the
- * context-parameter version via `context(context)`.
+ * context-parameter version via `context(dataforgeContext)`.
  */
 public fun DeviceHub.reconcile(
-    context: Context,
+    dataforgeContext: Context,
     desired: Flow<Set<Name>>,
     produce: suspend (Name) -> Device,
-    scope: CoroutineScope = context,
+    scope: CoroutineScope = dataforgeContext,
     productionTimeout: Duration? = null,
-): ReconcileLoop = context(context) {
+): ReconcileLoop = context(dataforgeContext) {
     reconcile(
         desired = desired,
         produce = produce,

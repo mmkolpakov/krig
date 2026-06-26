@@ -79,11 +79,11 @@ internal class BackendHandlers(
  */
 @OptIn(UnstableKrigForSubclassing::class)
 internal class BackendCore(private val handlers: BackendHandlers) : DeviceBackend {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
-        handlers.metaReaders[property.name]?.let { reader -> return runCatchingOperation { reader(device) } }
+        handlers.metaReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
         handlers.observedReaders[property.name]?.let { reader ->
-            return when (val outcome = runCatchingOperation { reader(device) }) {
+            return when (val outcome = runCatchingOperation { reader(env) }) {
                 is OperationOutcome.Ok -> outcome.value.value?.let { OperationOutcome.Ok(it) }
                     ?: validationFault("Observed property '${property.name}' has no Meta value")
                 is OperationOutcome.Fail -> outcome
@@ -92,55 +92,55 @@ internal class BackendCore(private val handlers: BackendHandlers) : DeviceBacken
         return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        handlers.observedReaders[property.name]?.let { reader -> return runCatchingOperation { reader(device) } }
-        return read(property).toObserved(device)
+        handlers.observedReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
+        return read(property).toObserved(env)
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> {
-        handlers.binaryReaders[property.name]?.let { reader -> return runCatchingOperation { reader(device) } }
+        handlers.binaryReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
         return operationFault(OperationFaultTypes.UnsupportedValue, "Property '${property.name}' has no binary reader")
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readBatchObserved(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
-        handlers.batchObserved?.let { return it.invoke(device, properties) }
+        handlers.batchObserved?.let { return it.invoke(env, properties) }
         handlers.batchMeta?.let { body ->
-            return body.invoke(device, properties).mapValues { (_, outcome) -> outcome.toObserved(device) }
+            return body.invoke(env, properties).mapValues { (_, outcome) -> outcome.toObserved(env) }
         }
         return properties.associate { property -> property.name to readObserved(property) }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readBatchBinary(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<Binary>> {
-        handlers.batchBinary?.let { return it.invoke(device, properties) }
+        handlers.batchBinary?.let { return it.invoke(env, properties) }
         return properties.associate { property -> property.name to readBinary(property) }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
-        handlers.writers[property.name]?.invoke(device, value)
+        handlers.writers[property.name]?.invoke(env, value)
             ?: validationFault("Property '${property.name}' is not writable")
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun writeBatch(
         values: Map<PropertyDescriptor, Meta>,
     ): Map<Name, OperationOutcome<Unit>> {
-        handlers.batchWrite?.let { return it.invoke(device, values) }
+        handlers.batchWrite?.let { return it.invoke(env, values) }
         return buildMap(values.size) {
             for ((property, value) in values) put(property.name, write(property, value))
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
-        handlers.actions[action.name]?.invoke(device, argument)
+        handlers.actions[action.name]?.invoke(env, argument)
             ?: operationFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}'")
 
     override fun close() {

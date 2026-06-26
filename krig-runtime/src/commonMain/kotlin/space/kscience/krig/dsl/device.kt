@@ -173,16 +173,16 @@ internal class DeclarativeBackendCore(
     internal var pipelineRead: (suspend (Name) -> Meta?)? = null
     internal var pipelineWrite: (suspend (Name, Meta) -> Boolean)? = null
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     private fun scope(): DeclarativeScope {
-        cachedScope?.takeIf { it.environment === device }?.let { return it }
+        cachedScope?.takeIf { it.environment === env }?.let { return it }
         return synchronized(scopeLock) {
-            cachedScope?.takeIf { it.environment === device }
-                ?: DeclarativeScope(this@DeclarativeBackendCore, device).also { cachedScope = it }
+            cachedScope?.takeIf { it.environment === env }
+                ?: DeclarativeScope(this@DeclarativeBackendCore, env).also { cachedScope = it }
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     suspend fun readValue(name: Name): OperationOutcome<Any> {
         val reader = readers[name]
             ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '$name' on Device DSL backend")
@@ -192,7 +192,7 @@ internal class DeclarativeBackendCore(
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         when (val outcome = readValue(property.name)) {
             is OperationOutcome.Fail -> outcome
@@ -206,7 +206,7 @@ internal class DeclarativeBackendCore(
      * Other properties fall back to the [DeviceBackend] default (a successful Meta read marked GOOD),
      * so existing declarations keep their zero-overhead value path.
      */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
         val block = observedReaders[property.name] ?: return super.readObserved(property)
         return runCatchingOperation {
@@ -216,7 +216,7 @@ internal class DeclarativeBackendCore(
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta): OperationOutcome<Unit> {
         val directWriter = valueWriters[name]
         if (directWriter != null) {
@@ -244,7 +244,7 @@ internal class DeclarativeBackendCore(
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
         val writer = writers[property.name]
             ?: return validationFault("Property '${property.name}' is not writable on Device DSL backend", property = property.name)
@@ -254,7 +254,7 @@ internal class DeclarativeBackendCore(
         }
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
         val body = actions[action.name]
             ?: return operationFault(

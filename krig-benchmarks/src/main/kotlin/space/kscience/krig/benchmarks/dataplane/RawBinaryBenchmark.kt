@@ -67,19 +67,19 @@ open class RawBinaryBenchmark {
 }
 
 private class MetaBinaryBackend(private val payload: ByteArray) : UnsupportedBackend() {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         OperationOutcome.Ok(MetaConverter.string.convert(Base64.getEncoder().encodeToString(payload)))
 }
 
 private class RawBinaryBackendImpl(private val payload: ByteArray) : UnsupportedBackend() {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> =
         OperationOutcome.Ok(payload.asBinary())
 }
 
 private open class UnsupportedBackend : DeviceBackend {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         OperationOutcome.Fail(
             GenericOperationFault(
@@ -88,7 +88,7 @@ private open class UnsupportedBackend : DeviceBackend {
             ),
         )
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
         OperationOutcome.Fail(
             GenericOperationFault(
@@ -97,7 +97,7 @@ private open class UnsupportedBackend : DeviceBackend {
             ),
         )
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
         OperationOutcome.Fail(
             GenericOperationFault(

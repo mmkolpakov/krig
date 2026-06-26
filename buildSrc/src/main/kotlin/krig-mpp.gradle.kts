@@ -75,7 +75,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.findLibrary("kotlinx-coroutines-test").get())
-                implementation(libs.findLibrary("turbine").get())
+                implementation("app.cash.turbine:turbine:${libs.findVersion("turbine").get()}")
             }
         }
         named("jvmTest") {

@@ -59,7 +59,7 @@ suspend fun deviceHubDemo(): Unit = coroutineScope {
 
     val desired = MutableStateFlow(setOf("c".asName(), "d".asName()))
     val loop = hub.reconcile(
-        context = hubCtx,
+        dataforgeContext = hubCtx,
         desired = desired,
         produce = { name -> trackingDevice(name.toString(), hubCtx).device },
         scope = this,

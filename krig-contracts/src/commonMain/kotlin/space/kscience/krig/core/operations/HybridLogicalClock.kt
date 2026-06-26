@@ -2,7 +2,7 @@ package space.kscience.krig.core.operations
 
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
-import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.data.HlcNodeId
 import space.kscience.krig.api.data.HlcTimestamp
 import kotlin.time.Duration
 import kotlin.time.Clock
@@ -14,12 +14,12 @@ import kotlin.time.Clock
  *
  * [nodeId] identifies this clock's node; it is stamped onto every produced [HlcTimestamp] and acts
  * as the deterministic total-order tie-breaker across nodes (see [HlcTimestamp.nodeId]). The default
- * [Name.EMPTY] keeps single-node behaviour unchanged.
+ * [HlcNodeId.Unspecified] keeps single-node behaviour unchanged.
  */
 public class HybridLogicalClock(
     private val physicalClock: Clock = Clock.System,
     private val maxRemoteFutureDrift: Duration? = null,
-    private val nodeId: Name = Name.EMPTY,
+    private val nodeId: HlcNodeId = HlcNodeId.Unspecified,
 ) {
     private val lock = SynchronizedObject()
     private var lastPhysicalMs: Long = 0

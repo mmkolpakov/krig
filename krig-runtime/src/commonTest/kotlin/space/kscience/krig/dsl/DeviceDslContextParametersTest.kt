@@ -40,7 +40,7 @@ import kotlin.time.Clock
  * Device DSL lambdas receive narrow device scopes: enough for computed properties,
  * without exposing the full device lifecycle surface.
  */
-class DeviceDslContextReceiverTest {
+class DeviceDslContextParametersTest {
     private val lexicalReceiverToken: String = "outer-receiver"
 
     private fun permissiveContext(name: String): Context = Context(name) {
@@ -87,7 +87,7 @@ class DeviceDslContextReceiverTest {
         val seenThis = AtomicReference<String?>(null)
         val device = device("lexical", permissiveContext("dsl-ctx-context-4")) {
             property("receiver") {
-                seenThis.store(this@DeviceDslContextReceiverTest.lexicalReceiverToken)
+                seenThis.store(this@DeviceDslContextParametersTest.lexicalReceiverToken)
                 name.toString()
             }
         }

@@ -90,15 +90,15 @@ open class BatchReadBenchmark {
 }
 
 private open class SequentialBackend : DeviceBackend {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
         OperationOutcome.Ok(metaOf(42.0))
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
         OperationOutcome.OkUnit
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
         OperationOutcome.Fail(
             GenericOperationFault(
@@ -111,13 +111,13 @@ private open class SequentialBackend : DeviceBackend {
 }
 
 private class CoalescingBackend : SequentialBackend() {
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun readBatchObserved(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
         properties.associate { property ->
             property.name to OperationOutcome.Ok(
-                ObservedValue(metaOf(42.0), device.clock.now(), DataQuality.GOOD),
+                ObservedValue(metaOf(42.0), env.clock.now(), DataQuality.GOOD),
             )
         }
 }

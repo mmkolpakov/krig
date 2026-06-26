@@ -3,15 +3,13 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-description = "State data: lifecycle states, timestamps, quality, snapshots, and timelines"
+description = "State data: lifecycle states, timestamps, quality, and observed values"
 
 kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.dataforge.meta)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.io.core)
+                api(libs.kotlinx.serialization.core)
             }
         }
     }

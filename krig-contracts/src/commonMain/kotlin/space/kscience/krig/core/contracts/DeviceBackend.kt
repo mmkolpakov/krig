@@ -27,7 +27,7 @@ import space.kscience.krig.api.result.map
 @SubclassOptInRequired(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 public interface DeviceBackend : AutoCloseable {
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta>
 
     /**
@@ -37,10 +37,10 @@ public interface DeviceBackend : AutoCloseable {
      * Protocol integrations that can surface sensor/protocol status codes override this
      * method so acquisition and expressions do not overwrite UNCERTAIN/BAD observations.
      */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> =
         read(property).map { value ->
-            ObservedValue(value = value, time = device.clock.now(), quality = DataQuality.GOOD)
+            ObservedValue(value = value, time = env.clock.now(), quality = DataQuality.GOOD)
         }
 
     /**
@@ -50,7 +50,7 @@ public interface DeviceBackend : AutoCloseable {
      * override this directly to preserve native quality information for protocols such
      * as OPC UA or Modbus block reads.
      */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun readBatchObserved(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> =
@@ -59,7 +59,7 @@ public interface DeviceBackend : AutoCloseable {
         }
 
     /** Reads opaque binary payload without forcing it through a Meta tree. */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> =
         OperationOutcome.Fail(
             GenericOperationFault(
@@ -69,7 +69,7 @@ public interface DeviceBackend : AutoCloseable {
         )
 
     /** Reads several opaque binary payloads. Default is sequential and non-coalescing. */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun readBatchBinary(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<Binary>> =
@@ -77,7 +77,7 @@ public interface DeviceBackend : AutoCloseable {
             property.name to readBinary(property)
         }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit>
 
     /**
@@ -87,7 +87,7 @@ public interface DeviceBackend : AutoCloseable {
      * If a physical transaction fails before per-property statuses are known, return the
      * same [OperationOutcome.Fail] for every requested property.
      */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun writeBatch(
         values: Map<PropertyDescriptor, Meta>,
     ): Map<Name, OperationOutcome<Unit>> =
@@ -96,7 +96,7 @@ public interface DeviceBackend : AutoCloseable {
         }
 
     /** Writes opaque binary payload without forcing it through Meta. */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun writeBinary(property: PropertyDescriptor, value: Binary): OperationOutcome<Unit> =
         OperationOutcome.Fail(
             GenericOperationFault(
@@ -105,7 +105,7 @@ public interface DeviceBackend : AutoCloseable {
             ),
         )
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?>
 
     /**
@@ -116,7 +116,7 @@ public interface DeviceBackend : AutoCloseable {
      * client-side from the requested [SubscribeOptions]. Declared in the contract so adding
      * source-side shaping to a driver is not a breaking signature change after 1.0.
      */
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     public suspend fun applySubscribeOptions(
         property: PropertyDescriptor,
         options: SubscribeOptions,

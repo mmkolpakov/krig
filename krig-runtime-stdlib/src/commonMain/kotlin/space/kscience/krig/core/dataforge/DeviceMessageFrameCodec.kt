@@ -10,15 +10,15 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.long
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.isEmpty
 import space.kscience.dataforge.names.parseAsName
+import space.kscience.krig.api.data.HlcNodeId
+import space.kscience.krig.api.data.HlcTimestamp
 import space.kscience.krig.api.identifiers.CorrelationId
 import space.kscience.krig.api.identifiers.wireValue
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.serialization.krigStorageJson
-import space.kscience.krig.api.data.HlcTimestamp
 
 /**
  * Canonical wire-key dictionary for lowering a [DeviceMessageFrame] into a DataForge
@@ -73,7 +73,7 @@ private fun MessageContext.toEnvelopeMeta(message: DeviceMessage): Meta = Meta {
     hlcTimestamp?.let { stamp ->
         DeviceMessageFrameKeys.HLC_PHYSICAL_MS put stamp.physicalMilliseconds
         DeviceMessageFrameKeys.HLC_LOGICAL put stamp.logicalCounter
-        if (!stamp.nodeId.isEmpty()) DeviceMessageFrameKeys.HLC_NODE put stamp.nodeId.toString()
+        if (!stamp.nodeId.isUnspecified()) DeviceMessageFrameKeys.HLC_NODE put stamp.nodeId.value
     }
     set(DeviceMessageFrameKeys.ATTRIBUTES, attributes)
     Envelope.ENVELOPE_TYPE_KEY put DeviceMessageFrameKeys.ENVELOPE_TYPE
@@ -83,7 +83,7 @@ private fun MessageContext.toEnvelopeMeta(message: DeviceMessage): Meta = Meta {
 private fun Meta.toMessageContext(): MessageContext {
     val physical = get(DeviceMessageFrameKeys.HLC_PHYSICAL_MS)?.long
     val logical = get(DeviceMessageFrameKeys.HLC_LOGICAL)?.long
-    val nodeId = get(DeviceMessageFrameKeys.HLC_NODE)?.string?.parseAsName() ?: Name.EMPTY
+    val nodeId = get(DeviceMessageFrameKeys.HLC_NODE)?.string?.let(::HlcNodeId) ?: HlcNodeId.Unspecified
     return MessageContext(
         correlationId = CorrelationId.fromWire(get(DeviceMessageFrameKeys.CORRELATION_ID)?.string),
         hlcTimestamp = if (physical != null && logical != null) HlcTimestamp(physical, logical, nodeId) else null,

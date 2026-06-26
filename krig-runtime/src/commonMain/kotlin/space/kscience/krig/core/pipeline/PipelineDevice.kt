@@ -38,10 +38,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -130,14 +128,13 @@ public class PipelineDevice @InternalKrigApi constructor(
 
     /**
      * Best-effort, non-suspending close. [CoroutineStart.UNDISPATCHED] starts detach immediately,
-     * and only the cleanup body switches to [NonCancellable], so `delegate.close()` cannot abort a
-     * capability `onDetach` at its first suspension point. Prefer [shutdown] for orderly release.
+     * and [CapabilityRegistry.detachOnce] bounds each capability cleanup, so `delegate.close()`
+     * cannot abort a capability `onDetach` at its first suspension point. Prefer [shutdown] for
+     * orderly release.
      */
     override fun close() {
         deviceScope.launch(start = CoroutineStart.UNDISPATCHED) {
-            withContext(NonCancellable) {
-                capabilityRegistry.detachOnce(this@PipelineDevice)
-            }
+            capabilityRegistry.detachOnce(this@PipelineDevice)
         }
         delegate.close()
     }

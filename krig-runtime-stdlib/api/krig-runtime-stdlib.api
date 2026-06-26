@@ -134,6 +134,20 @@ public final class space/kscience/krig/core/expressions/ExpressionEvaluatorKt {
 	public static final fun compile (Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public abstract interface class space/kscience/krig/core/operations/CapabilitySnapshotCodec {
+	public abstract fun encode (Lspace/kscience/krig/api/data/Snapshotting;)Lspace/kscience/dataforge/meta/Meta;
+	public abstract fun restore (Lspace/kscience/krig/api/data/Snapshotting;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/core/operations/CapabilitySnapshottingKt {
+	public static final fun asReconstructible (Lspace/kscience/krig/core/contracts/CapabilityHost;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;)Lspace/kscience/krig/core/timetravel/Reconstructible;
+	public static synthetic fun asReconstructible$default (Lspace/kscience/krig/core/contracts/CapabilityHost;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;ILjava/lang/Object;)Lspace/kscience/krig/core/timetravel/Reconstructible;
+	public static final fun captureCapabilitySnapshots (Lspace/kscience/krig/core/contracts/CapabilityHost;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;)Ljava/util/Map;
+	public static synthetic fun captureCapabilitySnapshots$default (Lspace/kscience/krig/core/contracts/CapabilityHost;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;ILjava/lang/Object;)Ljava/util/Map;
+	public static final fun restoreCapabilitySnapshots (Lspace/kscience/krig/core/contracts/CapabilityHost;Ljava/util/Map;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun restoreCapabilitySnapshots$default (Lspace/kscience/krig/core/contracts/CapabilityHost;Ljava/util/Map;Lspace/kscience/krig/core/operations/CapabilitySnapshotCodec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
 public final class space/kscience/krig/core/operations/ClockState {
 	public fun <init> ()V
 	public fun <init> (Lkotlin/time/Clock;Lspace/kscience/krig/core/operations/SamplingClock;)V
@@ -168,6 +182,14 @@ public final class space/kscience/krig/core/operations/FlowOperationsKt {
 	public static synthetic fun asDeviceEvents$default (Lkotlinx/coroutines/flow/Flow;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlin/time/Clock;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun withTimestamp (Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun withTimestamp$default (Lkotlinx/coroutines/flow/Flow;Lkotlin/time/Clock;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+}
+
+public final class space/kscience/krig/core/operations/KotlinxJsonCapabilitySnapshotCodec : space/kscience/krig/core/operations/CapabilitySnapshotCodec {
+	public fun <init> ()V
+	public fun <init> (Lkotlinx/serialization/json/Json;)V
+	public synthetic fun <init> (Lkotlinx/serialization/json/Json;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun encode (Lspace/kscience/krig/api/data/Snapshotting;)Lspace/kscience/dataforge/meta/Meta;
+	public fun restore (Lspace/kscience/krig/api/data/Snapshotting;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract interface class space/kscience/krig/core/operations/SamplingClock {
@@ -872,5 +894,60 @@ public final class space/kscience/krig/core/timetravel/Timeline {
 }
 
 public final class space/kscience/krig/core/timetravel/Timeline$Companion {
+}
+
+public final class space/kscience/krig/dsl/DeviceGroupBuilder {
+	public fun <init> ()V
+	public final fun bindProperty (Lspace/kscience/krig/core/state/DeviceState;Lspace/kscience/krig/core/state/MutableDeviceState;)V
+	public final fun buildAndStart (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun device (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun device (Ljava/lang/String;Lspace/kscience/krig/core/contracts/Device;)V
+	public final fun deviceGroup (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public final fun link (Lspace/kscience/krig/core/state/DeviceState;Lspace/kscience/krig/core/state/MutableDeviceState;Lkotlin/jvm/functions/Function1;)V
+	public final fun linkPeriodic-SxA4cEA (Lspace/kscience/krig/core/state/DeviceState;Lspace/kscience/krig/core/state/MutableDeviceState;J)V
+	public static synthetic fun linkPeriodic-SxA4cEA$default (Lspace/kscience/krig/dsl/DeviceGroupBuilder;Lspace/kscience/krig/core/state/DeviceState;Lspace/kscience/krig/core/state/MutableDeviceState;JILjava/lang/Object;)V
+	public final fun start (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/CoroutineScope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun wirePull-9VgGkz4 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;J)V
+	public static synthetic fun wirePull-9VgGkz4$default (Lspace/kscience/krig/dsl/DeviceGroupBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JILjava/lang/Object;)V
+	public final fun wirePull-SxA4cEA (Lspace/kscience/krig/dsl/WireEndpoint;Lspace/kscience/krig/dsl/WireEndpoint;J)V
+	public static synthetic fun wirePull-SxA4cEA$default (Lspace/kscience/krig/dsl/DeviceGroupBuilder;Lspace/kscience/krig/dsl/WireEndpoint;Lspace/kscience/krig/dsl/WireEndpoint;JILjava/lang/Object;)V
+	public final fun wirePush (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun wirePush (Lspace/kscience/krig/dsl/WireEndpoint;Lspace/kscience/krig/dsl/WireEndpoint;)V
+}
+
+public final class space/kscience/krig/dsl/DeviceGroupBuilderKt {
+	public static final fun deviceGroup (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun deviceGroup (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/dsl/DeviceGroupBuilder;
+	public static synthetic fun deviceGroup$default (Ljava/lang/String;Lspace/kscience/dataforge/context/Context;Lkotlinx/coroutines/CoroutineScope;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/dsl/ReconstructibleStateModel {
+	public final fun getBackend ()Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
+	public final fun getReconstructible ()Lspace/kscience/krig/core/timetravel/Reconstructible;
+}
+
+public final class space/kscience/krig/dsl/StateModelBuilder {
+	public final fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;Lkotlin/jvm/functions/Function3;)V
+	public final fun bind (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function3;)V
+	public final fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
+	public final fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function3;)V
+}
+
+public final class space/kscience/krig/dsl/StateModelBuilderKt {
+	public static final fun stateModel (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
+	public static final fun stateModel (Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/dsl/ReconstructibleStateModel;
+}
+
+public final class space/kscience/krig/dsl/WireEndpoint {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/dsl/WireEndpoint;
+	public static synthetic fun copy$default (Lspace/kscience/krig/dsl/WireEndpoint;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/dsl/WireEndpoint;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDevice ()Ljava/lang/String;
+	public final fun getProperty ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 

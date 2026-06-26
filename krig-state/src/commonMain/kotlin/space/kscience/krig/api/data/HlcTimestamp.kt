@@ -1,7 +1,28 @@
 package space.kscience.krig.api.data
 
 import kotlinx.serialization.Serializable
-import space.kscience.dataforge.names.Name
+import kotlin.jvm.JvmInline
+
+/**
+ * Stable node identifier used by [HlcTimestamp] for deterministic distributed ordering.
+ *
+ * The empty value means "node unspecified" and preserves single-source ordering. It is deliberately
+ * a KRig-local string wrapper rather than a DataForge `Name`, so the low-level state artifact stays
+ * free of DataForge dependencies.
+ */
+@Serializable
+@JvmInline
+public value class HlcNodeId(public val value: String) : Comparable<HlcNodeId> {
+    override fun compareTo(other: HlcNodeId): Int = value.compareTo(other.value)
+
+    public fun isUnspecified(): Boolean = value.isEmpty()
+
+    override fun toString(): String = value
+
+    public companion object {
+        public val Unspecified: HlcNodeId = HlcNodeId("")
+    }
+}
 
 /**
  * Hybrid logical timestamp: physical milliseconds + logical counter + originating node.
@@ -9,7 +30,7 @@ import space.kscience.dataforge.names.Name
  * For distributed causal ordering; compare only with other [HlcTimestamp]s, not with wall-clock
  * instants. [nodeId] is the final, deterministic total-order tie-breaker when two timestamps share
  * the same physical and logical components but originate from different nodes; the default
- * [Name.EMPTY] means "node unspecified" (single-source logs keep their previous ordering).
+ * [HlcNodeId.Unspecified] means "node unspecified" (single-source logs keep their previous ordering).
  *
  * [logicalCounter] is a [Long]: a backward wall-clock correction makes the counter advance once per
  * tick until physical time catches up, so a 32-bit counter could in principle overflow under a large
@@ -19,31 +40,13 @@ import space.kscience.dataforge.names.Name
 public data class HlcTimestamp(
     val physicalMilliseconds: Long,
     val logicalCounter: Long,
-    val nodeId: Name = Name.EMPTY,
+    val nodeId: HlcNodeId = HlcNodeId.Unspecified,
 ) : Comparable<HlcTimestamp> {
     override fun compareTo(other: HlcTimestamp): Int {
         val byPhysical = physicalMilliseconds.compareTo(other.physicalMilliseconds)
         if (byPhysical != 0) return byPhysical
         val byLogical = logicalCounter.compareTo(other.logicalCounter)
         if (byLogical != 0) return byLogical
-        return compareNames(nodeId, other.nodeId)
+        return nodeId.compareTo(other.nodeId)
     }
-}
-
-/**
- * Deterministic, allocation-free total order over [Name]s: lexicographic over name-token body then
- * index, then by token count. Avoids [Name.toString] (which builds a joined string); used as the HLC
- * node tie-breaker on the ordering path.
- */
-public fun compareNames(left: Name, right: Name): Int {
-    val leftTokens = left.tokens
-    val rightTokens = right.tokens
-    val shared = minOf(leftTokens.size, rightTokens.size)
-    for (i in 0 until shared) {
-        val byBody = leftTokens[i].body.compareTo(rightTokens[i].body)
-        if (byBody != 0) return byBody
-        val byIndex = compareValues(leftTokens[i].index, rightTokens[i].index)
-        if (byIndex != 0) return byIndex
-    }
-    return leftTokens.size.compareTo(rightTokens.size)
 }

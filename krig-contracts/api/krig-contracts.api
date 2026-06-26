@@ -138,6 +138,10 @@ public final class space/kscience/krig/api/hub/ResolveKt {
 	public static final fun resolveNode (Lspace/kscience/krig/core/contracts/DeviceNode;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceNode;
 }
 
+public final class space/kscience/krig/api/utils/ValueConvertersKt {
+	public static final fun getUnit (Lspace/kscience/dataforge/meta/MetaConverter$Companion;)Lspace/kscience/dataforge/meta/MetaConverter;
+}
+
 public abstract interface class space/kscience/krig/core/capabilities/Capability {
 	public abstract fun getKey ()Lspace/kscience/krig/core/capabilities/CapabilityKey;
 	public abstract fun getState ()Ljava/lang/Object;
@@ -1013,8 +1017,8 @@ public abstract interface class space/kscience/krig/core/meta/MutableDevicePrope
 }
 
 public final class space/kscience/krig/core/operations/HybridLogicalClock {
-	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lkotlin/time/Clock;Lkotlin/time/Duration;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun snapshot ()Lspace/kscience/krig/api/data/HlcTimestamp;
 	public final fun tick ()Lspace/kscience/krig/api/data/HlcTimestamp;
 	public final fun update (Lspace/kscience/krig/api/data/HlcTimestamp;)Lspace/kscience/krig/api/data/HlcTimestamp;

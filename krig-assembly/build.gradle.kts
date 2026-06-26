@@ -10,6 +10,8 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":krig-runtime"))
+                api(project(":krig-runtime-stdlib"))
+                api(project(":krig-storage"))
                 api(libs.dataforge.context)
                 api(libs.dataforge.meta)
                 api(libs.kmath.core)

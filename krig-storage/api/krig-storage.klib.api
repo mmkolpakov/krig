@@ -14,6 +14,14 @@ abstract fun interface space.kscience.krig.storage.journal/ReplaySink { // space
     abstract suspend fun record(space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>) // space.kscience.krig.storage.journal/ReplaySink.record|record(space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>){}[0]
 }
 
+abstract interface <#A: kotlin/Any> space.kscience.krig.api.data/Snapshotting { // space.kscience.krig.api.data/Snapshotting|null[0]
+    abstract val snapshotSerializer // space.kscience.krig.api.data/Snapshotting.snapshotSerializer|{}snapshotSerializer[0]
+        abstract fun <get-snapshotSerializer>(): kotlinx.serialization/KSerializer<#A> // space.kscience.krig.api.data/Snapshotting.snapshotSerializer.<get-snapshotSerializer>|<get-snapshotSerializer>(){}[0]
+
+    abstract fun captureSnapshot(): #A // space.kscience.krig.api.data/Snapshotting.captureSnapshot|captureSnapshot(){}[0]
+    abstract suspend fun restoreSnapshot(#A) // space.kscience.krig.api.data/Snapshotting.restoreSnapshot|restoreSnapshot(1:0){}[0]
+}
+
 abstract interface <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/TimeSeries { // space.kscience.krig.storage.timeseries/TimeSeries|null[0]
     abstract fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/TimeSeriesSample<#A>> // space.kscience.krig.storage.timeseries/TimeSeries.readAll|readAll(){}[0]
     abstract suspend fun append(space.kscience.krig.storage.timeseries/TimeSeriesSample<#A>) // space.kscience.krig.storage.timeseries/TimeSeries.append|append(space.kscience.krig.storage.timeseries.TimeSeriesSample<1:0>){}[0]
@@ -104,6 +112,40 @@ final class <#A: out kotlin/Any?> space.kscience.krig.storage.timeseries/TimeSer
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.timeseries/TimeSeriesSample.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.storage.timeseries/TimeSeriesSample.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.storage.timeseries/TimeSeriesSample.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.api.data/DeviceSnapshot { // space.kscience.krig.api.data/DeviceSnapshot|null[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.meta/Meta, kotlin.collections/Map<kotlin/String, space.kscience.dataforge.meta/Meta> = ...) // space.kscience.krig.api.data/DeviceSnapshot.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.meta.Meta;kotlin.collections.Map<kotlin.String,space.kscience.dataforge.meta.Meta>){}[0]
+
+    final val at // space.kscience.krig.api.data/DeviceSnapshot.at|{}at[0]
+        final fun <get-at>(): kotlin.time/Instant // space.kscience.krig.api.data/DeviceSnapshot.at.<get-at>|<get-at>(){}[0]
+    final val capabilitySnapshots // space.kscience.krig.api.data/DeviceSnapshot.capabilitySnapshots|{}capabilitySnapshots[0]
+        final fun <get-capabilitySnapshots>(): kotlin.collections/Map<kotlin/String, space.kscience.dataforge.meta/Meta> // space.kscience.krig.api.data/DeviceSnapshot.capabilitySnapshots.<get-capabilitySnapshots>|<get-capabilitySnapshots>(){}[0]
+    final val state // space.kscience.krig.api.data/DeviceSnapshot.state|{}state[0]
+        final fun <get-state>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.data/DeviceSnapshot.state.<get-state>|<get-state>(){}[0]
+
+    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.data/DeviceSnapshot.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.data/DeviceSnapshot.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/Map<kotlin/String, space.kscience.dataforge.meta/Meta> // space.kscience.krig.api.data/DeviceSnapshot.component3|component3(){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.meta/Meta = ..., kotlin.collections/Map<kotlin/String, space.kscience.dataforge.meta/Meta> = ...): space.kscience.krig.api.data/DeviceSnapshot // space.kscience.krig.api.data/DeviceSnapshot.copy|copy(kotlin.time.Instant;space.kscience.dataforge.meta.Meta;kotlin.collections.Map<kotlin.String,space.kscience.dataforge.meta.Meta>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.data/DeviceSnapshot.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.data/DeviceSnapshot.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.data/DeviceSnapshot.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.data/DeviceSnapshot> { // space.kscience.krig.api.data/DeviceSnapshot.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.data/DeviceSnapshot.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.data/DeviceSnapshot.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.data/DeviceSnapshot.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.data/DeviceSnapshot // space.kscience.krig.api.data/DeviceSnapshot.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.data/DeviceSnapshot) // space.kscience.krig.api.data/DeviceSnapshot.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.data.DeviceSnapshot){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.data/DeviceSnapshot.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.data/DeviceSnapshot.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/DeviceSnapshot> // space.kscience.krig.api.data/DeviceSnapshot.Companion.serializer|serializer(){}[0]
+    }
 }
 
 final class space.kscience.krig.storage.journal/InMemoryEventJournal : space.kscience.krig.storage.journal/EventJournal { // space.kscience.krig.storage.journal/InMemoryEventJournal|null[0]

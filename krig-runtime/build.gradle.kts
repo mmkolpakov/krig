@@ -12,7 +12,6 @@ kotlin {
             dependencies {
                 api(project(":krig-contracts"))
                 api(project(":krig-operation"))
-                api(project(":krig-runtime-stdlib"))
                 implementation(libs.kotlinx.collections.immutable)
                 implementation(libs.kotlinx.atomicfu)
                 implementation(libs.kotlinx.coroutines.core)

@@ -9,6 +9,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                api(project(":krig-runtime"))
                 api(project(":krig-contracts"))
                 api(project(":krig-storage"))
                 api(libs.dataforge.data)

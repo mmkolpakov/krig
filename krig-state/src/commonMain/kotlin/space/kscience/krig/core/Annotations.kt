@@ -33,8 +33,8 @@ public annotation class ExperimentalKrigApi
 public annotation class UnstableKrigForSubclassing
 
 /**
- * Marks an API that allocates [Meta][space.kscience.dataforge.meta.Meta] (or otherwise
- * boxes typed primitives) on the hot path. Prefer typed accessors —
+ * Marks an API that allocates Meta trees (or otherwise boxes typed primitives) on the
+ * hot path. Prefer typed accessors —
  * `TypedReader<T>` / `TypedWriter<T>` / `TypedSampler<T>` and the unboxed ring samplers
  * (`RingDoubleSampler`, `RingIntSampler`, …) — for high-frequency reads.
  */

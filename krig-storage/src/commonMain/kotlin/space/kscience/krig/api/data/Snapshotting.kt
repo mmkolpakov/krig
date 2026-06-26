@@ -5,9 +5,8 @@ import kotlinx.serialization.KSerializer
 /**
  * Optional capability for taking a serialisable snapshot of a runtime object.
  *
- * The split between *runtime state* (what a
- * [Capability][space.kscience.krig.core.capabilities.Capability] holds for
- * local execution: `MutableStateFlow`s, `Mutex`es, `Job`s) and a *snapshot view* is a
+ * The split between *runtime state* (what a local runtime component holds for
+ * execution: `MutableStateFlow`s, `Mutex`es, `Job`s) and a *snapshot view* is a
  * deliberate design choice. Implementing this interface signals: «my mutable runtime state
  * can be projected onto a `@Serializable Snap` and reconstructed from one». Capabilities
  * that do not implement [Snapshotting] are silently skipped by snapshot stores —

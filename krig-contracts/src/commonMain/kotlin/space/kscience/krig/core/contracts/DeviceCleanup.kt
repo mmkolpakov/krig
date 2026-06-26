@@ -87,33 +87,49 @@ public suspend inline fun ignoreNonCancellationFailureSuspending(block: suspend 
     }
 }
 
+/** Default budget for one device's stop step before it is abandoned to keep the parent responsive. */
+@InternalKrigApi
+public val DEFAULT_DEVICE_SHUTDOWN_TIMEOUT: Duration = 10.seconds
+
+/** Reported when a best-effort cleanup block did not finish within its local budget. */
+@InternalKrigApi
+public class CleanupTimeoutException(timeout: Duration) :
+    Exception("Cleanup did not finish within $timeout; abandoned to keep the parent responsive")
+
+/** Reported when a device did not stop within its budget; its scope is abandoned rather than awaited. */
+@InternalKrigApi
+public class DeviceShutdownTimeoutException(deviceName: Name, timeout: Duration) :
+    Exception("Device '$deviceName' did not stop within $timeout; abandoned to keep the parent responsive")
+
 /**
  * Runs suspending cleanup in [NonCancellable] and suppresses every cleanup failure.
  *
  * Use only for shutdown/finally paths after ownership has already moved away from the
- * caller. It guarantees best-effort resource release even when the parent scope is
- * cancelling; normal operation paths should keep using [ignoreNonCancellationFailureSuspending].
+ * caller. Parent cancellation is ignored so cleanup can release resources, but the cleanup
+ * block still gets a local [timeout] budget. A truly non-cooperative blocking call cannot
+ * be force-killed by coroutines; shutdown implementations must keep blocking I/O bounded or
+ * offloaded to a dispatcher that they control.
  */
 @InternalKrigApi
-public suspend inline fun ignoreCleanupFailureSuspending(crossinline block: suspend () -> Unit) {
+public suspend inline fun ignoreCleanupFailureSuspending(
+    timeout: Duration = DEFAULT_DEVICE_SHUTDOWN_TIMEOUT,
+    crossinline block: suspend () -> Unit,
+) {
     try {
         withContext(NonCancellable) {
-            block()
+            val finished = withTimeoutOrNull(timeout) {
+                block()
+                true
+            }
+            if (finished == null) {
+                CleanupFailureReporting.report(CleanupTimeoutException(timeout))
+            }
         }
     } catch (e: Exception) {
         CleanupFailureReporting.report(e)
         // Cleanup is best-effort; callers are already leaving the ownership scope.
     }
 }
-
-/** Default budget for one device's stop step before it is abandoned to keep the parent responsive. */
-@InternalKrigApi
-public val DEFAULT_DEVICE_SHUTDOWN_TIMEOUT: Duration = 10.seconds
-
-/** Reported when a device did not stop within its budget; its scope is abandoned rather than awaited. */
-@InternalKrigApi
-public class DeviceShutdownTimeoutException(deviceName: Name, timeout: Duration) :
-    Exception("Device '$deviceName' did not stop within $timeout; abandoned to keep the parent responsive")
 
 /**
  * Runs [stop] under [timeout] so a hung child never blocks the parent. On timeout (or cooperative

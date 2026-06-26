@@ -34,21 +34,21 @@ public class MetaBackendAdapter(
     private val onClose: () -> Unit = {},
 ) : DeviceBackend {
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
         val spec = propertySpecs[property.name]
             ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
         return readSpecAsMeta(spec)
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
         val spec = propertySpecs[property.name] as? MutableDevicePropertyContract<*>
             ?: return validationFault("Property '${property.name}' is not writable")
         return writeSpecFromMeta(spec, value)
     }
 
-    context(device: DeviceEnvironment)
+    context(env: DeviceEnvironment)
     override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
         val spec = actionSpecs[action.name]
             ?: return operationFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}'")

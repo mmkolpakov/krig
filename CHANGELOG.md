@@ -48,7 +48,7 @@ Current alpha-3 naming:
 -   **Typed backend rewritten:** Old `PrimitiveSamplers` / `LockFreeSpscRings` replaced
     by `FlowSampler` (ring-buffer over `kotlinx.coroutines.flow`).
 -   **DSL simplified:** `ControlsDsl.kt` removed; single `device.kt` entry point.
-    `DeviceGroupBuilder` uses context receivers instead of explicit scope passing.
+    `DeviceGroupBuilder` uses Kotlin context parameters instead of explicit scope passing.
 -   **Pipeline simplified:** `PipelineExecutors.kt`, `ReadWriteMutex` removed.
     Pipeline interceptors composed via `foldRight` in the new `Pipeline.kt`.
     Resource locks use `ResourceLockRegistry` backed by operation-level `ResourceLock`.

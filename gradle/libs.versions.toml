@@ -44,8 +44,6 @@ kotlin-jupyter = "0.19.0-937-1"
 
 # Gradle Plugins
 ben-manes-versions = "0.54.0"
-version-catalog-update = "1.0.1"
-foojay-resolver = "1.0.0"
 
 [libraries]
 # DataForge
@@ -82,6 +80,7 @@ kotlinx-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "a
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io-core" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinx-serialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
@@ -101,12 +100,8 @@ arrow-vector = { module = "org.apache.arrow:arrow-vector", version.ref = "arrow"
 arrow-memory-netty = { module = "org.apache.arrow:arrow-memory-netty", version.ref = "arrow" }
 arrow-compression = { module = "org.apache.arrow:arrow-compression", version.ref = "arrow" }
 
-# Testing
-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-
 # KSP
 ksp-api = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
-ksp-aa-embeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embeddable", version.ref = "ksp" }
 kctfork-core = { module = "dev.zacsweers.kctfork:core", version.ref = "kctfork" }
 kctfork-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kctfork" }
 
@@ -114,13 +109,6 @@ kctfork-ksp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kctfork" }
 kotlin-jupyter-api = { module = "org.jetbrains.kotlinx:kotlin-jupyter-api", version.ref = "kotlin-jupyter" }
 
 [plugins]
-kotlinx-atomicfu = { id = "org.jetbrains.kotlinx.atomicfu", version.ref = "atomicfu" }
-
 ben-manes-versions = { id = "com.github.ben-manes.versions", version.ref = "ben-manes-versions" }
-version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "version-catalog-update" }
 
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-detekt = { id = "dev.detekt", version.ref = "detekt" }
-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kotlinx-benchmark = { id = "org.jetbrains.kotlinx.benchmark", version.ref = "kotlinx-benchmark" }
-foojay-resolver = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay-resolver" }

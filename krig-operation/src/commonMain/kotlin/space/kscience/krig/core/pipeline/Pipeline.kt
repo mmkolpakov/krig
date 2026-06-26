@@ -20,7 +20,6 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
 import space.kscience.dataforge.names.Name
-import space.kscience.krig.api.data.compareNames
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.result.OperationOutcome
@@ -66,6 +65,23 @@ public suspend fun <R> acquireAllLocks(
 private fun List<ResourceLock>.canonicalizeLocks(): List<ResourceLock> =
     distinctBy { it.resourceName }
         .sortedWith { left, right -> compareNames(left.resourceName, right.resourceName) }
+
+/**
+ * Deterministic, allocation-free total order over DataForge [Name]s used for lock ordering.
+ * Kept local to the pipeline module so krig-state does not depend on DataForge names.
+ */
+private fun compareNames(left: Name, right: Name): Int {
+    val leftTokens = left.tokens
+    val rightTokens = right.tokens
+    val shared = minOf(leftTokens.size, rightTokens.size)
+    for (i in 0 until shared) {
+        val byBody = leftTokens[i].body.compareTo(rightTokens[i].body)
+        if (byBody != 0) return byBody
+        val byIndex = compareValues(leftTokens[i].index, rightTokens[i].index)
+        if (byIndex != 0) return byIndex
+    }
+    return leftTokens.size.compareTo(rightTokens.size)
+}
 
 @OptIn(InternalKrigApi::class)
 private suspend fun <R> acquireRecursively(

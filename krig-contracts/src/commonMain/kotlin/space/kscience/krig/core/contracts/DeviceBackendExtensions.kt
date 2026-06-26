@@ -19,7 +19,7 @@ import kotlin.time.Clock
  * Extension functions for [DeviceBackend] providing typed binary data access.
  *
  * The throwing helpers are thin wrappers over the outcome-returning backend methods.
- * All extensions carry a `context(device: DeviceEnvironment)` because the underlying
+ * All extensions carry a `context(env: DeviceEnvironment)` because the underlying
  * [DeviceBackend] operations already require the current operation environment.
  */
 
@@ -31,7 +31,7 @@ import kotlin.time.Clock
  *
  * @throws space.kscience.krig.api.faults.OperationFaultException on read failure.
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.readObservedOrThrow(
     property: PropertyDescriptor,
 ): ObservedValue<Meta?> =
@@ -41,19 +41,19 @@ public suspend fun DeviceBackend.readObservedOrThrow(
  * Reads a property as raw binary data.
  * @return The property value decoded as [ByteArray], or a failure when the raw value is not binary.
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.readBinaryOutcome(property: PropertyDescriptor): OperationOutcome<Binary> =
     this.readBinary(property)
 
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.readBinaryBlock(property: PropertyDescriptor): Binary =
     this.readBinaryOutcome(property).getOrThrow()
 
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.readBytesOutcome(property: PropertyDescriptor): OperationOutcome<ByteArray> =
     readBinaryOutcome(property).map { it.toByteArray() }
 
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.readBytes(property: PropertyDescriptor): ByteArray =
     readBytesOutcome(property).getOrThrow()
 
@@ -61,7 +61,7 @@ public suspend fun DeviceBackend.readBytes(property: PropertyDescriptor): ByteAr
  * Writes raw binary data to a property.
  * @param data The byte payload to write.
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun DeviceBackend.writeBytes(property: PropertyDescriptor, data: ByteArray) {
     this.writeBinary(property, data.asBinary()).getOrThrow()
 }
@@ -136,7 +136,7 @@ public val Meta.stringValue: String? get() = string
  * Reads [spec]'s value from the connection, decoding the resulting [Meta] through the spec's
  * own [MetaConverter].
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
     val meta = this.read(spec.descriptor).getOrThrow()
     return spec.converter.read(meta)
@@ -147,7 +147,7 @@ public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
  * own [MetaConverter]. Requires a mutable contract — matching `Device.write`, so a read-only
  * spec cannot be written through the backend either.
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun <T> DeviceBackend.write(spec: MutableDevicePropertyContract<T>, value: T) {
     this.write(spec.descriptor, spec.converter.convert(value)).getOrThrow()
 }
@@ -155,13 +155,13 @@ public suspend fun <T> DeviceBackend.write(spec: MutableDevicePropertyContract<T
 /**
  * Executes [spec] with the typed [input], encoding/decoding through the spec's converters.
  */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun <I, O> DeviceBackend.execute(spec: DeviceActionContract<I, O>, input: I): O {
     val resultMeta = this.execute(spec.descriptor, spec.inputConverter.convert(input)).getOrThrow()
     return spec.outputConverter.read(resultMeta ?: Meta.EMPTY)
 }
 
 /** Convenience overload for unit-input actions. */
-context(device: DeviceEnvironment)
+context(env: DeviceEnvironment)
 public suspend fun <O> DeviceBackend.execute(spec: DeviceActionContract<Unit, O>): O =
     this.execute(spec, Unit)

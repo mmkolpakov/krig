@@ -20,8 +20,7 @@ public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
 /**
  * Local runtime state owned by a [CapabilityHost].
  *
- * A [PipelineFeatureSpec][space.kscience.krig.api.features.PipelineFeatureSpec] is the serializable
- * Manifest declaration. A runtime [PipelineFeature][space.kscience.krig.core.features.PipelineFeature]
+ * A `PipelineFeatureSpec` is the serializable Manifest declaration. A runtime pipeline feature
  * may translate that declaration into operation policies and capabilities. Use
  * `PipelineFeatureSpec` for serialized descriptions; use `Capability` for live state
  * and coroutines.
@@ -29,8 +28,8 @@ public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
  * The generic [S] is the *runtime* state of the capability — typically a holder containing
  * `MutableStateFlow`s, `Mutex`es, accumulators, etc. Capabilities that have nothing to
  * carry can use `Unit`. Capabilities that want their state to survive process death opt in
- * additionally to [Snapshotting][space.kscience.krig.api.data.Snapshotting] with a
- * separate, `@Serializable` snapshot view.
+ * additionally to the storage-aware `Snapshotting` contract with a separate,
+ * `@Serializable` snapshot view.
  *
  * Lifecycle hooks receive the owning [CapabilityHost]. Device-specific capabilities can
  * require `host as Device`; application services are requested from the DataForge Context.
