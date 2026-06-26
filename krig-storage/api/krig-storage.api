@@ -15,7 +15,7 @@ public abstract interface class space/kscience/krig/storage/journal/EventCursor 
 public abstract interface class space/kscience/krig/storage/journal/EventJournal : java/lang/AutoCloseable, space/kscience/krig/storage/journal/CursorReplayLog, space/kscience/krig/storage/journal/ReplaySink {
 	public fun close ()V
 	public fun observe ()Lkotlinx/coroutines/flow/Flow;
-	public abstract fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
+	public fun read (Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public abstract fun readAll ()Lkotlinx/coroutines/flow/Flow;
 	public fun record (Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -29,6 +29,7 @@ public abstract interface class space/kscience/krig/storage/journal/EventJournal
 public final class space/kscience/krig/storage/journal/EventJournal$DefaultImpls {
 	public static fun close (Lspace/kscience/krig/storage/journal/EventJournal;)V
 	public static fun observe (Lspace/kscience/krig/storage/journal/EventJournal;)Lkotlinx/coroutines/flow/Flow;
+	public static fun read (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun read$default (Lspace/kscience/krig/storage/journal/EventJournal;Ljava/lang/String;Lkotlin/ranges/ClosedRange;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static fun record (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/api/messages/DeviceMessageFrame;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun replay (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;

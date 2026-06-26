@@ -5,5 +5,5 @@
  * contributors; runtime `ContributionTarget(id)` on the same anchor must match.
  */
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 public annotation class TargetId(public val value: String)

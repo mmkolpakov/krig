@@ -5,7 +5,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -16,7 +15,6 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Global
 import space.kscience.dataforge.io.TaggedEnvelopeFormat
 import space.kscience.dataforge.io.io
-import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.storage.journal.EventCursor
@@ -161,17 +159,6 @@ public class FileEnvelopeEventJournal(
 
     override fun readAll(): Flow<DeviceMessageFrame<DeviceMessage>> =
         flow { collectFrom(startSequence = 0) { _, frame -> emit(frame) } }
-
-    override fun read(
-        messageType: String?,
-        range: ClosedRange<Instant>?,
-        sourceDevice: Name?,
-        targetDevice: Name?,
-    ): Flow<DeviceMessageFrame<DeviceMessage>> = readAll()
-        .filter { messageType == null || it.payload.messageType == messageType }
-        .filter { range == null || it.payload.time in range }
-        .filter { sourceDevice == null || it.payload.sourceDevice == sourceDevice }
-        .filter { targetDevice == null || it.payload.targetDevice == targetDevice }
 
     override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> {
         val startSequence = if (after == null) 0L else (after as SequenceCursor).sequence + 1

@@ -65,7 +65,11 @@ public interface EventJournal : CursorReplayLog, ReplaySink, AutoCloseable {
         range: ClosedRange<Instant>? = null,
         sourceDevice: Name? = null,
         targetDevice: Name? = null,
-    ): Flow<DeviceMessageFrame<DeviceMessage>>
+    ): Flow<DeviceMessageFrame<DeviceMessage>> = readAll()
+        .filter { messageType == null || it.payload.messageType == messageType }
+        .filter { range == null || it.payload.time in range }
+        .filter { sourceDevice == null || it.payload.sourceDevice == sourceDevice }
+        .filter { targetDevice == null || it.payload.targetDevice == targetDevice }
 
     /**
      * [ReplayLog] facet: causally-ordered time-window replay (reconstruction order), as opposed to
@@ -191,17 +195,6 @@ public class InMemoryEventJournal(
 
     override fun readAll(): Flow<DeviceMessageFrame<DeviceMessage>> =
         flow { snapshot().forEach { emit(it.envelope) } }
-
-    override fun read(
-        messageType: String?,
-        range: ClosedRange<Instant>?,
-        sourceDevice: Name?,
-        targetDevice: Name?,
-    ): Flow<DeviceMessageFrame<DeviceMessage>> = readAll()
-        .filter { messageType == null || it.payload.messageType == messageType }
-        .filter { range == null || it.payload.time in range }
-        .filter { sourceDevice == null || it.payload.sourceDevice == sourceDevice }
-        .filter { targetDevice == null || it.payload.targetDevice == targetDevice }
 
     override fun replayFrom(after: EventCursor?): Flow<ReplayRecord> {
         val afterSequence = sequenceAfter(after)

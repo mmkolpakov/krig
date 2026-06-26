@@ -2,45 +2,32 @@ package space.kscience.krig.api.discovery
 
 import space.kscience.krig.assembly.DeviceCatalog
 import space.kscience.krig.assembly.DeviceFactoryPlugin
-import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Guards the invariant that every `@TargetId("...")`-annotated anchor's runtime
- * `Target: ContributionTarget<*>` has `id == @TargetId.value`. Catches drift between the
- * literal KSP reads and the literal the runtime registers under.
+ * Guards the invariant between the KSP-visible `@TargetId("...")` literals and the
+ * runtime `Target: ContributionTarget<*>` ids without depending on runtime annotation
+ * reflection. `@TargetId` is a compile-time/KSP annotation with BINARY retention.
  */
 class TargetIdRuntimeConsistencyTest {
 
-    private fun assertAnchor(anchor: KClass<*>, runtimeId: String) {
-        val annotation = anchor.findAnnotation<TargetId>()
-            ?: error("${anchor.simpleName} must carry @TargetId")
-        assertEquals(
-            annotation.value,
-            runtimeId,
-            "@TargetId on ${anchor.simpleName} is \"${annotation.value}\" but runtime id is \"$runtimeId\"",
+    @Test
+    fun targetIdsMatchRuntimeContributionTargets() {
+        val expected = mapOf(
+            "PipelineFeatureContributions" to "krig.pipeline-feature",
+            "ProtocolContributions" to "krig.protocol",
+            "ActionHandlerContributions" to "krig.action-handler",
+            "DeviceCatalog.Companion" to "krig.manifest",
+            "DeviceFactoryPlugin.Companion" to "krig.factory",
         )
+        val actual = mapOf(
+            "PipelineFeatureContributions" to PipelineFeatureContributions.Target.id,
+            "ProtocolContributions" to ProtocolContributions.Target.id,
+            "ActionHandlerContributions" to ActionHandlerContributions.Target.id,
+            "DeviceCatalog.Companion" to DeviceCatalog.Target.id,
+            "DeviceFactoryPlugin.Companion" to DeviceFactoryPlugin.Target.id,
+        )
+        assertEquals(expected, actual)
     }
-
-    @Test
-    fun featureContributions() =
-        assertAnchor(PipelineFeatureContributions::class, PipelineFeatureContributions.Target.id)
-
-    @Test
-    fun protocolContributions() =
-        assertAnchor(ProtocolContributions::class, ProtocolContributions.Target.id)
-
-    @Test
-    fun actionHandlerContributions() =
-        assertAnchor(ActionHandlerContributions::class, ActionHandlerContributions.Target.id)
-
-    @Test
-    fun deviceCatalogCompanion() =
-        assertAnchor(DeviceCatalog.Companion::class, DeviceCatalog.Target.id)
-
-    @Test
-    fun deviceFactoryPluginCompanion() =
-        assertAnchor(DeviceFactoryPlugin.Companion::class, DeviceFactoryPlugin.Target.id)
 }

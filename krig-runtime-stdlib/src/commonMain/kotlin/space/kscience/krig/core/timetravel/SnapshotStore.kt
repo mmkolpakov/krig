@@ -101,6 +101,16 @@ public suspend fun SnapshotStore.latestSnapshotBefore(
     codec: SnapshotCodec = SnapshotCodec(),
 ): DeviceSnapshot? = latestBefore(subject, threshold)?.let(codec::decode)
 
+private fun <T> Map<Name, List<T>>.pruneSubject(
+    subject: Name,
+    olderThan: Instant?,
+    at: (T) -> Instant,
+): Map<Name, List<T>> {
+    val priorList = this[subject] ?: return this
+    val nextList = if (olderThan == null) emptyList() else priorList.filter { at(it) >= olderThan }
+    return if (nextList.isEmpty()) this - subject else this + (subject to nextList)
+}
+
 /**
  * CAS-backed in-memory [SnapshotStore] for tests and embedded scenarios.
  */
@@ -127,11 +137,7 @@ public class InMemorySnapshotStore : SnapshotStore {
         state.load()[subject].orEmpty().asFlow()
 
     override suspend fun delete(subject: Name, olderThan: Instant?) {
-        state.update { prev ->
-            val priorList = prev[subject] ?: return@update prev
-            val nextList = if (olderThan == null) emptyList() else priorList.filter { it.at >= olderThan }
-            if (nextList.isEmpty()) prev - subject else prev + (subject to nextList)
-        }
+        state.update { it.pruneSubject(subject, olderThan) { entry -> entry.at } }
     }
 }
 
@@ -203,10 +209,6 @@ public class InMemorySnapshotBlobStore : SnapshotBlobStore {
         state.load()[subject].orEmpty().map { it.blob }.asFlow()
 
     override suspend fun delete(subject: Name, olderThan: Instant?) {
-        state.update { prev ->
-            val priorList = prev[subject] ?: return@update prev
-            val nextList = if (olderThan == null) emptyList() else priorList.filter { it.at >= olderThan }
-            if (nextList.isEmpty()) prev - subject else prev + (subject to nextList)
-        }
+        state.update { it.pruneSubject(subject, olderThan) { row -> row.at } }
     }
 }

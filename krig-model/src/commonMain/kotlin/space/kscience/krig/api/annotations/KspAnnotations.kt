@@ -7,5 +7,5 @@ package space.kscience.krig.api.annotations
  * and that the DTO exposes a companion `ID` constant for runtime pipeline feature code to reference.
  */
 @Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.RUNTIME)
+@Retention(AnnotationRetention.BINARY)
 public annotation class KrigPipelineFeatureSpec(public val id: String)

@@ -33,5 +33,5 @@ jobs:
           use-caches: true
           post-pr-comment: true
           use-annotations: true
-          upload-result: false
+          upload-result: true
           push-fixes: 'none'

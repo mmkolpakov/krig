@@ -20,6 +20,9 @@ kotlin-js-store/
 ### Qodana ###
 .qodana/
 
+### CodeGraph ###
+.codegraph/
+
 ### Eclipse ###
 .apt_generated
 .classpath
