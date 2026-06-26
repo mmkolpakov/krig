@@ -129,7 +129,12 @@ internal class SerializersModuleGenerator(
             if (decl.modifiers.contains(Modifier.ABSTRACT)) continue
             if (decl.modifiers.contains(Modifier.SEALED)) continue
             for (superType in decl.superTypes) {
-                val superFqn = superType.resolve().declaration.qualifiedName?.asString() ?: continue
+                val resolvedSuperType = superType.resolve()
+                if (resolvedSuperType.isError) {
+                    deferred += decl
+                    continue
+                }
+                val superFqn = resolvedSuperType.declaration.qualifiedName?.asString() ?: continue
                 if (superFqn in baseInterfaces) {
                     registrations.getOrPut(superFqn) { mutableListOf() }.add(decl)
                 }

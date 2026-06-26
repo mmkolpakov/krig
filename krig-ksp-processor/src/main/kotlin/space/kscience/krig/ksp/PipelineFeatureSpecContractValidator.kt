@@ -5,6 +5,8 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
 
@@ -28,19 +30,27 @@ internal class PipelineFeatureSpecContractValidator(
                 deferred += pipelineFeature
                 continue
             }
-            validate(pipelineFeature)
+            validate(pipelineFeature, deferred)
         }
 
         return deferred
     }
 
-    private fun validate(pipelineFeature: KSClassDeclaration) {
+    private fun validate(
+        pipelineFeature: KSClassDeclaration,
+        deferred: MutableList<KSAnnotated>,
+    ) {
         val fqn = pipelineFeature.qualifiedName?.asString() ?: "unknown"
 
         // (1) extract @KrigPipelineFeatureSpec(id = ?)
+        val deferredBeforeFeatureAnnotation = deferred.size
         val krigFeatureAnnotation = pipelineFeature.annotations.firstOrNull {
-            it.annotationType.resolve().declaration.qualifiedName?.asString() == KRIG_FEATURE_FQN
+            it.annotationType.safeResolve(pipelineFeature, deferred)
+                ?.declaration
+                ?.qualifiedName
+                ?.asString() == KRIG_FEATURE_FQN
         }
+        if (deferred.size != deferredBeforeFeatureAnnotation) return
         val featureId = krigFeatureAnnotation
             ?.arguments
             ?.firstOrNull { it.name?.asString() == "id" }
@@ -55,13 +65,18 @@ internal class PipelineFeatureSpecContractValidator(
         }
 
         // (2) extract @SerialName("?")
+        val deferredBeforeSerialName = deferred.size
         val serialName = pipelineFeature.annotations
             .firstOrNull {
-                it.annotationType.resolve().declaration.qualifiedName?.asString() == SERIAL_NAME_FQN
+                it.annotationType.safeResolve(pipelineFeature, deferred)
+                    ?.declaration
+                    ?.qualifiedName
+                    ?.asString() == SERIAL_NAME_FQN
             }
             ?.arguments
             ?.firstOrNull { it.name?.asString() == "value" }
             ?.value as? String
+        if (deferred.size != deferredBeforeSerialName) return
 
         if (serialName == null) {
             environment.logger.error(
@@ -103,7 +118,11 @@ internal class PipelineFeatureSpecContractValidator(
             return
         }
 
-        val idType = idDeclaration.type.resolve().declaration.qualifiedName?.asString()
+        val idType = idDeclaration.type.safeResolve(pipelineFeature, deferred)
+            ?.declaration
+            ?.qualifiedName
+            ?.asString()
+            ?: return
         if (idDeclaration.isMutable || Modifier.CONST !in idDeclaration.modifiers || idType != "kotlin.String") {
             environment.logger.error(
                 "@KrigPipelineFeatureSpec on $fqn: companion ID must be declared exactly as " +
@@ -116,4 +135,16 @@ internal class PipelineFeatureSpecContractValidator(
             pipelineFeature,
         )
     }
+}
+
+private fun KSTypeReference.safeResolve(
+    owner: KSAnnotated,
+    deferred: MutableList<KSAnnotated>,
+): KSType? {
+    val type = resolve()
+    if (type.isError) {
+        deferred += owner
+        return null
+    }
+    return type
 }
