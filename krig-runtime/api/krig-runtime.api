@@ -245,6 +245,7 @@ public final class space/kscience/krig/core/pipeline/PipelineDevice : space/ksci
 	public fun getPropertyDescriptors ()Ljava/util/Map;
 	public fun getTimeSource ()Lkotlin/time/TimeSource;
 	public fun installCapability (Lspace/kscience/krig/core/capabilities/Capability;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun observedPropertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public fun propertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public fun readBatchBinaryOutcome (Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

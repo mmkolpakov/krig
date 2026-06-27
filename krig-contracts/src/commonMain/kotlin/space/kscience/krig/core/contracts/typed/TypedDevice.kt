@@ -1,6 +1,7 @@
 package space.kscience.krig.core.contracts.typed
 
 import kotlinx.coroutines.flow.StateFlow
+import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.meta.DeviceActionContract
@@ -36,6 +37,16 @@ public interface TypedDevice {
      * `DeviceState` play. Authorization is applied by the `typedPropertyState` accessor.
      */
     public fun <T> propertyState(spec: DevicePropertyContract<T>): StateFlow<T>? = null
+
+    /**
+     * Returns a live quality-aware config-plane state for this property, or `null` if the driver
+     * has no native observed stream and the caller should use the `Meta` projection instead.
+     *
+     * Returning `null` means "unsupported by this backend", not a read failure. The observed value
+     * remains nullable so a source can report degraded or unknown quality without a usable payload.
+     * Authorization is applied by the `observedPropertyState` accessor.
+     */
+    public fun <T> observedPropertyState(spec: DevicePropertyContract<T>): StateFlow<ObservedValue<T?>>? = null
 
     /** Returns a typed action handle for the given action spec. */
     public fun <I, O> action(spec: DeviceActionContract<I, O>): TypedAction<I, O> =

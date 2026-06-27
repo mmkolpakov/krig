@@ -105,6 +105,7 @@ public final class space/kscience/krig/api/hub/DeviceHub$DefaultImpls {
 	public static fun getMessageFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getMessagePayloadFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlin/time/TimeSource;
+	public static fun observedPropertyState (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun propertySpec (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static fun propertyState (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun readBatchBinaryOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -238,6 +239,7 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 	public final fun getRuntime ()Lspace/kscience/krig/core/contracts/DeviceRuntime;
 	public fun getTimeSource ()Lkotlin/time/TimeSource;
 	public fun installCapability (Lspace/kscience/krig/core/capabilities/Capability;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun observedPropertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public fun propertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public final fun readBatchBinaryOutcome (Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -353,6 +355,7 @@ public final class space/kscience/krig/core/contracts/Device$DefaultImpls {
 	public static fun getMessageFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getMessagePayloadFlow (Lspace/kscience/krig/core/contracts/Device;)Lkotlinx/coroutines/flow/Flow;
 	public static fun getTimeSource (Lspace/kscience/krig/core/contracts/Device;)Lkotlin/time/TimeSource;
+	public static fun observedPropertyState (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun propertySpec (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static fun propertyState (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun readBatchBinaryOutcome (Lspace/kscience/krig/core/contracts/Device;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -849,6 +852,7 @@ public final class space/kscience/krig/core/contracts/typed/TypedBackend$Default
 public abstract interface class space/kscience/krig/core/contracts/typed/TypedDevice {
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun executeOutcome (Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun observedPropertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public fun propertyState (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public fun readOutcome (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedReader;
@@ -860,6 +864,7 @@ public abstract interface class space/kscience/krig/core/contracts/typed/TypedDe
 public final class space/kscience/krig/core/contracts/typed/TypedDevice$DefaultImpls {
 	public static fun action (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public static fun executeOutcome (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static fun observedPropertyState (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun propertyState (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lkotlinx/coroutines/flow/StateFlow;
 	public static fun readOutcome (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun sampler (Lspace/kscience/krig/core/contracts/typed/TypedDevice;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedSampler;

@@ -1,5 +1,6 @@
 @file:OptIn(
     space.kscience.krig.core.InternalKrigApi::class,
+    space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlinx.coroutines.ExperimentalCoroutinesApi::class,
 )
@@ -22,6 +23,10 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.context.AnonymousPrincipal
 import space.kscience.krig.api.context.Principal
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.data.QualityCode
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
@@ -96,6 +101,13 @@ private class NativeStateDevice : AbstractDevice(
     runtime = DeviceRuntime(Context(nextConfigContextName())),
 ) {
     private val rate = MutableStateFlow(10.0)
+    private val observedRate = MutableStateFlow(
+        ObservedValue<Double?>(
+            value = 10.0,
+            time = Clock.System.now(),
+            quality = DataQuality.GOOD,
+        ),
+    )
 
     val rateSpec: DevicePropertyContract<Double> = object : DevicePropertyContract<Double> {
         override val name: Name = "rate".asName()
@@ -107,6 +119,10 @@ private class NativeStateDevice : AbstractDevice(
     @Suppress("UNCHECKED_CAST")
     override fun <T> propertyState(spec: DevicePropertyContract<T>): StateFlow<T>? =
         if (spec === rateSpec) rate as StateFlow<T> else null
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> observedPropertyState(spec: DevicePropertyContract<T>): StateFlow<ObservedValue<T?>>? =
+        if (spec === rateSpec) observedRate as StateFlow<ObservedValue<T?>> else null
 
     override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = messageFlow
     override suspend fun subscribe(principal: Principal, property: Name): Flow<DeviceMessageFrame<DeviceMessage>> =
@@ -126,6 +142,10 @@ private class NativeStateDevice : AbstractDevice(
     /** Reconfiguration through the journaled write path; updates the native state. */
     suspend fun tune(value: Double) {
         writeProperty(rateSpec.name, Meta(value))
+    }
+
+    fun pushObserved(value: Double?, quality: DataQuality) {
+        observedRate.value = ObservedValue(value = value, time = Clock.System.now(), quality = quality)
     }
 }
 
@@ -155,5 +175,24 @@ class TypedPropertyStateTest {
 
         device.tune(33.0)
         assertEquals(33.0, state.first { it == 33.0 }, "native state tracks writes with no read/changes stitching")
+    }
+
+    @Test
+    fun nativeObservedPropertyStatePreservesQualityAndNullValue() = runTest {
+        val device = NativeStateDevice()
+        val state = device.observedPropertyState(AnonymousPrincipal, device.rateSpec, scope = backgroundScope)
+        assertEquals(10.0, state.value.value, "native observed state exposes the current payload synchronously")
+        assertEquals(DataQuality.GOOD, state.value.quality, "native observed state exposes the current quality")
+
+        val badQuality = DataQuality(
+            severity = QualitySeverity.BAD,
+            code = QualityCode("test.bad"),
+            detail = "source unavailable",
+        )
+        device.pushObserved(value = null, quality = badQuality)
+
+        val observed = state.first { it.quality == badQuality }
+        assertEquals(null, observed.value, "native observed state keeps null payloads for degraded samples")
+        assertEquals(badQuality, observed.quality, "native observed state preserves source-side quality")
     }
 }

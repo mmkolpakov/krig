@@ -9,10 +9,9 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.hub.DeviceHub
 import space.kscience.krig.api.messages.DeviceDepartureReason
-import space.kscience.krig.core.contracts.CleanupFailureReporting
-import space.kscience.krig.core.contracts.CleanupTimeoutException
 import space.kscience.krig.core.contracts.DEFAULT_DEVICE_SHUTDOWN_TIMEOUT
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -79,30 +78,8 @@ public class ReconcileProductionScope internal constructor() {
 
     internal suspend fun rollback(timeout: Duration = RECONCILE_DEFAULT_ROLLBACK_TIMEOUT) {
         rollbacks.asReversed().forEach { cleanup ->
-            ignoreRollbackFailure(timeout) { cleanup() }
+            ignoreCleanupFailureSuspending(timeout) { cleanup() }
         }
-    }
-}
-
-private suspend inline fun ignoreRollbackFailure(
-    timeout: Duration = RECONCILE_DEFAULT_ROLLBACK_TIMEOUT,
-    crossinline block: suspend () -> Unit,
-) {
-    try {
-        // NonCancellable: rollback must release resources fully even if the reconciler is being
-        // cancelled mid-attach; the local timeout keeps cooperative cleanup from hanging forever.
-        withContext(NonCancellable) {
-            val finished = withTimeoutOrNull(timeout) {
-                block()
-                true
-            }
-            if (finished == null) {
-                CleanupFailureReporting.report(CleanupTimeoutException(timeout))
-            }
-        }
-    } catch (e: Exception) {
-        CleanupFailureReporting.report(e)
-        // Rollback is best-effort; the original production/attach fault is the signal.
     }
 }
 

@@ -1,6 +1,7 @@
 package space.kscience.krig.core.operations
 
 import kotlinx.serialization.Serializable
+import space.kscience.dataforge.misc.DFExperimental
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.core.meta.serializableActionContract
@@ -8,6 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(DFExperimental::class)
 class ActionContractSchemaTest {
 
     @Serializable

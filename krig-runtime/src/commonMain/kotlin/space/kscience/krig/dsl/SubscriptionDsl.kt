@@ -127,7 +127,9 @@ public suspend fun <T : Any> Device.typedPropertyState(
  * initial read fails (e.g. a sensor is offline at start-up) the seed is `value = null` with the
  * fault's [quality][space.kscience.krig.api.data.DataQuality] (typically `BAD`/`UNCERTAIN`), so a UI
  * dashboard starts with a degraded indicator instead of crashing. Prefer this for control-room views
- * and watchdogs; use [typedPropertyState] when a non-null value is guaranteed.
+ * and watchdogs; use [typedPropertyState] when a non-null value is guaranteed. If the driver exposes
+ * a native observed state, that state is returned after authorization; otherwise this accessor builds
+ * the state from the `Meta` control-plane projection.
  */
 public suspend fun <T : Any> Device.observedPropertyState(
     principal: Principal,
@@ -135,6 +137,10 @@ public suspend fun <T : Any> Device.observedPropertyState(
     scope: CoroutineScope = deviceScope,
     options: SubscribeOptions = SubscribeOptions.Unthrottled,
 ): StateFlow<ObservedValue<T?>> {
+    observedPropertyState(spec)?.let { native ->
+        ensureAuthorized(principal, spec.name)
+        return native
+    }
     val initial: ObservedValue<T?> = when (val outcome = readObservedOutcome(spec.name)) {
         is OperationOutcome.Ok -> {
             val observed = outcome.value

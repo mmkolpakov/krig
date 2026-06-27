@@ -1,5 +1,3 @@
-@file:Suppress("UnusedSymbol", "UnusedReceiverParameter")
-
 package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -23,34 +21,60 @@ class ContributesAggregatorValidationTest {
                 package sample
 
                 import space.kscience.dataforge.context.Context
-                import space.kscience.dataforge.meta.Meta
+                import space.kscience.dataforge.meta.MetaConverter
                 import space.kscience.dataforge.names.Name
+                import space.kscience.dataforge.names.parseAsName
                 import space.kscience.krig.api.factory.DeviceFactory
                 import space.kscience.krig.api.features.PipelineFeatureSpec
+                import space.kscience.krig.api.utils.unit
                 import space.kscience.krig.assembly.ContributesFactory
                 import space.kscience.krig.assembly.ContributesManifest
                 import space.kscience.krig.assembly.ContributesPipelineFeature
                 import space.kscience.krig.core.contracts.Device
                 import space.kscience.krig.core.contracts.DeviceManifest
+                import space.kscience.krig.core.contracts.manifestOf
                 import space.kscience.krig.core.features.PipelineFeature
                 import space.kscience.krig.core.pipeline.PipelineBuilder
-
-                object DemoDevice : Device
-
-                class DemoManifest : DeviceManifest {
-                    override val id: Name = Name("demo")
-                }
+                import kotlin.reflect.KClass
 
                 @ContributesManifest("demo")
                 object DemoManifestFactory {
-                    operator fun invoke(): DeviceManifest = DemoManifest()
+                    operator fun invoke(): DeviceManifest = manifestOf(
+                        id = "demo".parseAsName(),
+                        properties = emptyMap(),
+                    )
                 }
 
                 @ContributesFactory
-                object DemoFactory : DeviceFactory<Device, Unit>()
+                object DemoFactory : DeviceFactory<Device, Unit>(
+                    id = "demo.factory".parseAsName(),
+                    configConverter = MetaConverter.unit,
+                ) {
+                    override fun create(context: Context, config: Unit): Device {
+                        check(context.toString().isNotEmpty() || config.toString().isNotEmpty())
+                        error("The validation test checks contribution shape; it never creates a device.")
+                    }
+                }
 
                 @ContributesPipelineFeature
-                object DemoFeature : PipelineFeature<Unit, PipelineFeatureSpec>
+                object DemoFeature : PipelineFeature<Unit, PipelineFeatureSpec> {
+                    override val id: Name = "demo.feature".parseAsName()
+                    override val specClass: KClass<PipelineFeatureSpec> = PipelineFeatureSpec::class
+                    override fun createConfig(): Unit = Unit
+                    override fun install(config: Unit, pipeline: PipelineBuilder) {
+                        check(config.toString().isNotEmpty() || pipeline.toString().isNotEmpty())
+                    }
+                }
+
+                fun main() {
+                    val manifest: DeviceManifest = DemoManifestFactory()
+                    val factory: DeviceFactory<Device, Unit> = DemoFactory
+                    val feature: PipelineFeature<Unit, PipelineFeatureSpec> = DemoFeature
+
+                    check(manifest.id == "demo".parseAsName())
+                    check(factory.id == "demo.factory".parseAsName())
+                    check(feature.id == "demo.feature".parseAsName())
+                }
                 """.trimIndent(),
             ),
             SourceFile.kotlin(
@@ -65,6 +89,12 @@ class ContributesAggregatorValidationTest {
                 val manifests = MergedManifestsPlugin.entries
                 val factories = MergedFactoriesPlugin.entries
                 val features = MergedPipelineFeaturesPlugin.entries
+
+                fun main() {
+                    check(manifests.isNotEmpty())
+                    check(factories.isNotEmpty())
+                    check(features.isNotEmpty())
+                }
                 """.trimIndent(),
             ),
         )
@@ -83,6 +113,10 @@ class ContributesAggregatorValidationTest {
 
                 @ContributesManifest("bad")
                 object BadManifestFactory
+
+                fun main() {
+                    check(BadManifestFactory.toString().isNotEmpty())
+                }
                 """.trimIndent(),
             ),
         )
@@ -102,6 +136,10 @@ class ContributesAggregatorValidationTest {
 
                 @ContributesFactory
                 object BadFactory
+
+                fun main() {
+                    check(BadFactory.toString().isNotEmpty())
+                }
                 """.trimIndent(),
             ),
         )
@@ -121,6 +159,10 @@ class ContributesAggregatorValidationTest {
 
                 @ContributesPipelineFeature
                 object BadFeature
+
+                fun main() {
+                    check(BadFeature.toString().isNotEmpty())
+                }
                 """.trimIndent(),
             ),
         )
@@ -133,8 +175,8 @@ class ContributesAggregatorValidationTest {
 @OptIn(ExperimentalCompilerApi::class)
 private fun compileContributors(vararg extra: SourceFile): com.tschuchort.compiletesting.JvmCompilationResult =
     KotlinCompilation().apply {
-        sources = CONTRIBUTES_STUBS + extra.toList()
-        inheritClassPath = false
+        sources = extra.toList()
+        inheritClassPath = true
         configureKsp {
             processorOptions["krig.generated.module"] = "contributes_validation_test"
             processorOptions["krig.generated.layer"] = "jvmAggregation"
@@ -142,161 +184,3 @@ private fun compileContributors(vararg extra: SourceFile): com.tschuchort.compil
             symbolProcessorProviders += KrigSymbolProcessorProvider()
         }
     }.also { it.useKsp2() }.compile()
-
-private val CONTRIBUTES_STUBS: List<SourceFile> = listOf(
-    SourceFile.kotlin(
-        "DataForgeContextStubs.kt",
-        """
-        package space.kscience.dataforge.context
-
-        import space.kscience.dataforge.meta.Meta
-        import space.kscience.dataforge.names.Name
-
-        open class AbstractPlugin(val meta: Meta) {
-            open val tag: PluginTag get() = PluginTag("", PluginTag.DATAFORGE_GROUP)
-            open fun content(target: String): Map<Name, Any> = emptyMap()
-        }
-        class Context
-        interface PluginFactory<T> {
-            val tag: PluginTag
-            fun build(context: Context, meta: Meta): T
-        }
-        class PluginTag(val id: String, val group: String) {
-            companion object {
-                const val DATAFORGE_GROUP: String = "dataforge"
-            }
-        }
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "DataForgeMetaStubs.kt",
-        """
-
-        package space.kscience.dataforge.meta
-        class Meta {
-            companion object {
-                val EMPTY: Meta = Meta()
-            }
-        }
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "DataForgeNameStubs.kt",
-        """
-
-        package space.kscience.dataforge.names
-        data class Name(val value: String)
-        fun String.parseAsName(): Name = Name(this)
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "ContributesStubs.kt",
-        """
-        package space.kscience.krig.api.annotations
-
-        import kotlin.reflect.KClass
-
-        enum class EmissionStrategy { DIRECT, INVOKE_AS_FACTORY }
-
-        @Target(AnnotationTarget.CLASS, AnnotationTarget.ANNOTATION_CLASS)
-        annotation class Contributes(
-            val anchor: KClass<*>,
-            val strategy: EmissionStrategy = EmissionStrategy.DIRECT,
-        )
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "DiscoveryStubs.kt",
-        """
-        package space.kscience.krig.api.discovery
-
-        @Target(AnnotationTarget.CLASS)
-        annotation class TargetId(val value: String)
-
-        @TargetId("krig.pipeline-feature")
-        object PipelineFeatureContributions
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "ContractStubs.kt",
-        """
-        package space.kscience.krig.core.contracts
-
-        import space.kscience.dataforge.names.Name
-
-        interface Device
-        interface DeviceManifest {
-            val id: Name
-        }
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "FactoryStubs.kt",
-        """
-        package space.kscience.krig.api.factory
-
-        import space.kscience.krig.core.contracts.Device
-
-        abstract class DeviceFactory<D : Device, C>
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "PipelineFeatureStubs.kt",
-        """
-        package space.kscience.krig.core.features
-
-        import space.kscience.krig.api.features.PipelineFeatureSpec
-
-        interface PipelineFeature<C : Any, F : PipelineFeatureSpec>
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "PipelineFeatureSpecStubs.kt",
-        """
-
-        package space.kscience.krig.api.features
-        interface PipelineFeatureSpec
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "PipelineBuilderStubs.kt",
-        """
-
-        package space.kscience.krig.core.pipeline
-        class PipelineBuilder
-        """.trimIndent(),
-    ),
-    SourceFile.kotlin(
-        "AssemblyStubs.kt",
-        """
-        package space.kscience.krig.assembly
-
-        import space.kscience.krig.api.annotations.Contributes
-        import space.kscience.krig.api.annotations.EmissionStrategy
-        import space.kscience.krig.api.discovery.PipelineFeatureContributions
-        import space.kscience.krig.api.discovery.TargetId
-
-        class DeviceCatalog {
-            @TargetId("krig.manifest")
-            companion object
-        }
-
-        class DeviceFactoryPlugin {
-            @TargetId("krig.factory")
-            companion object
-        }
-
-        @Target(AnnotationTarget.CLASS)
-        @Contributes(DeviceCatalog::class, strategy = EmissionStrategy.INVOKE_AS_FACTORY)
-        annotation class ContributesManifest(val manifestId: String)
-
-        @Target(AnnotationTarget.CLASS)
-        @Contributes(DeviceFactoryPlugin::class)
-        annotation class ContributesFactory
-
-        @Target(AnnotationTarget.CLASS)
-        @Contributes(PipelineFeatureContributions::class)
-        annotation class ContributesPipelineFeature
-        """.trimIndent(),
-    ),
-)
