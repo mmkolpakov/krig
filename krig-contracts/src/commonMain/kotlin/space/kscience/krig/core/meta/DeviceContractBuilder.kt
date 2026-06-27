@@ -97,13 +97,35 @@ public abstract class DeviceContractBuilder {
         serializer: KSerializer<T>,
         kind: PropertyKind = PropertyKind.PHYSICAL,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DevicePropertyContract<T>>> =
-        property(serializableMetaConverter(serializer), typeIdOf(serializer), kind)
+        PropertyDelegateProvider { _, property ->
+            val contract = registerPropertyContract(
+                devicePropertyContract(
+                    name = property.name.asName(),
+                    converter = serializableMetaConverter(serializer),
+                    kind = kind,
+                    valueTypeId = typeIdOf(serializer),
+                    metaDescriptor = serializer.descriptor.toMetaDescriptor(),
+                ),
+            )
+            ReadOnlyProperty { _, _ -> contract }
+        }
 
     public fun <T> serializableMutableProperty(
         serializer: KSerializer<T>,
         kind: PropertyKind = PropertyKind.PHYSICAL,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, MutableDevicePropertyContract<T>>> =
-        mutableProperty(serializableMetaConverter(serializer), typeIdOf(serializer), kind)
+        PropertyDelegateProvider { _, property ->
+            val contract = registerPropertyContract(
+                mutableDevicePropertyContract(
+                    name = property.name.asName(),
+                    converter = serializableMetaConverter(serializer),
+                    kind = kind,
+                    valueTypeId = typeIdOf(serializer),
+                    metaDescriptor = serializer.descriptor.toMetaDescriptor(),
+                ),
+            )
+            ReadOnlyProperty { _, _ -> contract }
+        }
 
     public inline fun <reified T> serializableProperty(
         kind: PropertyKind = PropertyKind.PHYSICAL,
@@ -136,9 +158,10 @@ public fun <T> devicePropertyContract(
     converter: MetaConverter<T>,
     kind: PropertyKind,
     valueTypeId: TypeId,
+    metaDescriptor: MetaDescriptor = MetaDescriptor(),
 ): DevicePropertyContract<T> = SimpleDevicePropertyContract(
     name = name,
-    descriptor = propertyDescriptor(name, kind, valueTypeId, mutable = false),
+    descriptor = propertyDescriptor(name, kind, valueTypeId, metaDescriptor, mutable = false),
     converter = converter,
 )
 
@@ -147,9 +170,10 @@ public fun <T> mutableDevicePropertyContract(
     converter: MetaConverter<T>,
     kind: PropertyKind,
     valueTypeId: TypeId,
+    metaDescriptor: MetaDescriptor = MetaDescriptor(),
 ): MutableDevicePropertyContract<T> = SimpleMutableDevicePropertyContract(
     name = name,
-    descriptor = propertyDescriptor(name, kind, valueTypeId, mutable = true),
+    descriptor = propertyDescriptor(name, kind, valueTypeId, metaDescriptor, mutable = true),
     converter = converter,
 )
 
@@ -187,11 +211,13 @@ private fun propertyDescriptor(
     name: Name,
     kind: PropertyKind,
     valueTypeId: TypeId,
+    metaDescriptor: MetaDescriptor,
     mutable: Boolean,
 ): PropertyDescriptor = PropertyDescriptor(
     name = name,
     kind = kind,
     valueTypeId = valueTypeId,
+    metaDescriptor = metaDescriptor,
     attributes = operationAttributes {
         OperationAttributeKeys.Access(AccessAttribute(readable = true, mutable = mutable))
     },

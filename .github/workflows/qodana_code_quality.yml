@@ -21,6 +21,12 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
       - name: Generate common KSP sources
         run: ./gradlew :krig-model:kspCommonMainKotlinMetadata --no-daemon --console=plain
 

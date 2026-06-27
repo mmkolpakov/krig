@@ -39,13 +39,6 @@ public final class space/kscience/krig/core/features/UnknownPipelineFeaturePolic
 	public final fun warn (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/core/features/UnknownPipelineFeaturePolicy;
 }
 
-public final class space/kscience/krig/core/operations/ManifestJsonSchemaKt {
-	public static final fun toJsonSchema (Lspace/kscience/krig/api/descriptors/ActionDescriptor;)Lkotlinx/serialization/json/JsonObject;
-	public static final fun toJsonSchema (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)Lkotlinx/serialization/json/JsonObject;
-	public static final fun toJsonSchema (Lspace/kscience/krig/core/contracts/DeviceManifest;)Lkotlinx/serialization/json/JsonObject;
-	public static final fun validateMeta (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/meta/Meta;)Z
-}
-
 public final class space/kscience/krig/core/operations/ManifestValidationFailedException : java/lang/IllegalArgumentException {
 	public fun <init> (Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/util/List;)V
 	public final fun getManifest ()Lspace/kscience/krig/core/contracts/DeviceManifest;

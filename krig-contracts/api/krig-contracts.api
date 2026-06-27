@@ -11,6 +11,11 @@ public final class space/kscience/krig/api/annotations/EmissionStrategy : java/l
 	public static fun values ()[Lspace/kscience/krig/api/annotations/EmissionStrategy;
 }
 
+public abstract interface annotation class space/kscience/krig/api/annotations/KrigDeviceContract : java/lang/annotation/Annotation {
+	public abstract fun id ()Ljava/lang/String;
+	public abstract fun version ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/discovery/ActionHandlerContributions {
 	public static final field INSTANCE Lspace/kscience/krig/api/discovery/ActionHandlerContributions;
 	public final fun getTarget ()Lspace/kscience/krig/api/discovery/ContributionTarget;
@@ -540,6 +545,14 @@ public final class space/kscience/krig/core/contracts/DeviceManifestHelpersKt {
 	public static synthetic fun manifestOf$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DeviceContractBuilder;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceManifest;
 }
 
+public final class space/kscience/krig/core/contracts/DeviceManifestSchemaKt {
+	public static final fun schemaHash (Lspace/kscience/krig/core/contracts/DeviceManifest;)Ljava/lang/String;
+	public static final fun toJsonSchema (Lspace/kscience/krig/api/descriptors/ActionDescriptor;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun toJsonSchema (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun toJsonSchema (Lspace/kscience/krig/core/contracts/DeviceManifest;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun validateMeta (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/meta/Meta;)Z
+}
+
 public final class space/kscience/krig/core/contracts/DeviceMessaging {
 	public static final field Companion Lspace/kscience/krig/core/contracts/DeviceMessaging$Companion;
 	public fun <init> ()V
@@ -974,8 +987,10 @@ public abstract class space/kscience/krig/core/meta/DeviceContractBuilder {
 public final class space/kscience/krig/core/meta/DeviceContractBuilderKt {
 	public static final fun deviceActionContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public static synthetic fun deviceActionContract$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceActionContract;
-	public static final fun devicePropertyContract-uOl0zu4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
-	public static final fun mutableDevicePropertyContract-uOl0zu4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;
+	public static final fun devicePropertyContract-_U7T7-0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public static synthetic fun devicePropertyContract-_U7T7-0$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public static final fun mutableDevicePropertyContract-_U7T7-0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;
+	public static synthetic fun mutableDevicePropertyContract-_U7T7-0$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;
 }
 
 public final class space/kscience/krig/core/meta/DeviceContractBuilderPrimitivesKt {
@@ -1005,6 +1020,36 @@ public final class space/kscience/krig/core/meta/DeviceContractBuilderPrimitives
 	public static synthetic fun mutableStringProperty$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
 	public static final fun stringProperty (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/krig/api/descriptors/PropertyKind;)Lkotlin/properties/PropertyDelegateProvider;
 	public static synthetic fun stringProperty$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/krig/api/descriptors/PropertyKind;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
+}
+
+public final class space/kscience/krig/core/meta/DeviceContractRegistry {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/String;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/util/Map;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun component6 ()Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/meta/DeviceContractRegistry;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActionsByName ()Ljava/util/Map;
+	public final fun getDeviceContractFqName ()Ljava/lang/String;
+	public final fun getId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifest ()Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public final fun getPropertiesByName ()Ljava/util/Map;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/meta/DeviceContractRegistryKt {
+	public static final fun deviceContractRegistry (Ljava/lang/String;Lspace/kscience/krig/core/meta/DeviceContractBuilder;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
+	public static final fun deviceContractRegistry (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DeviceContractBuilder;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
+	public static synthetic fun deviceContractRegistry$default (Ljava/lang/String;Lspace/kscience/krig/core/meta/DeviceContractBuilder;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
+	public static synthetic fun deviceContractRegistry$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DeviceContractBuilder;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceContractRegistry;
 }
 
 public abstract interface class space/kscience/krig/core/meta/DevicePropertyContract {

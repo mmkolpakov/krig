@@ -87,6 +87,7 @@ private fun commonGenerators(environment: SymbolProcessorEnvironment): List<Gene
     listOf(
         PipelineFeatureSpecContractValidator(environment),
         SerializersModuleGenerator(environment),
+        DeviceContractGenerator(environment),
     )
 
 private fun jvmAggregationGenerators(environment: SymbolProcessorEnvironment): List<Generator> =

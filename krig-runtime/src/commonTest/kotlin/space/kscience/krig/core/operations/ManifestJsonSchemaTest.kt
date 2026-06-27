@@ -10,6 +10,8 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.core.contracts.manifestOf
+import space.kscience.krig.core.contracts.toJsonSchema
+import space.kscience.krig.core.contracts.validateMeta
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
