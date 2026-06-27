@@ -794,3 +794,7 @@ public final class space/kscience/krig/api/meta/MetaSerializationKt {
 	public static synthetic fun serializableToMeta$default (Lkotlinx/serialization/KSerializer;Ljava/lang/Object;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lspace/kscience/dataforge/meta/Meta;
 }
 
+public final class space/kscience/krig/generated/space/kscience/model/GeneratedKrigSerializersModuleKt {
+	public static final fun getGeneratedKrigSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+

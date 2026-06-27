@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
+
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
@@ -21,8 +23,26 @@ plugins.withId("org.jetbrains.kotlin.multiplatform") {
 
     extensions.configure<KotlinMultiplatformExtension>("kotlin") {
         sourceSets.named("commonMain") {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
+            generatedKotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
         }
+    }
+
+    tasks.matching { task ->
+        task.name.startsWith("compile") && task.name.contains("Kotlin")
+    }.configureEach {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+
+    tasks.matching { task ->
+        task.name.startsWith("ksp") && task.name != "kspCommonMainKotlinMetadata"
+    }.configureEach {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+
+    tasks.matching { task ->
+        task.name == "detekt"
+    }.configureEach {
+        dependsOn("kspCommonMainKotlinMetadata")
     }
 }
 
@@ -30,15 +50,15 @@ ksp {
     val groupSlug = project.group.toString()
         .ifBlank { project.rootProject.name }
         .lowercase()
-        .replace(Regex("[^a-z0-9]+"), "_")
-        .trim('_')
+        .split(Regex("[^a-z0-9]+"))
+        .filter(String::isNotBlank)
+        .joinToString(".")
         .ifBlank { "anon" }
     val nameSlug = project.name
         .removePrefix("krig-")
-        .split('-', '_')
-        .joinToString("") { s -> s.replaceFirstChar { it.uppercase() } }
-        .replaceFirstChar { it.lowercase() }
+        .lowercase()
+        .replace(Regex("[^a-z0-9]+"), "")
         .ifBlank { "module" }
-    arg("krig.generated.module", "${groupSlug}_$nameSlug")
+    arg("krig.generated.module", "$groupSlug.$nameSlug")
     arg("krig.generated.layer", "auto")
 }

@@ -1,5 +1,6 @@
 plugins {
     id("krig-mpp-full")
+    id("krig-mpp-ksp")
     kotlin("plugin.serialization")
 }
 

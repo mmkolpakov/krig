@@ -17,6 +17,7 @@ class KrigProcessingLayerTest {
     fun autoLayerSeparatesCommonMetadataFromJvmAggregation() {
         assertEquals(KrigProcessingLayer.COMMON, resolveProcessingLayer("auto", listOf("metadata")))
         assertEquals(KrigProcessingLayer.COMMON, resolveProcessingLayer("auto", listOf("Common")))
+        assertEquals(KrigProcessingLayer.COMMON, resolveProcessingLayer("auto", listOf("JVM", "JS", "Native")))
         assertEquals(KrigProcessingLayer.JVM_AGGREGATION, resolveProcessingLayer("auto", listOf("JVM")))
         assertEquals(KrigProcessingLayer.COMMON, resolveProcessingLayer("auto", listOf("JS")))
     }

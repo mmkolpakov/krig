@@ -48,7 +48,12 @@ internal const val KRIG_GENERATED_LAYER_OPTION: String = "krig.generated.layer"
 
 private fun SymbolProcessorEnvironment.processingLayer(): KrigProcessingLayer {
     val platformNames = platforms.map { it.platformName }
-    return resolveProcessingLayer(options[KRIG_GENERATED_LAYER_OPTION], platformNames)
+    return resolveProcessingLayer(options[KRIG_GENERATED_LAYER_OPTION], platformNames).also { layer ->
+        logger.info(
+            "KRig KSP processing layer: $layer " +
+                "(option=${options[KRIG_GENERATED_LAYER_OPTION].orEmpty()}, platforms=$platformNames)",
+        )
+    }
 }
 
 internal fun resolveProcessingLayer(
@@ -71,6 +76,7 @@ private fun inferProcessingLayer(platformNames: List<String>): KrigProcessingLay
     val normalized = platformNames.map { it.lowercase() }
     return when {
         normalized.any { it.contains("common") || it.contains("metadata") } -> KrigProcessingLayer.COMMON
+        normalized.size > 1 -> KrigProcessingLayer.COMMON
         normalized.any { it.contains("jvm") } -> KrigProcessingLayer.JVM_AGGREGATION
         normalized.isNotEmpty() -> KrigProcessingLayer.COMMON
         else -> KrigProcessingLayer.ALL
