@@ -314,8 +314,8 @@ final class space.kscience.krig.api.descriptors/ActionDescriptor : space.kscienc
         final fun <get-inputMetaDescriptor>(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.inputMetaDescriptor.<get-inputMetaDescriptor>|<get-inputMetaDescriptor>(){}[0]
     final val name // space.kscience.krig.api.descriptors/ActionDescriptor.name|{}name[0]
         final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.descriptors/ActionDescriptor.name.<get-name>|<get-name>(){}[0]
-    final val outputDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.outputDescriptor|{}outputDescriptor[0]
-        final fun <get-outputDescriptor>(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.outputDescriptor.<get-outputDescriptor>|<get-outputDescriptor>(){}[0]
+    final val outputMetaDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.outputMetaDescriptor|{}outputMetaDescriptor[0]
+        final fun <get-outputMetaDescriptor>(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.outputMetaDescriptor.<get-outputMetaDescriptor>|<get-outputMetaDescriptor>(){}[0]
 
     final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.api.descriptors/ActionDescriptor.component1|component1(){}[0]
     final fun component2(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/ActionDescriptor.component2|component2(){}[0]
@@ -748,6 +748,15 @@ final object space.kscience.krig.api.descriptors.attributes/OperationAttributeKe
     final object Bindings : space.kscience.krig.api.descriptors/OperationAttributeKey<space.kscience.krig.api.descriptors.attributes/BindingsAttribute> // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.Bindings|null[0]
 
     final object Metadata : space.kscience.krig.api.descriptors/OperationAttributeKey<space.kscience.krig.api.descriptors.attributes/MetadataAttribute> // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.Metadata|null[0]
+}
+
+final object space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces { // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces|null[0]
+    final const val UI // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.UI|{}UI[0]
+        final fun <get-UI>(): kotlin/String // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.UI.<get-UI>|<get-UI>(){}[0]
+    final const val UNIT // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.UNIT|{}UNIT[0]
+        final fun <get-UNIT>(): kotlin/String // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.UNIT.<get-UNIT>|<get-UNIT>(){}[0]
+    final const val VALIDATION // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.VALIDATION|{}VALIDATION[0]
+        final fun <get-VALIDATION>(): kotlin/String // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces.VALIDATION.<get-VALIDATION>|<get-VALIDATION>(){}[0]
 }
 
 final object space.kscience.krig.api.descriptors/OperationAttributesSerializer : kotlinx.serialization/KSerializer<space.kscience.attributes/Attributes> { // space.kscience.krig.api.descriptors/OperationAttributesSerializer|null[0]

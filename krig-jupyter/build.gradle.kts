@@ -41,7 +41,7 @@ kotlin {
     explicitApi()
 }
 
-val verifyNotebookResources by tasks.registering {
+val verifyNotebookResources = tasks.register("verifyNotebookResources") {
     description = "Verifies Kotlin Notebook descriptor and intro notebook resources."
 
     val descriptor = layout.projectDirectory.file("src/main/resources/krig.json")
@@ -74,6 +74,12 @@ val verifyNotebookResources by tasks.registering {
         }
         check("Unknown library" !in notebookText) {
             "krig-intro.ipynb must not keep stale Kotlin Notebook error output"
+        }
+        check("\"output_type\": \"error\"" !in notebookText) {
+            "krig-intro.ipynb must not keep stale error cells"
+        }
+        check("ReplCompilerException" !in notebookText && "ReplLibraryException" !in notebookText) {
+            "krig-intro.ipynb must not keep stale Kotlin Notebook exception traces"
         }
         check(!Regex("""(?m)^\s*%use\s+krig(-simulation)?\s*$""").containsMatchIn(codeSources)) {
             "krig-intro.ipynb must not use unpublished descriptor names"

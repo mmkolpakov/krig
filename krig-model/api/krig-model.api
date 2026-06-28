@@ -17,7 +17,7 @@ public final class space/kscience/krig/api/descriptors/ActionDescriptor : space/
 	public fun getAttributes ()Lspace/kscience/attributes/Attributes;
 	public final fun getInputMetaDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun getName ()Lspace/kscience/dataforge/names/Name;
-	public final fun getOutputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getOutputMetaDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -40,6 +40,13 @@ public final class space/kscience/krig/api/descriptors/ActionDescriptor$Companio
 public final class space/kscience/krig/api/descriptors/AttributeDelegatesKt {
 	public static final fun attr (Lspace/kscience/attributes/Attribute;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
 	public static final fun attr (Lspace/kscience/attributes/Attribute;Lkotlin/jvm/functions/Function1;)Lkotlin/properties/ReadOnlyProperty;
+}
+
+public final class space/kscience/krig/api/descriptors/KrigMetaDescriptorAttributeNamespaces {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/KrigMetaDescriptorAttributeNamespaces;
+	public static final field UI Ljava/lang/String;
+	public static final field UNIT Ljava/lang/String;
+	public static final field VALIDATION Ljava/lang/String;
 }
 
 public final class space/kscience/krig/api/descriptors/OperationAttributeEntry {

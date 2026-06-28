@@ -28,7 +28,7 @@ public fun PropertyDescriptor.toJsonSchema(): JsonObject = metaDescriptor.toJson
 public fun ActionDescriptor.toJsonSchema(): JsonObject = buildJsonObject {
     put("title", JsonPrimitive(name.toString()))
     put("input", inputMetaDescriptor.toJsonSchema())
-    put("output", outputDescriptor.toJsonSchema())
+    put("output", outputMetaDescriptor.toJsonSchema())
 }
 
 /**

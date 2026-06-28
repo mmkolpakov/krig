@@ -6,14 +6,20 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.data.Timestamped
+import space.kscience.krig.api.descriptors.ActionDescriptor
+import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.SerializableOperationFailure
 import space.kscience.krig.api.lifecycle.ConnectionState
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.assembly.DeviceCatalog
 import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.DeviceManifest
+import space.kscience.krig.core.state.PropertyHistory
 import space.kscience.krig.core.timetravel.Timeline
+import space.kscience.krig.storage.journal.ReplayLog
 import space.kscience.dataforge.meta.Meta
 
 /**
@@ -24,7 +30,7 @@ import space.kscience.dataforge.meta.Meta
  * Auto-imports the core DSL surface so notebooks start with zero manual imports.
  * Registers HTML renderers for [Device], [DeviceMessage], [OperationFault],
  * [LifecycleState], [ConnectionState], [Timestamped], [ObservedValue], [OperationOutcome], [Timeline],
- * and [Meta].
+ * [DeviceManifest], descriptor/catalog surfaces and [Meta].
  */
 public class KrigJupyterIntegration : JupyterIntegration() {
 
@@ -58,6 +64,7 @@ public class KrigJupyterIntegration : JupyterIntegration() {
         import("space.kscience.krig.core.timetravel.*")
         import("space.kscience.krig.simulation.*")
         import("space.kscience.krig.concurrency.*")
+        import("space.kscience.krig.jupyter.*")
         // Magix.
         import("space.kscience.magix.api.*")
 
@@ -80,10 +87,20 @@ public class KrigJupyterIntegration : JupyterIntegration() {
                 <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #4a90e2;">
                   <div><b>Device</b> <code>${device.name.escape()}</code> $badge</div>
                   <div style="color: #666;">properties: ${device.propertyDescriptors.size}; actions: ${device.actionDescriptors.size}</div>
+                  ${codeList("properties", device.propertyDescriptors.keys.map { it.toString() })}
+                  ${codeList("actions", device.actionDescriptors.keys.map { it.toString() })}
                 </div>
                 """.trimIndent()
             )
         }
+
+        render<DeviceManifest> { manifest -> HTML(manifest.htmlSummary()) }
+
+        render<PropertyDescriptor> { descriptor -> HTML(descriptor.htmlSummary()) }
+
+        render<ActionDescriptor> { descriptor -> HTML(descriptor.htmlSummary()) }
+
+        render<DeviceCatalog> { catalog -> HTML(catalog.htmlSummary()) }
 
         render<DeviceMessage> { msg ->
             HTML(
@@ -177,6 +194,30 @@ public class KrigJupyterIntegration : JupyterIntegration() {
             )
         }
 
+        render<ReplayLog> {
+            HTML(
+                """
+                <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #9060e2; background: #faf8ff;">
+                  <b>ReplayLog</b>
+                  <span style="color: #666; margin-left: 8px;">cold Flow&lt;DeviceMessageFrame&lt;DeviceMessage&gt;&gt;</span>
+                  <div style="color: #888; font-size: 12px; margin-top: 2px;">time-window replay source</div>
+                </div>
+                """.trimIndent()
+            )
+        }
+
+        render<PropertyHistory<*>> {
+            HTML(
+                """
+                <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #4a90e2; background: #f8fbff;">
+                  <b>PropertyHistory</b>
+                  <span style="color: #666; margin-left: 8px;">Flow&lt;Timestamped&lt;T&gt;&gt;</span>
+                  <div style="color: #888; font-size: 12px; margin-top: 2px;">cold history view; use flowHistory(from, until)</div>
+                </div>
+                """.trimIndent()
+            )
+        }
+
         render<LifecycleState> { state -> HTML(state.htmlBadge()) }
 
         render<ConnectionState> { state ->
@@ -199,6 +240,39 @@ public class KrigJupyterIntegration : JupyterIntegration() {
             )
         }
     }
+}
+
+internal fun DeviceManifest.htmlSummary(): String = """
+    <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #2e8b57; background: #f8fff9;">
+      <div><b>DeviceManifest</b> <code>${id.escape()}</code> <span style="color: #666;">v${version.escape()}</span></div>
+      <div style="color: #666;">properties: ${properties.size}; actions: ${actions.size}; features: ${features.size}</div>
+      ${propertyTable(properties.values)}
+      ${actionTable(actions.values)}
+    </div>
+""".trimIndent()
+
+internal fun PropertyDescriptor.htmlSummary(): String = """
+    <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #4a90e2; background: #f8fbff;">
+      <div><b>PropertyDescriptor</b> <code>${name.escape()}</code></div>
+      <div style="color: #666;">kind: <code>${kind.escape()}</code>; type: <code>${valueTypeId.escape()}</code></div>
+    </div>
+""".trimIndent()
+
+internal fun ActionDescriptor.htmlSummary(): String = """
+    <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #4a90e2; background: #f8fbff;">
+      <div><b>ActionDescriptor</b> <code>${name.escape()}</code></div>
+      <div style="color: #666;">input/output Meta descriptors define the payload contract</div>
+    </div>
+""".trimIndent()
+
+internal fun DeviceCatalog.htmlSummary(): String {
+    val ids = ids().map { it.toString() }
+    return """
+        <div style="font-family: system-ui; padding: 8px; border-left: 3px solid #2e8b57; background: #f8fff9;">
+          <div><b>DeviceCatalog</b> <span style="color: #666;">${ids.size} manifests</span></div>
+          ${codeList("manifests", ids)}
+        </div>
+    """.trimIndent()
 }
 
 internal fun LifecycleState.htmlBadge(): String {
@@ -227,3 +301,47 @@ private fun DataQuality.htmlBadge(): String {
 
 internal fun Any?.escape(): String = (this?.toString() ?: "")
     .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+private fun propertyTable(properties: Collection<PropertyDescriptor>): String {
+    if (properties.isEmpty()) return """<div style="color: #888;">No properties</div>"""
+    val rows = properties.joinToString("") { descriptor ->
+        """
+        <tr>
+          <td><code>${descriptor.name.escape()}</code></td>
+          <td>${descriptor.kind.escape()}</td>
+          <td><code>${descriptor.valueTypeId.escape()}</code></td>
+        </tr>
+        """.trimIndent()
+    }
+    return """
+        <table style="border-collapse: collapse; margin-top: 6px; font-size: 12px;">
+          <thead><tr><th style="text-align: left; padding-right: 12px;">Property</th><th style="text-align: left; padding-right: 12px;">Kind</th><th style="text-align: left;">Type</th></tr></thead>
+          <tbody>$rows</tbody>
+        </table>
+    """.trimIndent()
+}
+
+private fun actionTable(actions: Collection<ActionDescriptor>): String {
+    if (actions.isEmpty()) return """<div style="color: #888; margin-top: 4px;">No actions</div>"""
+    val rows = actions.joinToString("") { descriptor ->
+        """
+        <tr>
+          <td><code>${descriptor.name.escape()}</code></td>
+          <td>Meta input</td>
+          <td>Meta output</td>
+        </tr>
+        """.trimIndent()
+    }
+    return """
+        <table style="border-collapse: collapse; margin-top: 6px; font-size: 12px;">
+          <thead><tr><th style="text-align: left; padding-right: 12px;">Action</th><th style="text-align: left; padding-right: 12px;">Input</th><th style="text-align: left;">Output</th></tr></thead>
+          <tbody>$rows</tbody>
+        </table>
+    """.trimIndent()
+}
+
+private fun codeList(label: String, values: Collection<String>): String {
+    if (values.isEmpty()) return """<div style="color: #888; font-size: 12px;">No $label</div>"""
+    val joined = values.sorted().joinToString(" ") { """<code>${it.escape()}</code>""" }
+    return """<div style="color: #666; font-size: 12px; margin-top: 4px;">$label: $joined</div>"""
+}

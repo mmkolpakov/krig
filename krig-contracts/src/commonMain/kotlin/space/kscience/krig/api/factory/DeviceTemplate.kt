@@ -9,12 +9,8 @@ import space.kscience.dataforge.names.Name
 import space.kscience.krig.core.contracts.Device
 
 /**
- * A device blueprint that pairs construction (DataForge [Factory]) with an introspectable, validatable
- * [MetaDescriptor] for its configuration `Meta`. A low-code/UI layer can discover the required config
- * shape and reject invalid input via [validate] before calling [build].
- *
- * The config type parameter `C` of [DeviceFactory] is intentionally erased here: a template is identified
- * by its device type [D] and its `Meta` schema, not by an in-memory config class.
+ * Device blueprint that pairs construction with a validatable [MetaDescriptor] for configuration.
+ * The config type of [DeviceFactory] is erased; this API exposes the portable Meta schema.
  */
 public interface DeviceTemplate<out D : Device> : Factory<D> {
 

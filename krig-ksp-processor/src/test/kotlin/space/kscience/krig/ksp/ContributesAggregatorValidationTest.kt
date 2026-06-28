@@ -66,14 +66,15 @@ class ContributesAggregatorValidationTest {
                     }
                 }
 
-                fun main() {
-                    val manifest: DeviceManifest = DemoManifestFactory()
-                    val factory: DeviceFactory<Device, Unit> = DemoFactory
-                    val feature: PipelineFeature<Unit, PipelineFeatureSpec> = DemoFeature
+                val demoManifestSmoke: DeviceManifest = DemoManifestFactory()
+                val demoFactorySmoke: DeviceFactory<Device, Unit> = DemoFactory
+                val demoFeatureSmoke: PipelineFeature<Unit, PipelineFeatureSpec> = DemoFeature
 
-                    check(manifest.id == "demo".parseAsName())
-                    check(factory.id == "demo.factory".parseAsName())
-                    check(feature.id == "demo.feature".parseAsName())
+                val demoContributorSmoke: Boolean = run {
+                    check(demoManifestSmoke.id == "demo".parseAsName())
+                    check(demoFactorySmoke.id == "demo.factory".parseAsName())
+                    check(demoFeatureSmoke.id == "demo.feature".parseAsName())
+                    true
                 }
                 """.trimIndent(),
             ),
@@ -90,10 +91,11 @@ class ContributesAggregatorValidationTest {
                 val factories = MergedFactoriesPlugin.entries
                 val features = MergedPipelineFeaturesPlugin.entries
 
-                fun main() {
+                val generatedContributionSmoke: Boolean = run {
                     check(manifests.isNotEmpty())
                     check(factories.isNotEmpty())
                     check(features.isNotEmpty())
+                    true
                 }
                 """.trimIndent(),
             ),
@@ -114,9 +116,7 @@ class ContributesAggregatorValidationTest {
                 @ContributesManifest("bad")
                 object BadManifestFactory
 
-                fun main() {
-                    check(BadManifestFactory.toString().isNotEmpty())
-                }
+                val badManifestSmoke: Boolean = BadManifestFactory.toString().isNotEmpty()
                 """.trimIndent(),
             ),
         )
@@ -137,9 +137,7 @@ class ContributesAggregatorValidationTest {
                 @ContributesFactory
                 object BadFactory
 
-                fun main() {
-                    check(BadFactory.toString().isNotEmpty())
-                }
+                val badFactorySmoke: Boolean = BadFactory.toString().isNotEmpty()
                 """.trimIndent(),
             ),
         )
@@ -160,9 +158,7 @@ class ContributesAggregatorValidationTest {
                 @ContributesPipelineFeature
                 object BadFeature
 
-                fun main() {
-                    check(BadFeature.toString().isNotEmpty())
-                }
+                val badFeatureSmoke: Boolean = BadFeature.toString().isNotEmpty()
                 """.trimIndent(),
             ),
         )

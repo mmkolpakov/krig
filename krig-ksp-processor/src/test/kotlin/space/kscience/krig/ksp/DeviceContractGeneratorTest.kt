@@ -36,38 +36,32 @@ class DeviceContractGeneratorTest {
                 """
                 package sample
 
+                import space.kscience.dataforge.names.parseAsName
                 import space.kscience.krig.api.annotations.KrigDeviceContract
                 import space.kscience.krig.core.meta.DeviceContractBuilder
                 import space.kscience.krig.core.meta.doubleProperty
                 import space.kscience.krig.core.meta.mutableDoubleProperty
+                import space.kscience.krig.generated.contract_test.MotorContractGenerated
 
                 @KrigDeviceContract(id = "lab.motor", version = "2.0.0")
                 object MotorContract : DeviceContractBuilder() {
                     val rpm by doubleProperty()
                     val target by mutableDoubleProperty()
                 }
-                """.trimIndent(),
-            ),
-            SourceFile.kotlin(
-                "UseGeneratedMotorContract.kt",
-                """
-                package sample
 
-                import space.kscience.dataforge.names.parseAsName
-                import space.kscience.krig.generated.contract_test.MotorContractGenerated
+                val generatedRegistry = MotorContractGenerated.registry
+                val generatedManifest = MotorContractGenerated.manifest()
+                val generatedJsonSchema = MotorContractGenerated.jsonSchema()
 
-                fun main() {
-                    val registry = MotorContractGenerated.registry
-                    val manifest = MotorContractGenerated.manifest()
-                    val jsonSchema = MotorContractGenerated.jsonSchema()
-
-                    check(registry.id == "lab.motor".parseAsName())
-                    check(registry.version == "2.0.0")
-                    check(registry.propertiesByName.containsKey(MotorContract.rpm.name))
-                    check(registry.propertiesByName.containsKey(MotorContract.target.name))
-                    check(manifest.properties.containsKey(MotorContract.rpm.name))
+                val generatedContractSmoke: Boolean = run {
+                    check(generatedRegistry.id == "lab.motor".parseAsName())
+                    check(generatedRegistry.version == "2.0.0")
+                    check(generatedRegistry.propertiesByName.containsKey(MotorContract.rpm.name))
+                    check(generatedRegistry.propertiesByName.containsKey(MotorContract.target.name))
+                    check(generatedManifest.properties.containsKey(MotorContract.rpm.name))
                     check(MotorContractGenerated.schemaHash.startsWith("fnv1a64:"))
-                    check(jsonSchema.containsKey("properties"))
+                    check(generatedJsonSchema.containsKey("properties"))
+                    true
                 }
                 """.trimIndent(),
             ),
@@ -88,12 +82,10 @@ class DeviceContractGeneratorTest {
 
                 @KrigDeviceContract(id = "bad.contract")
                 object BadContract {
-                    val touched: String = "yes"
+                    const val TOUCHED: String = "yes"
                 }
 
-                fun main() {
-                    check(BadContract.touched.isNotEmpty())
-                }
+                val badContractSmoke: Boolean = BadContract.TOUCHED.isNotEmpty()
                 """.trimIndent(),
             ),
         )
@@ -121,10 +113,7 @@ class DeviceContractGeneratorTest {
                     fun label(): String = prefix + value.name.toString()
                 }
 
-                fun main() {
-                    val contract = ParametrizedContract("x")
-                    check(contract.label().isNotEmpty())
-                }
+                val parametrizedContractSmoke: String = ParametrizedContract("x").label()
                 """.trimIndent(),
             ),
         )

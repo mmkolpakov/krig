@@ -185,7 +185,11 @@ public fun <I, O> deviceActionContract(
     outputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
 ): DeviceActionContract<I, O> = SimpleDeviceActionContract(
     name = name,
-    descriptor = ActionDescriptor(name, inputMetaDescriptor, outputMetaDescriptor),
+    descriptor = ActionDescriptor(
+        name = name,
+        inputMetaDescriptor = inputMetaDescriptor,
+        outputMetaDescriptor = outputMetaDescriptor,
+    ),
     inputConverter = inputConverter,
     outputConverter = outputConverter,
 )

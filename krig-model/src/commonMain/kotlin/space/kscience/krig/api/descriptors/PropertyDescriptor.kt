@@ -6,10 +6,7 @@ import space.kscience.attributes.Attributes
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.names.Name
 
-/**
- * Serializable descriptor of a device property. Introspectable without a live device.
- * [valueTypeId] is a stable SDK type identifier, not a runtime reflection name.
- */
+/** Static contract of a device property. [metaDescriptor] describes the property's Meta payload shape. */
 @Serializable
 @SerialName("descriptor.property")
 public data class PropertyDescriptor(

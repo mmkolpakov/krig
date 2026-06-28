@@ -9,14 +9,12 @@ import space.kscience.attributes.serialization.SerializableAttribute
 import space.kscience.attributes.withAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
 
-/** Attribute container used by [OperationDescriptor]. */
+/** Standard operation metadata attached to [OperationDescriptor]. */
 public typealias OperationAttributes = Attributes
 
 /**
- * Serializable descriptor-attribute key.
- *
- * Values are regular serializable DTOs; lookup and composition use `attributes-kt`
- * key semantics instead of scanning a bag of marker objects.
+ * Serializable descriptor-attribute key. Custom keys need an explicit serializer registry before
+ * they can cross manifest or transport boundaries.
  */
 public abstract class OperationAttributeKey<T>(
     serialId: String,
