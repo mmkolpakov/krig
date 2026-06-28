@@ -72,6 +72,9 @@ include(
     // Jupyter integration — JVM-only convenience module for notebook demos.
     ":krig-jupyter",
 
+    // HTTP integration — optional JVM-only Ktor routes for device discovery and operations.
+    ":krig-server",
+
     // Analytics interop — JVM-only export of dense telemetry to Apache Arrow / Feather V2.
     ":krig-arrow",
 

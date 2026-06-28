@@ -87,9 +87,8 @@ public fun <T : Any> Device.typedPropertyFlow(
 
 /**
  * Authorised [StateFlow] of [spec]'s current value plus live updates — the "live config
- * field" view (the role coroutines [StateFlow] / controls-kt `DeviceState` play). Unlike
- * [typedPropertyFlow] (changes-only), this exposes the current value via [StateFlow.value]
- * and replays it to new collectors.
+ * field" view. Unlike [typedPropertyFlow] (changes-only), this exposes the current value
+ * via [StateFlow.value] and replays it to new collectors.
  *
  * Two source paths, one contract:
  *  - **Native** — if the driver overrides

@@ -33,8 +33,8 @@ public interface TypedDevice {
     /**
      * Returns a live config-plane state (current value + updates) for this property, or `null`
      * if the driver keeps no native observable value (the `Meta` projection is used instead).
-     * Mirrors [sampler] for the data plane; the role coroutines [StateFlow] / controls-kt
-     * `DeviceState` play. Authorization is applied by the `typedPropertyState` accessor.
+     * Mirrors [sampler] for the data plane while exposing a current-value state for control-plane
+     * consumers. Authorization is applied by the `typedPropertyState` accessor.
      */
     public fun <T> propertyState(spec: DevicePropertyContract<T>): StateFlow<T>? = null
 

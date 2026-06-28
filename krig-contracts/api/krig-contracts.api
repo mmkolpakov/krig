@@ -52,14 +52,17 @@ public abstract interface annotation class space/kscience/krig/api/discovery/Tar
 	public abstract fun value ()Ljava/lang/String;
 }
 
-public abstract class space/kscience/krig/api/factory/DeviceFactory : space/kscience/dataforge/context/Factory {
+public abstract class space/kscience/krig/api/factory/DeviceFactory : space/kscience/dataforge/context/Factory, space/kscience/dataforge/meta/descriptors/Described {
 	public static final field Companion Lspace/kscience/krig/api/factory/DeviceFactory$Companion;
 	public static final field TYPE Ljava/lang/String;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Ljava/lang/Object;
 	public final fun build (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/Device;
 	public abstract fun create (Lspace/kscience/dataforge/context/Context;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/Device;
 	public final fun getConfigConverter ()Lspace/kscience/dataforge/meta/MetaConverter;
+	public final fun getConfigDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun getId ()Lspace/kscience/dataforge/names/Name;
 }
 
@@ -67,10 +70,14 @@ public final class space/kscience/krig/api/factory/DeviceFactory$Companion {
 }
 
 public final class space/kscience/krig/api/factory/DeviceFactoryKt {
-	public static final fun DeviceFactory (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
-	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
-	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
-	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static synthetic fun DeviceFactory$default (Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static synthetic fun DeviceFactory$default (Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static synthetic fun DeviceFactory$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static synthetic fun DeviceFactory$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
 }
 
 public abstract interface class space/kscience/krig/api/factory/DeviceTemplate : space/kscience/dataforge/context/Factory {

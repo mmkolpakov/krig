@@ -57,17 +57,17 @@ public fun manifestOf(
     features: Map<Name, PipelineFeatureSpec> = emptyMap(),
     meta: Meta = Meta.EMPTY,
     deviceContractFqName: String = "space.kscience.krig.core.contracts.Device",
-): DeviceManifest = SimpleDeviceManifest(
+): DeviceManifest = DefaultDeviceManifest(
     id = id,
     version = version,
-    features = features,
-    properties = properties,
-    actions = actions,
+    features = features.toMap(),
+    properties = properties.toMap(),
+    actions = actions.toMap(),
     meta = meta,
     deviceContractFqName = deviceContractFqName,
 )
 
-private data class SimpleDeviceManifest(
+private data class DefaultDeviceManifest(
     override val id: Name,
     override val version: String,
     override val features: Map<Name, PipelineFeatureSpec>,
