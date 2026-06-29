@@ -7,8 +7,7 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.contracts.typed.BatchBinaryReadBody
@@ -92,8 +91,8 @@ public class DeviceBackendBuilder internal constructor() {
     private val actions: MutableMap<Name, ActionEntry<*, *>> = mutableMapOf()
 
     private val cellReaders: MutableMap<Name, Pair<suspend () -> Any?, MetaConverter<*>>> = mutableMapOf()
-    private val cellWriters: MutableMap<Name, suspend (Meta) -> OperationOutcome<Unit>> = mutableMapOf()
-    private val metaActions: MutableMap<Name, suspend (Meta?) -> OperationOutcome<Meta?>> = mutableMapOf()
+    private val cellWriters: MutableMap<Name, suspend (Meta) -> Unit> = mutableMapOf()
+    private val metaActions: MutableMap<Name, suspend (Meta?) -> Meta?> = mutableMapOf()
 
     private var batchMetaReadBody: BatchMetaReadBody? = null
     private var batchObservedReadBody: BatchObservedReadBody? = null
@@ -193,13 +192,7 @@ public class DeviceBackendBuilder internal constructor() {
         val cell = VolatileCell(initial)
         cellReaders[key] = Pair({ cell.value }, converter)
         cellWriters[key] = { meta ->
-            when (val decoded = decodeMetaOutcome(converter, meta, "property", key)) {
-                is OperationOutcome.Fail -> decoded
-                is OperationOutcome.Ok -> {
-                    cell.value = decoded.value
-                    OperationOutcome.OkUnit
-                }
-            }
+            cell.value = decodeMetaOutcome(converter, meta, "property", key).getOrThrow()
         }
         return ConnectionProperty(key, { cell.value }) { cell.value = it }
     }
@@ -214,12 +207,12 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Declares a raw `Meta`→`Meta` action by name; the body is suspendable for I/O. */
     public fun action(name: String, body: suspend (argument: Meta?) -> Meta?) {
-        metaActions[name.asName()] = { argument -> runCatchingOperation { body(argument) } }
+        metaActions[name.asName()] = body
     }
 
     /** Declares a raw `Meta`→`Meta` action keyed by a typed [DeviceActionContract]. */
     public fun actionMeta(spec: DeviceActionContract<*, *>, body: suspend (argument: Meta?) -> Meta?) {
-        metaActions[spec.name] = { argument -> runCatchingOperation { body(argument) } }
+        metaActions[spec.name] = body
     }
 
     // --- batch operations --------------------------------------------------------------------
@@ -439,23 +432,17 @@ private suspend fun readEntryAsMeta(entry: ReaderEntry<*>): Meta {
 }
 
 @OptIn(InternalKrigApi::class)
-private suspend fun writeEntry(entry: WriterEntry<*>, value: Meta): OperationOutcome<Unit> {
+private suspend fun writeEntry(entry: WriterEntry<*>, value: Meta) {
     val typed = entry.asAnyEntry()
-    return when (val decoded = decodeMetaOutcome(typed.spec.converter, value, "property", typed.spec.name)) {
-        is OperationOutcome.Fail -> decoded
-        is OperationOutcome.Ok -> runCatchingOperation { typed.writer.write(decoded.value) }
-    }
+    val decoded = decodeMetaOutcome(typed.spec.converter, value, "property", typed.spec.name).getOrThrow()
+    typed.writer.write(decoded)
 }
 
 @OptIn(InternalKrigApi::class)
-private suspend fun executeEntry(entry: ActionEntry<*, *>, name: Name, argument: Meta?): OperationOutcome<Meta?> {
+private suspend fun executeEntry(entry: ActionEntry<*, *>, name: Name, argument: Meta?): Meta? {
     val typed = entry.asAnyEntry()
-    return when (val decoded = decodeMetaOutcome(typed.spec.inputConverter, argument ?: Meta.EMPTY, "action", name)) {
-        is OperationOutcome.Fail -> decoded
-        is OperationOutcome.Ok -> runCatchingOperation {
-            typed.action.execute(decoded.value)?.let(typed.spec.outputConverter::convert)
-        }
-    }
+    val decoded = decodeMetaOutcome(typed.spec.inputConverter, argument ?: Meta.EMPTY, "action", name).getOrThrow()
+    return typed.action.execute(decoded)?.let(typed.spec.outputConverter::convert)
 }
 
 private fun checkCompatible(registered: DevicePropertyContract<*>, requested: DevicePropertyContract<*>) {

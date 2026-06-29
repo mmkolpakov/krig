@@ -13,17 +13,15 @@ import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
-import space.kscience.krig.api.faults.operationFault
 import space.kscience.krig.api.faults.validationFault
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
-import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.SteppedBackend
 import space.kscience.krig.core.contracts.booleanValue
 import space.kscience.krig.core.contracts.doubleValue
@@ -162,8 +160,6 @@ internal class DeclarativeBackendCore(
     val observedReaders: Map<Name, DeviceObservedReadBlock>,
     val closeBody: (() -> Unit)?,
 ) : DeviceBackend {
-    private val scopeLock = SynchronizedObject()
-    private var cachedScope: DeclarativeScope? = null
 
     // Routes a DSL scope's sibling read/write through the assembled operation pipeline (timeouts,
     // resource locks, gates) instead of straight to the backend, so a computed property reading a
@@ -173,126 +169,119 @@ internal class DeclarativeBackendCore(
     internal var pipelineRead: (suspend (Name) -> Meta?)? = null
     internal var pipelineWrite: (suspend (Name, Meta) -> Boolean)? = null
 
-    context(env: DeviceEnvironment)
-    private fun scope(): DeclarativeScope {
-        cachedScope?.takeIf { it.environment === env }?.let { return it }
-        return synchronized(scopeLock) {
-            cachedScope?.takeIf { it.environment === env }
-                ?: DeclarativeScope(this@DeclarativeBackendCore, env).also { cachedScope = it }
-        }
-    }
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend =
+        BoundDeclarativeBackend(environment)
 
-    context(env: DeviceEnvironment)
-    suspend fun readValue(name: Name): OperationOutcome<Any> {
-        val reader = readers[name]
-            ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '$name' on Device DSL backend")
-        return runCatchingOperation {
-            val scope = scope()
-            with(reader) { scope.read() }
-        }
-    }
+    override fun close() { closeBody?.invoke() }
 
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
-        when (val outcome = readValue(property.name)) {
-            is OperationOutcome.Fail -> outcome
-            is OperationOutcome.Ok -> runCatchingOperation {
-                declarativeValueToMeta(property.name, outcome.value)
+    internal inner class BoundDeclarativeBackend(
+        override val environment: BackendEnvironment,
+    ) : BoundDeviceBackend {
+        private val scopeLock = SynchronizedObject()
+        private var cachedScope: DeclarativeScope? = null
+
+        private fun scope(): DeclarativeScope {
+            cachedScope?.let { return it }
+            return synchronized(scopeLock) {
+                cachedScope ?: DeclarativeScope(this@DeclarativeBackendCore, this).also { cachedScope = it }
             }
         }
 
-    /**
-     * Quality-aware read for properties declared via `observedProperty(name) { ObservedValue(...) }`.
-     * Other properties fall back to the [DeviceBackend] default (a successful Meta read marked GOOD),
-     * so existing declarations keep their zero-overhead value path.
-     */
-    context(env: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        val block = observedReaders[property.name] ?: return super.readObserved(property)
-        return runCatchingOperation {
-            val scope = scope()
-            val observed = with(block) { scope.read() }
-            observed.map { raw -> raw?.let { declarativeValueToMeta(property.name, it) } }
+        suspend fun readValue(name: Name): Any {
+            val reader = readers[name]
+                ?: throw OperationFaultException(
+                    GenericOperationFault(
+                        OperationFaultTypes.UnknownProperty,
+                        "Unknown property '$name' on Device DSL backend",
+                    ),
+                )
+            return with(reader) { scope().read() }
         }
-    }
 
-    context(env: DeviceEnvironment)
-    suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta): OperationOutcome<Unit> {
-        val directWriter = valueWriters[name]
-        if (directWriter != null) {
-            return try {
-                directWriter(value)
-                OperationOutcome.OkUnit
+        override suspend fun read(property: PropertyDescriptor): Meta =
+            declarativeValueToMeta(property.name, readValue(property.name))
+
+        /**
+         * Quality-aware read for properties declared via `observedProperty(name) { ObservedValue(...) }`.
+         */
+        override suspend fun readObserved(property: PropertyDescriptor): ObservedValue<Meta?> {
+            val block = observedReaders[property.name] ?: return super.readObserved(property)
+            val observed = with(block) { scope().read() }
+            return observed.map { raw -> raw?.let { declarativeValueToMeta(property.name, it) } }
+        }
+
+        suspend fun writeValue(name: Name, value: Any?, toMeta: (Any?) -> Meta) {
+            val directWriter = valueWriters[name]
+            if (directWriter != null) {
+                try {
+                    directWriter(value)
+                    return
+                } catch (e: ClassCastException) {
+                    writeTypeError(name, value, e)
+                } catch (e: IllegalArgumentException) {
+                    writeTypeError(name, value, e)
+                }
+            }
+            val writer = writers[name]
+                ?: throw OperationFaultException(
+                    validationFault("Property '$name' is not writable on Device DSL backend", property = name).fault,
+                )
+            val meta = try {
+                toMeta(value)
             } catch (e: ClassCastException) {
                 writeTypeError(name, value, e)
             } catch (e: IllegalArgumentException) {
                 writeTypeError(name, value, e)
             }
+            with(writer) { scope().write(meta) }
         }
-        val writer = writers[name]
-            ?: return validationFault("Property '$name' is not writable on Device DSL backend", property = name)
-        val meta = try {
-            toMeta(value)
-        } catch (e: ClassCastException) {
-            return writeTypeError(name, value, e)
-        } catch (e: IllegalArgumentException) {
-            return writeTypeError(name, value, e)
-        }
-        return runCatchingOperation {
-            val scope = scope()
-            with(writer) { scope.write(meta) }
-        }
-    }
 
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        val writer = writers[property.name]
-            ?: return validationFault("Property '${property.name}' is not writable on Device DSL backend", property = property.name)
-        return runCatchingOperation {
-            val scope = scope()
-            with(writer) { scope.write(value) }
+        override suspend fun write(property: PropertyDescriptor, value: Meta) {
+            val writer = writers[property.name]
+                ?: throw OperationFaultException(
+                    validationFault(
+                        "Property '${property.name}' is not writable on Device DSL backend",
+                        property = property.name,
+                    ).fault,
+                )
+            with(writer) { scope().write(value) }
         }
-    }
 
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
-        val body = actions[action.name]
-            ?: return operationFault(
-                OperationFaultTypes.UnknownAction,
-                "Unknown action '${action.name}' on Device DSL backend",
-            )
-        return runCatchingOperation {
-            val scope = scope()
-            with(body) { scope.execute(argument) }
+        override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? {
+            val body = actions[action.name]
+                ?: throw OperationFaultException(
+                    GenericOperationFault(
+                        OperationFaultTypes.UnknownAction,
+                        "Unknown action '${action.name}' on Device DSL backend",
+                    ),
+                )
+            return with(body) { scope().execute(argument) }
         }
-    }
 
-    override fun close() { closeBody?.invoke() }
+        override fun close() { closeBody?.invoke() }
+    }
 }
 
 private class DeclarativeScope(
     private val core: DeclarativeBackendCore,
-    val environment: DeviceEnvironment,
+    private val backend: DeclarativeBackendCore.BoundDeclarativeBackend,
 ) : DeviceActionScope {
+    val environment: BackendEnvironment get() = backend.environment
     override val clock get() = environment.clock
     override val timeSource get() = environment.timeSource
     override val name: Name get() = environment.name
 
     override suspend fun readProperty(name: Name): Meta =
         core.pipelineRead?.invoke(name)
-            ?: context(environment) {
-                core.read(synthesizeProperty(name, mutable = core.writers.containsKey(name))).getOrThrow()
-            }
+            ?: backend.read(synthesizeProperty(name, mutable = core.writers.containsKey(name)))
 
     override suspend fun <T> read(spec: DevicePropertyContract<T>): T {
         core.pipelineRead?.invoke(spec.name)?.let { return spec.converter.read(it) }
-        return context(environment) {
-            val value = core.readValue(spec.name).getOrThrow()
-            @Suppress("UNCHECKED_CAST")
-            when (value) {
-                is Meta -> spec.converter.read(value)
-                else -> value as T
-            }
+        val value = backend.readValue(spec.name)
+        @Suppress("UNCHECKED_CAST")
+        return when (value) {
+            is Meta -> spec.converter.read(value)
+            else -> value as T
         }
     }
 
@@ -344,19 +333,15 @@ private class DeclarativeScope(
     override suspend fun writeProperty(name: Name, value: Meta) {
         val write = core.pipelineWrite
         if (write != null && write(name, value)) return
-        context(environment) {
-            core.write(synthesizeProperty(name, mutable = true), value).getOrThrow()
-        }
+        backend.write(synthesizeProperty(name, mutable = true), value)
     }
 
     override suspend fun <T> write(spec: MutableDevicePropertyContract<T>, value: T) {
         val routed = core.pipelineWrite
         if (routed != null && routed(spec.name, spec.converter.convert(value))) return
-        context(environment) {
-            core.writeValue(spec.name, value) { raw ->
-                @Suppress("UNCHECKED_CAST")
-                spec.converter.convert(raw as T)
-            }.getOrThrow()
+        backend.writeValue(spec.name, value) { raw ->
+            @Suppress("UNCHECKED_CAST")
+            spec.converter.convert(raw as T)
         }
     }
 
@@ -376,9 +361,7 @@ private class DeclarativeScope(
         writeDeclarativeValue(name, value) { metaOf(value) }
 
     override suspend fun execute(action: Name, argument: Meta?): Meta? =
-        context(environment) {
-            core.execute(ActionDescriptor(action), argument).getOrThrow()
-        }
+        backend.execute(ActionDescriptor(action), argument)
 
     override suspend fun <I, O> execute(spec: DeviceActionContract<I, O>, input: I): O? {
         val result = execute(spec.name, spec.inputConverter.convert(input))
@@ -388,18 +371,14 @@ private class DeclarativeScope(
     private suspend fun <T : Any> readDeclarativeValue(name: Name, expected: String, decode: (Any) -> T?): T {
         val routed: Any? = core.pipelineRead?.invoke(name)
         if (routed != null) return decode(routed) ?: readTypeError(name, expected, routed)
-        return context(environment) {
-            val value = core.readValue(name).getOrThrow()
-            decode(value) ?: readTypeError(name, expected, value)
-        }
+        val value = backend.readValue(name)
+        return decode(value) ?: readTypeError(name, expected, value)
     }
 
     private suspend fun writeDeclarativeValue(name: Name, value: Any, toMeta: () -> Meta) {
         val write = core.pipelineWrite
         if (write != null && write(name, toMeta())) return
-        context(environment) {
-            core.writeValue(name, value) { toMeta() }.getOrThrow()
-        }
+        backend.writeValue(name, value) { toMeta() }
     }
 }
 
@@ -492,8 +471,8 @@ private fun readTypeError(property: Name, expected: String, got: Any): Nothing =
         ),
     )
 
-private fun writeTypeError(property: Name, value: Any?, cause: Exception): OperationOutcome.Fail =
-    OperationOutcome.Fail(writeFault(property, value, cause))
+private fun writeTypeError(property: Name, value: Any?, cause: Exception): Nothing =
+    throw OperationFaultException(writeFault(property, value, cause))
 
 private fun writeFault(property: Name, value: Any?, cause: Exception): ValidationFault =
     ValidationFault(

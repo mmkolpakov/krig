@@ -21,11 +21,11 @@ import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.DeviceBackend
-import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.readBinaryBlock
 
 /** Meta ByteArray codec against raw binary bypass. */
@@ -33,9 +33,11 @@ import space.kscience.krig.core.contracts.readBinaryBlock
 open class RawBinaryBenchmark {
     private lateinit var property: PropertyDescriptor
     private lateinit var payload: ByteArray
-    private lateinit var env: DeviceEnvironment
+    private lateinit var env: BackendEnvironment
     private lateinit var metaBackend: DeviceBackend
     private lateinit var rawBackend: DeviceBackend
+    private lateinit var metaBound: BoundDeviceBackend
+    private lateinit var rawBound: BoundDeviceBackend
 
     @Setup
     open fun setup() {
@@ -48,63 +50,72 @@ open class RawBinaryBenchmark {
         env = benchmarkEnvironment()
         metaBackend = MetaBinaryBackend(payload)
         rawBackend = RawBinaryBackendImpl(payload)
+        metaBound = metaBackend.bind(env)
+        rawBound = rawBackend.bind(env)
     }
 
     @Benchmark
     open fun metaByteArrayRead(blackhole: Blackhole): ByteArray = runBlocking {
-        context(env) {
-            val meta = metaBackend.read(property).getOrThrow()
-            Base64.getDecoder().decode(MetaConverter.string.read(meta)).also(blackhole::consume)
-        }
+        val meta = metaBound.read(property)
+        Base64.getDecoder().decode(MetaConverter.string.read(meta)).also(blackhole::consume)
     }
 
     @Benchmark
     open fun rawBinaryRead(blackhole: Blackhole): ByteArray = runBlocking {
-        context(env) {
-            rawBackend.readBinaryBlock(property).toByteArray().also(blackhole::consume)
-        }
+        rawBound.readBinaryBlock(property).toByteArray().also(blackhole::consume)
     }
 }
 
 private class MetaBinaryBackend(private val payload: ByteArray) : UnsupportedBackend() {
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
-        OperationOutcome.Ok(MetaConverter.string.convert(Base64.getEncoder().encodeToString(payload)))
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend {
+        val base = super.bind(environment)
+        val boundEnvironment = environment
+        return object : BoundDeviceBackend by base {
+            override val environment: BackendEnvironment = boundEnvironment
+
+            override suspend fun read(property: PropertyDescriptor): Meta =
+                MetaConverter.string.convert(Base64.getEncoder().encodeToString(payload))
+        }
+    }
 }
 
 private class RawBinaryBackendImpl(private val payload: ByteArray) : UnsupportedBackend() {
-    context(env: DeviceEnvironment)
-    override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> =
-        OperationOutcome.Ok(payload.asBinary())
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend {
+        val base = super.bind(environment)
+        val boundEnvironment = environment
+        return object : BoundDeviceBackend by base {
+            override val environment: BackendEnvironment = boundEnvironment
+
+            override suspend fun readBinary(property: PropertyDescriptor): Binary =
+                payload.asBinary()
+        }
+    }
 }
 
 private open class UnsupportedBackend : DeviceBackend {
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
-        OperationOutcome.Fail(
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend {
+        val boundEnvironment = environment
+        return object : BoundDeviceBackend {
+            override val environment: BackendEnvironment = boundEnvironment
+
+            override suspend fun read(property: PropertyDescriptor): Meta =
+                unsupported("Benchmark backend does not expose Meta reads.")
+
+            override suspend fun write(property: PropertyDescriptor, value: Meta): Unit =
+                unsupported("Benchmark backend does not expose writes.")
+
+            override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+                unsupported("Benchmark backend does not expose actions.")
+
+            override fun close() = Unit
+        }
+    }
+
+    private fun unsupported(message: String): Nothing =
+        throw OperationFaultException(
             GenericOperationFault(
                 faultType = OperationFaultTypes.UnsupportedValue,
-                message = "Benchmark backend does not expose Meta reads.",
+                message = message,
             ),
         )
-
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
-        OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnsupportedValue,
-                message = "Benchmark backend does not expose writes.",
-            ),
-        )
-
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
-        OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnsupportedValue,
-                message = "Benchmark backend does not expose actions.",
-            ),
-        )
-
-    override fun close() = Unit
 }

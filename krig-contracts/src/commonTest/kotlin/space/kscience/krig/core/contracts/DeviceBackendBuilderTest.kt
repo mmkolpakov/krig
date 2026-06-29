@@ -33,11 +33,11 @@ import kotlin.time.DurationUnit
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
-/** Minimal stub [Device] purely to satisfy the `context(device)` contract on backend calls. */
-private fun stubDevice(): Device = object : AbstractTestDevice(
-    "stub".asName(),
-    testRuntime("backend-builder-test"),
-) {}
+private fun stubBackendEnvironment(): BackendEnvironment =
+    BackendEnvironment.from(testRuntime("backend-builder-test"), "stub".asName())
+
+private fun DeviceBackend.bindToStub(): BoundDeviceBackend =
+    bind(stubBackendEnvironment())
 
 private object BackendSpec : DeviceContractBuilder() {
     val value by property(MetaConverter.double, TypeIds.DOUBLE)
@@ -80,11 +80,11 @@ class DeviceBackendBuilderTest {
                 pv.value = steady + (pv.value - steady) * exp(-dt.toDouble(DurationUnit.SECONDS) / tau)
             }
         }
-        val device = stubDevice()
-        context(device) { plant.write(inputDescriptor(), metaOf(10.0)) }.getOrThrow()
+        val bound = plant.bindToStub()
+        bound.write(inputDescriptor(), metaOf(10.0))
         repeat(500) { plant.step(10.milliseconds) }
 
-        val finalPv = context(device) { plant.read(pvDescriptor()) }.getOrThrow().doubleValue ?: 0.0
+        val finalPv = bound.read(pvDescriptor()).doubleValue ?: 0.0
         assertTrue(abs(finalPv - 10.0) < 0.01, "PV should converge to steady state, got $finalPv")
     }
 
@@ -96,14 +96,10 @@ class DeviceBackendBuilderTest {
             val b = writable("b", initial = 0.0, converter = MetaConverter.double)
             computed("sum") { a.value + b.value }
         }
-        val device = stubDevice()
-        context(device) {
-            transducer.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(3.0)).getOrThrow()
-            transducer.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(4.0)).getOrThrow()
-        }
-        val sum = context(device) {
-            transducer.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, TypeIds.DOUBLE))
-        }.getOrThrow().doubleValue ?: 0.0
+        val bound = transducer.bindToStub()
+        bound.write(PropertyDescriptor("a".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(3.0))
+        bound.write(PropertyDescriptor("b".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE), metaOf(4.0))
+        val sum = bound.read(PropertyDescriptor("sum".asName(), PropertyKind.PHYSICAL, TypeIds.DOUBLE)).doubleValue ?: 0.0
         assertEquals(7.0, sum, "Computed property should reflect current cell values")
         // The builder returns DeviceBackend, not SteppedBackend, when `onStep` is omitted.
         assertTrue(transducer !is SteppedBackend)
@@ -114,10 +110,9 @@ class DeviceBackendBuilderTest {
         val backend = deviceBackend {
             readable("known", initial = 1.0, converter = MetaConverter.double)
         }
-        val device = stubDevice()
-        val outcome = context(device) {
-            backend.read(PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE))
-        }
+        val outcome = backend.bindToStub().readOutcome(
+            PropertyDescriptor("unknown".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
+        )
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
         val fault = outcome.fault as GenericOperationFault
         assertTrue(
@@ -131,13 +126,10 @@ class DeviceBackendBuilderTest {
         val backend = deviceBackend {
             readable("readonly", initial = 1.0, converter = MetaConverter.double)
         }
-        val device = stubDevice()
-        val outcome = context(device) {
-            backend.write(
-                PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
-                metaOf(2.0),
-            )
-        }
+        val outcome = backend.bindToStub().writeOutcome(
+            PropertyDescriptor("readonly".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
+            metaOf(2.0),
+        )
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
     }
 
@@ -146,14 +138,10 @@ class DeviceBackendBuilderTest {
         val backend = deviceBackend {
             writable("input", initial = 0.0, converter = MetaConverter.double)
         }
-        val device = stubDevice()
-
-        val outcome = context(device) {
-            backend.write(
-                PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
-                Meta { "bad" put "payload" },
-            )
-        }
+        val outcome = backend.bindToStub().writeOutcome(
+            PropertyDescriptor("input".asName(), PropertyKind.LOGICAL, TypeIds.DOUBLE),
+            Meta { "bad" put "payload" },
+        )
 
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
         assertTrue(outcome.fault is ValidationFault, "expected ValidationFault, got ${outcome.fault}")
@@ -168,10 +156,7 @@ class DeviceBackendBuilderTest {
                 metaOf(counter.value)
             }
         }
-        val device = stubDevice()
-        val result = context(device) {
-            backend.execute(ActionDescriptor("increment".asName()), null)
-        }.getOrThrow()
+        val result = backend.bindToStub().execute(ActionDescriptor("increment".asName()), null)
         assertEquals(1, result?.intValue)
     }
 
@@ -193,14 +178,10 @@ class DeviceBackendBuilderTest {
         val backend = deviceBackend {
             observedReader(BackendSpec.value) { ObservedValue(12.5, time, quality) }
         }
-        val device = stubDevice()
+        val bound = backend.bindToStub()
 
-        val observed = context(device) {
-            backend.readObserved(BackendSpec.value.descriptor).getOrThrow()
-        }
-        val meta = context(device) {
-            backend.read(BackendSpec.value.descriptor).getOrThrow()
-        }
+        val observed = bound.readObserved(BackendSpec.value.descriptor)
+        val meta = bound.read(BackendSpec.value.descriptor)
         val typedObserved = backend.readObservedOutcome(BackendSpec.value).getOrThrow()
 
         assertEquals(12.5, observed.value?.doubleValue)
@@ -218,11 +199,7 @@ class DeviceBackendBuilderTest {
         val backend = deviceBackend {
             bytesReader(BackendSpec.value) { payload }
         }
-        val device = stubDevice()
-
-        val binary = context(device) {
-            backend.readBinaryOutcome(BackendSpec.value.descriptor).getOrThrow().toByteArray()
-        }
+        val binary = backend.bindToStub().readBinaryOutcome(BackendSpec.value.descriptor).getOrThrow().toByteArray()
 
         assertContentEquals(payload, binary)
     }

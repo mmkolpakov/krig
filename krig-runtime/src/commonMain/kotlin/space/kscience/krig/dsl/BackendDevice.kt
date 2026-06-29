@@ -5,6 +5,8 @@
 
 package space.kscience.krig.dsl
 
+import kotlinx.coroutines.CancellationException
+import kotlinx.io.IOException
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
@@ -13,14 +15,16 @@ import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
+import space.kscience.krig.api.faults.TransportFault
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.runCatchingOperation
-import kotlinx.coroutines.CancellationException
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
@@ -116,6 +120,8 @@ public class BackendDevice @InternalKrigApi constructor(
 
     private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
+    private val boundBackend: BoundDeviceBackend =
+        backend.bind(BackendEnvironment.from(runtime, name))
 
     /**
      * Introspection materialized from the declared descriptor source plus the typed backend's
@@ -143,7 +149,7 @@ public class BackendDevice @InternalKrigApi constructor(
         spec: DevicePropertyContract<T>,
     ): OperationOutcome<ObservedValue<T?>> =
         contractBackend?.observedReader(spec)?.let { observedReader ->
-            runCatchingOperation { observedReader.readObserved() }
+            backendOutcome { observedReader.readObserved() }
         } ?: super.readObservedOutcome(spec)
 
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
@@ -161,31 +167,29 @@ public class BackendDevice @InternalKrigApi constructor(
         }
 
     /**
-     * Delegates directly to [DeviceBackend.read] without the getOrThrow/re-wrap overhead.
-     * The backend already returns [OperationOutcome], so we pass it through unchanged.
+     * Delegates to the bound backend and converts predictable backend faults at the device boundary.
      */
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         when (val descriptor = propertyDescriptor(propertyName, "read")) {
             is OperationOutcome.Fail -> descriptor
-            is OperationOutcome.Ok -> backendOutcome { backend.read(descriptor.value) }
+            is OperationOutcome.Ok -> backendOutcome { boundBackend.read(descriptor.value) }
         }
 
     /**
      * Delegates to [DeviceBackend.write] and emits [PropertyChangedMessage] on success.
      */
     override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-        when (val outcome = backendOutcome { writeToBackend(propertyName, value) }) {
-            is OperationOutcome.Ok -> {
-                emitPropertyChanged(propertyName, value)
-                outcome
-            }
-            is OperationOutcome.Fail -> outcome
-        }
-
-    private suspend fun writeToBackend(propertyName: Name, value: Meta): OperationOutcome<Unit> =
         when (val descriptor = propertyDescriptor(propertyName, "write")) {
             is OperationOutcome.Fail -> descriptor
-            is OperationOutcome.Ok -> backend.write(descriptor.value, value)
+            is OperationOutcome.Ok -> {
+                when (val outcome = backendOutcome { boundBackend.write(descriptor.value, value) }) {
+                    is OperationOutcome.Ok -> {
+                        emitPropertyChanged(propertyName, value)
+                        outcome
+                    }
+                    is OperationOutcome.Fail -> outcome
+                }
+            }
         }
 
     /**
@@ -204,18 +208,18 @@ public class BackendDevice @InternalKrigApi constructor(
     }
 
     /**
-     * Delegates directly to [DeviceBackend.execute] without the getOrThrow/re-wrap overhead.
+     * Delegates to the bound backend and converts predictable backend faults at the device boundary.
      */
     override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
         when (val descriptor = actionDescriptor(actionName)) {
             is OperationOutcome.Fail -> descriptor
-            is OperationOutcome.Ok -> backendOutcome { backend.execute(descriptor.value, argument) }
+            is OperationOutcome.Ok -> backendOutcome { boundBackend.execute(descriptor.value, argument) }
         }
 
     override suspend fun doReadObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> =
         when (val descriptor = propertyDescriptor(propertyName, "read")) {
             is OperationOutcome.Fail -> descriptor
-            is OperationOutcome.Ok -> backendOutcome { backend.readObserved(descriptor.value) }
+            is OperationOutcome.Ok -> backendOutcome { boundBackend.readObserved(descriptor.value) }
         }
 
     override suspend fun doReadBatchOutcome(
@@ -231,9 +235,7 @@ public class BackendDevice @InternalKrigApi constructor(
         }
         if (descriptors.isEmpty()) return results
 
-        val batchOutcome = backendOutcome {
-            OperationOutcome.Ok(backend.readBatchObserved(descriptors.values))
-        }
+        val batchOutcome = backendOutcome { boundBackend.readBatchObserved(descriptors.values) }
         when (batchOutcome) {
             is OperationOutcome.Fail -> {
                 descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
@@ -255,7 +257,7 @@ public class BackendDevice @InternalKrigApi constructor(
     override suspend fun doReadBinaryOutcome(propertyName: Name): OperationOutcome<Binary> =
         when (val descriptor = propertyDescriptor(propertyName, "read")) {
             is OperationOutcome.Fail -> descriptor
-            is OperationOutcome.Ok -> backendOutcome { backend.readBinary(descriptor.value) }
+            is OperationOutcome.Ok -> backendOutcome { boundBackend.readBinary(descriptor.value) }
         }
 
     override suspend fun doReadBatchBinaryOutcome(
@@ -271,9 +273,7 @@ public class BackendDevice @InternalKrigApi constructor(
         }
         if (descriptors.isEmpty()) return results
 
-        val batchOutcome = backendOutcome {
-            OperationOutcome.Ok(backend.readBatchBinary(descriptors.values))
-        }
+        val batchOutcome = backendOutcome { boundBackend.readBatchBinary(descriptors.values) }
         when (batchOutcome) {
             is OperationOutcome.Fail -> {
                 descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
@@ -309,9 +309,7 @@ public class BackendDevice @InternalKrigApi constructor(
         }
         if (backendValues.isEmpty()) return results
 
-        val batchOutcome = backendOutcome {
-            OperationOutcome.Ok(backend.writeBatch(backendValues))
-        }
+        val batchOutcome = backendOutcome { boundBackend.writeBatch(backendValues) }
         when (batchOutcome) {
             is OperationOutcome.Fail -> {
                 descriptors.keys.forEach { propertyName -> results[propertyName] = batchOutcome }
@@ -334,15 +332,21 @@ public class BackendDevice @InternalKrigApi constructor(
         return results
     }
 
+    override suspend fun doWriteBinaryOutcome(propertyName: Name, value: Binary): OperationOutcome<Unit> =
+        when (val descriptor = propertyDescriptor(propertyName, "write")) {
+            is OperationOutcome.Fail -> descriptor
+            is OperationOutcome.Ok -> backendOutcome { boundBackend.writeBinary(descriptor.value, value) }
+        }
+
     @OptIn(InternalKrigApi::class)
     override fun close() {
-        ignoreNonCancellationFailure { backend.close() }
+        ignoreNonCancellationFailure { boundBackend.close() }
         super.close()
     }
 
     @OptIn(InternalKrigApi::class)
     override suspend fun shutdown() {
-        ignoreCleanupFailureSuspending { backend.shutdown() }
+        ignoreCleanupFailureSuspending { boundBackend.shutdown() }
         super.shutdown()
     }
 
@@ -399,15 +403,28 @@ public class BackendDevice @InternalKrigApi constructor(
         )
     }
 
-    private suspend inline fun <T> backendOutcome(block: suspend () -> OperationOutcome<T>): OperationOutcome<T> =
+    private suspend inline fun <T> backendOutcome(block: suspend () -> T): OperationOutcome<T> =
         try {
-            block()
+            ok(block())
+        } catch (e: OperationFaultException) {
+            OperationOutcome.Fail(e.fault)
+        } catch (e: IOException) {
+            OperationOutcome.Fail(
+                TransportFault(
+                    causeType = e::class.simpleName ?: "IOException",
+                    message = e.message ?: "I/O failure",
+                ),
+            )
         } catch (e: CancellationException) {
             throw e
         } catch (e: RuntimeException) {
             updateLifecycleState(LifecycleState.Failed(e))
             throw e
         }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T> ok(value: T): OperationOutcome<T> =
+        if (value is Unit) OperationOutcome.OkUnit as OperationOutcome<T> else OperationOutcome.Ok(value)
 }
 
 private val PropertyDescriptor.isMutable: Boolean

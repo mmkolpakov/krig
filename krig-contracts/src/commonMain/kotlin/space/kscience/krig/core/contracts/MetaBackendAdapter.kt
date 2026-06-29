@@ -6,19 +6,16 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.faults.operationFault
-import space.kscience.krig.api.faults.validationFault
-import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
 import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
-import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -26,15 +23,10 @@ import space.kscience.krig.core.meta.MutableDevicePropertyContract
 /**
  * Synthesizes the `Meta` control-plane [DeviceBackend] surface from a Meta-free [TypedBackend].
  *
- * A driver author implements only the typed/primitive plane ([TypedBackend.reader] / [writer] /
- * [action], plus the [propertySpecs]/[actionSpecs] registry) and wraps it with this adapter — the
- * `Meta` `read`/`write`/`execute` path is derived through each contract's `MetaConverter`. This is
- * the SDK "firewall": drivers stay free of `dataforge-meta`, while the control plane keeps its
- * schemaless [Meta] surface for scripts, dynamic access, and Workspace integration.
- *
- * Use [metaBackendOf] for the common case where specs and an [onClose] are supplied directly.
+ * The adapter remains typed-first: native handles and spec registries live on the unbound backend,
+ * while [bind] creates the concrete `Meta` operation surface for one device runtime.
  */
-@OptIn(UnstableKrigForSubclassing::class)
+@OptIn(InternalKrigApi::class, UnstableKrigForSubclassing::class)
 public class MetaBackendAdapter(
     private val typed: TypedBackend,
     private val propertySpecs: Map<Name, DevicePropertyContract<*>>,
@@ -42,37 +34,8 @@ public class MetaBackendAdapter(
     private val onClose: () -> Unit = {},
 ) : TypedDeviceBackend {
 
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
-        val spec = propertySpecs[property.name]
-            ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
-        spec.validateDescriptor(property)?.let { return it }
-        return readSpecAsMeta(spec)
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        val spec = propertySpecs[property.name]
-            ?: return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
-        spec.validateDescriptor(property)?.let { return it }
-        return readObservedSpecAsMeta(env, spec)
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        val spec = propertySpecs[property.name] as? MutableDevicePropertyContract<*>
-            ?: return validationFault("Property '${property.name}' is not writable")
-        spec.validateDescriptor(property)?.let { return it }
-        return writeSpecFromMeta(spec, value)
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> {
-        val spec = actionSpecs[action.name]
-            ?: return operationFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}'")
-        spec.validateDescriptor(action)?.let { return it }
-        return executeSpecFromMeta(spec, argument)
-    }
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend =
+        BoundMetaBackend(environment)
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>? =
         typed.reader(spec)
@@ -101,84 +64,104 @@ public class MetaBackendAdapter(
         onClose()
     }
 
-    private suspend fun <T> readSpecAsMeta(spec: DevicePropertyContract<T>): OperationOutcome<Meta> {
+    private inner class BoundMetaBackend(
+        override val environment: BackendEnvironment,
+    ) : BoundDeviceBackend {
+        override suspend fun read(property: PropertyDescriptor): Meta {
+            val spec = propertySpecs[property.name]
+                ?: unknownProperty(property.name)
+            spec.validateDescriptor(property)
+            return readSpecAsMeta(spec)
+        }
+
+        override suspend fun readObserved(property: PropertyDescriptor): ObservedValue<Meta?> {
+            val spec = propertySpecs[property.name]
+                ?: unknownProperty(property.name)
+            spec.validateDescriptor(property)
+            return readObservedSpecAsMeta(environment, spec)
+        }
+
+        override suspend fun write(property: PropertyDescriptor, value: Meta) {
+            val spec = propertySpecs[property.name] as? MutableDevicePropertyContract<*>
+                ?: validationFailure("Property '${property.name}' is not writable")
+            spec.validateDescriptor(property)
+            writeSpecFromMeta(spec, value)
+        }
+
+        override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? {
+            val spec = actionSpecs[action.name]
+                ?: unknownAction(action.name)
+            spec.validateDescriptor(action)
+            return executeSpecFromMeta(spec, argument)
+        }
+
+        override fun close() {
+            onClose()
+        }
+    }
+
+    private suspend fun <T> readSpecAsMeta(spec: DevicePropertyContract<T>): Meta {
         val reader = typed.reader(spec)
-            ?: return operationFault(OperationFaultTypes.UnsupportedValue, "No typed reader for '${spec.name}'")
-        return runCatchingOperation { spec.converter.convert(reader.read()) }
+            ?: unsupported("No typed reader for '${spec.name}'")
+        return spec.converter.convert(reader.read())
     }
 
     private suspend fun <T> readObservedSpecAsMeta(
-        env: DeviceEnvironment,
+        env: BackendEnvironment,
         spec: DevicePropertyContract<T>,
-    ): OperationOutcome<ObservedValue<Meta?>> {
+    ): ObservedValue<Meta?> {
         val observedReader = typed.observedReader(spec)
         if (observedReader != null) {
-            return runCatchingOperation {
-                observedReader.readObserved().map { value -> value?.let(spec.converter::convert) }
-            }
+            return observedReader.readObserved().map { value -> value?.let(spec.converter::convert) }
         }
-        return when (val meta = readSpecAsMeta(spec)) {
-            is OperationOutcome.Ok -> OperationOutcome.Ok(ObservedValue(meta.value, env.clock.now(), DataQuality.GOOD))
-            is OperationOutcome.Fail -> meta
-        }
+        return ObservedValue(readSpecAsMeta(spec), env.clock.now(), DataQuality.GOOD)
     }
 
-    private suspend fun <T> writeSpecFromMeta(spec: MutableDevicePropertyContract<T>, value: Meta): OperationOutcome<Unit> {
+    private suspend fun <T> writeSpecFromMeta(spec: MutableDevicePropertyContract<T>, value: Meta) {
         val writer = typed.writer(spec)
-            ?: return validationFault("No typed writer for '${spec.name}'")
-        return runCatchingOperation { writer.write(spec.converter.read(value)) }
+            ?: validationFailure("No typed writer for '${spec.name}'")
+        writer.write(decodeMetaOutcome(spec.converter, value, "property", spec.name).getOrThrow())
     }
 
     private suspend fun <I, O> executeSpecFromMeta(
         spec: DeviceActionContract<I, O>,
         argument: Meta?,
-    ): OperationOutcome<Meta?> {
+    ): Meta? {
         val handle = typed.action(spec)
-            ?: return operationFault(OperationFaultTypes.UnknownAction, "No typed action for '${spec.name}'")
-        return runCatchingOperation {
-            handle.execute(spec.inputConverter.read(argument ?: Meta.EMPTY))?.let(spec.outputConverter::convert)
-        }
+            ?: unknownAction(spec.name)
+        val input = decodeMetaOutcome(spec.inputConverter, argument ?: Meta.EMPTY, "action", spec.name).getOrThrow()
+        return handle.execute(input)?.let(spec.outputConverter::convert)
     }
 
-    private fun DevicePropertyContract<*>.validateDescriptor(
-        requested: PropertyDescriptor,
-    ): OperationOutcome.Fail? {
+    private fun DevicePropertyContract<*>.validateDescriptor(requested: PropertyDescriptor) {
         val expected = descriptor
-        return when {
-            requested.name != expected.name -> validationFault(
+        when {
+            requested.name != expected.name -> validationFailure(
                 "Property descriptor name '${requested.name}' does not match contract '${expected.name}'",
-                property = requested.name,
+                requested.name,
             )
 
-            requested.kind != expected.kind -> validationFault(
+            requested.kind != expected.kind -> validationFailure(
                 "Property '${requested.name}' kind mismatch: expected ${expected.kind}, got ${requested.kind}",
-                property = requested.name,
+                requested.name,
             )
 
-            requested.valueTypeId != expected.valueTypeId -> validationFault(
+            requested.valueTypeId != expected.valueTypeId -> validationFailure(
                 "Property '${requested.name}' type mismatch: expected ${expected.valueTypeId}, got ${requested.valueTypeId}",
-                property = requested.name,
+                requested.name,
             )
-
-            else -> null
         }
     }
 
-    private fun DeviceActionContract<*, *>.validateDescriptor(
-        requested: ActionDescriptor,
-    ): OperationOutcome.Fail? =
-        if (requested.name == descriptor.name) {
-            null
-        } else {
-            validationFault("Action descriptor name '${requested.name}' does not match contract '${descriptor.name}'")
+    private fun DeviceActionContract<*, *>.validateDescriptor(requested: ActionDescriptor) {
+        if (requested.name != descriptor.name) {
+            validationFailure("Action descriptor name '${requested.name}' does not match contract '${descriptor.name}'")
         }
+    }
 }
 
 /**
- * Builds a [TypedDeviceBackend] from a Meta-free [typed] backend plus its contract registry. The returned
- * backend preserves native typed handles and derives its `Meta` plane via converters (see
- * [MetaBackendAdapter]). When [typed] already exposes its own registry (e.g. a `TypedDeviceBackend`),
- * pass [propertySpecs]/[actionSpecs] from it.
+ * Builds a [TypedDeviceBackend] from a Meta-free [typed] backend plus its contract registry.
  */
 @OptIn(UnstableKrigForSubclassing::class)
 public fun metaBackendOf(

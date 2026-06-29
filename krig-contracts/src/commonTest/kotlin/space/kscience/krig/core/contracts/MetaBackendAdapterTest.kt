@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
@@ -19,7 +18,6 @@ import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
@@ -73,21 +71,19 @@ class MetaBackendAdapterTest {
             propertySpecs = mapOf(Spec.value.name to Spec.value),
             actionSpecs = mapOf(Spec.command.name to Spec.command),
         )
-        val device = stubDevice()
+        val bound = backend.bindToStub()
 
         assertIs<TypedDeviceBackend>(backend)
         assertEquals(Spec.value, backend.propertySpec(Spec.value.name))
         assertEquals(Spec.command, backend.actionSpec(Spec.command.name))
         assertEquals(0.0, backend.reader(Spec.value)?.read())
 
-        context(device) {
-            backend.write(Spec.value.descriptor, metaOf(7.5)).getOrThrow()
-            assertEquals(7.5, backend.reader(Spec.value)?.read())
-            val read = backend.read(Spec.value.descriptor).getOrThrow()
-            assertEquals(7.5, read.doubleValue)
-            val result = backend.execute(Spec.command.descriptor, metaOf("run")).getOrThrow()
-            assertEquals("ack:run", result?.stringValue)
-        }
+        bound.write(Spec.value.descriptor, metaOf(7.5))
+        assertEquals(7.5, backend.reader(Spec.value)?.read())
+        val read = bound.read(Spec.value.descriptor)
+        assertEquals(7.5, read.doubleValue)
+        val result = bound.execute(Spec.command.descriptor, metaOf("run"))
+        assertEquals("ack:run", result?.stringValue)
     }
 
     @Test
@@ -96,9 +92,7 @@ class MetaBackendAdapterTest {
             typed = metaFreeBackend(doubleArrayOf(12.25)),
             propertySpecs = mapOf(Spec.value.name to Spec.value),
         )
-        val device = stubDevice()
-
-        val observed = context(device) { backend.readObserved(Spec.value.descriptor) }.getOrThrow()
+        val observed = backend.bindToStub().readObserved(Spec.value.descriptor)
 
         assertEquals(12.25, observed.value?.doubleValue)
         assertEquals(OBSERVED_TIME, observed.time)
@@ -111,14 +105,13 @@ class MetaBackendAdapterTest {
             typed = metaFreeBackend(doubleArrayOf(0.0)),
             propertySpecs = mapOf(Spec.value.name to Spec.value),
         )
-        val device = stubDevice()
         val mismatched = PropertyDescriptor(
             name = Spec.value.name,
             kind = PropertyKind.PHYSICAL,
             valueTypeId = TypeIds.STRING,
         )
 
-        val outcome = context(device) { backend.read(mismatched) }
+        val outcome = backend.bindToStub().readOutcome(mismatched)
 
         val failure = assertIs<OperationOutcome.Fail>(outcome)
         assertIs<ValidationFault>(failure.fault)
@@ -132,43 +125,33 @@ class MetaBackendAdapterTest {
             writer(Spec.value) { next -> cell = next }
             action(Spec.command) { input -> "ack:$input" }
         }
-        val device = stubDevice()
+        val bound = backend.bindToStub()
 
         assertEquals(1.0, backend.reader(Spec.value)?.read())
         assertEquals(Spec.value, backend.propertySpec(Spec.value.name))
 
-        context(device) {
-            backend.write(Spec.value.descriptor, metaOf(9.0)).getOrThrow()
-            assertEquals(9.0, backend.reader(Spec.value)?.read())
-            val metaRead = backend.read(Spec.value.descriptor).getOrThrow()
-            assertEquals(9.0, metaRead.doubleValue, "Meta boundary read returned $metaRead")
-            val metaAction = backend.execute(Spec.command.descriptor, metaOf("sync")).getOrThrow()
-            assertEquals("ack:sync", metaAction?.stringValue, "Meta boundary action returned $metaAction")
-        }
+        bound.write(Spec.value.descriptor, metaOf(9.0))
+        assertEquals(9.0, backend.reader(Spec.value)?.read())
+        val metaRead = bound.read(Spec.value.descriptor)
+        assertEquals(9.0, metaRead.doubleValue, "Meta boundary read returned $metaRead")
+        val metaAction = bound.execute(Spec.command.descriptor, metaOf("sync"))
+        assertEquals("ack:sync", metaAction?.stringValue, "Meta boundary action returned $metaAction")
     }
 
     @Test
     fun unknownPropertyFailsWithoutThrowing() = runTest {
         val backend = metaBackendOf(metaFreeBackend(doubleArrayOf(0.0)), emptyMap())
-        val device = stubDevice()
-
-        val outcome = context(device) { backend.read(Spec.value.descriptor) }
+        val outcome = backend.bindToStub().readOutcome(Spec.value.descriptor)
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
     }
 
-    private fun stubDevice(): Device = object : AbstractDevice(
-        "meta-adapter-stub".asName(),
-        DeviceRuntime(Context("meta-adapter-test-${Random.nextInt()}")),
-    ) {
-        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
-            OperationOutcome.Ok(Meta.EMPTY)
-
-        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-            OperationOutcome.OkUnit
-
-        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
-            OperationOutcome.Ok(null)
-    }
+    private fun DeviceBackend.bindToStub(): BoundDeviceBackend =
+        bind(
+            BackendEnvironment.from(
+                DeviceRuntime(Context("meta-adapter-test-${Random.nextInt()}")),
+                "meta-adapter-stub".asName(),
+            ),
+        )
 
     private companion object {
         val OBSERVED_TIME: Instant = Instant.fromEpochMilliseconds(123_456)

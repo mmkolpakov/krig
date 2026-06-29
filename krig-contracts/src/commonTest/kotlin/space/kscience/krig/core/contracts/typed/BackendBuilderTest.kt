@@ -15,14 +15,17 @@ import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.core.contracts.AbstractDevice
-import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
+import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
+import space.kscience.krig.core.contracts.readObservedOutcome
 import space.kscience.krig.core.contracts.readBinaryOutcome
 import space.kscience.krig.core.contracts.stringValue
+import space.kscience.krig.core.contracts.writeOutcome
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.dataforge.context.Context
@@ -75,15 +78,13 @@ class BackendBuilderTest {
             writer(Spec.value) { next -> value = next }
             action(Spec.command) { command -> "ack:$command" }
         }
-        val device = stubDevice()
+        val bound = backend.bindToStub()
 
-        context(device) {
-            backend.write(Spec.value.descriptor, metaOf(7.5)).getOrThrow()
-            val readMeta = backend.read(Spec.value.descriptor).getOrThrow()
-            assertEquals(7.5, readMeta.doubleValue)
-            val result = backend.execute(Spec.command.descriptor, metaOf("run")).getOrThrow()
-            assertEquals("ack:run", result?.stringValue)
-        }
+        bound.write(Spec.value.descriptor, metaOf(7.5))
+        val readMeta = bound.read(Spec.value.descriptor)
+        assertEquals(7.5, readMeta.doubleValue)
+        val result = bound.execute(Spec.command.descriptor, metaOf("run"))
+        assertEquals("ack:run", result?.stringValue)
     }
 
     @Test
@@ -91,11 +92,7 @@ class BackendBuilderTest {
         val backend = deviceBackend {
             writer(Spec.value) { }
         }
-        val device = stubDevice()
-
-        val outcome = context(device) {
-            backend.write(Spec.value.descriptor, metaOf("bad"))
-        }
+        val outcome = backend.bindToStub().writeOutcome(Spec.value.descriptor, metaOf("bad"))
 
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
         assertTrue(outcome.fault is ValidationFault, "expected ValidationFault, got ${outcome.fault}")
@@ -110,11 +107,7 @@ class BackendBuilderTest {
                 }
             }
         }
-        val device = stubDevice()
-
-        val observed = context(device) {
-            backend.readBatchObserved(listOf(Spec.value.descriptor, Spec.load.descriptor))
-        }
+        val observed = backend.bindToStub().readBatchObserved(listOf(Spec.value.descriptor, Spec.load.descriptor))
 
         assertEquals(2, observed.size)
         assertEquals(42.0, observed.getValue(Spec.value.name).getOrThrow().value?.doubleValue)
@@ -128,11 +121,7 @@ class BackendBuilderTest {
         val backend = deviceBackend {
             observedReader(Spec.value) { ObservedValue(7.5, time, quality) }
         }
-        val device = stubDevice()
-
-        val observed = context(device) {
-            backend.readObserved(Spec.value.descriptor).getOrThrow()
-        }
+        val observed = backend.bindToStub().readObserved(Spec.value.descriptor)
         val typedObserved = backend.readObservedOutcome(Spec.value).getOrThrow()
 
         assertEquals(7.5, observed.value?.doubleValue)
@@ -155,11 +144,7 @@ class BackendBuilderTest {
                 }
             }
         }
-        val device = stubDevice()
-
-        val result = context(device) {
-            backend.readBatchObserved(listOf(Spec.value.descriptor, Spec.load.descriptor))
-        }
+        val result = backend.bindToStub().readBatchObserved(listOf(Spec.value.descriptor, Spec.load.descriptor))
 
         val observed = result.getValue(Spec.value.name).getOrThrow()
         assertEquals(42.0, observed.value?.doubleValue)
@@ -176,11 +161,7 @@ class BackendBuilderTest {
                 }
             }
         }
-        val device = stubDevice()
-
-        val result = context(device) {
-            backend.readBatchBinary(listOf(Spec.value.descriptor, Spec.load.descriptor))
-        }
+        val result = backend.bindToStub().readBatchBinary(listOf(Spec.value.descriptor, Spec.load.descriptor))
 
         assertContentEquals(payload, result.getValue(Spec.value.name).getOrThrow().toByteArray())
     }
@@ -196,12 +177,9 @@ class BackendBuilderTest {
                 }
             }
         }
-        val device = stubDevice()
         val payload = metaOf(9.0)
 
-        val result = context(device) {
-            backend.writeBatch(mapOf(Spec.value.descriptor to payload))
-        }
+        val result = backend.bindToStub().writeBatch(mapOf(Spec.value.descriptor to payload))
 
         assertSame(payload, received.getValue(Spec.value.name))
         assertEquals(OperationOutcome.OkUnit, result.getValue(Spec.value.name))
@@ -213,11 +191,7 @@ class BackendBuilderTest {
         val backend = deviceBackend {
             bytesReader(Spec.load) { payload }
         }
-        val device = stubDevice()
-
-        val binary = context(device) {
-            backend.readBinaryOutcome(Spec.load.descriptor).getOrThrow().toByteArray()
-        }
+        val binary = backend.bindToStub().readBinaryOutcome(Spec.load.descriptor).getOrThrow().toByteArray()
 
         assertContentEquals(payload, binary)
     }
@@ -227,26 +201,16 @@ class BackendBuilderTest {
         val backend = deviceBackend {
             reader(Spec.load) { 12.5 }
         }
-        val device = stubDevice()
-
-        val outcome = context(device) {
-            backend.readBinaryOutcome(Spec.load.descriptor)
-        }
+        val outcome = backend.bindToStub().readBinaryOutcome(Spec.load.descriptor)
 
         assertTrue(outcome is OperationOutcome.Fail, "expected Fail, got $outcome")
     }
 
-    private fun stubDevice(): Device = object : AbstractDevice(
-        "typed-backend-stub".asName(),
-        DeviceRuntime(Context("typed-backend-builder-test-${Random.nextInt()}")),
-    ) {
-        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
-            OperationOutcome.Ok(Meta.EMPTY)
-
-        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-            OperationOutcome.OkUnit
-
-        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
-            OperationOutcome.Ok(null)
-    }
+    private fun DeviceBackend.bindToStub(): BoundDeviceBackend =
+        bind(
+            BackendEnvironment.from(
+                DeviceRuntime(Context("typed-backend-builder-test-${Random.nextInt()}")),
+                "typed-backend-stub".asName(),
+            ),
+        )
 }

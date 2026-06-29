@@ -7,13 +7,14 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.DeviceBackend
-import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
@@ -70,29 +71,28 @@ internal suspend fun labDiscoverySnapshot(): LabDiscoverySnapshot {
 private class AdHocMetaBackend : DeviceBackend {
     private val values: MutableMap<Name, Meta> = linkedMapOf()
 
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
-        values[property.name]?.let { OperationOutcome.Ok(it) } ?: OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnknownProperty,
-                message = "No discovered value for property '${property.name}'.",
-            ),
-        )
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend {
+        val boundEnvironment = environment
+        return object : BoundDeviceBackend {
+            override val environment: BackendEnvironment = boundEnvironment
 
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        values[property.name] = value
-        return OperationOutcome.OkUnit
+            override suspend fun read(property: PropertyDescriptor): Meta =
+                values[property.name] ?: fault(
+                    OperationFaultTypes.UnknownProperty,
+                    "No discovered value for property '${property.name}'.",
+                )
+
+            override suspend fun write(property: PropertyDescriptor, value: Meta) {
+                values[property.name] = value
+            }
+
+            override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+                fault(OperationFaultTypes.UnknownAction, "Ad-hoc discovery backend has no action '${action.name}'.")
+
+            override fun close() = Unit
+        }
     }
 
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
-        OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnknownAction,
-                message = "Ad-hoc discovery backend has no action '${action.name}'.",
-            ),
-        )
-
-    override fun close() = Unit
+    private fun fault(type: Name, message: String): Nothing =
+        throw OperationFaultException(GenericOperationFault(faultType = type, message = message))
 }

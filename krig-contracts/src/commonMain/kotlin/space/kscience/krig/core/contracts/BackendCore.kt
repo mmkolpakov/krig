@@ -8,31 +8,32 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
-import space.kscience.krig.api.faults.operationFault
-import space.kscience.krig.api.faults.validationFault
+import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.faults.faultDetails
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import kotlin.time.Duration
 
-internal typealias MetaReader = suspend (DeviceEnvironment) -> Meta
-internal typealias ObservedMetaReader = suspend (DeviceEnvironment) -> ObservedValue<Meta?>
-internal typealias BinaryReader = suspend (DeviceEnvironment) -> Binary
-internal typealias MetaWriter = suspend (DeviceEnvironment, Meta) -> OperationOutcome<Unit>
-internal typealias MetaAction = suspend (DeviceEnvironment, Meta?) -> OperationOutcome<Meta?>
+internal typealias MetaReader = suspend (BackendEnvironment) -> Meta
+internal typealias ObservedMetaReader = suspend (BackendEnvironment) -> ObservedValue<Meta?>
+internal typealias BinaryReader = suspend (BackendEnvironment) -> Binary
+internal typealias MetaWriter = suspend (BackendEnvironment, Meta) -> Unit
+internal typealias MetaAction = suspend (BackendEnvironment, Meta?) -> Meta?
 
 internal typealias BatchObservedBody =
-    suspend DeviceEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>
+        suspend BackendEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>
 internal typealias BatchMetaBody =
-    suspend DeviceEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<Meta>>
+        suspend BackendEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<Meta>>
 internal typealias BatchBinaryBody =
-    suspend DeviceEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<Binary>>
+        suspend BackendEnvironment.(Collection<PropertyDescriptor>) -> Map<Name, OperationOutcome<Binary>>
 internal typealias BatchWriteBody =
-    suspend DeviceEnvironment.(Map<PropertyDescriptor, Meta>) -> Map<Name, OperationOutcome<Unit>>
+        suspend BackendEnvironment.(Map<PropertyDescriptor, Meta>) -> Map<Name, OperationOutcome<Unit>>
 
-// Lower per-entry handler maps into the env-aware shapes [BackendCore] dispatches on. The handlers
-// ignore the DeviceEnvironment unless an engine (e.g. the device DSL) needs it.
+// Lower per-entry handler maps into the env-aware shapes [BoundBackendCore] dispatches on.
 
 internal fun <E> Map<Name, E>.toMetaReaders(read: suspend (E) -> Meta): Map<Name, MetaReader> =
     mapValues { (_, entry) -> { read(entry) } }
@@ -45,17 +46,16 @@ internal fun <E> Map<Name, E>.toBinaryReaders(read: suspend (E) -> Binary): Map<
     mapValues { (_, entry) -> { read(entry) } }
 
 internal fun <E> Map<Name, E>.toMetaWriters(
-    write: suspend (E, Meta) -> OperationOutcome<Unit>,
+    write: suspend (E, Meta) -> Unit,
 ): Map<Name, MetaWriter> = mapValues { (_, entry) -> { _, value -> write(entry, value) } }
 
 internal fun <E> Map<Name, E>.toMetaActions(
-    execute: suspend (Name, E, Meta?) -> OperationOutcome<Meta?>,
+    execute: suspend (Name, E, Meta?) -> Meta?,
 ): Map<Name, MetaAction> = mapValues { (name, entry) -> { _, argument -> execute(name, entry, argument) } }
 
 /**
  * Lowered backend behaviour keyed by [Name]: per-property read / write / action handlers plus
- * optional whole-backend coalescing hooks. Builders fill this and hand it to [BackendCore]; handlers
- * receive the per-operation [DeviceEnvironment] and may ignore it.
+ * optional whole-backend coalescing hooks. Builders fill this and hand it to [BackendCore].
  */
 internal class BackendHandlers(
     val metaReaders: Map<Name, MetaReader> = emptyMap(),
@@ -71,83 +71,81 @@ internal class BackendHandlers(
 )
 
 /**
- * Single [DeviceBackend] implementation shared by every builder.
- *
- * Each builder lowers its typed handles, cell properties, or DSL blocks into [BackendHandlers]; this
- * core owns the one read / write / execute / batch implementation so the engines never re-derive
- * dispatch, fault vocabulary, or batch fallbacks.
+ * Backend factory shared by every builder. Binding captures the concrete device environment and
+ * produces the raw operation surface used by [BackendDevice].
  */
 @OptIn(UnstableKrigForSubclassing::class)
 internal class BackendCore(private val handlers: BackendHandlers) : DeviceBackend {
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> {
-        handlers.metaReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend =
+        BoundBackendCore(environment, handlers)
+
+    override fun close() {
+        handlers.onClose?.invoke()
+    }
+}
+
+private class BoundBackendCore(
+    override val environment: BackendEnvironment,
+    private val handlers: BackendHandlers,
+) : BoundDeviceBackend {
+    override suspend fun read(property: PropertyDescriptor): Meta {
+        handlers.metaReaders[property.name]?.let { reader -> return reader(environment) }
         handlers.observedReaders[property.name]?.let { reader ->
-            return when (val outcome = runCatchingOperation { reader(env) }) {
-                is OperationOutcome.Ok -> outcome.value.value?.let { OperationOutcome.Ok(it) }
-                    ?: validationFault("Observed property '${property.name}' has no Meta value")
-                is OperationOutcome.Fail -> outcome
-            }
+            return reader(environment).value
+                ?: validationFailure("Observed property '${property.name}' has no Meta value")
         }
-        return operationFault(OperationFaultTypes.UnknownProperty, "Unknown property '${property.name}'")
+        unknownProperty(property.name)
     }
 
-    context(env: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        handlers.observedReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
-        return read(property).toObserved(env)
+    override suspend fun readObserved(property: PropertyDescriptor): ObservedValue<Meta?> {
+        handlers.observedReaders[property.name]?.let { reader -> return reader(environment) }
+        return ObservedValue(read(property), environment.clock.now(), DataQuality.GOOD)
     }
 
-    context(env: DeviceEnvironment)
-    override suspend fun readBinary(property: PropertyDescriptor): OperationOutcome<Binary> {
-        handlers.binaryReaders[property.name]?.let { reader -> return runCatchingOperation { reader(env) } }
-        return operationFault(OperationFaultTypes.UnsupportedValue, "Property '${property.name}' has no binary reader")
+    override suspend fun readBinary(property: PropertyDescriptor): Binary {
+        handlers.binaryReaders[property.name]?.let { reader -> return reader(environment) }
+        unsupported("Property '${property.name}' has no binary reader")
     }
 
-    context(env: DeviceEnvironment)
     override suspend fun readBatchObserved(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
-        handlers.batchObserved?.let { return it.invoke(env, properties) }
+        handlers.batchObserved?.let { return it.invoke(environment, properties) }
         handlers.batchMeta?.let { body ->
-            return body.invoke(env, properties).mapValues { (_, outcome) -> outcome.toObserved(env) }
+            return body.invoke(environment, properties).mapValues { (_, outcome) -> outcome.toObserved(environment) }
         }
-        return properties.associate { property -> property.name to readObserved(property) }
+        return super.readBatchObserved(properties)
     }
 
-    context(env: DeviceEnvironment)
     override suspend fun readBatchBinary(
         properties: Collection<PropertyDescriptor>,
     ): Map<Name, OperationOutcome<Binary>> {
-        handlers.batchBinary?.let { return it.invoke(env, properties) }
-        return properties.associate { property -> property.name to readBinary(property) }
+        handlers.batchBinary?.let { return it.invoke(environment, properties) }
+        return super.readBatchBinary(properties)
     }
 
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> =
-        handlers.writers[property.name]?.invoke(env, value)
-            ?: validationFault("Property '${property.name}' is not writable")
+    override suspend fun write(property: PropertyDescriptor, value: Meta) {
+        val writer = handlers.writers[property.name]
+            ?: validationFailure("Property '${property.name}' is not writable")
+        writer(environment, value)
+    }
 
-    context(env: DeviceEnvironment)
     override suspend fun writeBatch(
         values: Map<PropertyDescriptor, Meta>,
     ): Map<Name, OperationOutcome<Unit>> {
-        handlers.batchWrite?.let { return it.invoke(env, values) }
-        return buildMap(values.size) {
-            for ((property, value) in values) put(property.name, write(property, value))
-        }
+        handlers.batchWrite?.let { return it.invoke(environment, values) }
+        return super.writeBatch(values)
     }
 
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
-        handlers.actions[action.name]?.invoke(env, argument)
-            ?: operationFault(OperationFaultTypes.UnknownAction, "Unknown action '${action.name}'")
+    override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+        handlers.actions[action.name]?.invoke(environment, argument)
+            ?: unknownAction(action.name)
 
     override fun close() {
         handlers.onClose?.invoke()
     }
 
-    private fun OperationOutcome<Meta>.toObserved(device: DeviceEnvironment): OperationOutcome<ObservedValue<Meta?>> =
+    private fun OperationOutcome<Meta>.toObserved(device: BackendEnvironment): OperationOutcome<ObservedValue<Meta?>> =
         when (this) {
             is OperationOutcome.Ok -> OperationOutcome.Ok(ObservedValue(value, device.clock.now(), DataQuality.GOOD))
             is OperationOutcome.Fail -> this
@@ -155,10 +153,7 @@ internal class BackendCore(private val handlers: BackendHandlers) : DeviceBacken
 }
 
 /**
- * Adapts any [DeviceBackend] into an in-process [SteppedBackend] by attaching a [step] body, so a
- * local simulation scheduler can advance it on every tick. This is not a distributed transfer
- * protocol; broker/journal boundaries should publish explicit transfer messages.
- * State-less backends keep their plain [DeviceBackend] type.
+ * Adapts any [DeviceBackend] into an in-process [SteppedBackend] by attaching a [step] body.
  */
 @OptIn(UnstableKrigForSubclassing::class)
 public fun SteppedBackend(backend: DeviceBackend, step: (Duration) -> Unit): SteppedBackend =
@@ -166,7 +161,7 @@ public fun SteppedBackend(backend: DeviceBackend, step: (Duration) -> Unit): Ste
 
 @OptIn(UnstableKrigForSubclassing::class)
 private class SteppingBackend(
-    backend: DeviceBackend,
+    private val backend: DeviceBackend,
     private val stepBody: (Duration) -> Unit,
 ) : SteppedBackend, DeviceBackend by backend {
     override fun step(dt: Duration) = stepBody(dt)
@@ -175,3 +170,41 @@ private class SteppingBackend(
 @Suppress("UNCHECKED_CAST")
 internal fun MetaConverter<*>.convertAny(value: Any?): Meta =
     (this as MetaConverter<Any?>).convert(value)
+
+internal fun unsupported(message: String): Nothing =
+    throw OperationFaultException(
+        GenericOperationFault(
+            faultType = OperationFaultTypes.UnsupportedValue,
+            message = message,
+        ),
+    )
+
+internal fun unknownProperty(name: Name): Nothing =
+    throw OperationFaultException(
+        GenericOperationFault(
+            faultType = OperationFaultTypes.UnknownProperty,
+            message = "Unknown property '$name'.",
+        ),
+    )
+
+internal fun unknownAction(name: Name): Nothing =
+    throw OperationFaultException(
+        GenericOperationFault(
+            faultType = OperationFaultTypes.UnknownAction,
+            message = "Unknown action '$name'.",
+        ),
+    )
+
+internal fun validationFailure(message: String, property: Name? = null): Nothing =
+    throw OperationFaultException(
+        ValidationFault(
+            details = faultDetails(message, property = property),
+        ),
+    )
+
+internal fun OperationOutcome.Fail.throwFault(): Nothing =
+    throw OperationFaultException(fault)
+
+internal fun OperationOutcome<Unit>.getOrThrowUnit(): Unit {
+    getOrThrow()
+}

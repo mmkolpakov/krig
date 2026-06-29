@@ -1,6 +1,7 @@
 package space.kscience.krig.assembly
 
 import kotlinx.coroutines.test.runTest
+import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DataQuality
@@ -11,22 +12,26 @@ import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.metaOf
+import space.kscience.krig.core.contracts.readOutcome
 import space.kscience.krig.core.meta.devicePropertyContract
 import space.kscience.krig.core.meta.mutableDevicePropertyContract
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 class TagTableTest {
-    private val env = object : DeviceEnvironment {
-        override val clock: Clock = Clock.System
-        override val name = "tag-table".asName()
-    }
+    private fun backendEnvironment(): BackendEnvironment =
+        BackendEnvironment(
+            context = Context("tag-table-test-${Random.nextInt()}"),
+            name = "tag-table".asName(),
+            clock = Clock.System,
+        )
 
     @Test
     fun tagTableIndexesAcquisitionConfiguration() {
@@ -125,8 +130,9 @@ class TagTableTest {
         val backend = table.toBackend(reader)
         val descriptor = table.toManifest("lab.tags").properties.getValue("rpm".asName())
 
-        val observed = context(env) { backend.readObserved(descriptor) }.getOrThrow()
-        val valueRead = context(env) { backend.read(descriptor) }
+        val bound = backend.bind(backendEnvironment())
+        val observed = bound.readObserved(descriptor)
+        val valueRead = bound.readOutcome(descriptor)
 
         assertEquals(null, observed.value)
         assertEquals(quality, observed.quality)

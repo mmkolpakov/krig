@@ -5,10 +5,12 @@ import space.kscience.dataforge.io.asBinary
 import space.kscience.dataforge.io.toByteArray
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.map
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
@@ -16,55 +18,71 @@ import space.kscience.dataforge.meta.*
 import kotlin.time.Clock
 
 /**
- * Extension functions for [DeviceBackend] providing typed binary data access.
+ * Extension functions for [BoundDeviceBackend] providing typed binary data access.
  *
- * The throwing helpers are thin wrappers over the outcome-returning backend methods.
- * All extensions carry a `context(env: DeviceEnvironment)` because the underlying
- * [DeviceBackend] operations already require the current operation environment.
+ * The outcome helpers adapt the raw bound SPI for tests, demos, and lower-level adapters.
  */
+
+/** Outcome adapter for a raw bound Meta read. */
+public suspend fun BoundDeviceBackend.readOutcome(property: PropertyDescriptor): OperationOutcome<Meta> =
+    runCatchingOperation { read(property) }
 
 /**
  * Reads [property] through the observed-value path and throws on failure.
  *
  * Protocol backends that expose native timestamps or quality should implement
- * [DeviceBackend.readObserved].
+ * [BoundDeviceBackend.readObserved].
  *
  * @throws space.kscience.krig.api.faults.OperationFaultException on read failure.
  */
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.readObservedOrThrow(
+public suspend fun BoundDeviceBackend.readObservedOrThrow(
     property: PropertyDescriptor,
 ): ObservedValue<Meta?> =
-    this.readObserved(property).getOrThrow()
+    readObserved(property)
+
+/** Outcome adapter for a raw bound observed read. */
+public suspend fun BoundDeviceBackend.readObservedOutcome(
+    property: PropertyDescriptor,
+): OperationOutcome<ObservedValue<Meta?>> =
+    runCatchingOperation { readObserved(property) }
 
 /**
  * Reads a property as raw binary data.
  * @return The property value decoded as [ByteArray], or a failure when the raw value is not binary.
  */
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.readBinaryOutcome(property: PropertyDescriptor): OperationOutcome<Binary> =
-    this.readBinary(property)
+public suspend fun BoundDeviceBackend.readBinaryOutcome(property: PropertyDescriptor): OperationOutcome<Binary> =
+    runCatchingOperation { readBinary(property) }
 
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.readBinaryBlock(property: PropertyDescriptor): Binary =
+public suspend fun BoundDeviceBackend.readBinaryBlock(property: PropertyDescriptor): Binary =
     this.readBinaryOutcome(property).getOrThrow()
 
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.readBytesOutcome(property: PropertyDescriptor): OperationOutcome<ByteArray> =
+public suspend fun BoundDeviceBackend.readBytesOutcome(property: PropertyDescriptor): OperationOutcome<ByteArray> =
     readBinaryOutcome(property).map { it.toByteArray() }
 
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.readBytes(property: PropertyDescriptor): ByteArray =
+public suspend fun BoundDeviceBackend.readBytes(property: PropertyDescriptor): ByteArray =
     readBytesOutcome(property).getOrThrow()
 
 /**
  * Writes raw binary data to a property.
  * @param data The byte payload to write.
  */
-context(env: DeviceEnvironment)
-public suspend fun DeviceBackend.writeBytes(property: PropertyDescriptor, data: ByteArray) {
-    this.writeBinary(property, data.asBinary()).getOrThrow()
+public suspend fun BoundDeviceBackend.writeBytes(property: PropertyDescriptor, data: ByteArray) {
+    writeBinary(property, data.asBinary())
 }
+
+/** Outcome adapter for a raw bound Meta write. */
+public suspend fun BoundDeviceBackend.writeOutcome(
+    property: PropertyDescriptor,
+    value: Meta,
+): OperationOutcome<Unit> =
+    runCatchingOperation { write(property, value) }
+
+/** Outcome adapter for a raw bound action call. */
+public suspend fun BoundDeviceBackend.executeOutcome(
+    action: ActionDescriptor,
+    argument: Meta?,
+): OperationOutcome<Meta?> =
+    runCatchingOperation { execute(action, argument) }
 
 /** Wrap a [Meta] sample with timestamp and quality for observed-read paths. */
 public fun observedMeta(
@@ -136,9 +154,8 @@ public val Meta.stringValue: String? get() = string
  * Reads [spec]'s value from the connection, decoding the resulting [Meta] through the spec's
  * own [MetaConverter].
  */
-context(env: DeviceEnvironment)
-public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
-    val meta = this.read(spec.descriptor).getOrThrow()
+public suspend fun <T> BoundDeviceBackend.read(spec: DevicePropertyContract<T>): T {
+    val meta = this.read(spec.descriptor)
     return spec.converter.read(meta)
 }
 
@@ -147,21 +164,18 @@ public suspend fun <T> DeviceBackend.read(spec: DevicePropertyContract<T>): T {
  * own [MetaConverter]. Requires a mutable contract — matching `Device.write`, so a read-only
  * spec cannot be written through the backend either.
  */
-context(env: DeviceEnvironment)
-public suspend fun <T> DeviceBackend.write(spec: MutableDevicePropertyContract<T>, value: T) {
-    this.write(spec.descriptor, spec.converter.convert(value)).getOrThrow()
+public suspend fun <T> BoundDeviceBackend.write(spec: MutableDevicePropertyContract<T>, value: T) {
+    write(spec.descriptor, spec.converter.convert(value))
 }
 
 /**
  * Executes [spec] with the typed [input], encoding/decoding through the spec's converters.
  */
-context(env: DeviceEnvironment)
-public suspend fun <I, O> DeviceBackend.execute(spec: DeviceActionContract<I, O>, input: I): O {
-    val resultMeta = this.execute(spec.descriptor, spec.inputConverter.convert(input)).getOrThrow()
+public suspend fun <I, O> BoundDeviceBackend.execute(spec: DeviceActionContract<I, O>, input: I): O {
+    val resultMeta = execute(spec.descriptor, spec.inputConverter.convert(input))
     return spec.outputConverter.read(resultMeta ?: Meta.EMPTY)
 }
 
 /** Convenience overload for unit-input actions. */
-context(env: DeviceEnvironment)
-public suspend fun <O> DeviceBackend.execute(spec: DeviceActionContract<Unit, O>): O =
+public suspend fun <O> BoundDeviceBackend.execute(spec: DeviceActionContract<Unit, O>): O =
     this.execute(spec, Unit)

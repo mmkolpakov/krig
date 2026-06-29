@@ -1,19 +1,18 @@
 package space.kscience.krig.demo
 
+import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.QualityCode
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeIds
-import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.assembly.AcquisitionConnectors
 import space.kscience.krig.assembly.InMemoryTagTableReader
 import space.kscience.krig.assembly.tagTable
 import space.kscience.krig.assembly.toBackend
-import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.meta.devicePropertyContract
 import space.kscience.krig.core.meta.mutableDevicePropertyContract
@@ -69,13 +68,12 @@ internal suspend fun tagTableBackendSnapshot(): TagTableBackendSnapshot {
     val typedRpm = backend.observedReader(rpm)!!.readObserved()
     backend.writer(mode)!!.write("auto")
 
-    val env = object : DeviceEnvironment {
-        override val clock: Clock = Clock.System
-        override val name: Name = "tag-table-demo".asName()
-    }
-    val rawMode = context(env) {
-        backend.readObserved(manifest.properties.getValue(mode.name))
-    }.getOrThrow()
+    val env = BackendEnvironment(
+        context = Context("tag-table-demo"),
+        name = "tag-table-demo".asName(),
+        clock = Clock.System,
+    )
+    val rawMode = backend.bind(env).readObserved(manifest.properties.getValue(mode.name))
 
     return TagTableBackendSnapshot(
         manifestProperties = manifest.properties.size,

@@ -21,8 +21,9 @@ import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AllowAllAuthorizationService
 import space.kscience.krig.api.services.AuditService
-import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.metaOf
+import space.kscience.krig.core.contracts.readOutcome
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.dataforge.meta.MetaConverter
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -133,14 +134,13 @@ class DeviceDslContextParametersTest {
             stepBody = null,
             closeBody = null,
         )
-        val env = object : DeviceEnvironment {
-            override val clock: Clock = Clock.System
-            override val name = "plain-env".asName()
-        }
+        val env = BackendEnvironment(
+            context = Context("declarative-backend-env-test"),
+            name = "plain-env".asName(),
+            clock = Clock.System,
+        )
 
-        val outcome = context(env) {
-            backend.read(synthesizeProperty("value".asName(), mutable = false))
-        }
+        val outcome = backend.bind(env).readOutcome(synthesizeProperty("value".asName(), mutable = false))
 
         val ok = assertIs<OperationOutcome.Ok<Meta>>(outcome)
         assertEquals(1.0, ok.value.value?.double ?: ok.value["value".asName()]?.double)

@@ -9,11 +9,13 @@ import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.map
-import space.kscience.krig.core.contracts.DeviceEnvironment
+import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
 import space.kscience.krig.core.contracts.typed.TypedObservedReader
@@ -111,70 +113,57 @@ private class TagTableBackend(
 
     override fun actionSpecs(): Map<Name, DeviceActionContract<*, *>> = emptyMap()
 
-    context(env: DeviceEnvironment)
-    override suspend fun read(property: PropertyDescriptor): OperationOutcome<Meta> =
-        when (val observed = readObserved(property)) {
-            is OperationOutcome.Fail -> observed
-            is OperationOutcome.Ok -> observed.value.value?.let { OperationOutcome.Ok(it) }
-                ?: OperationOutcome.Fail(
-                    GenericOperationFault(
-                        faultType = OperationFaultTypes.UnsupportedValue,
-                        message = "Observed tag-backed property '${property.name}' has no Meta value.",
-                    ),
-                )
-        }
-
-    context(env: DeviceEnvironment)
-    override suspend fun readObserved(property: PropertyDescriptor): OperationOutcome<ObservedValue<Meta?>> {
-        val tag = compatibleTag(property) ?: return unknownProperty(property.name)
-        return readTag(tag)
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun readBatchObserved(
-        properties: Collection<PropertyDescriptor>,
-    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
-        val result = LinkedHashMap<Name, OperationOutcome<ObservedValue<Meta?>>>()
-        val known = properties.mapNotNull { property ->
-            val tag = compatibleTag(property)
-            if (tag == null) {
-                result[property.name] = unknownProperty(property.name)
-                null
-            } else {
-                property.name to tag
-            }
-        }
-        for ((_, sourceTags) in known.map { it.second }.groupBy { it.sourceId }) {
-            val source = sourcesById.getValue(sourceTags.first().sourceId)
-            result.putAll(sourceReader.readSourceCatching(source, sourceTags))
-        }
-        return properties.associate { property ->
-            property.name to result.getValue(property.name)
-        }
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun write(property: PropertyDescriptor, value: Meta): OperationOutcome<Unit> {
-        val writer = sampleWriter ?: return OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnsupportedValue,
-                message = "Tag-backed property '${property.name}' is read-only.",
-            ),
-        )
-        val tag = compatibleTag(property) ?: return unknownProperty(property.name)
-        return writer.write(tag, ObservedValue(value, env.clock.now(), DataQuality.GOOD))
-    }
-
-    context(env: DeviceEnvironment)
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): OperationOutcome<Meta?> =
-        OperationOutcome.Fail(
-            GenericOperationFault(
-                faultType = OperationFaultTypes.UnknownAction,
-                message = "Tag table backend has no action '${action.name}'.",
-            ),
-        )
+    override fun bind(environment: BackendEnvironment): BoundDeviceBackend = BoundTagTableBackend(environment)
 
     override fun close() = Unit
+
+    private inner class BoundTagTableBackend(
+        override val environment: BackendEnvironment,
+    ) : BoundDeviceBackend {
+        override suspend fun read(property: PropertyDescriptor): Meta {
+            val observed = readObserved(property)
+            return observed.value ?: unsupported("Observed tag-backed property '${property.name}' has no Meta value.")
+        }
+
+        override suspend fun readObserved(property: PropertyDescriptor): ObservedValue<Meta?> {
+            val tag = compatibleTag(property) ?: unknownProperty(property.name)
+            return readTag(tag).getOrThrow()
+        }
+
+        override suspend fun readBatchObserved(
+            properties: Collection<PropertyDescriptor>,
+        ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+            val result = LinkedHashMap<Name, OperationOutcome<ObservedValue<Meta?>>>()
+            val known = properties.mapNotNull { property ->
+                val tag = compatibleTag(property)
+                if (tag == null) {
+                    result[property.name] = unknownPropertyOutcome(property.name)
+                    null
+                } else {
+                    property.name to tag
+                }
+            }
+            for ((_, sourceTags) in known.map { it.second }.groupBy { it.sourceId }) {
+                val source = sourcesById.getValue(sourceTags.first().sourceId)
+                result.putAll(sourceReader.readSourceCatching(source, sourceTags))
+            }
+            return properties.associate { property ->
+                property.name to result.getValue(property.name)
+            }
+        }
+
+        override suspend fun write(property: PropertyDescriptor, value: Meta) {
+            val writer = sampleWriter
+                ?: unsupported("Tag-backed property '${property.name}' is read-only.")
+            val tag = compatibleTag(property) ?: unknownProperty(property.name)
+            writer.write(tag, ObservedValue(value, environment.clock.now(), DataQuality.GOOD)).getOrThrow()
+        }
+
+        override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+            unknownAction(action.name)
+
+        override fun close() = Unit
+    }
 
     private suspend fun readTag(tag: AcquisitionTagSpec): OperationOutcome<ObservedValue<Meta?>> {
         val source = sourcesById.getValue(tag.sourceId)
@@ -195,10 +184,29 @@ private class TagTableBackend(
         return if (tag.valueTypeId == property.valueTypeId) tag else null
     }
 
-    private fun unknownProperty(name: Name): OperationOutcome.Fail = OperationOutcome.Fail(
+    private fun unknownPropertyOutcome(name: Name): OperationOutcome.Fail = OperationOutcome.Fail(
         GenericOperationFault(
             faultType = OperationFaultTypes.UnknownProperty,
             message = "Unknown tag-backed property '$name'.",
         ),
     )
+
+    private fun unknownProperty(name: Name): Nothing =
+        throw OperationFaultException(unknownPropertyOutcome(name).fault)
+
+    private fun unknownAction(name: Name): Nothing =
+        throw OperationFaultException(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnknownAction,
+                message = "Tag table backend has no action '$name'.",
+            ),
+        )
+
+    private fun unsupported(message: String): Nothing =
+        throw OperationFaultException(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = message,
+            ),
+        )
 }
