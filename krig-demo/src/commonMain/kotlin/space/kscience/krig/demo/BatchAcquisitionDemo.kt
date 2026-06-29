@@ -80,7 +80,7 @@ private object BatchPlcSpec : DeviceContractBuilder() {
 private val BatchPlcManifest: DeviceManifest = manifestOf(
     id = "space.kscience.krig.demo.batch-plc",
     contract = BatchPlcSpec,
-    version = "1.0.0-alpha-3",
+    version = DemoManifestVersion,
 )
 
 private class BatchStandDriver {

@@ -6,9 +6,9 @@ JVM benchmark companion for KRig.
 
 Wall-clock storage scenarios:
 
-- controls-shaped `DeviceMessage` JSON journal through Exposed;
+- legacy-compatible `DeviceMessage` JSON journal through Exposed;
 - direct JDBC event-journal baseline;
-- controls-shaped dense rows profile;
+- legacy-compatible dense rows profile;
 - typed narrow and wide time-series rows;
 - compressed row chunks.
 
@@ -17,7 +17,7 @@ Wall-clock storage scenarios:
 ```
 
 The report is written to `krig-benchmarks/build/krig-benchmarks/storage-results.md`.
-The report includes controls-kt reference tables for the same benchmark shape.
+It includes controls-kt reference tables for the same benchmark shape as external baseline evidence.
 
 TimescaleDB is optional:
 
@@ -32,6 +32,12 @@ KRIG_STORAGE_BENCH_JDBC_URL=jdbc:postgresql://localhost:5432/test?reWriteBatched
 KRIG_STORAGE_BENCH_JDBC_USER=test
 KRIG_STORAGE_BENCH_JDBC_PASSWORD=test
 ./gradlew :krig-benchmarks:run
+```
+
+Repeated local storage stats:
+
+```shell
+./gradlew :krig-benchmarks:storageStats
 ```
 
 ## Micro benchmarks

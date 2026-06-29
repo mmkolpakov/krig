@@ -25,6 +25,14 @@ import kotlin.random.Random
  * Deterministic metrics (byte volume, allocation) are exact and do NOT use these helpers.
  */
 
+@Volatile
+private var probeSink: Any? = null
+
+/** Keeps manual probe loops observable without writing debug text to benchmark reports. */
+internal fun consumeProbeSink(value: Any?) {
+    probeSink = value
+}
+
 private fun List<Double>.asF64Buffer(): Buffer<Double> = Float64Buffer(toDoubleArray())
 
 /** Quantile at probability [p] in [0, 1] via kmath-stat (Hyndman–Fan def. 7). */

@@ -12,6 +12,7 @@ import kotlin.io.path.writeText
 import kotlin.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import space.kscience.krig.benchmarks.bootstrapMedianCi
+import space.kscience.krig.benchmarks.consumeProbeSink
 import space.kscience.krig.benchmarks.meanValue
 import space.kscience.krig.benchmarks.median
 import space.kscience.krig.benchmarks.percentile
@@ -86,7 +87,7 @@ private inline fun measure(samples: Int, innerReps: Int, warmup: Int, block: () 
         allocTotal += (allocatedBytes() - before).coerceAtLeast(0)
         perBatchNanos[s] = elapsed.toDouble() / innerReps
     }
-    if (sink == Long.MIN_VALUE) println("unreachable $sink")
+    consumeProbeSink(sink)
     return Measured(allocTotal.toDouble() / (samples.toLong() * innerReps), perBatchNanos.toList())
 }
 

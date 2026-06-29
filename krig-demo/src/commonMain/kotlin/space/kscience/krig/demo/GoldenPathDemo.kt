@@ -28,7 +28,7 @@ object GoldenSpec : DeviceContractBuilder() {
 val GoldenManifest: DeviceManifest = manifestOf(
     id = "space.kscience.krig.demo.golden",
     contract = GoldenSpec,
-    version = "1.0.0-alpha-3",
+    version = DemoManifestVersion,
 )
 
 /** Typed in-memory backend: rpm with an unboxed sampler, temperature with quality. */

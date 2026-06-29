@@ -16,6 +16,8 @@ import space.kscience.krig.dsl.pipelineFeature
 import space.kscience.krig.dsl.retryReadsWritesAndActions
 import kotlin.time.Duration.Companion.milliseconds
 
+internal const val DemoManifestVersion: String = "1.0.0-alpha-3"
+
 /**
  * Shared demo fixtures: the canonical pump contract, manifest, in-memory backends, and the
  * retry pipeline feature reused across demo scenarios. Keeps individual demos thin.
@@ -29,7 +31,7 @@ object PumpSpec : DeviceContractBuilder() {
 val PumpManifest: DeviceManifest = manifestOf(
     id = "space.kscience.krig.demo.pump",
     contract = PumpSpec,
-    version = "1.0.0-alpha-3",
+    version = DemoManifestVersion,
 )
 
 /** Plain in-memory pump backend with an unboxed rpm sampler. */

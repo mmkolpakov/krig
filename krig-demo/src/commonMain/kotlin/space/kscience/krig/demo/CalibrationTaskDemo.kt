@@ -34,7 +34,7 @@ object CalibrationTaskSpec : DeviceContractBuilder() {
 val CalibrationTaskManifest: DeviceManifest = manifestOf(
     id = "space.kscience.krig.demo.calibration-task",
     contract = CalibrationTaskSpec,
-    version = "1.0.0-alpha-3",
+    version = DemoManifestVersion,
 )
 
 data class CalibrationTaskDemoSnapshot(

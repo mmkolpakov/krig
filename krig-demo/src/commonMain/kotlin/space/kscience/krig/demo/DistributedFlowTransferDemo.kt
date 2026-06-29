@@ -1,18 +1,12 @@
 package space.kscience.krig.demo
 
-import kotlinx.serialization.PolymorphicSerializer
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.data.QualitySeverity
-import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.DeviceMessageFrame
-import space.kscience.krig.api.messages.KrigWireFormats
 import space.kscience.krig.api.messages.KrigWireHeaders
 import space.kscience.krig.api.messages.KrigWireTopics
 import space.kscience.krig.api.messages.frame
@@ -24,9 +18,6 @@ import space.kscience.krig.flow.FlowTransferMessage
 import space.kscience.krig.flow.FlowUnits
 import space.kscience.krig.flow.flowGraph
 import space.kscience.krig.flow.krigFlowSerializationContributor
-import space.kscience.magix.api.MagixMessage
-import space.kscience.magix.api.decodeEnvelopeOrNull
-import space.kscience.magix.api.encodeEnvelope
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
@@ -83,40 +74,25 @@ internal fun distributedFlowTransferSnapshot(): DistributedFlowTransferSnapshot 
     ).frame()
 
     val json = krigJson(krigFlowSerializationContributor)
-    val frameSerializer = DeviceMessageFrame.serializer(PolymorphicSerializer(DeviceMessage::class))
-    val payload = json.encodeToJsonElement(frameSerializer, frame)
     val topic = KrigWireTopics.deviceMessages("edge.lineA.flow".parseAsName())
-    val envelopePayload = JsonElement.encodeEnvelope(
-        json = json,
-        serializer = JsonElement.serializer(),
-        payload = payload,
+    val roundTrip = roundTripKrigFrameThroughMagix<FlowTransferMessage>(
+        frame = frame,
         topic = topic,
-        format = KrigWireFormats.DeviceMessageFrame,
         headers = buildJsonObject {
             put(KrigWireHeaders.MessageType, JsonPrimitive(FlowMessageType.Transfer))
         },
+        json = json,
     )
-    val message = MagixMessage(
-        format = KrigWireFormats.MagixEnvelope,
-        payload = envelopePayload,
-        sourceEndpoint = "krig.edge".parseAsName(),
-        targetEndpoint = "krig.analytics".parseAsName(),
-    )
-    val envelope = message.payload.decodeEnvelopeOrNull(json, JsonElement.serializer())
-        ?: error("Expected KRig Magix envelope")
-    val decodedFrame = json.decodeFromJsonElement(frameSerializer, envelope.data)
-    val decodedPayload = decodedFrame.payload as? FlowTransferMessage
-        ?: error("Expected ${FlowMessageType.Transfer} payload")
 
     return DistributedFlowTransferSnapshot(
-        outerFormat = message.format,
-        innerFormat = envelope.format,
-        topic = envelope.topic,
-        messageType = decodedPayload.messageType,
-        amount = decodedPayload.transfer.amount.value,
-        sequence = decodedPayload.transfer.sequence,
-        delayedQualitySeverity = decodedPayload.transfer.quality.severity.rank,
-        delayedQualityCode = decodedPayload.transfer.quality.code?.id,
+        outerFormat = roundTrip.message.format,
+        innerFormat = roundTrip.innerFormat,
+        topic = roundTrip.topic,
+        messageType = roundTrip.payload.messageType,
+        amount = roundTrip.payload.transfer.amount.value,
+        sequence = roundTrip.payload.transfer.sequence,
+        delayedQualitySeverity = roundTrip.payload.transfer.quality.severity.rank,
+        delayedQualityCode = roundTrip.payload.transfer.quality.code?.id,
     ).also {
         check(it.delayedQualitySeverity == QualitySeverity.UNCERTAIN.rank)
     }

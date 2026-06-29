@@ -88,7 +88,7 @@ leaves); contracts never depend on implementations, and no product module depend
 
 | Layer | Module | Purpose |
 |---|---|---|
-| L0 | `krig-state` | Values, `Timestamped`, `ObservedValue`, `DataQuality`, snapshots |
+| L0 | `krig-state` | Values, `Timestamped`, `ObservedValue`, `DataQuality` |
 | L0 | `krig-magix` | Magix bus contract (`space.kscience.magix.*` namespace) |
 | L1 | `krig-identity` | Principals, permissions, audit, authorization |
 | L2 | `krig-model` | Descriptors, `TypeId`, expressions, conditions, retry policy |
@@ -100,6 +100,9 @@ leaves); contracts never depend on implementations, and no product module depend
 | L7 | `krig-runtime` | Engine and authoring DSL: QoS pipeline, `device { }` / `stateModel`, dynamic groups |
 | L8 | `krig-assembly` | Acquisition DSL, Manifest/factory catalog, data-platform polling |
 | — | `krig-simulation` | Deterministic scheduler, resources, process DSL (virtual time) |
+| — | `krig-flow` | KMP declarative flow graphs and distributed flow-transfer DTOs |
+| — | `krig-ui-schema` | KMP neutral form descriptors projected from manifests |
+| — | `krig-server` | JVM-only Ktor routes for discovery and device operations |
 | — | `krig-arrow` | JVM-only: Apache Arrow / Feather export |
 | — | `krig-analytics` | DataForge Workspace tasks and data selectors over the event journal (multiplatform) |
 | — | `krig-jupyter` | JVM-only: Kotlin Notebook integration and renderers |
@@ -116,7 +119,7 @@ new pipeline step or authoring DSL to the latter.
 ## Stack
 
 Kotlin **2.4.0**, kotlinx.coroutines **1.11.0**, KSP **2.3.9**,
-Gradle **9.5.1**. Targets: JVM 21, JS browser, Wasm JS, Linux x64,
+Gradle **9.6.0**. Targets: JVM 21, JS browser, Wasm JS, Linux x64,
 Windows x64, macOS, and iOS.
 
 ## Demos
@@ -133,21 +136,31 @@ For the notebook demo from a local checkout, publish the JVM integration first:
 ./gradlew publishToMavenLocal
 ```
 
-Read the demos as one line: contracts and backends, explicit state models,
-Meta interop, topology, acquisition/streaming, operation policies, then replay.
+Read the demos by product story: typed and Meta device access, acquisition and
+topology, broker/distributed wire contracts, storage/replay/analytics, virtual
+devices, and operation policies.
 
 | Demo | File | Shows |
 |---|---|---|
-| Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the alpha-3 showcase and full smoke suite |
-| Alpha-3 showcase | [`Alpha3ShowcaseDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/Alpha3ShowcaseDemo.kt) | Compact end-to-end pass through manifests, typed backend, quality, batch IO, HLC replay, and binary payloads |
-| Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `manifestOf`, `backend`, typed `read`/`write`/action, retry installation |
+| Demo suite | [`DemoSuite.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DemoSuite.kt) | Runs the showcase block and the full smoke suite |
+| Golden path | [`GoldenPathDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/GoldenPathDemo.kt) | Typed data plane, quality-aware read, sampler snapshot |
+| Industrial assembly | [`IndustrialAssemblyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/IndustrialAssemblyDemo.kt) | `manifestOf`, typed `read`/`write`/action, retry installation |
+| Calibration task | [`CalibrationTaskDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/CalibrationTaskDemo.kt) | Action-triggered task state as observable device data |
 | State model | [`StateModelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StateModelDemo.kt) | Explicit virtual-device state mapped to typed properties and actions |
 | Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
+| Lab discovery | [`LabDiscoveryAdHocDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/LabDiscoveryAdHocDemo.kt) | Schemaless/ad-hoc property discovery for lab setup |
 | Device tree | [`DeviceTreeDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceTreeDemo.kt) | Folder nodes and alternative topology views over live devices |
+| Device-tree acquisition | [`DeviceTreeAcquisitionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceTreeAcquisitionDemo.kt) | Device group topology feeding reusable acquisition runners |
 | Batch acquisition | [`BatchAcquisitionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/BatchAcquisitionDemo.kt) | Quality-preserving batch reads and transactional batch writes |
+| Tag table backend | [`TagTableBackendDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TagTableBackendDemo.kt) | Tag-oriented source projected into device properties |
 | Binary payload | [`BinaryPayloadDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/BinaryPayloadDemo.kt) | DataForge `Binary` payload reads and explicit unsupported-binary faults |
+| Edge telemetry wire | [`EdgeTelemetryWireDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/EdgeTelemetryWireDemo.kt) | Common dense telemetry chunk for edge-to-analytics transfer |
+| Distributed typed proxy | [`DistributedTypedProxyDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DistributedTypedProxyDemo.kt) | Schema-hash guarded activation of a remote typed facade |
+| Distributed flow transfer | [`DistributedFlowTransferDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DistributedFlowTransferDemo.kt) | Flow boundary transfer carried as a broker message frame |
+| Magix envelope interop | [`MagixEnvelopeInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MagixEnvelopeInteropDemo.kt) | KRig frame constants through a Magix envelope hop |
+| Envelope broker interop | [`EnvelopeBrokerInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/EnvelopeBrokerInteropDemo.kt) | DataForge `Envelope` bridge for broker/storage boundaries |
 | Telemetry analytics | [`TelemetryAnalyticsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TelemetryAnalyticsDemo.kt) | Rows compression, `tables-kt` bridge, DataForge `DataSource`, and quality-aware diagnostic slicing |
-| Data platform | [`DataPlatformDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DataPlatformDemo.kt) | Declarative platform map executed by reusable runtime polling |
+| Replay what-if workspace | [`ReplayWhatIfWorkspaceDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ReplayWhatIfWorkspaceDemo.kt) | DataForge Workspace action over replay/counterfactual state |
 | External polling | [`ExternalPollingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ExternalPollingDemo.kt) | Protocol-neutral acquisition mapping driven by one shared timer |
 | Streaming | [`StreamingDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StreamingDemo.kt) | Primitive sampler, typed samples, shared ticks, zero-order hold for UI-rate streams |
 | Shared timer control | [`SharedTimerControlDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SharedTimerControlDemo.kt) | One timer shared by control loop and UI-rate sampling |
@@ -155,6 +168,7 @@ Meta interop, topology, acquisition/streaming, operation policies, then replay.
 | Policy and faults | [`PolicyFaultsDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/PolicyFaultsDemo.kt) | PipelineFeature-installed capability, write gate, validation fault, observer fault capture |
 | Auth and audit | [`AuthAuditDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/AuthAuditDemo.kt) | DataForge `Context` plugins for global auth/audit, operation faults as values |
 | Simulation process | [`SimulationProcessDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/SimulationProcessDemo.kt) | Virtual-time process driving a device |
+| Digital twin | [`DigitalTwinDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DigitalTwinDemo.kt) | Deterministic RK4 model attached through the same device contract |
 | Device hub | [`DeviceHubDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceHubDemo.kt) | Attach, detach, hub events, reconcile loop |
 | Replay navigation | [`ReplayNavigationDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/ReplayNavigationDemo.kt) | Branch points and alternative replay without mutating the source log |
 | Time travel | [`TimeTravelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/TimeTravelDemo.kt) | Replay, snapshots, branches, journal migration |

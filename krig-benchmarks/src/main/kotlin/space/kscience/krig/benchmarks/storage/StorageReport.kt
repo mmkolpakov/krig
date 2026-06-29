@@ -82,8 +82,8 @@ internal fun writeReport(
                 "only the current rewrite-enabled Timescale test exists there.",
         )
         appendLine("Exposed rows compare the same ORM layer; direct JDBC rows show a lower storage-path bound.")
-        appendLine("`*.event-json` rows use the controls-kt workload shape: one property, one source, 100 000 messages.")
-        appendLine("`krig.reference-rows.*` uses the same dense rows shape as the controls-kt rows reference.")
+        appendLine("`*.event-json` rows use the legacy-compatible workload shape: one property, one source, 100 000 messages.")
+        appendLine("`krig.reference-rows.*` uses the same dense rows shape as the controls-kt reference.")
         appendLine("Matrix scenarios are data-plane stress shapes, not event journal replacements.")
         appendLine("External JDBC can be enabled with `KRIG_STORAGE_BENCH_JDBC_URL`; Timescale with `KRIG_STORAGE_BENCH_TIMESCALE=true`.")
     }

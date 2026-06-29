@@ -47,7 +47,7 @@ private object BinaryPayloadSpec : DeviceContractBuilder() {
 private val BinaryPayloadManifest: DeviceManifest = manifestOf(
     id = "space.kscience.krig.demo.binary-payload",
     contract = BinaryPayloadSpec,
-    version = "1.0.0-alpha-3",
+    version = DemoManifestVersion,
 )
 
 private fun binaryBackend(payload: ByteArray) = deviceBackend {

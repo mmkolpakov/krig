@@ -7,6 +7,7 @@ import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 import space.kscience.attributes.safeTypeOf
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.krig.benchmarks.consumeProbeSink
 import space.kscience.krig.core.contracts.sampling.FlowSampler
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
@@ -45,7 +46,7 @@ private inline fun measure(
     // Warm up so the JIT settles and steady-state allocation behaviour is measured.
     var warmSink = 0.0
     for (i in 0L until warmup) warmSink += block(i)
-    if (warmSink.isNaN()) error("unreachable") // keep warmup observable
+    consumeProbeSink(warmSink)
 
     val before = allocatedBytes()
     var sink = 0.0
@@ -53,7 +54,7 @@ private inline fun measure(
     val after = allocatedBytes()
 
     // Consume sink to prevent dead-code elimination of the measured loop.
-    if (sink == Double.NEGATIVE_INFINITY) println("unreachable $sink")
+    consumeProbeSink(sink)
 
     val total = (after - before).coerceAtLeast(0)
     return ProbeResult(name, total.toDouble() / ops, ops)
