@@ -2,9 +2,7 @@ package space.kscience.krig.analytics
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import space.kscience.dataforge.data.Data
-import space.kscience.dataforge.data.asSequence
-import space.kscience.dataforge.data.await
+import space.kscience.dataforge.data.reduceToData
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.workspace.DataSelector
 import space.kscience.dataforge.workspace.Task
@@ -18,42 +16,46 @@ import space.kscience.dataforge.workspace.result
  * with cancellation, so a long recorded window does not pin all samples in memory or block a
  * cancelled scope.
  *
- * Composable by construction — [source] may be an [EventJournalDataSelector], a previous task, or any
- * other [DataSelector], so a fold over recorded telemetry and a fold over a derived series share one
- * task shape.
+ * Composable by construction — [source] may be an [EventJournalSnapshotDataSelector],
+ * [EventJournalReplayWindowDataSelector], a previous task, or any other [DataSelector], so a fold
+ * over recorded telemetry and a fold over a derived series share one task shape.
  */
-public fun <A> foldTask(
+public fun <A : Any> foldTask(
     source: DataSelector<Double>,
     initial: A,
     descriptor: MetaDescriptor? = null,
     finish: (A) -> Double = { it as? Double ?: Double.NaN },
     operation: (A, Double) -> A,
 ): Task<Double> = Task(descriptor) {
-    var accumulator = initial
-    for (data in from(source).asSequence()) {
-        currentCoroutineContext().ensureActive()
-        accumulator = operation(accumulator, data.await())
+    val foldContext = workspace.context.coroutineContext
+    val folded = from(source).reduceToData<Double, Double>(coroutineContext = foldContext) { samples ->
+        var accumulator = initial
+        for (sample in samples) {
+            currentCoroutineContext().ensureActive()
+            accumulator = operation(accumulator, sample.value)
+        }
+        finish(accumulator)
     }
-    result(Data(finish(accumulator)))
+    result(folded)
 }
 
 /**
  * A scalar reduction over the `Double` data produced by [source]: awaits every selected sample (in
- * selection order) and folds them with [reducer] into a single result datum at the empty name. For
- * reductions expressible as a streaming accumulation, prefer [foldTask], which avoids materialising
- * the full sample list.
+ * selection order) and materialises the selected snapshot as a [List] before calling [reducer]. For
+ * reductions expressible as a streaming accumulation, prefer [foldTask], [meanTask] or [sumTask],
+ * which preserve DataForge's lazy data dependency graph without building an intermediate list.
  */
-public fun reductionTask(
+public fun snapshotReductionTask(
     source: DataSelector<Double>,
     descriptor: MetaDescriptor? = null,
     reducer: (List<Double>) -> Double,
 ): Task<Double> = Task(descriptor) {
-    val samples = ArrayList<Double>()
-    for (data in from(source).asSequence()) {
+    val reduceContext = workspace.context.coroutineContext
+    val reduced = from(source).reduceToData<Double, Double>(coroutineContext = reduceContext) { samples ->
         currentCoroutineContext().ensureActive()
-        samples.add(data.await())
+        reducer(samples.map { it.value })
     }
-    result(Data(reducer(samples)))
+    result(reduced)
 }
 
 /** Arithmetic mean of [source]; an empty selection reduces to `Double.NaN`. Streaming (sum/count fold). */

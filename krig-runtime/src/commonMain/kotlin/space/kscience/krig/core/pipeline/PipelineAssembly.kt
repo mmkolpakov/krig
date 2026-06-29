@@ -17,7 +17,6 @@ import space.kscience.krig.api.services.identityProvider
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.capabilities.LifecycleManagingCapability
-import space.kscience.krig.core.capabilities.capabilityValues
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.features.PipelineFeatureCatalog
@@ -49,8 +48,7 @@ public suspend fun wrapWithPipeline(
         installDefaults(builder, device, deviceName, context)
     }
 
-    val capabilitiesSnapshot = builder.capabilities.attributes()
-    val installedCapabilities = capabilitiesSnapshot.capabilityValues
+    val installedCapabilities = builder.capabilities.toList()
     val registry = ResourceLockRegistry()
 
     val pipelined = PipelineDevice(
@@ -63,7 +61,7 @@ public suspend fun wrapWithPipeline(
         readDecorators = builder.readDecorators,
         batchReadDecorators = builder.batchReadDecorators,
         registry = registry,
-        capabilities = capabilitiesSnapshot,
+        capabilities = installedCapabilities,
     )
 
     val hasLifecycleCapability = installedCapabilities.any { it is LifecycleManagingCapability }

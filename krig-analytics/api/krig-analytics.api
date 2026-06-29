@@ -2,12 +2,17 @@ public final class space/kscience/krig/analytics/AnalyticsTasksKt {
 	public static final fun foldTask (Lspace/kscience/dataforge/workspace/DataSelector;Ljava/lang/Object;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)Lspace/kscience/dataforge/workspace/Task;
 	public static synthetic fun foldTask$default (Lspace/kscience/dataforge/workspace/DataSelector;Ljava/lang/Object;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lspace/kscience/dataforge/workspace/Task;
 	public static final fun meanTask (Lspace/kscience/dataforge/workspace/DataSelector;)Lspace/kscience/dataforge/workspace/Task;
-	public static final fun reductionTask (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/dataforge/workspace/Task;
-	public static synthetic fun reductionTask$default (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/dataforge/workspace/Task;
+	public static final fun snapshotReductionTask (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/dataforge/workspace/Task;
+	public static synthetic fun snapshotReductionTask$default (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/dataforge/workspace/Task;
 	public static final fun sumTask (Lspace/kscience/dataforge/workspace/DataSelector;)Lspace/kscience/dataforge/workspace/Task;
 }
 
-public final class space/kscience/krig/analytics/EventJournalDataSelector : space/kscience/dataforge/workspace/DataSelector {
+public final class space/kscience/krig/analytics/EventJournalReplayWindowDataSelector : space/kscience/dataforge/workspace/DataSelector {
+	public fun <init> (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/jvm/functions/Function1;)V
+	public fun select (Lspace/kscience/dataforge/workspace/Workspace;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/analytics/EventJournalSnapshotDataSelector : space/kscience/dataforge/workspace/DataSelector {
 	public fun <init> (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/jvm/functions/Function1;)V
 	public fun select (Lspace/kscience/dataforge/workspace/Workspace;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }

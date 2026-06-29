@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.firstOrNull
+import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.descriptors.TypeId
 import space.kscience.krig.api.descriptors.TypeIds
 
@@ -49,24 +51,46 @@ public object AcquisitionConnectors {
     public val KrigDevice: Name = "krig.device".asName()
 }
 
-/** Opaque connector instance. [connector] is resolved by an external integration module. */
+/**
+ * Opaque connector instance. [id] is the acquisition source id used by tags and timers; it is not a
+ * topology path. Connectors that need a hierarchical KRig device path use [topologyPath]. When a
+ * `krig.device` source omits [topologyPath], the SDK also accepts the historical single-token
+ * projection from [id] via [Name.asAcquisitionTopologyPath].
+ */
 @Serializable
 public data class AcquisitionSourceSpec(
     public val id: Name,
     public val connector: Name,
     public val config: Meta = Meta.EMPTY,
+    public val topologyPath: Name? = null,
 ) {
     public constructor(
         id: Name,
         connector: String,
         config: Meta = Meta.EMPTY,
-    ) : this(id, connector.asName(), config)
+        topologyPath: Name? = null,
+    ) : this(id, connector.asName(), config, topologyPath)
 
     init {
         require(id != Name.EMPTY) { "AcquisitionSourceSpec id must not be empty" }
         require(connector != Name.EMPTY) { "AcquisitionSourceSpec '$id' connector must not be empty" }
+        require(topologyPath != Name.EMPTY) { "AcquisitionSourceSpec '$id' topologyPath must not be empty" }
     }
 }
+
+/**
+ * Single-token acquisition source id convention for a hierarchical topology [Name]. The body is the
+ * rendered topology path; consumers must treat it as an opaque id, not parse it as a `Name`.
+ */
+public fun Name.toAcquisitionSourceId(): Name = toString().asName()
+
+/**
+ * Historical `krig.device` convention: a single-token source id such as `"plant.main".asName()` is
+ * interpreted as a topology path when a dedicated [AcquisitionSourceSpec.topologyPath] is absent.
+ * Multi-token ids are already paths and pass through unchanged.
+ */
+public fun Name.asAcquisitionTopologyPath(): Name =
+    if (tokens.size == 1) firstOrNull()!!.body.parseAsName() else this
 
 /** Periodic sampling group. Timers refer to tag ids, not protocol addresses. */
 @Serializable

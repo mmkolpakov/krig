@@ -7,7 +7,6 @@
 
 package space.kscience.krig.core.pipeline
 
-import space.kscience.attributes.Attributes
 import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -61,7 +60,7 @@ public class PipelineDevice @InternalKrigApi constructor(
     readDecorators: List<ReadDecorator> = emptyList(),
     batchReadDecorators: List<BatchReadDecorator> = emptyList(),
     registry: ResourceLockRegistry = ResourceLockRegistry(),
-    capabilities: Attributes = Attributes.EMPTY,
+    capabilities: Collection<Capability<*>> = emptyList(),
 ) : Device by delegate, LifecycleStateHolder, CapabilityHost, DeviceNode {
 
     private val engine = PipelineEngine(
@@ -80,9 +79,7 @@ public class PipelineDevice @InternalKrigApi constructor(
     private val capabilityRegistry = CapabilityRegistry()
 
     init {
-        for (capability in capabilities.content.values.filterIsInstance<Capability<*>>()) {
-            capabilityRegistry.registerCapability(capability)
-        }
+        capabilities.forEach(capabilityRegistry::registerCapability)
     }
 
     // --- Topology pass-through ---

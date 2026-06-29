@@ -177,12 +177,6 @@ public final class space/kscience/krig/core/capabilities/Capability$DefaultImpls
 	public static fun onDetach (Lspace/kscience/krig/core/capabilities/Capability;Lspace/kscience/krig/core/contracts/CapabilityHost;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class space/kscience/krig/core/capabilities/CapabilityAttributesKt {
-	public static final fun get (Lspace/kscience/attributes/AttributesBuilder;Lspace/kscience/krig/core/capabilities/CapabilityKey;)Lspace/kscience/krig/core/capabilities/Capability;
-	public static final fun getCapabilityValues (Lspace/kscience/attributes/Attributes;)Ljava/util/Collection;
-	public static final fun getValues (Lspace/kscience/attributes/AttributesBuilder;)Ljava/util/Collection;
-}
-
 public abstract interface class space/kscience/krig/core/capabilities/CapabilityKey : space/kscience/attributes/Attribute {
 	public abstract fun getId ()Lspace/kscience/dataforge/names/Name;
 }

@@ -185,7 +185,7 @@ public final class space/kscience/krig/core/pipeline/PipelineBuilder : space/ksc
 	public final fun gate-vMaDWvQ (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/pipeline/OperationGate;)V
 	public final fun gates-lmBB9po (Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
 	public final fun getBatchReadDecorators ()Ljava/util/List;
-	public final fun getCapabilities ()Lspace/kscience/attributes/AttributesBuilder;
+	public final fun getCapabilities ()Ljava/util/Collection;
 	public final fun getReadDecorators ()Ljava/util/List;
 	public fun handlersOf (Lspace/kscience/krig/core/hook/Hook;)Ljava/util/List;
 	public fun isEmpty ()Z

@@ -24,28 +24,32 @@ public class DataAcquisitionBuilder internal constructor() {
         id: Name,
         connector: Name,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = AcquisitionSourceSpec(id, connector, config).also(sources::add)
+        topologyPath: Name? = null,
+    ): AcquisitionSourceSpec = AcquisitionSourceSpec(id, connector, config, topologyPath).also(sources::add)
 
     @IgnorableReturnValue
     public fun source(
         id: String,
         connector: String,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config)
+        topologyPath: Name? = null,
+    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config, topologyPath)
 
     @IgnorableReturnValue
     public fun source(
         id: Name,
         connector: String,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = source(id, connector.asName(), config)
+        topologyPath: Name? = null,
+    ): AcquisitionSourceSpec = source(id, connector.asName(), config, topologyPath)
 
     @IgnorableReturnValue
     public fun source(
         id: String,
         connector: Name,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = source(id.asName(), connector, config)
+        topologyPath: Name? = null,
+    ): AcquisitionSourceSpec = source(id.asName(), connector, config, topologyPath)
 
     @IgnorableReturnValue
     public fun source(
@@ -67,6 +71,23 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: String,
         block: MutableMeta.() -> Unit,
     ): AcquisitionSourceSpec = source(id, connector.asName(), Meta(block))
+
+    /** Declares a source id backed by a hierarchical device topology path. */
+    @IgnorableReturnValue
+    public fun topologySource(
+        id: Name,
+        connector: Name = AcquisitionConnectors.KrigDevice,
+        topologyPath: Name,
+        config: Meta = Meta.EMPTY,
+    ): AcquisitionSourceSpec = source(id, connector, config, topologyPath)
+
+    @IgnorableReturnValue
+    public fun topologySource(
+        id: String,
+        connector: Name = AcquisitionConnectors.KrigDevice,
+        topologyPath: Name,
+        config: Meta = Meta.EMPTY,
+    ): AcquisitionSourceSpec = topologySource(id.asName(), connector, topologyPath, config)
 
     /** Declares a timer and the tag ids sampled by that timer. */
     public fun timer(

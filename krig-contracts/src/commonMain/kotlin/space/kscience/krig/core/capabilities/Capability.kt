@@ -10,8 +10,9 @@ import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.dataforge.names.Name
 
 /**
- * Typed key for a [Capability]. The [Attribute] parent gives type-safe runtime lookup;
- * [id] is the stable serialized name used by snapshots and toggles.
+ * Typed key for a [Capability]. Runtime hosts store capabilities by stable [id]; the [Attribute]
+ * parent is kept as a typed-key interop surface for integrations that already use attributes-kt
+ * stores, not as the SDK's primary capability registry.
  */
 public interface CapabilityKey<C : Capability<*>> : Attribute<C> {
     public val id: Name

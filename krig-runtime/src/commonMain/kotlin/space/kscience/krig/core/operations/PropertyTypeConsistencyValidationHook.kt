@@ -1,9 +1,7 @@
 package space.kscience.krig.core.operations
 
-import space.kscience.dataforge.meta.ValueType
 import space.kscience.krig.api.descriptors.PropertyDescriptor
-import space.kscience.krig.api.descriptors.TypeId
-import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.descriptors.toScalarValueTypeOrNull
 import space.kscience.krig.core.contracts.DeviceManifest
 
 /**
@@ -26,7 +24,7 @@ public object PropertyTypeConsistencyValidationHook : ManifestValidationHook {
 /** Pure cross-check for one property; returns a finding or `null` when consistent / not decidable. */
 public fun validatePropertyType(descriptor: PropertyDescriptor): ManifestValidationMessage? {
     val allowed = descriptor.metaDescriptor.valueTypes ?: return null
-    val expected = expectedValueType(descriptor.valueTypeId) ?: return null
+    val expected = descriptor.valueTypeId.toScalarValueTypeOrNull() ?: return null
     if (expected in allowed) return null
     return ManifestValidationMessage(
         severity = ManifestValidationMessage.Severity.WARNING,
@@ -34,11 +32,4 @@ public fun validatePropertyType(descriptor: PropertyDescriptor): ManifestValidat
             "(scalar $expected) but its metaDescriptor permits only $allowed.",
         category = "type.consistency",
     )
-}
-
-private fun expectedValueType(typeId: TypeId): ValueType? = when (typeId) {
-    TypeIds.DOUBLE, TypeIds.INT, TypeIds.LONG -> ValueType.NUMBER
-    TypeIds.BOOLEAN -> ValueType.BOOLEAN
-    TypeIds.STRING -> ValueType.STRING
-    else -> null
 }

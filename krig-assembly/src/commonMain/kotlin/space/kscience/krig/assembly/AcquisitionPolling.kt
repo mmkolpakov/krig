@@ -77,8 +77,10 @@ public fun connectorAcquisitionReader(
 }
 
 /**
- * Reader for [AcquisitionConnectors.KrigDevice] sources: resolves the device by source id and reads
- * the tagged properties in one [readBatchOutcome][Device.readBatchOutcome] call.
+ * Reader for [AcquisitionConnectors.KrigDevice] sources: resolves the device by explicit
+ * [AcquisitionSourceSpec.topologyPath] when present, or by the named single-token source-id
+ * convention otherwise, and reads the tagged properties in one
+ * [readBatchOutcome][Device.readBatchOutcome] call.
  *
  * Per-tag [timeoutMs][AcquisitionTagSpec.timeoutMs] is honoured at the batch granularity: the
  * coalesced read is bounded by the **tightest** (smallest) declared timeout among the batch's tags,
@@ -89,7 +91,7 @@ public fun connectorAcquisitionReader(
 public fun deviceTreeAcquisitionReader(
     devices: Map<Name, Device>,
 ): AcquisitionSourceReader = AcquisitionSourceReader { source, tags ->
-    val device = devices[source.id]
+    val device = source.deviceLookupKeys().firstNotNullOfOrNull(devices::get)
         ?: return@AcquisitionSourceReader tags.failAll(
             GenericOperationFault(message = "Unknown device-tree source '${source.id}'."),
         )
@@ -118,6 +120,13 @@ public fun deviceTreeAcquisitionReader(
             )
             )
     }
+}
+
+private fun AcquisitionSourceSpec.deviceLookupKeys(): List<Name> = buildList {
+    topologyPath?.let(::add)
+    add(id)
+    val conventionPath = id.asAcquisitionTopologyPath()
+    if (conventionPath != id) add(conventionPath)
 }
 
 /** Resolves the configured tags sampled by [timerId], preserving timer order. */

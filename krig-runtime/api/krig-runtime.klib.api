@@ -302,7 +302,7 @@ final class space.kscience.krig.core.pipeline/PipelineBuilder : space.kscience.k
     final val batchReadDecorators // space.kscience.krig.core.pipeline/PipelineBuilder.batchReadDecorators|{}batchReadDecorators[0]
         final fun <get-batchReadDecorators>(): kotlin.collections/List<space.kscience.krig.core.pipeline/BatchReadDecorator> // space.kscience.krig.core.pipeline/PipelineBuilder.batchReadDecorators.<get-batchReadDecorators>|<get-batchReadDecorators>(){}[0]
     final val capabilities // space.kscience.krig.core.pipeline/PipelineBuilder.capabilities|{}capabilities[0]
-        final fun <get-capabilities>(): space.kscience.attributes/AttributesBuilder<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.pipeline/PipelineBuilder.capabilities.<get-capabilities>|<get-capabilities>(){}[0]
+        final fun <get-capabilities>(): kotlin.collections/Collection<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.pipeline/PipelineBuilder.capabilities.<get-capabilities>|<get-capabilities>(){}[0]
     final val readDecorators // space.kscience.krig.core.pipeline/PipelineBuilder.readDecorators|{}readDecorators[0]
         final fun <get-readDecorators>(): kotlin.collections/List<space.kscience.krig.core.pipeline/ReadDecorator> // space.kscience.krig.core.pipeline/PipelineBuilder.readDecorators.<get-readDecorators>|<get-readDecorators>(){}[0]
 

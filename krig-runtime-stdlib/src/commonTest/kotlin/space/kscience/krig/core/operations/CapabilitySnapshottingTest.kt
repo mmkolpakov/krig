@@ -8,8 +8,6 @@
 package space.kscience.krig.core.operations
 
 import kotlinx.coroutines.test.runTest
-import space.kscience.attributes.Attributes
-import space.kscience.attributes.AttributesBuilder
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
@@ -69,12 +67,9 @@ class CapabilitySnapshottingTest {
         val source = InMemoryMetadataCapability(
             initialDescription = originalDescription,
         )
-        val sourceCaps: Attributes = AttributesBuilder<Capability<*>>().apply {
-            put(MetadataCapability.Key, source)
-        }.attributes()
         val sourcePipelined = space.kscience.krig.core.pipeline.PipelineDevice(
             delegate = CapSnapshotTestDevice(),
-            capabilities = sourceCaps,
+            capabilities = listOf(source),
         )
 
         // Capture: source state → Map<String, Meta>
@@ -85,12 +80,9 @@ class CapabilitySnapshottingTest {
         val target = InMemoryMetadataCapability(
             initialDescription = "default",
         )
-        val targetCaps: Attributes = AttributesBuilder<Capability<*>>().apply {
-            put(MetadataCapability.Key, target)
-        }.attributes()
         val targetPipelined = space.kscience.krig.core.pipeline.PipelineDevice(
             delegate = CapSnapshotTestDevice(),
-            capabilities = targetCaps,
+            capabilities = listOf(target),
         )
 
         targetPipelined.restoreCapabilitySnapshots(captured)
@@ -103,10 +95,10 @@ class CapabilitySnapshottingTest {
         val nonSnapshotting = object : MetadataCapability {
             override val description: String = "no-snap"
         }
-        val caps: Attributes = AttributesBuilder<Capability<*>>().apply {
-            put(MetadataCapability.Key, nonSnapshotting)
-        }.attributes()
-        val device = space.kscience.krig.core.pipeline.PipelineDevice(delegate = CapSnapshotTestDevice(), capabilities = caps)
+        val device = space.kscience.krig.core.pipeline.PipelineDevice(
+            delegate = CapSnapshotTestDevice(),
+            capabilities = listOf(nonSnapshotting),
+        )
 
         val captured = device.captureCapabilitySnapshots()
         assertTrue(captured.isEmpty(), "no Snapshotting impl → empty map")
@@ -117,10 +109,10 @@ class CapabilitySnapshottingTest {
         // Restoring a snapshot that contains keys for capabilities not currently installed
         // must not fail — the device just ignores those entries.
         val cap = InMemoryMetadataCapability("x")
-        val caps: Attributes = AttributesBuilder<Capability<*>>().apply {
-            put(MetadataCapability.Key, cap)
-        }.attributes()
-        val device = space.kscience.krig.core.pipeline.PipelineDevice(delegate = CapSnapshotTestDevice(), capabilities = caps)
+        val device = space.kscience.krig.core.pipeline.PipelineDevice(
+            delegate = CapSnapshotTestDevice(),
+            capabilities = listOf(cap),
+        )
 
         val captured = device.captureCapabilitySnapshots()
         // Add a phantom entry for a capability the device doesn't have:

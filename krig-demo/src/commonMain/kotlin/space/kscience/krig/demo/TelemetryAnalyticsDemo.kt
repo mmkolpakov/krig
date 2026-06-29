@@ -14,7 +14,7 @@ import space.kscience.krig.assembly.reduceToBins
 import space.kscience.krig.assembly.resample
 import space.kscience.krig.assembly.totalize
 import space.kscience.krig.core.dataforge.TimeSeriesTableColumns
-import space.kscience.krig.core.dataforge.asDataSource
+import space.kscience.krig.core.dataforge.asSnapshotDataSource
 import space.kscience.krig.core.dataforge.asTable
 import space.kscience.krig.storage.timeseries.RowsCompression
 import space.kscience.krig.storage.timeseries.TimeSeries
@@ -37,7 +37,7 @@ suspend fun telemetryAnalyticsDemo() {
     val regularGrid = dense.resample(10.milliseconds)
     val motorCharge = dense.totalize(motorCurrent)
     val table = compressed.asTable()
-    val dataSource = compressed.toSampleSeries().asDataSource(
+    val dataSource = compressed.toSampleSeries().asSnapshotDataSource(
         name = "passport.telemetry".parseAsName(),
         meta = Meta {
             "scenario" put "predictive-maintenance"

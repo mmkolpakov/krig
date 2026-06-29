@@ -213,6 +213,7 @@ public final class space/kscience/krig/api/descriptors/TypeIds {
 }
 
 public final class space/kscience/krig/api/descriptors/TypeIdsKt {
+	public static final fun toScalarValueTypeOrNull-H4bDa88 (Ljava/lang/String;)Lspace/kscience/dataforge/meta/ValueType;
 	public static final fun typeIdOf (Lkotlinx/serialization/KSerializer;)Ljava/lang/String;
 }
 

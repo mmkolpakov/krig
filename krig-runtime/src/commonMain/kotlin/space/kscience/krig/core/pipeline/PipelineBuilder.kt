@@ -13,8 +13,7 @@ import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toPersistentList
-import space.kscience.attributes.AttributesBuilder
-import space.kscience.attributes.isEmpty
+import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.lifecycle.ConnectionState
 import space.kscience.krig.core.InternalKrigApi
@@ -55,8 +54,11 @@ public class PipelineBuilder : HookRegistry {
         AtomicReference(persistentListOf())
     private val batchReadDecoratorsRef: AtomicReference<PersistentList<BatchReadDecorator>> =
         AtomicReference(persistentListOf())
+    private val capabilitiesRef: AtomicReference<PersistentMap<Name, Capability<*>>> =
+        AtomicReference(persistentMapOf())
 
-    public val capabilities: AttributesBuilder<Capability<*>> = AttributesBuilder()
+    /** Runtime capability instances to attach during pipeline assembly. */
+    public val capabilities: Collection<Capability<*>> get() = capabilitiesRef.load().values
 
     /** Optional connection-state supplier. When non-null, the assembler installs connection gates. */
     @InternalKrigApi
@@ -127,12 +129,11 @@ public class PipelineBuilder : HookRegistry {
     }
 
     public fun <C : Capability<*>> registerCapability(key: CapabilityKey<C>, capability: C) {
-        capabilities.put(key, capability)
+        capabilitiesRef.update { it.put(key.id, capability) }
     }
 
-    @Suppress("UNCHECKED_CAST")
     public fun registerCapability(capability: Capability<*>) {
-        registerCapability(capability.key as CapabilityKey<Capability<*>>, capability)
+        capabilitiesRef.update { it.put(capability.key.id, capability) }
     }
 
     @OptIn(InternalKrigApi::class)
@@ -141,8 +142,9 @@ public class PipelineBuilder : HookRegistry {
     }
 
     @OptIn(InternalKrigApi::class)
+    @Suppress("UNCHECKED_CAST")
     public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
-        capabilities.attributes()[key]
+        capabilitiesRef.load()[key.id] as? C
 
     @OptIn(InternalKrigApi::class)
     override fun isEmpty(): Boolean =
@@ -151,7 +153,7 @@ public class PipelineBuilder : HookRegistry {
             readDecorators.isEmpty() &&
             batchReadDecorators.isEmpty() &&
             policies.load().isEmpty() &&
-            capabilities.attributes().isEmpty() &&
+            capabilitiesRef.load().isEmpty() &&
             connectionStateProvider == null &&
             !suppressDescriptorQosRef.load() &&
             hookRegistry.isEmpty()
