@@ -38,8 +38,9 @@ jobs:
           args: |
             --linter qodana-jvm-community
             --within-docker false
+            --clear-cache
           pr-mode: false
-          use-caches: true
+          use-caches: false
           post-pr-comment: true
           use-annotations: true
           upload-result: true
