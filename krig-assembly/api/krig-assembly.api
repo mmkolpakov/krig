@@ -345,6 +345,20 @@ public final class space/kscience/krig/assembly/DeviceGroupAcquisitionKt {
 	public static final fun readAt (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class space/kscience/krig/assembly/InMemoryTagTableReader : space/kscience/krig/assembly/AcquisitionSourceReader {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)V
+	public synthetic fun <init> (Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun put (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/assembly/InMemoryTagTableReader;
+	public final fun put (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/assembly/InMemoryTagTableReader;
+	public final fun put (Lspace/kscience/krig/assembly/TagTableAddress;Lspace/kscience/krig/api/data/ObservedValue;)Lspace/kscience/krig/assembly/InMemoryTagTableReader;
+	public static synthetic fun put$default (Lspace/kscience/krig/assembly/InMemoryTagTableReader;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/assembly/InMemoryTagTableReader;
+	public static synthetic fun put$default (Lspace/kscience/krig/assembly/InMemoryTagTableReader;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/assembly/InMemoryTagTableReader;
+	public fun readSource (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun remove (Lspace/kscience/krig/assembly/TagTableAddress;)Z
+	public final fun snapshot ()Ljava/util/Map;
+}
+
 public final class space/kscience/krig/assembly/ManifestValidationPolicy : java/lang/Enum {
 	public static final field FailOnError Lspace/kscience/krig/assembly/ManifestValidationPolicy;
 	public static final field Skip Lspace/kscience/krig/assembly/ManifestValidationPolicy;
@@ -504,6 +518,66 @@ public final class space/kscience/krig/assembly/SamplingObservation {
 	public final fun getSpec ()Ljava/lang/Object;
 	public fun hashCode ()I
 	public final fun isOk ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/TagTable {
+	public fun <init> (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)V
+	public final fun getConfiguration ()Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
+	public final fun getRows ()Ljava/util/List;
+	public final fun getSources ()Ljava/util/List;
+	public final fun getTags ()Ljava/util/List;
+	public final fun getTimers ()Ljava/util/List;
+	public final fun row (Ljava/lang/String;)Lspace/kscience/krig/assembly/TagTableRow;
+	public final fun row (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/TagTableRow;
+	public final fun runner (Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lspace/kscience/krig/api/data/QualityPolicy;)Lspace/kscience/krig/assembly/AcquisitionRunner;
+	public static synthetic fun runner$default (Lspace/kscience/krig/assembly/TagTable;Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionRunner;
+	public final fun source (Ljava/lang/String;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun tag (Ljava/lang/String;)Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public final fun tag (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public final fun tagsForTimer (Ljava/lang/String;)Ljava/util/List;
+	public final fun tagsForTimer (Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
+	public final fun timer (Ljava/lang/String;)Lspace/kscience/krig/assembly/AcquisitionTimerSpec;
+	public final fun timer (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionTimerSpec;
+	public final fun toManifest (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public final fun toManifest (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public static synthetic fun toManifest$default (Lspace/kscience/krig/assembly/TagTable;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public static synthetic fun toManifest$default (Lspace/kscience/krig/assembly/TagTable;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/util/Map;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+}
+
+public final class space/kscience/krig/assembly/TagTableAddress {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)Lspace/kscience/krig/assembly/TagTableAddress;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/TagTableAddress;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/assembly/TagTableAddress;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAddress ()Ljava/lang/String;
+	public final fun getSourceId ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/assembly/TagTableKt {
+	public static final fun asTagTable (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Lspace/kscience/krig/assembly/TagTable;
+	public static final fun tagTable (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/TagTable;
+	public static final fun tagTableAddress (Lspace/kscience/krig/assembly/AcquisitionTagSpec;)Lspace/kscience/krig/assembly/TagTableAddress;
+}
+
+public final class space/kscience/krig/assembly/TagTableRow {
+	public fun <init> (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;)V
+	public final fun component1 ()Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public final fun component2 ()Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;)Lspace/kscience/krig/assembly/TagTableRow;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/TagTableRow;Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/assembly/TagTableRow;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getSource ()Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun getTag ()Lspace/kscience/krig/assembly/AcquisitionTagSpec;
+	public final fun getTimers ()Ljava/util/List;
+	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
