@@ -7,15 +7,21 @@ package space.kscience.krig.assembly
 
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.ValueType
+import space.kscience.dataforge.meta.descriptors.MetaDescriptor
+import space.kscience.dataforge.meta.descriptors.required
+import space.kscience.dataforge.meta.descriptors.value
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.factory.DeviceFactory
+import space.kscience.krig.api.factory.DeviceFactoryConfigValidationException
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
 private class StubDevice(name: Name, context: Context) : AbstractDevice(name, DeviceRuntime(context)) {
@@ -70,5 +76,37 @@ class MetaDeviceGroupTest {
         assertFailsWith<IllegalStateException> {
             context.metaDeviceGroup("crate", Meta { "children" put { "x" put { "note" put "no factory here" } } })
         }
+    }
+
+    @Test
+    fun invalidChildConfigFailsBeforeFactoryCreation() {
+        val context = factoryContext("meta-group-invalid-config")
+        var created = false
+        context.deviceFactories().register(
+            DeviceFactory(
+                id = "validated-stub",
+                configDescriptor = MetaDescriptor {
+                    value("port", ValueType.NUMBER) { required() }
+                },
+            ) { childContext ->
+                created = true
+                StubDevice(childContext.name, childContext)
+            },
+        )
+
+        assertFailsWith<DeviceFactoryConfigValidationException> {
+            context.metaDeviceGroup(
+                "crate",
+                Meta {
+                    "children" put {
+                        "motor" put {
+                            "factory" put "validated-stub"
+                            "config" put { "port" put "not-a-number" }
+                        }
+                    }
+                },
+            )
+        }
+        assertFalse(created, "Factory create() must not run for invalid child config")
     }
 }

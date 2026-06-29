@@ -8,6 +8,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.descriptors.Described
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
+import space.kscience.dataforge.meta.descriptors.validate
 import space.kscience.dataforge.misc.DfType
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
@@ -42,14 +43,29 @@ public abstract class DeviceFactory<D : Device, C>(
     /** Synchronous construction. I/O belongs in `Device.start` or the backend's `connect()`. */
     public abstract fun create(context: Context, config: C): D
 
-    final override fun build(context: Context, meta: Meta): D =
-        create(context, configConverter.read(meta))
+    /** Validates raw construction [meta] against [configDescriptor] before typed config conversion. */
+    public fun validateConfig(meta: Meta) {
+        val descriptor = configDescriptor ?: return
+        if (!descriptor.validate(meta)) throw DeviceFactoryConfigValidationException(id, descriptor, meta)
+    }
+
+    final override fun build(context: Context, meta: Meta): D {
+        validateConfig(meta)
+        return create(context, configConverter.read(meta))
+    }
 
     public companion object {
         /** DataForge type tag for `@DfType` discovery. */
         public const val TYPE: String = "device.factory"
     }
 }
+
+/** Thrown when dynamic factory config does not satisfy the factory's construction [descriptor]. */
+public class DeviceFactoryConfigValidationException(
+    public val factoryId: Name,
+    public val descriptor: MetaDescriptor,
+    public val config: Meta,
+) : IllegalArgumentException("Config for DeviceFactory '$factoryId' does not match its configDescriptor")
 
 /** Builder for a typed [DeviceFactory] without subclassing. */
 public fun <D : Device, C> DeviceFactory(

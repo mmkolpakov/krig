@@ -397,6 +397,7 @@ abstract class <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> 
 
     abstract fun create(space.kscience.dataforge.context/Context, #B): #A // space.kscience.krig.api.factory/DeviceFactory.create|create(space.kscience.dataforge.context.Context;1:1){}[0]
     final fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): #A // space.kscience.krig.api.factory/DeviceFactory.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
+    final fun validateConfig(space.kscience.dataforge.meta/Meta) // space.kscience.krig.api.factory/DeviceFactory.validateConfig|validateConfig(space.kscience.dataforge.meta.Meta){}[0]
 
     final object Companion { // space.kscience.krig.api.factory/DeviceFactory.Companion|null[0]
         final const val TYPE // space.kscience.krig.api.factory/DeviceFactory.Companion.TYPE|{}TYPE[0]
@@ -522,6 +523,17 @@ final class <#A: kotlin/Any?> space.kscience.krig.core.contracts/ConnectionPrope
     final var value // space.kscience.krig.core.contracts/ConnectionProperty.value|{}value[0]
         final fun <get-value>(): #A // space.kscience.krig.core.contracts/ConnectionProperty.value.<get-value>|<get-value>(){}[0]
         final fun <set-value>(#A) // space.kscience.krig.core.contracts/ConnectionProperty.value.<set-value>|<set-value>(1:0){}[0]
+}
+
+final class space.kscience.krig.api.factory/DeviceFactoryConfigValidationException : kotlin/IllegalArgumentException { // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta.descriptors/MetaDescriptor, space.kscience.dataforge.meta/Meta) // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val config // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.config|{}config[0]
+        final fun <get-config>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.config.<get-config>|<get-config>(){}[0]
+    final val descriptor // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+    final val factoryId // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.factoryId|{}factoryId[0]
+        final fun <get-factoryId>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.factoryId.<get-factoryId>|<get-factoryId>(){}[0]
 }
 
 final class space.kscience.krig.api.hub/HubConflictException : kotlin/Exception { // space.kscience.krig.api.hub/HubConflictException|null[0]

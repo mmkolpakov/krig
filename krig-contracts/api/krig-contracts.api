@@ -64,9 +64,17 @@ public abstract class space/kscience/krig/api/factory/DeviceFactory : space/ksci
 	public final fun getConfigDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun getDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun getId ()Lspace/kscience/dataforge/names/Name;
+	public final fun validateConfig (Lspace/kscience/dataforge/meta/Meta;)V
 }
 
 public final class space/kscience/krig/api/factory/DeviceFactory$Companion {
+}
+
+public final class space/kscience/krig/api/factory/DeviceFactoryConfigValidationException : java/lang/IllegalArgumentException {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/Meta;)V
+	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getFactoryId ()Lspace/kscience/dataforge/names/Name;
 }
 
 public final class space/kscience/krig/api/factory/DeviceFactoryKt {
