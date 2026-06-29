@@ -4,8 +4,6 @@ package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.configureKsp
-import com.tschuchort.compiletesting.useKsp2
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -16,7 +14,7 @@ class PipelineFeatureSpecContractValidatorTest {
 
     @Test
     fun acceptsMatchingPipelineFeatureSpecIdAndSerialName() {
-        val result = compilepipelineFeature(
+        val result = compilePipelineFeature(
             """
             @KrigPipelineFeatureSpec(id = "sample.feature")
             @SerialName("sample.feature")
@@ -33,7 +31,7 @@ class PipelineFeatureSpecContractValidatorTest {
 
     @Test
     fun rejectsMissingSerialName() {
-        val result = compilepipelineFeature(
+        val result = compilePipelineFeature(
             """
             @KrigPipelineFeatureSpec(id = "sample.feature")
             class SampleFeature {
@@ -50,7 +48,7 @@ class PipelineFeatureSpecContractValidatorTest {
 
     @Test
     fun rejectsMismatchedSerialName() {
-        val result = compilepipelineFeature(
+        val result = compilePipelineFeature(
             """
             @KrigPipelineFeatureSpec(id = "sample.feature")
             @SerialName("wrong.feature")
@@ -68,7 +66,7 @@ class PipelineFeatureSpecContractValidatorTest {
 
     @Test
     fun rejectsNonConstCompanionId() {
-        val result = compilepipelineFeature(
+        val result = compilePipelineFeature(
             """
             @KrigPipelineFeatureSpec(id = "sample.feature")
             @SerialName("sample.feature")
@@ -84,32 +82,31 @@ class PipelineFeatureSpecContractValidatorTest {
         assertContains(result.messages, "companion ID must be declared exactly as `const val ID: String = \"sample.feature\"`")
     }
 
-    private fun compilepipelineFeature(featureBody: String): com.tschuchort.compiletesting.JvmCompilationResult {
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(
-                SourceFile.kotlin(
-                    "KrigPipelineFeatureSpec.kt",
-                    """
+    private fun compilePipelineFeature(featureBody: String): com.tschuchort.compiletesting.JvmCompilationResult =
+        compileWithKrigKsp(
+            SourceFile.kotlin(
+                "KrigPipelineFeatureSpec.kt",
+                """
 
                     package space.kscience.krig.api.annotations
 
                     @Target(AnnotationTarget.CLASS)
                     annotation class KrigPipelineFeatureSpec(val id: String)
                     """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "SerialName.kt",
-                    """
+            ),
+            SourceFile.kotlin(
+                "SerialName.kt",
+                """
 
                     package kotlinx.serialization
 
                     @Target(AnnotationTarget.CLASS)
                     annotation class SerialName(val value: String)
                     """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "SampleFeature.kt",
-                    """
+            ),
+            SourceFile.kotlin(
+                "SampleFeature.kt",
+                """
 
                     package sample
 
@@ -118,17 +115,8 @@ class PipelineFeatureSpecContractValidatorTest {
 
                     $featureBody
                     """.trimIndent(),
-                ),
-            )
-            inheritClassPath = false
-            configureKsp {
-                processorOptions["krig.generated.module"] = "feature_contract_validator_test"
-                withCompilation = true
-                symbolProcessorProviders += KrigSymbolProcessorProvider()
-            }
-        }
-
-        compilation.useKsp2()
-        return compilation.compile()
-    }
+            ),
+            generatedModule = "feature_contract_validator_test",
+            inheritClassPath = false,
+        )
 }

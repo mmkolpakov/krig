@@ -11,10 +11,7 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.asName
-import space.kscience.krig.api.data.DeviceSnapshot
-import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.krig.storage.journal.SequenceCursor
 import kotlin.test.Test
@@ -23,40 +20,16 @@ import kotlin.time.Instant
 
 class TimeTravelSessionTest {
 
-    private val source = "lab.counter".asName()
-
-    private class CounterReplay : DeviceReconstructible<Device> {
-        var value: Int = 0
-            private set
-
-        override suspend fun applyEvent(event: DeviceMessage) {
-            val m = event as? PropertyChangedMessage ?: return
-            if (m.property == "value".asName()) value = m.value.int ?: value
-        }
-
-        override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
-            DeviceSnapshot(at = at, state = Meta(value.asValue()))
-
-        override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
-            value = snapshot.state.int ?: error("malformed snapshot")
-        }
-    }
-
-    private fun event(t: Long, v: Int): PropertyChangedMessage = PropertyChangedMessage(
-        time = Instant.fromEpochMilliseconds(t),
-        property = "value".asName(),
-        value = Meta(v.asValue()),
-        sourceDevice = source,
-    )
-
     private suspend fun session(model: CounterReplay): Pair<TimeTravelSession, InMemoryEventJournal> {
         val log = InMemoryEventJournal()
-        listOf(event(100, 1), event(200, 2), event(300, 3)).forEach { log.record(it.testEnvelope()) }
+        listOf(counterEvent(100, 1), counterEvent(200, 2), counterEvent(300, 3)).forEach {
+            log.record(it.testEnvelope())
+        }
         val session = TimeTravelSession(
             model = model,
             log = log,
             snapshotStore = InMemorySnapshotStore(),
-            deviceName = source,
+            deviceName = counterSource,
             snapshotCodec = SnapshotCodec(),
         )
         return session to log
@@ -98,7 +71,7 @@ class TimeTravelSessionTest {
         assertEquals(2, model.value)
         assertEquals(SequenceCursor(1), branch.cursor)
 
-        session.whatIf(branch, flowOf(event(400, 100), event(500, 200)))
+        session.whatIf(branch, flowOf(counterEvent(400, 100), counterEvent(500, 200)))
         assertEquals(200, model.value)
     }
 }

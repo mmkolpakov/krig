@@ -11,15 +11,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import space.kscience.dataforge.context.Context
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.requireDoubleSampler
-import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.*
-
-private val samplerSeq: AtomicInt = AtomicInt(0)
-private fun freshSamplerContext(): Context =
-    Context("sampler-${samplerSeq.addAndFetch(1)}")
 
 /**
  * End-to-end demonstration of the typed sampler contract on [SimulatedDoubleSource].
@@ -37,7 +31,7 @@ class SamplerSubscriptionTest {
 
     @Test
     fun samplerReturnsRingDoubleSampler() {
-        val device = SimulatedDoubleSource(context = freshSamplerContext())
+        val device = SimulatedDoubleSource(context = freshTestContext("sampler"))
         val sampler = device.sampler(device.valueSpec)
         assertNotNull(sampler, "driver must expose a sampler for its known spec")
         assertIs<RingDoubleSampler>(sampler)
@@ -45,7 +39,7 @@ class SamplerSubscriptionTest {
 
     @Test
     fun samplerStartsEmpty_thenReportsLatestAfterPublish() = runTest {
-        val device = SimulatedDoubleSource(context = freshSamplerContext())
+        val device = SimulatedDoubleSource(context = freshTestContext("sampler"))
         val sampler = device.requireDoubleSampler(device.valueSpec)
 
         assertFalse(sampler.hasLatest, "no value published yet")
@@ -62,7 +56,7 @@ class SamplerSubscriptionTest {
 
     @Test
     fun snapshotContainsPublishedValuesInOrder() = runTest {
-        val device = SimulatedDoubleSource(context = freshSamplerContext())
+        val device = SimulatedDoubleSource(context = freshTestContext("sampler"))
         val sampler = device.requireDoubleSampler(device.valueSpec)
         val writer = device.writer(device.valueSpec)
 
@@ -75,7 +69,7 @@ class SamplerSubscriptionTest {
 
     @Test
     fun flowEmitsEveryPublishedValue() = runTest {
-        val device = SimulatedDoubleSource(context = freshSamplerContext())
+        val device = SimulatedDoubleSource(context = freshTestContext("sampler"))
         val sampler = device.requireDoubleSampler(device.valueSpec)
         val writer = device.writer(device.valueSpec)
 
@@ -90,7 +84,7 @@ class SamplerSubscriptionTest {
 
     @Test
     fun samplerReturnsNullForUnknownSpec() {
-        val device = SimulatedDoubleSource(context = freshSamplerContext())
+        val device = SimulatedDoubleSource(context = freshTestContext("sampler"))
         val alien = object : space.kscience.krig.core.meta.DevicePropertyContract<Double> {
             override val name = space.kscience.dataforge.names.Name.EMPTY
             override val descriptor = device.valueSpec.descriptor

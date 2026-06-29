@@ -4,8 +4,6 @@ package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.configureKsp
-import com.tschuchort.compiletesting.useKsp2
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,66 +13,13 @@ class SerializersModuleGeneratorTest {
 
     @Test
     fun generatesModuleForOpenPolymorphicBaseSubclass() {
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(
-                SourceFile.kotlin(
-                    "SerializationAnnotations.kt",
-                    """
-
-                    package kotlinx.serialization
-
-                    @Target(AnnotationTarget.CLASS)
-                    annotation class Serializable
-
-                    @Target(AnnotationTarget.CLASS)
-                    annotation class SerialName(val value: String)
-
-                    @Target(AnnotationTarget.CLASS)
-                    annotation class Polymorphic
-                    """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "SerializersModule.kt",
-                    """
-
-                    package kotlinx.serialization.modules
-
-                    import kotlin.reflect.KClass
-
-                    class SerializersModule
-
-                    class SerializersModuleBuilder {
-                        fun include(module: SerializersModule) {}
-                    }
-
-                    class PolymorphicModuleBuilder<T : Any>
-
-                    fun SerializersModule(block: SerializersModuleBuilder.() -> Unit): SerializersModule =
-                        SerializersModule().also { SerializersModuleBuilder().block() }
-
-                    fun <T : Any> SerializersModuleBuilder.polymorphic(
-                        baseClass: KClass<T>,
-                        block: PolymorphicModuleBuilder<T>.() -> Unit,
-                    ) {
-                        PolymorphicModuleBuilder<T>().block()
-                    }
-
-                    fun <T : Any, S : T> PolymorphicModuleBuilder<T>.subclass(subclass: KClass<S>) {}
-                    """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "PolymorphicBase.kt",
-                    """
-
-                    package space.kscience.krig.api.annotations
-
-                    @Target(AnnotationTarget.CLASS)
-                    annotation class PolymorphicBase
-                    """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "ExtensionPoint.kt",
-                    """
+        val result = compileWithKrigKsp(
+            SourceFile.kotlin("SerializationAnnotations.kt", KOTLINX_SERIALIZATION_STUBS),
+            SourceFile.kotlin("SerializersModule.kt", SERIALIZERS_MODULE_STUBS),
+            SourceFile.kotlin("PolymorphicBase.kt", POLYMORPHIC_BASE_STUB),
+            SourceFile.kotlin(
+                "ExtensionPoint.kt",
+                """
 
                     package sample.api
 
@@ -85,10 +30,10 @@ class SerializersModuleGeneratorTest {
                     @PolymorphicBase
                     interface ExtensionPoint
                     """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "IntegrationExtension.kt",
-                    """
+            ),
+            SourceFile.kotlin(
+                "IntegrationExtension.kt",
+                """
 
                     package sample
 
@@ -100,10 +45,10 @@ class SerializersModuleGeneratorTest {
                     @SerialName("extension.integration")
                     data class IntegrationExtension(val id: String) : ExtensionPoint
                     """.trimIndent(),
-                ),
-                SourceFile.kotlin(
-                    "UseGenerated.kt",
-                    """
+            ),
+            SourceFile.kotlin(
+                "UseGenerated.kt",
+                """
 
                     package sample
 
@@ -111,18 +56,10 @@ class SerializersModuleGeneratorTest {
 
                     val module = generatedKrigSerializersModule
                     """.trimIndent(),
-                ),
-            )
-            inheritClassPath = false
-            configureKsp {
-                processorOptions["krig.generated.module"] = "extension_test"
-                withCompilation = true
-                symbolProcessorProviders += KrigSymbolProcessorProvider()
-            }
-        }
-
-        compilation.useKsp2()
-        val result = compilation.compile()
+            ),
+            generatedModule = "extension_test",
+            inheritClassPath = false,
+        )
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
     }

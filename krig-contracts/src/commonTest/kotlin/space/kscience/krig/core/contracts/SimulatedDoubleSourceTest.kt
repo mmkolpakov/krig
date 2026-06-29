@@ -9,16 +9,10 @@ package space.kscience.krig.core.contracts
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
-import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.double
-import kotlin.concurrent.atomics.AtomicInt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-
-private val contextSeq: AtomicInt = AtomicInt(0)
-@Suppress("SameParameterValue")
-private fun freshContext(prefix: String): Context = Context("$prefix-${contextSeq.addAndFetch(1)}")
 
 /**
  * Conformance test for [SimulatedDoubleSource] — the in-tree reference fixture for typed
@@ -31,21 +25,21 @@ class SimulatedDoubleSourceTest {
 
     @Test
     fun typedReaderReturnsTypedReader() = runTest {
-        val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
+        val device = SimulatedDoubleSource(context = freshTestContext("simulated-double-source"))
         val reader = device.reader(device.valueSpec)
         assertIs<TypedReader<Double>>(reader)
     }
 
     @Test
     fun typedWriterReturnsTypedWriter() = runTest {
-        val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
+        val device = SimulatedDoubleSource(context = freshTestContext("simulated-double-source"))
         val writer = device.writer(device.valueSpec)
         assertIs<TypedWriter<Double>>(writer)
     }
 
     @Test
     fun typedAndMetaPathsShareTheSameCell() = runTest {
-        val device = SimulatedDoubleSource(context = freshContext("simulated-double-source"))
+        val device = SimulatedDoubleSource(context = freshTestContext("simulated-double-source"))
         val writer = device.writer(device.valueSpec)
         val reader = device.reader(device.valueSpec)
 

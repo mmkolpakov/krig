@@ -2,8 +2,6 @@ package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.configureKsp
-import com.tschuchort.compiletesting.useKsp2
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 import kotlin.test.assertContains
@@ -170,13 +168,8 @@ class ContributesAggregatorValidationTest {
 
 @OptIn(ExperimentalCompilerApi::class)
 private fun compileContributors(vararg extra: SourceFile): com.tschuchort.compiletesting.JvmCompilationResult =
-    KotlinCompilation().apply {
-        sources = extra.toList()
-        inheritClassPath = true
-        configureKsp {
-            processorOptions["krig.generated.module"] = "contributes_validation_test"
-            processorOptions["krig.generated.layer"] = "jvmAggregation"
-            withCompilation = true
-            symbolProcessorProviders += KrigSymbolProcessorProvider()
-        }
-    }.also { it.useKsp2() }.compile()
+    compileWithKrigKsp(
+        *extra,
+        generatedModule = "contributes_validation_test",
+        generatedLayer = "jvmAggregation",
+    )

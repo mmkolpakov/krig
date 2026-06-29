@@ -2,16 +2,10 @@
 
 package space.kscience.krig.core.timetravel
 
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.data.DeviceSnapshot
-import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.storage.journal.ReplayLog
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
-import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,36 +17,15 @@ import kotlin.time.Instant
  */
 class TimeTravelSmartResolveTest {
 
-    private val source = "lab.counter".asName()
-
-    private class CounterReplay : DeviceReconstructible<Device> {
-        var value: Int = 0
-            private set
-
-        override suspend fun applyEvent(event: DeviceMessage) {
-            val m = event as? PropertyChangedMessage ?: return
-            if (m.property == "value".asName()) value = m.value.int ?: value
-        }
-
-        override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
-            DeviceSnapshot(at = at, state = Meta(value.asValue()))
-
-        override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
-            value = snapshot.state.int ?: error("malformed snapshot")
-        }
-    }
-
-    private fun event(t: Long, v: Int): PropertyChangedMessage = PropertyChangedMessage(
-        time = Instant.fromEpochMilliseconds(t),
-        sourceDevice = source,
-        property = "value".asName(),
-        value = Meta(v.asValue()),
-    )
-
     @Test
     fun smartResolveLocatesNearestSnapshotAndReplaysOnlyDelta() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3), event(400, 4)).testEnvelopes())
+        val log = counterReplayLog(
+            counterEvent(100, 1),
+            counterEvent(200, 2),
+            counterEvent(300, 3),
+            counterEvent(400, 4),
+        )
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
         store.save(devName, DeviceSnapshot(at = Instant.fromEpochMilliseconds(200), state = Meta(99.asValue())))
@@ -71,7 +44,7 @@ class TimeTravelSmartResolveTest {
     @Test
     fun smartResolveFallsBackToFullReplayWhenNoSnapshotExists() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
+        val log = counterReplayLog(counterEvent(100, 1), counterEvent(200, 2), counterEvent(300, 3))
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
 
@@ -89,7 +62,7 @@ class TimeTravelSmartResolveTest {
     @Test
     fun recoveryDslUsesSnapshotAndReplayDelta() = runTest {
         val counter = CounterReplay()
-        val log = ReplayLog(flowOf(event(100, 1), event(200, 2), event(300, 3)).testEnvelopes())
+        val log = counterReplayLog(counterEvent(100, 1), counterEvent(200, 2), counterEvent(300, 3))
         val store = InMemorySnapshotStore()
         val devName = "counter".asName()
         store.save(devName, DeviceSnapshot(at = Instant.fromEpochMilliseconds(200), state = Meta(20.asValue())))

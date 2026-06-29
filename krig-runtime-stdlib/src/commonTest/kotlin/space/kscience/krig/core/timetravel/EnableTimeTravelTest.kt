@@ -15,19 +15,15 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
-import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.contracts.AbstractDevice
-import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -40,7 +36,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 /**
- * Conformance test for [enableTimeTravel] � verifies that the assembly actually
+ * Conformance test for [enableTimeTravel]: verifies that the assembly actually
  * wires the configured message flow into [ReplaySink] and drives `runCheckpointing` under
  * a single cancelable [kotlinx.coroutines.Job]. Regressions that silently drop
  * events or leak coroutines break here.
@@ -62,30 +58,6 @@ class EnableTimeTravelTest {
             OperationOutcome.Ok(null)
     }
 
-    private class CounterReplay : DeviceReconstructible<Device> {
-        var value: Int = 0
-            private set
-
-        override suspend fun applyEvent(event: DeviceMessage) {
-            val m = event as? PropertyChangedMessage ?: return
-            if (m.property == "value".asName()) value = m.value.int ?: value
-        }
-
-        override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
-            DeviceSnapshot(at = at, state = Meta(value.asValue()))
-
-        override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
-            value = snapshot.state.int ?: error("malformed snapshot")
-        }
-    }
-
-    private fun event(t: Long, v: Int): PropertyChangedMessage = PropertyChangedMessage(
-        time = Instant.fromEpochMilliseconds(t),
-        sourceDevice = deviceAddr,
-        property = "value".asName(),
-        value = Meta(v.asValue()),
-    )
-
     private class FixedClock(private val instant: Instant) : Clock {
         override fun now(): Instant = instant
     }
@@ -96,7 +68,7 @@ class EnableTimeTravelTest {
     /**
      * Build a scope rooted on the test dispatcher so `advanceUntilIdle()` actually drives
      * the pump / checkpointer. `device.deviceScope` defaults to a Context-owned scope that
-     * is not the test dispatcher � passing it to [enableTimeTravel] would launch the
+     * is not the test dispatcher; passing it to [enableTimeTravel] would launch the
      * children on a real dispatcher and race with publication from the test thread.
      */
     private suspend fun testScope(): CoroutineScope {
@@ -129,11 +101,11 @@ class EnableTimeTravelTest {
         // emits can race each other if the pump's channelFlow-backed merge is still
         // draining an earlier message. advanceUntilIdle between emits keeps the virtual
         // clock-driven test deterministic.
-        messages.emit(event(100, 1).testEnvelope())
+        messages.emit(counterEvent(100, 1, deviceAddr).testEnvelope())
         advanceUntilIdle()
-        messages.emit(event(200, 2).testEnvelope())
+        messages.emit(counterEvent(200, 2, deviceAddr).testEnvelope())
         advanceUntilIdle()
-        messages.emit(event(300, 3).testEnvelope())
+        messages.emit(counterEvent(300, 3, deviceAddr).testEnvelope())
         advanceUntilIdle()
 
         assertEquals(3, eventSink.size())
@@ -164,10 +136,10 @@ class EnableTimeTravelTest {
 
         // Drive the replay state via event publication. CounterReplay folds each event
         // into its `value`; captureSnapshot reads that value off the fold.
-        replay.applyEvent(event(100, 5))
-        messages.emit(event(100, 5).testEnvelope())
-        replay.applyEvent(event(200, 7))
-        messages.emit(event(200, 7).testEnvelope())
+        replay.applyEvent(counterEvent(100, 5, deviceAddr))
+        messages.emit(counterEvent(100, 5, deviceAddr).testEnvelope())
+        replay.applyEvent(counterEvent(200, 7, deviceAddr))
+        messages.emit(counterEvent(200, 7, deviceAddr).testEnvelope())
         advanceUntilIdle()
 
         // EveryNEvents(2) fires once after two events; the pump and the checkpointer
@@ -200,7 +172,7 @@ class EnableTimeTravelTest {
         )
         advanceUntilIdle()  // let the pump coroutine subscribe before the first emit
 
-        messages.emit(event(100, 1).testEnvelope())
+        messages.emit(counterEvent(100, 1, deviceAddr).testEnvelope())
         advanceUntilIdle()
         assertEquals(1, eventSink.size())
 
@@ -208,7 +180,7 @@ class EnableTimeTravelTest {
         advanceUntilIdle()
 
         // Post-cancel events must not reach the sink.
-        messages.emit(event(200, 2).testEnvelope())
+        messages.emit(counterEvent(200, 2, deviceAddr).testEnvelope())
         advanceUntilIdle()
         assertEquals(1, eventSink.size())
         assertTrue(job.isCancelled)
@@ -232,7 +204,7 @@ class EnableTimeTravelTest {
         )
         advanceUntilIdle()  // let the pump coroutine subscribe before the first emit
 
-        messages.emit(event(100, 1).testEnvelope())
+        messages.emit(counterEvent(100, 1, deviceAddr).testEnvelope())
         advanceUntilIdle()
         // assertIs carries the contract `returns() implies (value is T)`, so the
         // subsequent `replayLog.size()` smart-casts through without an explicit `as`.

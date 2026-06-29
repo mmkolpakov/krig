@@ -2,8 +2,6 @@ package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.tschuchort.compiletesting.configureKsp
-import com.tschuchort.compiletesting.useKsp2
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import space.kscience.krig.api.annotations.KrigDeviceContract
 import space.kscience.krig.core.meta.DeviceContractBuilder
@@ -125,13 +123,8 @@ class DeviceContractGeneratorTest {
 
 @OptIn(ExperimentalCompilerApi::class)
 private fun compileDeviceContracts(vararg extra: SourceFile): com.tschuchort.compiletesting.JvmCompilationResult =
-    KotlinCompilation().apply {
-        sources = extra.toList()
-        inheritClassPath = true
-        configureKsp {
-            processorOptions["krig.generated.module"] = "contract_test"
-            processorOptions["krig.generated.layer"] = "common"
-            withCompilation = true
-            symbolProcessorProviders += KrigSymbolProcessorProvider()
-        }
-    }.also { it.useKsp2() }.compile()
+    compileWithKrigKsp(
+        *extra,
+        generatedModule = "contract_test",
+        generatedLayer = "common",
+    )

@@ -19,12 +19,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
-import space.kscience.krig.api.messages.PropertyChangedMessage
-import space.kscience.krig.core.contracts.Device
-import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -36,32 +31,6 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CheckpointingTest {
-
-    private val source = "lab.counter".asName()
-
-    private class CounterReplay : DeviceReconstructible<Device> {
-        var value: Int = 0
-            private set
-
-        override suspend fun applyEvent(event: DeviceMessage) {
-            val m = event as? PropertyChangedMessage ?: return
-            if (m.property == "value".asName()) value = m.value.int ?: value
-        }
-
-        override suspend fun captureSnapshot(at: Instant): DeviceSnapshot =
-            DeviceSnapshot(at = at, state = Meta(value.asValue()))
-
-        override suspend fun restoreSnapshot(snapshot: DeviceSnapshot) {
-            value = snapshot.state.int ?: error("malformed snapshot")
-        }
-    }
-
-    private fun event(t: Long, v: Int): PropertyChangedMessage = PropertyChangedMessage(
-        time = Instant.fromEpochMilliseconds(t),
-        sourceDevice = source,
-        property = "value".asName(),
-        value = Meta(v.asValue()),
-    )
 
     private suspend fun detachedScope(): CoroutineScope {
         val dispatcher = currentCoroutineContext()[ContinuationInterceptor]
@@ -105,7 +74,7 @@ class CheckpointingTest {
         val devName = "counter".asName()
 
         // Cold flow: collector subscribes at launchIn and receives every value deterministically.
-        val events = (1..4).map { event(100L + it, it) }
+        val events = (1..4).map { counterEvent(100L + it, it) }
         val feed = flowOf(*events.toTypedArray()).onEach { counter.applyEvent(it) }.testEnvelopes()
 
         val job = counter.runCheckpointing(
@@ -133,7 +102,7 @@ class CheckpointingTest {
         val scope = detachedScope()
         val devName = "counter".asName()
 
-        val feed = flowOf(event(1, 42)).onEach { counter.applyEvent(it) }.testEnvelopes()
+        val feed = flowOf(counterEvent(1, 42)).onEach { counter.applyEvent(it) }.testEnvelopes()
         val job = counter.runCheckpointing(
             subject = devName,
             messageFlow = feed,
@@ -175,7 +144,7 @@ class CheckpointingTest {
         runCurrent()
         assertEquals(1, store.saved.size)
 
-        counter.applyEvent(event(1, 7))
+        counter.applyEvent(counterEvent(1, 7))
         advanceTimeBy(10.milliseconds)
         runCurrent()
         assertEquals(2, store.saved.size)

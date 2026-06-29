@@ -24,7 +24,7 @@ class JournalCodecTest {
     @Test
     fun codecRoundTripsDeviceMessage() {
         val codec = MessageJournalCodec()
-        val message = event(100, 3)
+        val message = counterEvent(100, 3, source)
 
         val decoded = codec.decode(codec.encode(message))
 
@@ -41,7 +41,7 @@ class JournalCodecTest {
                 entry
             } else {
                 val value = entry.payload.int ?: 0
-                val message = event(entry.time.toEpochMilliseconds(), value)
+                val message = counterEvent(entry.time.toEpochMilliseconds(), value, source)
                 entry.copy(
                     messageType = message.messageType,
                     schema = StorageSchemas.deviceMessageV1,
@@ -70,12 +70,4 @@ class JournalCodecTest {
         assertEquals(1, replay.size)
         assertEquals(9, (replay.single().message as PropertyChangedMessage).value.int)
     }
-
-    private fun event(t: Long, v: Int): PropertyChangedMessage =
-        PropertyChangedMessage(
-            time = Instant.fromEpochMilliseconds(t),
-            property = "value".asName(),
-            value = Meta(v.asValue()),
-            sourceDevice = source,
-        )
 }

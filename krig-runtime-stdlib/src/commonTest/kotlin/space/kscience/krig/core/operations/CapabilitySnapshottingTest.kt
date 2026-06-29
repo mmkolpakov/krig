@@ -2,13 +2,11 @@
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.KrigPerformancePitfall::class,
-    kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 
 package space.kscience.krig.core.operations
 
 import kotlinx.coroutines.test.runTest
-import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -19,13 +17,10 @@ import space.kscience.krig.core.capabilities.MetadataCapability
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.CapabilityHost
-import space.kscience.krig.core.contracts.DeviceRuntime
-import kotlin.concurrent.atomics.AtomicInt
+import space.kscience.krig.core.testRuntime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-
-private val csSeq: AtomicInt = AtomicInt(0)
 
 private class AttachAwareCapability : Capability<Unit> {
     var attached: Boolean = false
@@ -46,7 +41,7 @@ private class AttachAwareCapability : Capability<Unit> {
 
 private class CapSnapshotTestDevice : AbstractDevice(
     "snapshot-host".asName(),
-    DeviceRuntime(Context("cap-snapshot-${csSeq.addAndFetch(1)}")),
+    testRuntime("cap-snapshot"),
 ) {
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
         OperationOutcome.Ok(Meta.EMPTY)

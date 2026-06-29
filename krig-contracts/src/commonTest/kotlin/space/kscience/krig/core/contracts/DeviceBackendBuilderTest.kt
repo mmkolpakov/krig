@@ -20,10 +20,8 @@ import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.contracts.typed.readObservedOutcome
 import space.kscience.krig.core.meta.DeviceContractBuilder
-import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.math.abs
 import kotlin.math.exp
@@ -36,19 +34,10 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
 
 /** Minimal stub [Device] purely to satisfy the `context(device)` contract on backend calls. */
-private fun stubDevice(): Device = object : AbstractDevice(
+private fun stubDevice(): Device = object : AbstractTestDevice(
     "stub".asName(),
-    DeviceRuntime(Context("backend-builder-test-${kotlin.random.Random.nextInt()}")),
-) {
-    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
-        OperationOutcome.Ok(Meta.EMPTY)
-
-    override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
-        OperationOutcome.OkUnit
-
-    override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
-        OperationOutcome.Ok(null)
-}
+    testRuntime("backend-builder-test"),
+) {}
 
 private object BackendSpec : DeviceContractBuilder() {
     val value by property(MetaConverter.double, TypeIds.DOUBLE)
