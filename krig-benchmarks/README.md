@@ -48,6 +48,14 @@ JMH-backed scenarios use `kotlinx-benchmark`:
 ./gradlew :krig-benchmarks:benchmark
 ```
 
+Allocation-oriented hot-path probe:
+
+```shell
+./gradlew :krig-benchmarks:allocationProbe
+```
+
+The report is written to `krig-benchmarks/build/krig-benchmarks/allocation-results.md`.
+
 ## Transport encoding
 
 The transport probe compares per-message `DeviceMessage` encoding with a columnar Arrow batch:

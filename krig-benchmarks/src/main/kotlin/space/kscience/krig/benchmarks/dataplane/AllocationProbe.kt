@@ -6,6 +6,7 @@ import kotlin.io.path.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.writeText
 import space.kscience.attributes.safeTypeOf
+import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.krig.core.contracts.sampling.FlowSampler
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
 import space.kscience.krig.core.contracts.sampling.doubleSampler
@@ -25,6 +26,9 @@ private val threadBean: ThreadMXBean =
 
 private fun allocatedBytes(): Long =
     threadBean.getThreadAllocatedBytes(Thread.currentThread().threadId())
+
+@Volatile
+private var escapedMetaBoundary: Any? = null
 
 private class ProbeResult(
     val name: String,
@@ -63,6 +67,16 @@ fun main() {
     val ring: RingDoubleSampler = doubleSampler(capacity = 1024)
     var counter = 0.0
 
+    val typedScalarResult = measure("typed scalar update+read (no Meta boundary)", ops, warmup) {
+        counter += 1.0
+        counter
+    }
+    val metaBoundaryResult = measure("MetaConverter.double convert+read (escaped Meta boundary)", ops, warmup) {
+        counter += 1.0
+        val meta = MetaConverter.double.convert(counter)
+        escapedMetaBoundary = meta
+        MetaConverter.double.read(meta)
+    }
     val boxedResult = measure("boxed.publish+latest (FlowSampler<Double>)", ops, warmup) {
         counter += 1.0
         boxed.publish(counter)
@@ -81,7 +95,7 @@ fun main() {
         ring.snapshotDoubleArray().lastOrNull() ?: 0.0
     }
 
-    val results = listOf(boxedResult, ringResult, snapshotResult)
+    val results = listOf(typedScalarResult, metaBoundaryResult, boxedResult, ringResult, snapshotResult)
     printResults(results)
     writeReport(results)
 }
@@ -112,8 +126,10 @@ private fun writeReport(results: List<ProbeResult>) {
         sb.appendLine("| ${r.name} | ${r.ops} | ${"%.2f".format(r.bytesPerOp)} |")
     }
     sb.appendLine()
-    sb.appendLine("The ring write path (`publishDouble` + `latestDoubleOrNaN`) is expected to be ~0 B/op")
-    sb.appendLine("(no boxing, write into a preallocated DoubleArray). The boxed FlowSampler path allocates")
-    sb.appendLine("a wrapper per sample. `snapshotDoubleArray` allocates a copy by design and is not a hot-path claim.")
+    sb.appendLine("The typed scalar and ring write paths are expected to be ~0 B/op because they do not")
+    sb.appendLine("cross the DataForge `Meta` boundary or box samples. The escaped `MetaConverter.double`")
+    sb.appendLine("scenario measures the dynamic/control boundary KRig intentionally keeps for scripts,")
+    sb.appendLine("Magix and discovery. `snapshotDoubleArray` allocates a copy by design and is not a")
+    sb.appendLine("hot-path claim.")
     root.resolve("allocation-results.md").writeText(sb.toString())
 }

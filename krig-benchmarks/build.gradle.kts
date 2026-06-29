@@ -16,10 +16,10 @@ application {
     mainClass.set("space.kscience.krig.benchmarks.storage.MacroStorageBenchKt")
 }
 
-// Allocation probe for the telemetry hot path (boxed sampler vs primitive ring): reports bytes/op.
+// Allocation probe for typed-vs-Meta boundary and telemetry sampler hot paths: reports bytes/op.
 tasks.register<JavaExec>("allocationProbe") {
     group = "benchmark"
-    description = "Measures hot-path allocation (bytes/op) for FlowSampler vs RingDoubleSampler."
+    description = "Measures hot-path allocation (bytes/op) for typed/Meta and sampler paths."
     mainClass.set("space.kscience.krig.benchmarks.dataplane.AllocationProbeKt")
     classpath = sourceSets["main"].runtimeClasspath
 }

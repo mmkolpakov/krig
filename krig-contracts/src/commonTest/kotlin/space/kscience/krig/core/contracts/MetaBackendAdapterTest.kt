@@ -66,6 +66,29 @@ class MetaBackendAdapterTest {
     }
 
     @Test
+    fun typedBackendFastPathMatchesMetaBoundary() = runTest {
+        var cell = 1.0
+        val backend = deviceBackend {
+            reader(Spec.value) { cell }
+            writer(Spec.value) { next -> cell = next }
+            action(Spec.command) { input -> "ack:$input" }
+        }
+        val device = stubDevice()
+
+        assertEquals(1.0, backend.reader(Spec.value)?.read())
+        assertEquals(Spec.value, backend.propertySpec(Spec.value.name))
+
+        context(device) {
+            backend.write(Spec.value.descriptor, metaOf(9.0)).getOrThrow()
+            assertEquals(9.0, backend.reader(Spec.value)?.read())
+            val metaRead = backend.read(Spec.value.descriptor).getOrThrow()
+            assertEquals(9.0, metaRead.doubleValue, "Meta boundary read returned $metaRead")
+            val metaAction = backend.execute(Spec.command.descriptor, metaOf("sync")).getOrThrow()
+            assertEquals("ack:sync", metaAction?.stringValue, "Meta boundary action returned $metaAction")
+        }
+    }
+
+    @Test
     fun unknownPropertyFailsWithoutThrowing() = runTest {
         val backend = metaBackendOf(metaFreeBackend(doubleArrayOf(0.0)), emptyMap())
         val device = stubDevice()
