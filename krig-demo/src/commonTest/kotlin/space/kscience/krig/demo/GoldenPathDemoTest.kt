@@ -8,6 +8,8 @@ import space.kscience.krig.api.messages.KrigWireFormats
 import space.kscience.krig.api.messages.KrigWireTopics
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.tasks.DeviceTaskPhase
+import space.kscience.krig.flow.FlowMessageType
+import space.kscience.krig.flow.FlowQualities
 import space.kscience.krig.core.contracts.RemoteTypedActivationStatus
 import space.kscience.krig.core.contracts.activateTypedFacade
 import space.kscience.krig.core.contracts.read
@@ -115,6 +117,19 @@ class GoldenPathDemoTest {
         assertEquals(KrigWireTopics.deviceMessages("edge.lineA.pump".parseAsName()), snapshot.topic)
         assertEquals(DeviceMessageType.PropertyChanged, snapshot.messageType)
         assertNotNull(snapshot.schemaHeader)
+    }
+
+    @Test
+    fun distributedFlowTransferUsesFlowMessageContributor() {
+        val snapshot = distributedFlowTransferSnapshot()
+
+        assertEquals(KrigWireFormats.MagixEnvelope, snapshot.outerFormat)
+        assertEquals(KrigWireFormats.DeviceMessageFrame, snapshot.innerFormat)
+        assertEquals(KrigWireTopics.deviceMessages("edge.lineA.flow".parseAsName()), snapshot.topic)
+        assertEquals(FlowMessageType.Transfer, snapshot.messageType)
+        assertEquals(2.0, snapshot.amount)
+        assertEquals(1, snapshot.sequence)
+        assertEquals(FlowQualities.DelayedMaterial.code?.id, snapshot.delayedQualityCode)
     }
 
     @Test

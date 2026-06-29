@@ -38,6 +38,7 @@ suspend fun alpha3Showcase() {
     labDiscoveryAdHocDemo()
     edgeTelemetryWireDemo()
     distributedTypedProxyDemo()
+    distributedFlowTransferDemo()
     magixEnvelopeInteropDemo()
     binaryPayloadDemo()
     telemetryAnalyticsDemo()

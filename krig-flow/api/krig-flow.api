@@ -1,3 +1,47 @@
+public final class space/kscience/krig/flow/DistributedFlowTransfer {
+	public static final field Companion Lspace/kscience/krig/flow/DistributedFlowTransfer$Companion;
+	public synthetic fun <init> (Lspace/kscience/krig/flow/FlowConnection;DLjava/lang/String;Ljava/lang/Long;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/flow/FlowConnection;DLjava/lang/String;Ljava/lang/Long;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;Lspace/kscience/dataforge/meta/Meta;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/flow/FlowConnection;
+	public final fun component2-v7BM4Is ()D
+	public final fun component3-c0_JsPU ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/Long;
+	public final fun component5 ()Lkotlin/time/Instant;
+	public final fun component6 ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun component7 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy-0btxR90 (Lspace/kscience/krig/flow/FlowConnection;DLjava/lang/String;Ljava/lang/Long;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/flow/DistributedFlowTransfer;
+	public static synthetic fun copy-0btxR90$default (Lspace/kscience/krig/flow/DistributedFlowTransfer;Lspace/kscience/krig/flow/FlowConnection;DLjava/lang/String;Ljava/lang/Long;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/flow/DistributedFlowTransfer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAmount-v7BM4Is ()D
+	public final fun getAttributes ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getConnection ()Lspace/kscience/krig/flow/FlowConnection;
+	public final fun getEffectiveAt ()Lkotlin/time/Instant;
+	public final fun getQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getSequence ()Ljava/lang/Long;
+	public final fun getUnit-c0_JsPU ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/DistributedFlowTransfer$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/DistributedFlowTransfer$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/flow/DistributedFlowTransfer;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/flow/DistributedFlowTransfer;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/DistributedFlowTransfer$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/DistributedFlowTransferKt {
+	public static final fun getKrigFlowSerializationContributor ()Lspace/kscience/krig/api/serialization/SerializationContributor;
+}
+
 public final class space/kscience/krig/flow/FlowAmount : java/lang/Comparable {
 	public static final field Companion Lspace/kscience/krig/flow/FlowAmount$Companion;
 	public static final synthetic fun box-impl (D)Lspace/kscience/krig/flow/FlowAmount;
@@ -16,8 +60,20 @@ public final class space/kscience/krig/flow/FlowAmount : java/lang/Comparable {
 	public final synthetic fun unbox-impl ()D
 }
 
+public final synthetic class space/kscience/krig/flow/FlowAmount$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowAmount$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-bCt8ns8 (Lkotlinx/serialization/encoding/Decoder;)D
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-U8dZrE0 (Lkotlinx/serialization/encoding/Encoder;D)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/flow/FlowAmount$Companion {
 	public final fun getZERO-v7BM4Is ()D
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowBackendKt {
@@ -80,6 +136,7 @@ public final class space/kscience/krig/flow/FlowBufferSpec : space/kscience/krig
 }
 
 public final class space/kscience/krig/flow/FlowConnection {
+	public static final field Companion Lspace/kscience/krig/flow/FlowConnection$Companion;
 	public fun <init> (Lspace/kscience/krig/flow/FlowEndpoint;Lspace/kscience/krig/flow/FlowEndpoint;)V
 	public final fun component1 ()Lspace/kscience/krig/flow/FlowEndpoint;
 	public final fun component2 ()Lspace/kscience/krig/flow/FlowEndpoint;
@@ -90,6 +147,21 @@ public final class space/kscience/krig/flow/FlowConnection {
 	public final fun getTarget ()Lspace/kscience/krig/flow/FlowEndpoint;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/FlowConnection$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowConnection$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/flow/FlowConnection;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/flow/FlowConnection;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/FlowConnection$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowConsumerSpec : space/kscience/krig/flow/FlowBlockSpec {
@@ -160,6 +232,7 @@ public final class space/kscience/krig/flow/FlowDelayedSpec : space/kscience/kri
 }
 
 public final class space/kscience/krig/flow/FlowEndpoint {
+	public static final field Companion Lspace/kscience/krig/flow/FlowEndpoint$Companion;
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
@@ -170,6 +243,21 @@ public final class space/kscience/krig/flow/FlowEndpoint {
 	public final fun getPortId ()Lspace/kscience/dataforge/names/Name;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/FlowEndpoint$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowEndpoint$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/flow/FlowEndpoint;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/flow/FlowEndpoint;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/FlowEndpoint$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowGraph {
@@ -261,6 +349,12 @@ public final class space/kscience/krig/flow/FlowLimitedSpec : space/kscience/kri
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/flow/FlowMessageType {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowMessageType;
+	public static final field Transfer Ljava/lang/String;
+	public final fun getAll ()Ljava/util/Set;
+}
+
 public final class space/kscience/krig/flow/FlowMixSpec : space/kscience/krig/flow/FlowBlockSpec {
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/util/List;Lspace/kscience/krig/flow/FlowPort;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
@@ -277,6 +371,7 @@ public final class space/kscience/krig/flow/FlowMixSpec : space/kscience/krig/fl
 }
 
 public final class space/kscience/krig/flow/FlowPort {
+	public static final field Companion Lspace/kscience/krig/flow/FlowPort$Companion;
 	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2-c0_JsPU ()Ljava/lang/String;
@@ -287,6 +382,21 @@ public final class space/kscience/krig/flow/FlowPort {
 	public final fun getUnit-c0_JsPU ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/FlowPort$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowPort$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/flow/FlowPort;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/flow/FlowPort;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/FlowPort$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowProducerSpec : space/kscience/krig/flow/FlowBlockSpec {
@@ -337,8 +447,20 @@ public final class space/kscience/krig/flow/FlowRate : java/lang/Comparable {
 	public final synthetic fun unbox-impl ()D
 }
 
+public final synthetic class space/kscience/krig/flow/FlowRate$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowRate$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-wF_yRkM (Lkotlinx/serialization/encoding/Decoder;)D
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-9k0E0qM (Lkotlinx/serialization/encoding/Encoder;D)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/flow/FlowRate$Companion {
 	public final fun getZERO-O6tmhWY ()D
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowRatio : java/lang/Comparable {
@@ -359,9 +481,21 @@ public final class space/kscience/krig/flow/FlowRatio : java/lang/Comparable {
 	public final synthetic fun unbox-impl ()D
 }
 
+public final synthetic class space/kscience/krig/flow/FlowRatio$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowRatio$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-7Sxk0YM (Lkotlinx/serialization/encoding/Decoder;)D
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-onG-kC4 (Lkotlinx/serialization/encoding/Encoder;D)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/flow/FlowRatio$Companion {
 	public final fun getONE-wz1UyFI ()D
 	public final fun getZERO-wz1UyFI ()D
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowSeparateSpec : space/kscience/krig/flow/FlowBlockSpec {
@@ -420,7 +554,43 @@ public final class space/kscience/krig/flow/FlowTransfer {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/flow/FlowTransferMessage : space/kscience/krig/api/messages/DeviceMessage {
+	public static final field Companion Lspace/kscience/krig/flow/FlowTransferMessage$Companion;
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/flow/DistributedFlowTransfer;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/krig/flow/DistributedFlowTransfer;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/time/Instant;
+	public final fun component2 ()Lspace/kscience/krig/flow/DistributedFlowTransfer;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/krig/flow/DistributedFlowTransfer;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowTransferMessage;
+	public static synthetic fun copy$default (Lspace/kscience/krig/flow/FlowTransferMessage;Lkotlin/time/Instant;Lspace/kscience/krig/flow/DistributedFlowTransfer;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowTransferMessage;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getMessageType ()Ljava/lang/String;
+	public fun getSourceDevice ()Lspace/kscience/dataforge/names/Name;
+	public fun getTargetDevice ()Lspace/kscience/dataforge/names/Name;
+	public fun getTime ()Lkotlin/time/Instant;
+	public final fun getTransfer ()Lspace/kscience/krig/flow/DistributedFlowTransfer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/FlowTransferMessage$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowTransferMessage$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/flow/FlowTransferMessage;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/flow/FlowTransferMessage;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/FlowTransferMessage$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/flow/FlowUnit {
+	public static final field Companion Lspace/kscience/krig/flow/FlowUnit$Companion;
 	public static final synthetic fun box-impl (Ljava/lang/String;)Lspace/kscience/krig/flow/FlowUnit;
 	public static fun constructor-impl (Ljava/lang/String;)Ljava/lang/String;
 	public fun equals (Ljava/lang/Object;)Z
@@ -432,6 +602,21 @@ public final class space/kscience/krig/flow/FlowUnit {
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/flow/FlowUnit$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/flow/FlowUnit$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-Ik57t3c (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/String;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-78xXMOM (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/String;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/flow/FlowUnit$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/flow/FlowUnits {

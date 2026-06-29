@@ -155,8 +155,10 @@ internal class BackendCore(private val handlers: BackendHandlers) : DeviceBacken
 }
 
 /**
- * Adapts any [DeviceBackend] into a [SteppedBackend] by attaching a [step] body, so a simulation
- * scheduler can advance it on every tick. State-less backends keep their plain [DeviceBackend] type.
+ * Adapts any [DeviceBackend] into an in-process [SteppedBackend] by attaching a [step] body, so a
+ * local simulation scheduler can advance it on every tick. This is not a distributed transfer
+ * protocol; broker/journal boundaries should publish explicit transfer messages.
+ * State-less backends keep their plain [DeviceBackend] type.
  */
 @OptIn(UnstableKrigForSubclassing::class)
 public fun SteppedBackend(backend: DeviceBackend, step: (Duration) -> Unit): SteppedBackend =

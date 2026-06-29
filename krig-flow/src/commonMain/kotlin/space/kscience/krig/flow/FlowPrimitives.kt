@@ -1,9 +1,11 @@
 package space.kscience.krig.flow
 
+import kotlinx.serialization.Serializable
 import space.kscience.dataforge.names.Name
 import kotlin.jvm.JvmInline
 
 /** Stable domain unit identifier used by flow ports. */
+@Serializable
 @JvmInline
 public value class FlowUnit(public val id: String) {
     init {
@@ -21,6 +23,7 @@ public object FlowUnits {
 }
 
 /** Non-negative finite amount of a material in a [FlowUnit]. */
+@Serializable
 @JvmInline
 public value class FlowAmount(public val value: Double) : Comparable<FlowAmount> {
     init {
@@ -36,6 +39,7 @@ public value class FlowAmount(public val value: Double) : Comparable<FlowAmount>
 }
 
 /** Non-negative finite amount transferred per second. */
+@Serializable
 @JvmInline
 public value class FlowRate(public val valuePerSecond: Double) : Comparable<FlowRate> {
     init {
@@ -51,6 +55,7 @@ public value class FlowRate(public val valuePerSecond: Double) : Comparable<Flow
 }
 
 /** Non-negative finite multiplier for conversion ratios and split shares. */
+@Serializable
 @JvmInline
 public value class FlowRatio(public val value: Double) : Comparable<FlowRatio> {
     init {
@@ -67,18 +72,21 @@ public value class FlowRatio(public val value: Double) : Comparable<FlowRatio> {
 }
 
 /** A typed input or output of a flow block. */
+@Serializable
 public data class FlowPort(
     public val id: Name,
     public val unit: FlowUnit,
 )
 
 /** Reference to a [FlowPort] on a block. */
+@Serializable
 public data class FlowEndpoint(
     public val blockId: Name,
     public val portId: Name,
 )
 
 /** Directed transfer edge between two flow ports. */
+@Serializable
 public data class FlowConnection(
     public val source: FlowEndpoint,
     public val target: FlowEndpoint,

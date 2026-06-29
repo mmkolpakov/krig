@@ -11,6 +11,50 @@ sealed interface space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig
         abstract fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowBlockSpec.id.<get-id>|<get-id>(){}[0]
 }
 
+final class space.kscience.krig.flow/DistributedFlowTransfer { // space.kscience.krig.flow/DistributedFlowTransfer|null[0]
+    constructor <init>(space.kscience.krig.flow/FlowConnection, space.kscience.krig.flow/FlowAmount, space.kscience.krig.flow/FlowUnit, kotlin/Long? = ..., kotlin.time/Instant? = ..., space.kscience.krig.api.data/DataQuality = ..., space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.flow/DistributedFlowTransfer.<init>|<init>(space.kscience.krig.flow.FlowConnection;space.kscience.krig.flow.FlowAmount;space.kscience.krig.flow.FlowUnit;kotlin.Long?;kotlin.time.Instant?;space.kscience.krig.api.data.DataQuality;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val amount // space.kscience.krig.flow/DistributedFlowTransfer.amount|{}amount[0]
+        final fun <get-amount>(): space.kscience.krig.flow/FlowAmount // space.kscience.krig.flow/DistributedFlowTransfer.amount.<get-amount>|<get-amount>(){}[0]
+    final val attributes // space.kscience.krig.flow/DistributedFlowTransfer.attributes|{}attributes[0]
+        final fun <get-attributes>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.flow/DistributedFlowTransfer.attributes.<get-attributes>|<get-attributes>(){}[0]
+    final val connection // space.kscience.krig.flow/DistributedFlowTransfer.connection|{}connection[0]
+        final fun <get-connection>(): space.kscience.krig.flow/FlowConnection // space.kscience.krig.flow/DistributedFlowTransfer.connection.<get-connection>|<get-connection>(){}[0]
+    final val effectiveAt // space.kscience.krig.flow/DistributedFlowTransfer.effectiveAt|{}effectiveAt[0]
+        final fun <get-effectiveAt>(): kotlin.time/Instant? // space.kscience.krig.flow/DistributedFlowTransfer.effectiveAt.<get-effectiveAt>|<get-effectiveAt>(){}[0]
+    final val quality // space.kscience.krig.flow/DistributedFlowTransfer.quality|{}quality[0]
+        final fun <get-quality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.flow/DistributedFlowTransfer.quality.<get-quality>|<get-quality>(){}[0]
+    final val sequence // space.kscience.krig.flow/DistributedFlowTransfer.sequence|{}sequence[0]
+        final fun <get-sequence>(): kotlin/Long? // space.kscience.krig.flow/DistributedFlowTransfer.sequence.<get-sequence>|<get-sequence>(){}[0]
+    final val unit // space.kscience.krig.flow/DistributedFlowTransfer.unit|{}unit[0]
+        final fun <get-unit>(): space.kscience.krig.flow/FlowUnit // space.kscience.krig.flow/DistributedFlowTransfer.unit.<get-unit>|<get-unit>(){}[0]
+
+    final fun component1(): space.kscience.krig.flow/FlowConnection // space.kscience.krig.flow/DistributedFlowTransfer.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowAmount // space.kscience.krig.flow/DistributedFlowTransfer.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.flow/FlowUnit // space.kscience.krig.flow/DistributedFlowTransfer.component3|component3(){}[0]
+    final fun component4(): kotlin/Long? // space.kscience.krig.flow/DistributedFlowTransfer.component4|component4(){}[0]
+    final fun component5(): kotlin.time/Instant? // space.kscience.krig.flow/DistributedFlowTransfer.component5|component5(){}[0]
+    final fun component6(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.flow/DistributedFlowTransfer.component6|component6(){}[0]
+    final fun component7(): space.kscience.dataforge.meta/Meta // space.kscience.krig.flow/DistributedFlowTransfer.component7|component7(){}[0]
+    final fun copy(space.kscience.krig.flow/FlowConnection = ..., space.kscience.krig.flow/FlowAmount = ..., space.kscience.krig.flow/FlowUnit = ..., kotlin/Long? = ..., kotlin.time/Instant? = ..., space.kscience.krig.api.data/DataQuality = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.flow/DistributedFlowTransfer // space.kscience.krig.flow/DistributedFlowTransfer.copy|copy(space.kscience.krig.flow.FlowConnection;space.kscience.krig.flow.FlowAmount;space.kscience.krig.flow.FlowUnit;kotlin.Long?;kotlin.time.Instant?;space.kscience.krig.api.data.DataQuality;space.kscience.dataforge.meta.Meta){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/DistributedFlowTransfer.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/DistributedFlowTransfer.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/DistributedFlowTransfer.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/DistributedFlowTransfer> { // space.kscience.krig.flow/DistributedFlowTransfer.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/DistributedFlowTransfer.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/DistributedFlowTransfer.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/DistributedFlowTransfer.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/DistributedFlowTransfer // space.kscience.krig.flow/DistributedFlowTransfer.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/DistributedFlowTransfer) // space.kscience.krig.flow/DistributedFlowTransfer.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.DistributedFlowTransfer){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/DistributedFlowTransfer.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/DistributedFlowTransfer> // space.kscience.krig.flow/DistributedFlowTransfer.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.flow/FlowBlockSnapshot { // space.kscience.krig.flow/FlowBlockSnapshot|null[0]
     constructor <init>(space.kscience.dataforge.names/Name, kotlin/String, space.kscience.krig.flow/FlowAmount? = ..., space.kscience.krig.flow/FlowAmount = ..., space.kscience.krig.flow/FlowAmount = ..., space.kscience.krig.flow/FlowAmount = ..., space.kscience.krig.flow/FlowAmount = ..., space.kscience.krig.api.data/DataQuality = ...) // space.kscience.krig.flow/FlowBlockSnapshot.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String;space.kscience.krig.flow.FlowAmount?;space.kscience.krig.flow.FlowAmount;space.kscience.krig.flow.FlowAmount;space.kscience.krig.flow.FlowAmount;space.kscience.krig.flow.FlowAmount;space.kscience.krig.api.data.DataQuality){}[0]
 
@@ -90,6 +134,19 @@ final class space.kscience.krig.flow/FlowConnection { // space.kscience.krig.flo
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowConnection.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowConnection.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowConnection.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowConnection> { // space.kscience.krig.flow/FlowConnection.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowConnection.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowConnection.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowConnection.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowConnection // space.kscience.krig.flow/FlowConnection.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowConnection) // space.kscience.krig.flow/FlowConnection.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowConnection){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/FlowConnection.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowConnection> // space.kscience.krig.flow/FlowConnection.Companion.serializer|serializer(){}[0]
+    }
 }
 
 final class space.kscience.krig.flow/FlowConsumerSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowConsumerSpec|null[0]
@@ -188,6 +245,19 @@ final class space.kscience.krig.flow/FlowEndpoint { // space.kscience.krig.flow/
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowEndpoint.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowEndpoint.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowEndpoint.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowEndpoint> { // space.kscience.krig.flow/FlowEndpoint.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowEndpoint.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowEndpoint.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowEndpoint.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowEndpoint // space.kscience.krig.flow/FlowEndpoint.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowEndpoint) // space.kscience.krig.flow/FlowEndpoint.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowEndpoint){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/FlowEndpoint.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowEndpoint> // space.kscience.krig.flow/FlowEndpoint.Companion.serializer|serializer(){}[0]
+    }
 }
 
 final class space.kscience.krig.flow/FlowGraph { // space.kscience.krig.flow/FlowGraph|null[0]
@@ -300,6 +370,19 @@ final class space.kscience.krig.flow/FlowPort { // space.kscience.krig.flow/Flow
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowPort.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowPort.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowPort.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowPort> { // space.kscience.krig.flow/FlowPort.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowPort.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowPort.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowPort.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowPort.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowPort) // space.kscience.krig.flow/FlowPort.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowPort){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/FlowPort.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowPort> // space.kscience.krig.flow/FlowPort.Companion.serializer|serializer(){}[0]
+    }
 }
 
 final class space.kscience.krig.flow/FlowProducerSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowProducerSpec|null[0]
@@ -391,6 +474,43 @@ final class space.kscience.krig.flow/FlowTransfer { // space.kscience.krig.flow/
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowTransfer.toString|toString(){}[0]
 }
 
+final class space.kscience.krig.flow/FlowTransferMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.flow/FlowTransferMessage|null[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.krig.flow/DistributedFlowTransfer, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.flow/FlowTransferMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.flow.DistributedFlowTransfer;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
+
+    final val messageType // space.kscience.krig.flow/FlowTransferMessage.messageType|{}messageType[0]
+        final fun <get-messageType>(): kotlin/String // space.kscience.krig.flow/FlowTransferMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
+    final val sourceDevice // space.kscience.krig.flow/FlowTransferMessage.sourceDevice|{}sourceDevice[0]
+        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowTransferMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
+    final val targetDevice // space.kscience.krig.flow/FlowTransferMessage.targetDevice|{}targetDevice[0]
+        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.flow/FlowTransferMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
+    final val time // space.kscience.krig.flow/FlowTransferMessage.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.flow/FlowTransferMessage.time.<get-time>|<get-time>(){}[0]
+    final val transfer // space.kscience.krig.flow/FlowTransferMessage.transfer|{}transfer[0]
+        final fun <get-transfer>(): space.kscience.krig.flow/DistributedFlowTransfer // space.kscience.krig.flow/FlowTransferMessage.transfer.<get-transfer>|<get-transfer>(){}[0]
+
+    final fun component1(): kotlin.time/Instant // space.kscience.krig.flow/FlowTransferMessage.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/DistributedFlowTransfer // space.kscience.krig.flow/FlowTransferMessage.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowTransferMessage.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.flow/FlowTransferMessage.component4|component4(){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.krig.flow/DistributedFlowTransfer = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.flow/FlowTransferMessage // space.kscience.krig.flow/FlowTransferMessage.copy|copy(kotlin.time.Instant;space.kscience.krig.flow.DistributedFlowTransfer;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowTransferMessage.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowTransferMessage.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowTransferMessage.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowTransferMessage> { // space.kscience.krig.flow/FlowTransferMessage.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowTransferMessage.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowTransferMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowTransferMessage.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowTransferMessage // space.kscience.krig.flow/FlowTransferMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowTransferMessage) // space.kscience.krig.flow/FlowTransferMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowTransferMessage){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/FlowTransferMessage.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowTransferMessage> // space.kscience.krig.flow/FlowTransferMessage.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final value class space.kscience.krig.flow/FlowAmount : kotlin/Comparable<space.kscience.krig.flow/FlowAmount> { // space.kscience.krig.flow/FlowAmount|null[0]
     constructor <init>(kotlin/Double) // space.kscience.krig.flow/FlowAmount.<init>|<init>(kotlin.Double){}[0]
 
@@ -402,9 +522,20 @@ final value class space.kscience.krig.flow/FlowAmount : kotlin/Comparable<space.
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowAmount.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowAmount.toString|toString(){}[0]
 
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowAmount> { // space.kscience.krig.flow/FlowAmount.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowAmount.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowAmount.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowAmount.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowAmount // space.kscience.krig.flow/FlowAmount.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowAmount) // space.kscience.krig.flow/FlowAmount.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowAmount){}[0]
+    }
+
     final object Companion { // space.kscience.krig.flow/FlowAmount.Companion|null[0]
         final val ZERO // space.kscience.krig.flow/FlowAmount.Companion.ZERO|{}ZERO[0]
             final fun <get-ZERO>(): space.kscience.krig.flow/FlowAmount // space.kscience.krig.flow/FlowAmount.Companion.ZERO.<get-ZERO>|<get-ZERO>(){}[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowAmount> // space.kscience.krig.flow/FlowAmount.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -419,9 +550,20 @@ final value class space.kscience.krig.flow/FlowRate : kotlin/Comparable<space.ks
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowRate.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowRate.toString|toString(){}[0]
 
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowRate> { // space.kscience.krig.flow/FlowRate.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowRate.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowRate.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowRate.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowRate // space.kscience.krig.flow/FlowRate.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowRate) // space.kscience.krig.flow/FlowRate.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowRate){}[0]
+    }
+
     final object Companion { // space.kscience.krig.flow/FlowRate.Companion|null[0]
         final val ZERO // space.kscience.krig.flow/FlowRate.Companion.ZERO|{}ZERO[0]
             final fun <get-ZERO>(): space.kscience.krig.flow/FlowRate // space.kscience.krig.flow/FlowRate.Companion.ZERO.<get-ZERO>|<get-ZERO>(){}[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowRate> // space.kscience.krig.flow/FlowRate.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -436,11 +578,22 @@ final value class space.kscience.krig.flow/FlowRatio : kotlin/Comparable<space.k
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowRatio.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowRatio.toString|toString(){}[0]
 
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowRatio> { // space.kscience.krig.flow/FlowRatio.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowRatio.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowRatio.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowRatio.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowRatio.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowRatio) // space.kscience.krig.flow/FlowRatio.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowRatio){}[0]
+    }
+
     final object Companion { // space.kscience.krig.flow/FlowRatio.Companion|null[0]
         final val ONE // space.kscience.krig.flow/FlowRatio.Companion.ONE|{}ONE[0]
             final fun <get-ONE>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowRatio.Companion.ONE.<get-ONE>|<get-ONE>(){}[0]
         final val ZERO // space.kscience.krig.flow/FlowRatio.Companion.ZERO|{}ZERO[0]
             final fun <get-ZERO>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowRatio.Companion.ZERO.<get-ZERO>|<get-ZERO>(){}[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowRatio> // space.kscience.krig.flow/FlowRatio.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -453,6 +606,27 @@ final value class space.kscience.krig.flow/FlowUnit { // space.kscience.krig.flo
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowUnit.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowUnit.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowUnit.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.flow/FlowUnit> { // space.kscience.krig.flow/FlowUnit.$serializer|null[0]
+        final val descriptor // space.kscience.krig.flow/FlowUnit.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.flow/FlowUnit.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.flow/FlowUnit.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.flow/FlowUnit // space.kscience.krig.flow/FlowUnit.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.flow/FlowUnit) // space.kscience.krig.flow/FlowUnit.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.flow.FlowUnit){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.flow/FlowUnit.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.flow/FlowUnit> // space.kscience.krig.flow/FlowUnit.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final object space.kscience.krig.flow/FlowMessageType { // space.kscience.krig.flow/FlowMessageType|null[0]
+    final const val Transfer // space.kscience.krig.flow/FlowMessageType.Transfer|{}Transfer[0]
+        final fun <get-Transfer>(): kotlin/String // space.kscience.krig.flow/FlowMessageType.Transfer.<get-Transfer>|<get-Transfer>(){}[0]
+
+    final val all // space.kscience.krig.flow/FlowMessageType.all|{}all[0]
+        final fun <get-all>(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.flow/FlowMessageType.all.<get-all>|<get-all>(){}[0]
 }
 
 final object space.kscience.krig.flow/FlowPropertyContracts { // space.kscience.krig.flow/FlowPropertyContracts|null[0]
@@ -478,6 +652,9 @@ final object space.kscience.krig.flow/FlowUnits { // space.kscience.krig.flow/Fl
     final val Liter // space.kscience.krig.flow/FlowUnits.Liter|{}Liter[0]
         final fun <get-Liter>(): space.kscience.krig.flow/FlowUnit // space.kscience.krig.flow/FlowUnits.Liter.<get-Liter>|<get-Liter>(){}[0]
 }
+
+final val space.kscience.krig.flow/krigFlowSerializationContributor // space.kscience.krig.flow/krigFlowSerializationContributor|{}krigFlowSerializationContributor[0]
+    final fun <get-krigFlowSerializationContributor>(): space.kscience.krig.api.serialization/SerializationContributor // space.kscience.krig.flow/krigFlowSerializationContributor.<get-krigFlowSerializationContributor>|<get-krigFlowSerializationContributor>(){}[0]
 
 final fun (space.kscience.krig.flow/FlowGraph).space.kscience.krig.flow/toSteppedBackend(kotlin.time/Clock = ...): space.kscience.krig.core.contracts/TypedSteppedBackend // space.kscience.krig.flow/toSteppedBackend|toSteppedBackend@space.kscience.krig.flow.FlowGraph(kotlin.time.Clock){}[0]
 final fun space.kscience.krig.flow/flowGraph(kotlin/Function1<space.kscience.krig.flow/FlowGraphBuilder, kotlin/Unit>): space.kscience.krig.flow/FlowGraph // space.kscience.krig.flow/flowGraph|flowGraph(kotlin.Function1<space.kscience.krig.flow.FlowGraphBuilder,kotlin.Unit>){}[0]
