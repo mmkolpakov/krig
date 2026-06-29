@@ -88,6 +88,141 @@ public class FlowGraphBuilder {
     )
 
     @IgnorableReturnValue
+    public fun limited(
+        id: Name,
+        unit: FlowUnit,
+        outputLimit: FlowRate,
+        inputLimit: FlowRate? = null,
+        input: Name = DefaultPorts.Input,
+        output: Name = DefaultPorts.Output,
+    ): FlowLimitedSpec = add(
+        FlowLimitedSpec(
+            id = id,
+            input = FlowPort(input, unit),
+            output = FlowPort(output, unit),
+            outputLimit = outputLimit,
+            inputLimit = inputLimit,
+        ),
+    )
+
+    @IgnorableReturnValue
+    public fun limited(
+        id: String,
+        unit: FlowUnit,
+        outputLimit: FlowRate,
+        inputLimit: FlowRate? = null,
+        input: String = "in",
+        output: String = "out",
+    ): FlowLimitedSpec = limited(
+        id = id.asName(),
+        unit = unit,
+        outputLimit = outputLimit,
+        inputLimit = inputLimit,
+        input = input.asName(),
+        output = output.asName(),
+    )
+
+    @IgnorableReturnValue
+    public fun delayed(
+        id: Name,
+        unit: FlowUnit,
+        delaySteps: Int,
+        outputLimit: FlowRate? = null,
+        input: Name = DefaultPorts.Input,
+        output: Name = DefaultPorts.Output,
+    ): FlowDelayedSpec = add(
+        FlowDelayedSpec(
+            id = id,
+            input = FlowPort(input, unit),
+            output = FlowPort(output, unit),
+            delaySteps = delaySteps,
+            outputLimit = outputLimit,
+        ),
+    )
+
+    @IgnorableReturnValue
+    public fun delayed(
+        id: String,
+        unit: FlowUnit,
+        delaySteps: Int,
+        outputLimit: FlowRate? = null,
+        input: String = "in",
+        output: String = "out",
+    ): FlowDelayedSpec = delayed(
+        id = id.asName(),
+        unit = unit,
+        delaySteps = delaySteps,
+        outputLimit = outputLimit,
+        input = input.asName(),
+        output = output.asName(),
+    )
+
+    @IgnorableReturnValue
+    public fun reaction(
+        id: Name,
+        inputUnit: FlowUnit,
+        outputUnit: FlowUnit = inputUnit,
+        yield: FlowRatio = FlowRatio.ONE,
+        inputLimit: FlowRate? = null,
+        input: Name = DefaultPorts.Input,
+        output: Name = DefaultPorts.Output,
+    ): FlowReactionSpec = add(
+        FlowReactionSpec(
+            id = id,
+            input = FlowPort(input, inputUnit),
+            output = FlowPort(output, outputUnit),
+            yield = yield,
+            inputLimit = inputLimit,
+        ),
+    )
+
+    @IgnorableReturnValue
+    public fun reaction(
+        id: String,
+        inputUnit: FlowUnit,
+        outputUnit: FlowUnit = inputUnit,
+        yield: FlowRatio = FlowRatio.ONE,
+        inputLimit: FlowRate? = null,
+        input: String = "in",
+        output: String = "out",
+    ): FlowReactionSpec = reaction(
+        id = id.asName(),
+        inputUnit = inputUnit,
+        outputUnit = outputUnit,
+        yield = yield,
+        inputLimit = inputLimit,
+        input = input.asName(),
+        output = output.asName(),
+    )
+
+    @IgnorableReturnValue
+    public fun separate(
+        id: Name,
+        unit: FlowUnit,
+        outputs: Map<Name, FlowRatio>,
+        input: Name = DefaultPorts.Input,
+    ): FlowSeparateSpec = add(
+        FlowSeparateSpec(
+            id = id,
+            input = FlowPort(input, unit),
+            outputs = outputs.map { (port, share) -> FlowSeparationOutput(FlowPort(port, unit), share) },
+        ),
+    )
+
+    @IgnorableReturnValue
+    public fun separate(
+        id: String,
+        unit: FlowUnit,
+        outputs: Map<String, FlowRatio>,
+        input: String = "in",
+    ): FlowSeparateSpec = separate(
+        id = id.asName(),
+        unit = unit,
+        outputs = outputs.mapKeys { (port, _) -> port.asName() },
+        input = input.asName(),
+    )
+
+    @IgnorableReturnValue
     public fun mix(
         id: Name,
         unit: FlowUnit,
@@ -172,13 +307,21 @@ public fun flowGraph(block: FlowGraphBuilder.() -> Unit): FlowGraph = FlowGraphB
 internal fun FlowBlockSpec.inputPorts(): Map<Name, FlowPort> = when (this) {
     is FlowBufferSpec -> mapOf(input.id to input)
     is FlowConsumerSpec -> mapOf(input.id to input)
+    is FlowDelayedSpec -> mapOf(input.id to input)
+    is FlowLimitedSpec -> mapOf(input.id to input)
     is FlowMixSpec -> inputs.associateBy { it.id }
     is FlowProducerSpec -> emptyMap()
+    is FlowReactionSpec -> mapOf(input.id to input)
+    is FlowSeparateSpec -> mapOf(input.id to input)
 }
 
 internal fun FlowBlockSpec.outputPorts(): Map<Name, FlowPort> = when (this) {
     is FlowBufferSpec -> mapOf(output.id to output)
     is FlowConsumerSpec -> emptyMap()
+    is FlowDelayedSpec -> mapOf(output.id to output)
+    is FlowLimitedSpec -> mapOf(output.id to output)
     is FlowMixSpec -> mapOf(output.id to output)
     is FlowProducerSpec -> mapOf(output.id to output)
+    is FlowReactionSpec -> mapOf(output.id to output)
+    is FlowSeparateSpec -> outputs.associate { it.port.id to it.port }
 }

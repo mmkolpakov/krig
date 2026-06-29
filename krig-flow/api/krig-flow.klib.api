@@ -111,6 +111,31 @@ final class space.kscience.krig.flow/FlowConsumerSpec : space.kscience.krig.flow
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowConsumerSpec.toString|toString(){}[0]
 }
 
+final class space.kscience.krig.flow/FlowDelayedSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowDelayedSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowPort, kotlin/Int, space.kscience.krig.flow/FlowRate? = ...) // space.kscience.krig.flow/FlowDelayedSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;kotlin.Int;space.kscience.krig.flow.FlowRate?){}[0]
+
+    final val delaySteps // space.kscience.krig.flow/FlowDelayedSpec.delaySteps|{}delaySteps[0]
+        final fun <get-delaySteps>(): kotlin/Int // space.kscience.krig.flow/FlowDelayedSpec.delaySteps.<get-delaySteps>|<get-delaySteps>(){}[0]
+    final val id // space.kscience.krig.flow/FlowDelayedSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowDelayedSpec.id.<get-id>|<get-id>(){}[0]
+    final val input // space.kscience.krig.flow/FlowDelayedSpec.input|{}input[0]
+        final fun <get-input>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowDelayedSpec.input.<get-input>|<get-input>(){}[0]
+    final val output // space.kscience.krig.flow/FlowDelayedSpec.output|{}output[0]
+        final fun <get-output>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowDelayedSpec.output.<get-output>|<get-output>(){}[0]
+    final val outputLimit // space.kscience.krig.flow/FlowDelayedSpec.outputLimit|{}outputLimit[0]
+        final fun <get-outputLimit>(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowDelayedSpec.outputLimit.<get-outputLimit>|<get-outputLimit>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowDelayedSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowDelayedSpec.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowDelayedSpec.component3|component3(){}[0]
+    final fun component4(): kotlin/Int // space.kscience.krig.flow/FlowDelayedSpec.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowDelayedSpec.component5|component5(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowPort = ..., kotlin/Int = ..., space.kscience.krig.flow/FlowRate? = ...): space.kscience.krig.flow/FlowDelayedSpec // space.kscience.krig.flow/FlowDelayedSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;kotlin.Int;space.kscience.krig.flow.FlowRate?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowDelayedSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowDelayedSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowDelayedSpec.toString|toString(){}[0]
+}
+
 final class space.kscience.krig.flow/FlowEndpoint { // space.kscience.krig.flow/FlowEndpoint|null[0]
     constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name) // space.kscience.krig.flow/FlowEndpoint.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
 
@@ -150,10 +175,18 @@ final class space.kscience.krig.flow/FlowGraphBuilder { // space.kscience.krig.f
     final fun connect(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowConnection // space.kscience.krig.flow/FlowGraphBuilder.connect|connect(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
     final fun consumer(kotlin/String, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, kotlin/String = ...): space.kscience.krig.flow/FlowConsumerSpec // space.kscience.krig.flow/FlowGraphBuilder.consumer|consumer(kotlin.String;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;kotlin.String){}[0]
     final fun consumer(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowConsumerSpec // space.kscience.krig.flow/FlowGraphBuilder.consumer|consumer(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;space.kscience.dataforge.names.Name){}[0]
+    final fun delayed(kotlin/String, space.kscience.krig.flow/FlowUnit, kotlin/Int, space.kscience.krig.flow/FlowRate? = ..., kotlin/String = ..., kotlin/String = ...): space.kscience.krig.flow/FlowDelayedSpec // space.kscience.krig.flow/FlowGraphBuilder.delayed|delayed(kotlin.String;space.kscience.krig.flow.FlowUnit;kotlin.Int;space.kscience.krig.flow.FlowRate?;kotlin.String;kotlin.String){}[0]
+    final fun delayed(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, kotlin/Int, space.kscience.krig.flow/FlowRate? = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowDelayedSpec // space.kscience.krig.flow/FlowGraphBuilder.delayed|delayed(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;kotlin.Int;space.kscience.krig.flow.FlowRate?;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+    final fun limited(kotlin/String, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, space.kscience.krig.flow/FlowRate? = ..., kotlin/String = ..., kotlin/String = ...): space.kscience.krig.flow/FlowLimitedSpec // space.kscience.krig.flow/FlowGraphBuilder.limited|limited(kotlin.String;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;space.kscience.krig.flow.FlowRate?;kotlin.String;kotlin.String){}[0]
+    final fun limited(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, space.kscience.krig.flow/FlowRate? = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowLimitedSpec // space.kscience.krig.flow/FlowGraphBuilder.limited|limited(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;space.kscience.krig.flow.FlowRate?;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
     final fun mix(kotlin/String, space.kscience.krig.flow/FlowUnit, kotlin.collections/List<kotlin/String>, kotlin/String = ...): space.kscience.krig.flow/FlowMixSpec // space.kscience.krig.flow/FlowGraphBuilder.mix|mix(kotlin.String;space.kscience.krig.flow.FlowUnit;kotlin.collections.List<kotlin.String>;kotlin.String){}[0]
     final fun mix(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, kotlin.collections/List<space.kscience.dataforge.names/Name>, space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowMixSpec // space.kscience.krig.flow/FlowGraphBuilder.mix|mix(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;kotlin.collections.List<space.kscience.dataforge.names.Name>;space.kscience.dataforge.names.Name){}[0]
     final fun producer(kotlin/String, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, kotlin/String = ...): space.kscience.krig.flow/FlowProducerSpec // space.kscience.krig.flow/FlowGraphBuilder.producer|producer(kotlin.String;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;kotlin.String){}[0]
     final fun producer(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowRate, space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowProducerSpec // space.kscience.krig.flow/FlowGraphBuilder.producer|producer(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRate;space.kscience.dataforge.names.Name){}[0]
+    final fun reaction(kotlin/String, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowUnit = ..., space.kscience.krig.flow/FlowRatio = ..., space.kscience.krig.flow/FlowRate? = ..., kotlin/String = ..., kotlin/String = ...): space.kscience.krig.flow/FlowReactionSpec // space.kscience.krig.flow/FlowGraphBuilder.reaction|reaction(kotlin.String;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRatio;space.kscience.krig.flow.FlowRate?;kotlin.String;kotlin.String){}[0]
+    final fun reaction(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, space.kscience.krig.flow/FlowUnit = ..., space.kscience.krig.flow/FlowRatio = ..., space.kscience.krig.flow/FlowRate? = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowReactionSpec // space.kscience.krig.flow/FlowGraphBuilder.reaction|reaction(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowUnit;space.kscience.krig.flow.FlowRatio;space.kscience.krig.flow.FlowRate?;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+    final fun separate(kotlin/String, space.kscience.krig.flow/FlowUnit, kotlin.collections/Map<kotlin/String, space.kscience.krig.flow/FlowRatio>, kotlin/String = ...): space.kscience.krig.flow/FlowSeparateSpec // space.kscience.krig.flow/FlowGraphBuilder.separate|separate(kotlin.String;space.kscience.krig.flow.FlowUnit;kotlin.collections.Map<kotlin.String,space.kscience.krig.flow.FlowRatio>;kotlin.String){}[0]
+    final fun separate(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowUnit, kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowRatio>, space.kscience.dataforge.names/Name = ...): space.kscience.krig.flow/FlowSeparateSpec // space.kscience.krig.flow/FlowGraphBuilder.separate|separate(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowUnit;kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.flow.FlowRatio>;space.kscience.dataforge.names.Name){}[0]
 }
 
 final class space.kscience.krig.flow/FlowGraphSnapshot { // space.kscience.krig.flow/FlowGraphSnapshot|null[0]
@@ -167,6 +200,31 @@ final class space.kscience.krig.flow/FlowGraphSnapshot { // space.kscience.krig.
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowGraphSnapshot.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowGraphSnapshot.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowGraphSnapshot.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.flow/FlowLimitedSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowLimitedSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowRate, space.kscience.krig.flow/FlowRate? = ...) // space.kscience.krig.flow/FlowLimitedSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRate;space.kscience.krig.flow.FlowRate?){}[0]
+
+    final val id // space.kscience.krig.flow/FlowLimitedSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowLimitedSpec.id.<get-id>|<get-id>(){}[0]
+    final val input // space.kscience.krig.flow/FlowLimitedSpec.input|{}input[0]
+        final fun <get-input>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowLimitedSpec.input.<get-input>|<get-input>(){}[0]
+    final val inputLimit // space.kscience.krig.flow/FlowLimitedSpec.inputLimit|{}inputLimit[0]
+        final fun <get-inputLimit>(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowLimitedSpec.inputLimit.<get-inputLimit>|<get-inputLimit>(){}[0]
+    final val output // space.kscience.krig.flow/FlowLimitedSpec.output|{}output[0]
+        final fun <get-output>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowLimitedSpec.output.<get-output>|<get-output>(){}[0]
+    final val outputLimit // space.kscience.krig.flow/FlowLimitedSpec.outputLimit|{}outputLimit[0]
+        final fun <get-outputLimit>(): space.kscience.krig.flow/FlowRate // space.kscience.krig.flow/FlowLimitedSpec.outputLimit.<get-outputLimit>|<get-outputLimit>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowLimitedSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowLimitedSpec.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowLimitedSpec.component3|component3(){}[0]
+    final fun component4(): space.kscience.krig.flow/FlowRate // space.kscience.krig.flow/FlowLimitedSpec.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowLimitedSpec.component5|component5(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowRate = ..., space.kscience.krig.flow/FlowRate? = ...): space.kscience.krig.flow/FlowLimitedSpec // space.kscience.krig.flow/FlowLimitedSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRate;space.kscience.krig.flow.FlowRate?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowLimitedSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowLimitedSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowLimitedSpec.toString|toString(){}[0]
 }
 
 final class space.kscience.krig.flow/FlowMixSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowMixSpec|null[0]
@@ -221,6 +279,66 @@ final class space.kscience.krig.flow/FlowProducerSpec : space.kscience.krig.flow
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowProducerSpec.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowProducerSpec.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.flow/FlowProducerSpec.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.flow/FlowReactionSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowReactionSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowRatio = ..., space.kscience.krig.flow/FlowRate? = ...) // space.kscience.krig.flow/FlowReactionSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRatio;space.kscience.krig.flow.FlowRate?){}[0]
+
+    final val id // space.kscience.krig.flow/FlowReactionSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowReactionSpec.id.<get-id>|<get-id>(){}[0]
+    final val input // space.kscience.krig.flow/FlowReactionSpec.input|{}input[0]
+        final fun <get-input>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowReactionSpec.input.<get-input>|<get-input>(){}[0]
+    final val inputLimit // space.kscience.krig.flow/FlowReactionSpec.inputLimit|{}inputLimit[0]
+        final fun <get-inputLimit>(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowReactionSpec.inputLimit.<get-inputLimit>|<get-inputLimit>(){}[0]
+    final val output // space.kscience.krig.flow/FlowReactionSpec.output|{}output[0]
+        final fun <get-output>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowReactionSpec.output.<get-output>|<get-output>(){}[0]
+    final val yield // space.kscience.krig.flow/FlowReactionSpec.yield|{}yield[0]
+        final fun <get-yield>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowReactionSpec.yield.<get-yield>|<get-yield>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowReactionSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowReactionSpec.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowReactionSpec.component3|component3(){}[0]
+    final fun component4(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowReactionSpec.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.flow/FlowRate? // space.kscience.krig.flow/FlowReactionSpec.component5|component5(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowRatio = ..., space.kscience.krig.flow/FlowRate? = ...): space.kscience.krig.flow/FlowReactionSpec // space.kscience.krig.flow/FlowReactionSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRatio;space.kscience.krig.flow.FlowRate?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowReactionSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowReactionSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowReactionSpec.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.flow/FlowSeparateSpec : space.kscience.krig.flow/FlowBlockSpec { // space.kscience.krig.flow/FlowSeparateSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.flow/FlowPort, kotlin.collections/List<space.kscience.krig.flow/FlowSeparationOutput>) // space.kscience.krig.flow/FlowSeparateSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;kotlin.collections.List<space.kscience.krig.flow.FlowSeparationOutput>){}[0]
+
+    final val id // space.kscience.krig.flow/FlowSeparateSpec.id|{}id[0]
+        final fun <get-id>(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowSeparateSpec.id.<get-id>|<get-id>(){}[0]
+    final val input // space.kscience.krig.flow/FlowSeparateSpec.input|{}input[0]
+        final fun <get-input>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowSeparateSpec.input.<get-input>|<get-input>(){}[0]
+    final val outputs // space.kscience.krig.flow/FlowSeparateSpec.outputs|{}outputs[0]
+        final fun <get-outputs>(): kotlin.collections/List<space.kscience.krig.flow/FlowSeparationOutput> // space.kscience.krig.flow/FlowSeparateSpec.outputs.<get-outputs>|<get-outputs>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.flow/FlowSeparateSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowSeparateSpec.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/List<space.kscience.krig.flow/FlowSeparationOutput> // space.kscience.krig.flow/FlowSeparateSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.flow/FlowPort = ..., kotlin.collections/List<space.kscience.krig.flow/FlowSeparationOutput> = ...): space.kscience.krig.flow/FlowSeparateSpec // space.kscience.krig.flow/FlowSeparateSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.flow.FlowPort;kotlin.collections.List<space.kscience.krig.flow.FlowSeparationOutput>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowSeparateSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowSeparateSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowSeparateSpec.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.flow/FlowSeparationOutput { // space.kscience.krig.flow/FlowSeparationOutput|null[0]
+    constructor <init>(space.kscience.krig.flow/FlowPort, space.kscience.krig.flow/FlowRatio) // space.kscience.krig.flow/FlowSeparationOutput.<init>|<init>(space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRatio){}[0]
+
+    final val port // space.kscience.krig.flow/FlowSeparationOutput.port|{}port[0]
+        final fun <get-port>(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowSeparationOutput.port.<get-port>|<get-port>(){}[0]
+    final val share // space.kscience.krig.flow/FlowSeparationOutput.share|{}share[0]
+        final fun <get-share>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowSeparationOutput.share.<get-share>|<get-share>(){}[0]
+
+    final fun component1(): space.kscience.krig.flow/FlowPort // space.kscience.krig.flow/FlowSeparationOutput.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowSeparationOutput.component2|component2(){}[0]
+    final fun copy(space.kscience.krig.flow/FlowPort = ..., space.kscience.krig.flow/FlowRatio = ...): space.kscience.krig.flow/FlowSeparationOutput // space.kscience.krig.flow/FlowSeparationOutput.copy|copy(space.kscience.krig.flow.FlowPort;space.kscience.krig.flow.FlowRatio){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowSeparationOutput.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowSeparationOutput.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowSeparationOutput.toString|toString(){}[0]
 }
 
 final class space.kscience.krig.flow/FlowStepReport { // space.kscience.krig.flow/FlowStepReport|null[0]
@@ -292,6 +410,25 @@ final value class space.kscience.krig.flow/FlowRate : kotlin/Comparable<space.ks
     }
 }
 
+final value class space.kscience.krig.flow/FlowRatio : kotlin/Comparable<space.kscience.krig.flow/FlowRatio> { // space.kscience.krig.flow/FlowRatio|null[0]
+    constructor <init>(kotlin/Double) // space.kscience.krig.flow/FlowRatio.<init>|<init>(kotlin.Double){}[0]
+
+    final val value // space.kscience.krig.flow/FlowRatio.value|{}value[0]
+        final fun <get-value>(): kotlin/Double // space.kscience.krig.flow/FlowRatio.value.<get-value>|<get-value>(){}[0]
+
+    final fun compareTo(space.kscience.krig.flow/FlowRatio): kotlin/Int // space.kscience.krig.flow/FlowRatio.compareTo|compareTo(space.kscience.krig.flow.FlowRatio){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.flow/FlowRatio.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.flow/FlowRatio.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.flow/FlowRatio.toString|toString(){}[0]
+
+    final object Companion { // space.kscience.krig.flow/FlowRatio.Companion|null[0]
+        final val ONE // space.kscience.krig.flow/FlowRatio.Companion.ONE|{}ONE[0]
+            final fun <get-ONE>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowRatio.Companion.ONE.<get-ONE>|<get-ONE>(){}[0]
+        final val ZERO // space.kscience.krig.flow/FlowRatio.Companion.ZERO|{}ZERO[0]
+            final fun <get-ZERO>(): space.kscience.krig.flow/FlowRatio // space.kscience.krig.flow/FlowRatio.Companion.ZERO.<get-ZERO>|<get-ZERO>(){}[0]
+    }
+}
+
 final value class space.kscience.krig.flow/FlowUnit { // space.kscience.krig.flow/FlowUnit|null[0]
     constructor <init>(kotlin/String) // space.kscience.krig.flow/FlowUnit.<init>|<init>(kotlin.String){}[0]
 
@@ -312,6 +449,8 @@ final object space.kscience.krig.flow/FlowPropertyContracts { // space.kscience.
 }
 
 final object space.kscience.krig.flow/FlowQualities { // space.kscience.krig.flow/FlowQualities|null[0]
+    final val DelayedMaterial // space.kscience.krig.flow/FlowQualities.DelayedMaterial|{}DelayedMaterial[0]
+        final fun <get-DelayedMaterial>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.flow/FlowQualities.DelayedMaterial.<get-DelayedMaterial>|<get-DelayedMaterial>(){}[0]
     final val EmptyBuffer // space.kscience.krig.flow/FlowQualities.EmptyBuffer|{}EmptyBuffer[0]
         final fun <get-EmptyBuffer>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.flow/FlowQualities.EmptyBuffer.<get-EmptyBuffer>|<get-EmptyBuffer>(){}[0]
 }

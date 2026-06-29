@@ -50,6 +50,22 @@ public value class FlowRate(public val valuePerSecond: Double) : Comparable<Flow
     }
 }
 
+/** Non-negative finite multiplier for conversion yields and split shares. */
+@JvmInline
+public value class FlowRatio(public val value: Double) : Comparable<FlowRatio> {
+    init {
+        require(value.isFinite()) { "Flow ratio must be finite" }
+        require(value >= 0.0) { "Flow ratio must be non-negative" }
+    }
+
+    override fun compareTo(other: FlowRatio): Int = value.compareTo(other.value)
+
+    public companion object {
+        public val ZERO: FlowRatio = FlowRatio(0.0)
+        public val ONE: FlowRatio = FlowRatio(1.0)
+    }
+}
+
 /** A typed input or output of a flow block. */
 public data class FlowPort(
     public val id: Name,

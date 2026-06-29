@@ -29,4 +29,22 @@ class FlowBackendTest {
         assertEquals(QualitySeverity.GOOD, filled.quality.severity)
         assertEquals(1.0, filled.value)
     }
+
+    @Test
+    fun steppedBackendPreservesDelayQuality() = runTest {
+        val graph = flowGraph {
+            producer("source", FlowUnits.Kilogram, FlowRate(2.0))
+            delayed("line", FlowUnits.Kilogram, delaySteps = 2)
+            connect("source", "line")
+        }
+        val backend = graph.toSteppedBackend()
+        val inventory = FlowPropertyContracts.inventory("line".asName())
+
+        backend.step(1.seconds)
+        val delayed = backend.readObservedOutcome(inventory).getOrThrow()
+
+        assertEquals(QualitySeverity.UNCERTAIN, delayed.quality.severity)
+        assertEquals("krig.flow.delayed-material", delayed.quality.code?.id)
+        assertEquals(2.0, delayed.value)
+    }
 }

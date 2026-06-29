@@ -38,32 +38,51 @@ public fun FlowGraph.toSteppedBackend(clock: Clock = Clock.System): TypedStepped
     for ((id, spec) in blocks) {
         when (spec) {
             is FlowBufferSpec -> {
-                observedSnapshotReader(
-                    blockId = id,
-                    contract = FlowPropertyContracts.inventory(id),
-                    clock = clock,
-                    snapshot = ::snapshot,
-                    quality = { it.quality },
-                ) { requireNotNull(inventory).value }
-                observedSnapshotReader(id, FlowPropertyContracts.lastInput(id), clock, ::snapshot) { lastInput.value }
-                observedSnapshotReader(id, FlowPropertyContracts.lastOutput(id), clock, ::snapshot) { lastOutput.value }
+                observedInventoryBlock(id, clock, ::snapshot, quality = { it.quality })
             }
             is FlowConsumerSpec -> {
                 observedSnapshotReader(id, FlowPropertyContracts.totalConsumed(id), clock, ::snapshot) { totalConsumed.value }
                 observedSnapshotReader(id, FlowPropertyContracts.lastInput(id), clock, ::snapshot) { lastInput.value }
             }
+            is FlowDelayedSpec -> {
+                observedInventoryBlock(id, clock, ::snapshot, quality = { it.quality })
+            }
+            is FlowLimitedSpec -> {
+                observedInventoryBlock(id, clock, ::snapshot)
+            }
             is FlowMixSpec -> {
-                observedSnapshotReader(id, FlowPropertyContracts.inventory(id), clock, ::snapshot) { requireNotNull(inventory).value }
-                observedSnapshotReader(id, FlowPropertyContracts.lastInput(id), clock, ::snapshot) { lastInput.value }
-                observedSnapshotReader(id, FlowPropertyContracts.lastOutput(id), clock, ::snapshot) { lastOutput.value }
+                observedInventoryBlock(id, clock, ::snapshot)
             }
             is FlowProducerSpec -> {
                 observedSnapshotReader(id, FlowPropertyContracts.totalProduced(id), clock, ::snapshot) { totalProduced.value }
                 observedSnapshotReader(id, FlowPropertyContracts.lastOutput(id), clock, ::snapshot) { lastOutput.value }
             }
+            is FlowReactionSpec -> {
+                observedInventoryBlock(id, clock, ::snapshot)
+            }
+            is FlowSeparateSpec -> {
+                observedInventoryBlock(id, clock, ::snapshot)
+            }
         }
     }
     onStep { dt -> advance(dt) }
+}
+
+private fun space.kscience.krig.core.contracts.DeviceBackendBuilder.observedInventoryBlock(
+    blockId: Name,
+    clock: Clock,
+    snapshot: () -> FlowGraphSnapshot,
+    quality: (FlowBlockSnapshot) -> DataQuality = { DataQuality.GOOD },
+) {
+    observedSnapshotReader(
+        blockId = blockId,
+        contract = FlowPropertyContracts.inventory(blockId),
+        clock = clock,
+        snapshot = snapshot,
+        quality = quality,
+    ) { requireNotNull(inventory).value }
+    observedSnapshotReader(blockId, FlowPropertyContracts.lastInput(blockId), clock, snapshot) { lastInput.value }
+    observedSnapshotReader(blockId, FlowPropertyContracts.lastOutput(blockId), clock, snapshot) { lastOutput.value }
 }
 
 private fun space.kscience.krig.core.contracts.DeviceBackendBuilder.observedSnapshotReader(

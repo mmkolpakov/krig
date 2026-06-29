@@ -15,11 +15,12 @@ import kotlinx.serialization.json.Json
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.serialization.krigJson
+import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.schemaHash
 import space.kscience.krig.core.contracts.toJsonSchema
 
 /** Installs KRig's JSON defaults for Ktor responses. Call once before [krigDeviceServer]. */
-public fun Application.installKrigServerJson(wireJson: Json = krigJson()): Unit {
+public fun Application.installKrigServerJson(wireJson: Json = krigJson()) {
     install(ContentNegotiation) {
         json(wireJson)
     }
@@ -29,7 +30,7 @@ public fun Application.installKrigServerJson(wireJson: Json = krigJson()): Unit 
 public fun Application.krigDeviceServer(
     registry: DeviceServerRegistry,
     settings: KrigServerSettings = KrigServerSettings(),
-): Unit {
+) {
     routing {
         val basePath = settings.basePath.trim('/')
         if (basePath.isEmpty()) {
@@ -46,7 +47,7 @@ public fun Application.krigDeviceServer(
 public fun Route.krigDeviceRoutes(
     registry: DeviceServerRegistry,
     settings: KrigServerSettings = KrigServerSettings(),
-): Unit {
+) {
     get("/server") {
         call.respond(
             KrigServerInfoDto(
@@ -87,32 +88,17 @@ public fun Route.krigDeviceRoutes(
     }
 
     get("/devices/{deviceId}/manifest") {
-        val (deviceId, _) = call.resolveDevice(registry) ?: return@get
-        val manifest = registry.manifest(deviceId)
-        if (manifest == null) {
-            call.respondNotFound("manifest.not-found", "Manifest for device '$deviceId' is not registered.")
-            return@get
-        }
+        val (_, manifest) = call.resolveManifest(registry) ?: return@get
         call.respond(manifest.toDto())
     }
 
     get("/devices/{deviceId}/schema") {
-        val (deviceId, _) = call.resolveDevice(registry) ?: return@get
-        val manifest = registry.manifest(deviceId)
-        if (manifest == null) {
-            call.respondNotFound("manifest.not-found", "Manifest for device '$deviceId' is not registered.")
-            return@get
-        }
+        val (_, manifest) = call.resolveManifest(registry) ?: return@get
         call.respond(manifest.toJsonSchema())
     }
 
     get("/devices/{deviceId}/actions") {
-        val (deviceId, _) = call.resolveDevice(registry) ?: return@get
-        val manifest = registry.manifest(deviceId)
-        if (manifest == null) {
-            call.respondNotFound("manifest.not-found", "Manifest for device '$deviceId' is not registered.")
-            return@get
-        }
+        val (_, manifest) = call.resolveManifest(registry) ?: return@get
         call.respond(manifest.actions.values.sortedBy { it.name.toString() }.map { it.toDto() })
     }
 
@@ -156,11 +142,23 @@ private suspend fun ApplicationCall.resolveDevice(
     return deviceId to device
 }
 
-private suspend fun ApplicationCall.respondNotFound(type: String, message: String): Unit {
+private suspend fun ApplicationCall.resolveManifest(
+    registry: DeviceServerRegistry,
+): Pair<Name, DeviceManifest>? {
+    val (deviceId, _) = resolveDevice(registry) ?: return null
+    val manifest = registry.manifest(deviceId)
+    if (manifest == null) {
+        respondNotFound("manifest.not-found", "Manifest for device '$deviceId' is not registered.")
+        return null
+    }
+    return deviceId to manifest
+}
+
+private suspend fun ApplicationCall.respondNotFound(type: String, message: String) {
     respond(HttpStatusCode.NotFound, ServerFaultDto(type = type, message = message))
 }
 
-private suspend fun ApplicationCall.respondBadRequest(type: String, message: String): Unit {
+private suspend fun ApplicationCall.respondBadRequest(type: String, message: String) {
     respond(HttpStatusCode.BadRequest, ServerFaultDto(type = type, message = message))
 }
 
