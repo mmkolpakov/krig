@@ -6,6 +6,8 @@ import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.context.Factory
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
+import space.kscience.dataforge.meta.Scheme
+import space.kscience.dataforge.meta.SchemeSpec
 import space.kscience.dataforge.meta.descriptors.Described
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.meta.descriptors.validate
@@ -83,6 +85,19 @@ public fun <D : Device, C> DeviceFactory(
     configDescriptor: MetaDescriptor? = null,
     create: (Context, C) -> D,
 ): DeviceFactory<D, C> = DeviceFactory(id.parseAsName(), configConverter, configDescriptor, create)
+
+/** Builder overload for DataForge Scheme-backed configs. */
+public fun <D : Device, C : Scheme> DeviceFactory(
+    id: Name,
+    configSpec: SchemeSpec<C>,
+    create: (Context, C) -> D,
+): DeviceFactory<D, C> = DeviceFactory(id, configSpec, configSpec.descriptor, create)
+
+public fun <D : Device, C : Scheme> DeviceFactory(
+    id: String,
+    configSpec: SchemeSpec<C>,
+    create: (Context, C) -> D,
+): DeviceFactory<D, C> = DeviceFactory(id.parseAsName(), configSpec, create)
 
 /** No-config overload for `DeviceFactory<D, Unit>`. */
 public fun <D : Device> DeviceFactory(

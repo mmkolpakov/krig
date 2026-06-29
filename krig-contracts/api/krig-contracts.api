@@ -79,8 +79,10 @@ public final class space/kscience/krig/api/factory/DeviceFactoryConfigValidation
 
 public final class space/kscience/krig/api/factory/DeviceFactoryKt {
 	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/SchemeSpec;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
 	public static final fun DeviceFactory (Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
 	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
+	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/SchemeSpec;Lkotlin/jvm/functions/Function2;)Lspace/kscience/krig/api/factory/DeviceFactory;
 	public static final fun DeviceFactory (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/api/factory/DeviceFactory;
 	public static synthetic fun DeviceFactory$default (Ljava/lang/String;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
 	public static synthetic fun DeviceFactory$default (Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/api/factory/DeviceFactory;
@@ -706,6 +708,38 @@ public final class space/kscience/krig/core/contracts/DeviceRuntime$Companion {
 }
 
 public final class space/kscience/krig/core/contracts/DeviceScopeElement$Key : kotlin/coroutines/CoroutineContext$Key {
+}
+
+public final class space/kscience/krig/core/contracts/DeviceTopologyEntry : space/kscience/dataforge/provider/Provider {
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/DeviceNode;)V
+	public fun content (Ljava/lang/String;)Ljava/util/Map;
+	public fun getDefaultChainTarget ()Ljava/lang/String;
+	public fun getDefaultTarget ()Ljava/lang/String;
+	public final fun getDevice ()Lspace/kscience/krig/core/contracts/Device;
+	public final fun getManifest ()Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public final fun getNode ()Lspace/kscience/krig/core/contracts/DeviceNode;
+	public final fun getPath ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/core/contracts/DeviceTopologyProviderKt {
+	public static final fun asTopologyProvider (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static final fun asTopologyProvider (Lspace/kscience/krig/core/contracts/DeviceNode;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static synthetic fun asTopologyProvider$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static synthetic fun asTopologyProvider$default (Lspace/kscience/krig/core/contracts/DeviceNode;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static final fun device (Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/Device;
+	public static final fun entry (Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static final fun entry-tbnDRjY (Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;Ljava/util/List;)Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;
+	public static final fun manifest (Lspace/kscience/krig/core/contracts/DeviceTopologyEntry;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public static final fun snapshotManifest (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+	public static synthetic fun snapshotManifest$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+}
+
+public final class space/kscience/krig/core/contracts/DeviceTopologyTargets {
+	public static final field DEVICE Ljava/lang/String;
+	public static final field ENTRY Ljava/lang/String;
+	public static final field INSTANCE Lspace/kscience/krig/core/contracts/DeviceTopologyTargets;
+	public static final field MANIFEST Ljava/lang/String;
+	public static final field NODE Ljava/lang/String;
 }
 
 public final class space/kscience/krig/core/contracts/DiscardPolicy : java/lang/Enum {

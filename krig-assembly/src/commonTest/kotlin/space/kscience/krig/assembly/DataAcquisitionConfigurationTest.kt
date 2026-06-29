@@ -4,6 +4,7 @@ import kotlinx.serialization.SerializationException
 import space.kscience.dataforge.io.JsonMetaFormat
 import space.kscience.dataforge.io.parse
 import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.descriptors.TypeIds
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -29,6 +30,19 @@ class DataAcquisitionConfigurationTest {
         assertEquals("external.virtual".asName(), config.sources.single().connector)
         assertEquals("engine.rpm", config.tags.single().address)
         assertEquals(250, config.tags.single().timeoutMs)
+    }
+
+    @Test
+    fun topologySourceKeepsAliasSeparateFromTopologyPath() {
+        val config = dataAcquisition {
+            topologySource(id = "lineA", topologyPath = "plant.line.a".parseAsName())
+            tag("rpm").from("lineA", "drive.rpm")
+        }
+
+        val source = config.sources.single()
+        assertEquals("lineA".asName(), source.id)
+        assertEquals("plant.line.a".parseAsName(), source.topologyPath)
+        assertEquals("lineA".asName(), config.tags.single().sourceId)
     }
 
     @Test
