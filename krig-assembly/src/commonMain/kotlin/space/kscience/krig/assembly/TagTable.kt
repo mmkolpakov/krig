@@ -167,7 +167,7 @@ public class InMemoryTagTableReader(
     initialSamples: Map<TagTableAddress, ObservedValue<Meta?>> = emptyMap(),
     private val clock: Clock = Clock.System,
     private val defaultQuality: DataQuality = DataQuality.GOOD,
-) : AcquisitionSourceReader {
+) : AcquisitionSourceReader, TagTableSampleWriter {
     private val samples: MutableMap<TagTableAddress, ObservedValue<Meta?>> = initialSamples.toMutableMap()
 
     public fun snapshot(): Map<TagTableAddress, ObservedValue<Meta?>> = samples.toMap()
@@ -195,6 +195,14 @@ public class InMemoryTagTableReader(
     ): InMemoryTagTableReader = put(sourceId.asName(), address, value, quality)
 
     public fun remove(address: TagTableAddress): Boolean = samples.remove(address) != null
+
+    override suspend fun write(
+        tag: AcquisitionTagSpec,
+        observed: ObservedValue<Meta?>,
+    ): OperationOutcome<Unit> {
+        put(tag.tagTableAddress(), observed)
+        return OperationOutcome.OkUnit
+    }
 
     override suspend fun readSource(
         source: AcquisitionSourceSpec,

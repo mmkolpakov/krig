@@ -18,6 +18,7 @@ public final class space/kscience/krig/assembly/AcquisitionPollingKt {
 	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun pollTimer$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;Lkotlinx/coroutines/flow/Flow;Lspace/kscience/krig/assembly/AcquisitionTagReader;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/QualityPolicy;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
+	public static final fun readSourceCatching (Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun tagsForTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Ljava/lang/String;)Ljava/util/List;
 	public static final fun tagsForTimer (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;Lspace/kscience/dataforge/names/Name;)Ljava/util/List;
 }
@@ -345,7 +346,7 @@ public final class space/kscience/krig/assembly/DeviceGroupAcquisitionKt {
 	public static final fun readAt (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class space/kscience/krig/assembly/InMemoryTagTableReader : space/kscience/krig/assembly/AcquisitionSourceReader {
+public final class space/kscience/krig/assembly/InMemoryTagTableReader : space/kscience/krig/assembly/AcquisitionSourceReader, space/kscience/krig/assembly/TagTableSampleWriter {
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)V
 	public synthetic fun <init> (Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -357,6 +358,7 @@ public final class space/kscience/krig/assembly/InMemoryTagTableReader : space/k
 	public fun readSource (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Ljava/util/List;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun remove (Lspace/kscience/krig/assembly/TagTableAddress;)Z
 	public final fun snapshot ()Ljava/util/Map;
+	public fun write (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/assembly/ManifestValidationPolicy : java/lang/Enum {
@@ -560,6 +562,11 @@ public final class space/kscience/krig/assembly/TagTableAddress {
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/assembly/TagTableBackendKt {
+	public static final fun toBackend (Lspace/kscience/krig/assembly/TagTable;Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lspace/kscience/krig/assembly/TagTableSampleWriter;Lspace/kscience/krig/api/descriptors/PropertyKind;Lkotlin/time/Clock;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
+	public static synthetic fun toBackend$default (Lspace/kscience/krig/assembly/TagTable;Lspace/kscience/krig/assembly/AcquisitionSourceReader;Lspace/kscience/krig/assembly/TagTableSampleWriter;Lspace/kscience/krig/api/descriptors/PropertyKind;Lkotlin/time/Clock;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
+}
+
 public final class space/kscience/krig/assembly/TagTableKt {
 	public static final fun asTagTable (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Lspace/kscience/krig/assembly/TagTable;
 	public static final fun tagTable (Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/TagTable;
@@ -579,5 +586,9 @@ public final class space/kscience/krig/assembly/TagTableRow {
 	public final fun getTimers ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/assembly/TagTableSampleWriter {
+	public abstract fun write (Lspace/kscience/krig/assembly/AcquisitionTagSpec;Lspace/kscience/krig/api/data/ObservedValue;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 

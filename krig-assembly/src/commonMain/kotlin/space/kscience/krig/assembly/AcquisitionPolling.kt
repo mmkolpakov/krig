@@ -194,7 +194,8 @@ public fun DataAcquisitionConfiguration.pollTimer(
 ): Flow<SamplingObservation<AcquisitionTagSpec>> =
     pollTimer(timerId.asName(), ticks, reader.bySource(), clock, qualityPolicy)
 
-private suspend fun AcquisitionSourceReader.readSourceCatching(
+/** Reads a source batch and converts non-cancellation connector failures to per-tag failures. */
+public suspend fun AcquisitionSourceReader.readSourceCatching(
     source: AcquisitionSourceSpec,
     tags: List<AcquisitionTagSpec>,
 ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = try {
