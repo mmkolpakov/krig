@@ -2,7 +2,9 @@ package space.kscience.krig.core.meta
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
+import space.kscience.attributes.Attributes
 import space.kscience.krig.api.descriptors.ActionDescriptor
+import space.kscience.krig.api.descriptors.OperationAttributes
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.TypeId
@@ -140,6 +142,7 @@ public abstract class DeviceContractBuilder {
     public fun <I, O> action(
         inputConverter: MetaConverter<I>,
         outputConverter: MetaConverter<O>,
+        attributes: OperationAttributes = Attributes.EMPTY,
     ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DeviceActionContract<I, O>>> =
         PropertyDelegateProvider { _, property ->
             val contract = registerActionContract(
@@ -147,6 +150,25 @@ public abstract class DeviceContractBuilder {
                     name = property.name.asName(),
                     inputConverter = inputConverter,
                     outputConverter = outputConverter,
+                    attributes = attributes,
+                ),
+            )
+            ReadOnlyProperty { _, _ -> contract }
+        }
+
+    /**
+     * Defines an action contract whose input and output descriptors are derived from serializers.
+     */
+    public inline fun <reified I, reified O> serializableAction(
+        attributes: OperationAttributes = Attributes.EMPTY,
+    ): PropertyDelegateProvider<DeviceContractBuilder, ReadOnlyProperty<DeviceContractBuilder, DeviceActionContract<I, O>>> =
+        PropertyDelegateProvider { _, property ->
+            val contract = registerActionContract(
+                serializableActionContract(
+                    name = property.name.asName(),
+                    inputConverter = serializableMetaConverter(serializer<I>()),
+                    outputConverter = serializableMetaConverter(serializer<O>()),
+                    attributes = attributes,
                 ),
             )
             ReadOnlyProperty { _, _ -> contract }
@@ -183,12 +205,14 @@ public fun <I, O> deviceActionContract(
     outputConverter: MetaConverter<O>,
     inputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
     outputMetaDescriptor: MetaDescriptor = MetaDescriptor(),
+    attributes: OperationAttributes = Attributes.EMPTY,
 ): DeviceActionContract<I, O> = SimpleDeviceActionContract(
     name = name,
     descriptor = ActionDescriptor(
         name = name,
         inputMetaDescriptor = inputMetaDescriptor,
         outputMetaDescriptor = outputMetaDescriptor,
+        attributes = attributes,
     ),
     inputConverter = inputConverter,
     outputConverter = outputConverter,
@@ -203,12 +227,14 @@ public inline fun <reified I, reified O> serializableActionContract(
     name: Name,
     inputConverter: MetaConverter<I>,
     outputConverter: MetaConverter<O>,
+    attributes: OperationAttributes = Attributes.EMPTY,
 ): DeviceActionContract<I, O> = deviceActionContract(
     name = name,
     inputConverter = inputConverter,
     outputConverter = outputConverter,
     inputMetaDescriptor = serializer<I>().descriptor.toMetaDescriptor(),
     outputMetaDescriptor = serializer<O>().descriptor.toMetaDescriptor(),
+    attributes = attributes,
 )
 
 private fun propertyDescriptor(

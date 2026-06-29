@@ -25,6 +25,7 @@ public object DeviceMessageType {
     public const val ActionExecuteRequest: String = "action.execute.request"
     public const val ActionExecuteResponse: String = "action.execute.response"
     public const val ActionExecuteCancel: String = "action.execute.cancel"
+    public const val TaskStateChanged: String = "task.state.changed"
     public const val BatchReadRequest: String = "property.read-batch.request"
     public const val BatchReadResponse: String = "property.read-batch.response"
     public const val BatchWriteRequest: String = "property.write-batch.request"
@@ -45,6 +46,7 @@ public object DeviceMessageType {
         ActionExecuteRequest,
         ActionExecuteResponse,
         ActionExecuteCancel,
+        TaskStateChanged,
         BatchReadRequest,
         BatchReadResponse,
         BatchWriteRequest,

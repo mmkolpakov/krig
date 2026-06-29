@@ -1206,7 +1206,8 @@ public abstract interface class space/kscience/krig/core/meta/DeviceActionContra
 
 public abstract class space/kscience/krig/core/meta/DeviceContractBuilder {
 	public fun <init> ()V
-	public final fun action (Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;)Lkotlin/properties/PropertyDelegateProvider;
+	public final fun action (Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/attributes/Attributes;)Lkotlin/properties/PropertyDelegateProvider;
+	public static synthetic fun action$default (Lspace/kscience/krig/core/meta/DeviceContractBuilder;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lkotlin/properties/PropertyDelegateProvider;
 	public final fun getActionContracts ()Ljava/util/List;
 	public final fun getPropertyContracts ()Ljava/util/List;
 	public final fun getRegisteredActionContracts ()Ljava/util/List;
@@ -1224,8 +1225,8 @@ public abstract class space/kscience/krig/core/meta/DeviceContractBuilder {
 }
 
 public final class space/kscience/krig/core/meta/DeviceContractBuilderKt {
-	public static final fun deviceActionContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/DeviceActionContract;
-	public static synthetic fun deviceActionContract$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public static final fun deviceActionContract (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public static synthetic fun deviceActionContract$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/attributes/Attributes;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public static final fun devicePropertyContract-_U7T7-0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static synthetic fun devicePropertyContract-_U7T7-0$default (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;ILjava/lang/Object;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
 	public static final fun mutableDevicePropertyContract-_U7T7-0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/MetaConverter;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;)Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;

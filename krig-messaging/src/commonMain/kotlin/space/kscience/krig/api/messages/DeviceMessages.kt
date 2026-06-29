@@ -6,6 +6,7 @@ import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.tasks.DeviceTaskState
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -212,6 +213,21 @@ public data class ActionCancelMessage(
     override val targetDevice: Name?,
 ) : RequestMessage {
     override val messageType: String get() = DeviceMessageType.ActionExecuteCancel
+}
+
+/**
+ * Publishes a state transition for a long-running task started by an action.
+ * The canonical state may also be exposed as a typed property named by the action's TaskAttribute.
+ */
+@Serializable
+@SerialName(DeviceMessageType.TaskStateChanged)
+public data class TaskStateChangedMessage(
+    override val time: Instant,
+    public val task: DeviceTaskState,
+    override val sourceDevice: Name,
+    override val targetDevice: Name? = null,
+) : DeviceMessage {
+    override val messageType: String get() = DeviceMessageType.TaskStateChanged
 }
 
 /** One property/value pair in a batch message; [quality] is meaningful for reads and ignored on writes. */

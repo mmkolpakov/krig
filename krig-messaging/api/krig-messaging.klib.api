@@ -1071,6 +1071,43 @@ final class space.kscience.krig.api.messages/PropertyWriteResponse : space.kscie
     }
 }
 
+final class space.kscience.krig.api.messages/TaskStateChangedMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.api.messages/TaskStateChangedMessage|null[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.krig.api.tasks/DeviceTaskState, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ...) // space.kscience.krig.api.messages/TaskStateChangedMessage.<init>|<init>(kotlin.time.Instant;space.kscience.krig.api.tasks.DeviceTaskState;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
+
+    final val messageType // space.kscience.krig.api.messages/TaskStateChangedMessage.messageType|{}messageType[0]
+        final fun <get-messageType>(): kotlin/String // space.kscience.krig.api.messages/TaskStateChangedMessage.messageType.<get-messageType>|<get-messageType>(){}[0]
+    final val sourceDevice // space.kscience.krig.api.messages/TaskStateChangedMessage.sourceDevice|{}sourceDevice[0]
+        final fun <get-sourceDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/TaskStateChangedMessage.sourceDevice.<get-sourceDevice>|<get-sourceDevice>(){}[0]
+    final val targetDevice // space.kscience.krig.api.messages/TaskStateChangedMessage.targetDevice|{}targetDevice[0]
+        final fun <get-targetDevice>(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/TaskStateChangedMessage.targetDevice.<get-targetDevice>|<get-targetDevice>(){}[0]
+    final val task // space.kscience.krig.api.messages/TaskStateChangedMessage.task|{}task[0]
+        final fun <get-task>(): space.kscience.krig.api.tasks/DeviceTaskState // space.kscience.krig.api.messages/TaskStateChangedMessage.task.<get-task>|<get-task>(){}[0]
+    final val time // space.kscience.krig.api.messages/TaskStateChangedMessage.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.api.messages/TaskStateChangedMessage.time.<get-time>|<get-time>(){}[0]
+
+    final fun component1(): kotlin.time/Instant // space.kscience.krig.api.messages/TaskStateChangedMessage.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.tasks/DeviceTaskState // space.kscience.krig.api.messages/TaskStateChangedMessage.component2|component2(){}[0]
+    final fun component3(): space.kscience.dataforge.names/Name // space.kscience.krig.api.messages/TaskStateChangedMessage.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.names/Name? // space.kscience.krig.api.messages/TaskStateChangedMessage.component4|component4(){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.krig.api.tasks/DeviceTaskState = ..., space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name? = ...): space.kscience.krig.api.messages/TaskStateChangedMessage // space.kscience.krig.api.messages/TaskStateChangedMessage.copy|copy(kotlin.time.Instant;space.kscience.krig.api.tasks.DeviceTaskState;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/TaskStateChangedMessage.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/TaskStateChangedMessage.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.messages/TaskStateChangedMessage.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.messages/TaskStateChangedMessage> { // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.messages/TaskStateChangedMessage // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.messages/TaskStateChangedMessage) // space.kscience.krig.api.messages/TaskStateChangedMessage.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.messages.TaskStateChangedMessage){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.messages/TaskStateChangedMessage.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/TaskStateChangedMessage> // space.kscience.krig.api.messages/TaskStateChangedMessage.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.api.messages/TimeSeriesRowMessage : space.kscience.krig.api.messages/DeviceMessage { // space.kscience.krig.api.messages/TimeSeriesRowMessage|null[0]
     constructor <init>(kotlin.time/Instant, kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<kotlin/Double>, space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name? = ..., kotlin.collections/List<space.kscience.krig.api.data/DataQuality> = ...) // space.kscience.krig.api.messages/TimeSeriesRowMessage.<init>|<init>(kotlin.time.Instant;kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<kotlin.Double>;space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name?;kotlin.collections.List<space.kscience.krig.api.data.DataQuality>){}[0]
 
@@ -1151,6 +1188,8 @@ final object space.kscience.krig.api.messages/DeviceMessageType { // space.kscie
         final fun <get-PropertyWriteRequest>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.PropertyWriteRequest.<get-PropertyWriteRequest>|<get-PropertyWriteRequest>(){}[0]
     final const val PropertyWriteResponse // space.kscience.krig.api.messages/DeviceMessageType.PropertyWriteResponse|{}PropertyWriteResponse[0]
         final fun <get-PropertyWriteResponse>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.PropertyWriteResponse.<get-PropertyWriteResponse>|<get-PropertyWriteResponse>(){}[0]
+    final const val TaskStateChanged // space.kscience.krig.api.messages/DeviceMessageType.TaskStateChanged|{}TaskStateChanged[0]
+        final fun <get-TaskStateChanged>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.TaskStateChanged.<get-TaskStateChanged>|<get-TaskStateChanged>(){}[0]
     final const val TimeSeriesRow // space.kscience.krig.api.messages/DeviceMessageType.TimeSeriesRow|{}TimeSeriesRow[0]
         final fun <get-TimeSeriesRow>(): kotlin/String // space.kscience.krig.api.messages/DeviceMessageType.TimeSeriesRow.<get-TimeSeriesRow>|<get-TimeSeriesRow>(){}[0]
 

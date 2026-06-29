@@ -21,6 +21,11 @@ import space.kscience.krig.api.messages.DeviceOfflineMessage
 import space.kscience.krig.api.messages.DeviceOnlineMessage
 import space.kscience.krig.api.messages.PropertyReadResponse
 import space.kscience.krig.api.messages.PropertyWriteResponse
+import space.kscience.krig.api.messages.TaskStateChangedMessage
+import space.kscience.krig.api.tasks.DeviceTaskId
+import space.kscience.krig.api.tasks.DeviceTaskPhase
+import space.kscience.krig.api.tasks.DeviceTaskProgress
+import space.kscience.krig.api.tasks.DeviceTaskState
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
@@ -177,6 +182,27 @@ class ApiSerializationRoundTripTest {
                 sourceDevice = "lab.sensor".asName(),
                 targetDevice = "client".asName(),
                 observedQuality = DataQuality(QualitySeverity.BAD),
+            ),
+        )
+    }
+
+    @Test
+    fun taskStateChangedMessageRoundTrip() {
+        roundTrip<DeviceMessage>(
+            TaskStateChangedMessage(
+                time = Instant.fromEpochMilliseconds(5),
+                task = DeviceTaskState(
+                    taskId = DeviceTaskId("calibration-1"),
+                    actionName = "calibration.start".asName(),
+                    phase = DeviceTaskPhase.Running,
+                    progress = DeviceTaskProgress(
+                        fraction = 0.5,
+                        step = "warmup".asName(),
+                        message = "half way",
+                    ),
+                ),
+                sourceDevice = "lab.sensor".asName(),
+                targetDevice = "client".asName(),
             ),
         )
     }

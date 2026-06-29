@@ -7,6 +7,7 @@ import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.KrigWireFormats
 import space.kscience.krig.api.messages.KrigWireTopics
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.tasks.DeviceTaskPhase
 import space.kscience.krig.core.contracts.RemoteTypedActivationStatus
 import space.kscience.krig.core.contracts.activateTypedFacade
 import space.kscience.krig.core.contracts.read
@@ -114,5 +115,16 @@ class GoldenPathDemoTest {
         assertEquals(KrigWireTopics.deviceMessages("edge.lineA.pump".parseAsName()), snapshot.topic)
         assertEquals(DeviceMessageType.PropertyChanged, snapshot.messageType)
         assertNotNull(snapshot.schemaHeader)
+    }
+
+    @Test
+    fun calibrationTaskIsActionTriggeredObservableState() = runTest {
+        val snapshot = calibrationTaskDemoSnapshot()
+
+        assertEquals("calibration-1", snapshot.taskId.value)
+        assertEquals(DeviceTaskPhase.Running, snapshot.taskPhase)
+        assertEquals(0.5, snapshot.progressFraction)
+        assertEquals("taskState".asName(), snapshot.taskStateProperty)
+        assertEquals(DeviceMessageType.TaskStateChanged, snapshot.messageType)
     }
 }

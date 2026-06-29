@@ -33,6 +33,7 @@ import space.kscience.krig.api.messages.PropertyReadRequest
 import space.kscience.krig.api.messages.PropertyReadResponse
 import space.kscience.krig.api.messages.PropertyWriteRequest
 import space.kscience.krig.api.messages.PropertyWriteResponse
+import space.kscience.krig.api.messages.TaskStateChangedMessage
 import space.kscience.krig.api.messages.TimeSeriesRowMessage
 
 /**
@@ -69,6 +70,7 @@ public val krigApiSerializersModule: SerializersModule = SerializersModule {
         subclass(ActionRequestMessage::class)
         subclass(ActionResponseMessage::class)
         subclass(ActionCancelMessage::class)
+        subclass(TaskStateChangedMessage::class)
         subclass(BatchReadRequest::class)
         subclass(BatchReadResponse::class)
         subclass(BatchWriteRequest::class)

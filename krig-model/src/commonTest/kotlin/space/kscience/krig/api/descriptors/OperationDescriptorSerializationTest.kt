@@ -8,12 +8,15 @@ import space.kscience.krig.api.descriptors.attributes.MetadataAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
+import space.kscience.krig.api.descriptors.attributes.TaskAttribute
+import space.kscience.krig.api.descriptors.attributes.isLongRunningTask
 import space.kscience.krig.api.descriptors.attributes.description
 import space.kscience.krig.api.descriptors.attributes.metadata
 import space.kscience.krig.api.descriptors.attributes.mutable
 import space.kscience.krig.api.descriptors.attributes.readable
 import space.kscience.krig.api.descriptors.attributes.requiredLocks
 import space.kscience.krig.api.descriptors.attributes.retryPolicy
+import space.kscience.krig.api.descriptors.attributes.taskStateProperty
 import space.kscience.krig.api.descriptors.attributes.timeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -86,5 +89,25 @@ class OperationDescriptorSerializationTest {
         assertEquals("Starts the pump", decoded.metadata?.description)
         assertTrue(decoded.readable)
         assertEquals(false, decoded.mutable)
+    }
+
+    @Test
+    fun actionDescriptorRoundTripsWithTaskAttribute() {
+        val stateProperty = "calibration.state".asName()
+        val descriptor = ActionDescriptor(
+            name = "calibration.start".asName(),
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.Task of TaskAttribute(
+                    stateProperty = stateProperty,
+                    progressProperty = "calibration.progress".asName(),
+                    cancelAction = "calibration.cancel".asName(),
+                ),
+            ),
+        )
+
+        val decoded = json.decodeFromString<ActionDescriptor>(json.encodeToString(descriptor))
+
+        assertTrue(decoded.isLongRunningTask)
+        assertEquals(stateProperty, decoded.taskStateProperty)
     }
 }

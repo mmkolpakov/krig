@@ -49,7 +49,12 @@ public object OperationAttributeKeys {
         BindingsAttribute.serializer(),
     )
 
-    public val standard: Set<SerializableAttribute<*>> = setOf(Metadata, Behavior, Access, Bindings)
+    public object Task : OperationAttributeKey<TaskAttribute>(
+        "attr.task",
+        TaskAttribute.serializer(),
+    )
+
+    public val standard: Set<SerializableAttribute<*>> = setOf(Metadata, Behavior, Access, Bindings, Task)
 }
 
 /**
@@ -149,3 +154,33 @@ public val OperationDescriptor.bindings: Map<String, Meta>
 
 /** Protocol binding [Meta] for [adapterId], or `null` when the adapter declares none. */
 public fun OperationDescriptor.binding(adapterId: String): Meta? = bindings[adapterId]
+
+/**
+ * Contract hint for an action that starts or controls a long-running task.
+ *
+ * The action is still the command/trigger. Task progress is exposed through regular device state
+ * and optional task messages so clients do not have to keep a blocking action call open.
+ */
+@Serializable
+@SerialName("attr.task")
+public data class TaskAttribute(
+    val stateProperty: Name? = null,
+    val progressProperty: Name? = null,
+    val cancelAction: Name? = null,
+    val emitsMessages: Boolean = true,
+)
+
+public val OperationDescriptor.task: TaskAttribute?
+    get() = attribute(OperationAttributeKeys.Task)
+
+public val OperationDescriptor.taskStateProperty: Name?
+    get() = task?.stateProperty
+
+public val OperationDescriptor.taskProgressProperty: Name?
+    get() = task?.progressProperty
+
+public val OperationDescriptor.cancelTaskAction: Name?
+    get() = task?.cancelAction
+
+public val OperationDescriptor.isLongRunningTask: Boolean
+    get() = task != null

@@ -10,6 +10,7 @@ fun main(): Unit = runBlocking {
     goldenPathDemo()
     industrialAssemblyDemo()
     stateModelDemo()
+    calibrationTaskDemo()
     metaInteropDemo()
     deviceTreeDemo()
     deviceTreeAcquisitionDemo()
