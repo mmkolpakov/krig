@@ -758,16 +758,19 @@ public final class space/kscience/krig/core/contracts/RemoteDeviceManifestRef$Co
 
 public final class space/kscience/krig/core/contracts/RemoteTypedActivation {
 	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedActivation$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
 	public final fun component3 ()Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteTypedActivation;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public final fun component7 ()Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteTypedActivation;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCompatibilityReport ()Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;
 	public final fun getDeviceId ()Lspace/kscience/dataforge/names/Name;
 	public final fun getExpectedManifestId ()Lspace/kscience/dataforge/names/Name;
 	public final fun getExpectedSchemaHash ()Ljava/lang/String;
@@ -796,7 +799,9 @@ public final class space/kscience/krig/core/contracts/RemoteTypedActivation$Comp
 }
 
 public final class space/kscience/krig/core/contracts/RemoteTypedActivationKt {
+	public static final fun activateTypedFacade (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
 	public static final fun activateTypedFacade (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public static synthetic fun activateTypedFacade$default (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
 	public static final fun remoteManifestRef (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
 }
 
@@ -805,6 +810,7 @@ public final class space/kscience/krig/core/contracts/RemoteTypedActivationStatu
 	public static final field Enabled Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
 	public static final field ManifestMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
 	public static final field SchemaMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static final field StructurallyEnabled Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
 	public static final field VersionMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
@@ -812,6 +818,79 @@ public final class space/kscience/krig/core/contracts/RemoteTypedActivationStatu
 }
 
 public final class space/kscience/krig/core/contracts/RemoteTypedActivationStatus$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getProperty ()Lspace/kscience/dataforge/names/Name;
+	public final fun getReason ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityIssue$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy$Companion;
+	public static final field StrictHash Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+	public static final field StructuralPropertySubset Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+	public static fun values ()[Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityReport {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport$Companion;
+	public fun <init> (Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;Ljava/util/List;)V
+	public synthetic fun <init> (Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;Ljava/util/List;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCompatible ()Z
+	public final fun getPolicy ()Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityPolicy;
+	public final fun getPropertyIssues ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/core/contracts/RemoteTypedCompatibilityReport$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/core/contracts/RemoteTypedCompatibilityReport;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedCompatibilityReport$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

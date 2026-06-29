@@ -18,6 +18,12 @@ class RemoteTypedActivationTest {
         valueTypeId = TypeIds.DOUBLE,
         metaDescriptor = MetaDescriptor(valueTypes = listOf(ValueType.NUMBER)),
     )
+    private val temperature = PropertyDescriptor(
+        name = "temperature".asName(),
+        kind = PropertyKind.PHYSICAL,
+        valueTypeId = TypeIds.DOUBLE,
+        metaDescriptor = MetaDescriptor(valueTypes = listOf(ValueType.NUMBER)),
+    )
 
     private fun manifest(
         id: String = "lab.pump",
@@ -55,5 +61,49 @@ class RemoteTypedActivationTest {
         assertEquals(RemoteTypedActivationStatus.ManifestMismatch, manifestMismatch.status)
         assertEquals(RemoteTypedActivationStatus.VersionMismatch, versionMismatch.status)
         assertEquals(RemoteTypedActivationStatus.SchemaMismatch, schemaMismatch.status)
+    }
+
+    @Test
+    fun strictPolicyRejectsRemoteStructuralSupersetByDefault() {
+        val local = manifest()
+        val remoteManifest = manifest(properties = mapOf(rpm.name to rpm, temperature.name to temperature))
+
+        val activation = local.activateTypedFacade(remoteManifest.remoteManifestRef("edge.pump".asName()))
+
+        assertFalse(activation.typedFacadeEnabled)
+        assertEquals(RemoteTypedActivationStatus.SchemaMismatch, activation.status)
+    }
+
+    @Test
+    fun structuralPolicyAcceptsRemotePropertySuperset() {
+        val local = manifest()
+        val remoteManifest = manifest(properties = mapOf(rpm.name to rpm, temperature.name to temperature))
+
+        val activation = local.activateTypedFacade(
+            remoteManifest = remoteManifest,
+            deviceId = "edge.pump".asName(),
+            policy = RemoteTypedCompatibilityPolicy.StructuralPropertySubset,
+        )
+
+        assertTrue(activation.typedFacadeEnabled)
+        assertEquals(RemoteTypedActivationStatus.StructurallyEnabled, activation.status)
+        assertTrue(activation.compatibilityReport.compatible)
+    }
+
+    @Test
+    fun structuralPolicyRejectsPropertyDescriptorMismatch() {
+        val local = manifest()
+        val remoteRpm = rpm.copy(valueTypeId = TypeIds.STRING)
+        val remoteManifest = manifest(properties = mapOf(rpm.name to remoteRpm))
+
+        val activation = local.activateTypedFacade(
+            remoteManifest = remoteManifest,
+            deviceId = "edge.pump".asName(),
+            policy = RemoteTypedCompatibilityPolicy.StructuralPropertySubset,
+        )
+
+        assertFalse(activation.typedFacadeEnabled)
+        assertEquals(RemoteTypedActivationStatus.SchemaMismatch, activation.status)
+        assertEquals(listOf(rpm.name), activation.compatibilityReport.propertyIssues.map { it.property })
     }
 }
