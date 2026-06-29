@@ -681,26 +681,35 @@ public abstract interface class space/kscience/krig/core/contracts/GracefullyClo
 	public abstract fun closeGracefully-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class space/kscience/krig/core/contracts/MetaBackendAdapter : space/kscience/krig/core/contracts/DeviceBackend {
+public final class space/kscience/krig/core/contracts/MetaBackendAdapter : space/kscience/krig/core/contracts/typed/TypedDeviceBackend {
 	public fun <init> (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)V
 	public synthetic fun <init> (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
+	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
+	public fun actionSpecs ()Ljava/util/Map;
 	public fun applySubscribeOptions (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/contracts/SubscribeOptions;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun close ()V
 	public fun execute (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun observedReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedObservedReader;
+	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
+	public fun propertySpecs ()Ljava/util/Map;
 	public fun read (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun readBatchBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun readBatchObserved (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Collection;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun readBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun readObserved (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedReader;
+	public fun sampler (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedSampler;
 	public fun shutdown (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun write (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeBatch (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun writeBinary (Lspace/kscience/krig/core/contracts/DeviceEnvironment;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/io/Binary;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedWriter;
 }
 
 public final class space/kscience/krig/core/contracts/MetaBackendAdapterKt {
-	public static final fun metaBackendOf (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/DeviceBackend;
-	public static synthetic fun metaBackendOf$default (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceBackend;
+	public static final fun metaBackendOf (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
+	public static synthetic fun metaBackendOf$default (Lspace/kscience/krig/core/contracts/typed/TypedBackend;Ljava/util/Map;Ljava/util/Map;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/typed/TypedDeviceBackend;
 }
 
 public final class space/kscience/krig/core/contracts/OperationTrackingScope$Key : kotlin/coroutines/CoroutineContext$Key {
