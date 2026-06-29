@@ -40,7 +40,9 @@ suspend fun alpha3Showcase() {
     distributedTypedProxyDemo()
     distributedFlowTransferDemo()
     magixEnvelopeInteropDemo()
+    envelopeBrokerInteropDemo()
     binaryPayloadDemo()
     telemetryAnalyticsDemo()
+    replayWhatIfWorkspaceDemo()
     timeTravelDemo()
 }

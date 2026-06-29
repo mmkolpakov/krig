@@ -63,6 +63,10 @@ public abstract interface class space/kscience/krig/core/dataforge/DeviceMessage
 	public abstract fun encode (Lspace/kscience/krig/api/messages/DeviceMessageFrame;)Lspace/kscience/dataforge/io/Envelope;
 }
 
+public final class space/kscience/krig/core/dataforge/DeviceMessageFrameCodecKt {
+	public static final fun toKrigWireHeaders (Lspace/kscience/dataforge/io/Envelope;)Ljava/util/Map;
+}
+
 public final class space/kscience/krig/core/dataforge/DeviceMessageFrameKeys {
 	public static final field ENVELOPE_TYPE Ljava/lang/String;
 	public static final field INSTANCE Lspace/kscience/krig/core/dataforge/DeviceMessageFrameKeys;

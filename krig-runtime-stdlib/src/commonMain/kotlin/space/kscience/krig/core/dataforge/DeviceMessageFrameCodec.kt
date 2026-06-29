@@ -17,6 +17,7 @@ import space.kscience.krig.api.identifiers.CorrelationId
 import space.kscience.krig.api.identifiers.wireValue
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
+import space.kscience.krig.api.messages.KrigWireHeaders
 import space.kscience.krig.api.messages.MessageContext
 import space.kscience.krig.api.serialization.krigStorageJson
 
@@ -64,6 +65,12 @@ public class KotlinxJsonDeviceMessageFrameCodec(
             context = envelope.meta.toMessageContext(),
         )
     }
+}
+
+/** Extracts stable KRig broker headers from a DataForge [Envelope] produced by [DeviceMessageFrameCodec]. */
+public fun Envelope.toKrigWireHeaders(): Map<String, String> = buildMap {
+    meta[DeviceMessageFrameKeys.MESSAGE_TYPE]?.string?.let { put(KrigWireHeaders.MessageType, it) }
+    meta[DeviceMessageFrameKeys.CORRELATION_ID]?.string?.let { put(KrigWireHeaders.CorrelationId, it) }
 }
 
 private fun MessageContext.toEnvelopeMeta(message: DeviceMessage): Meta = Meta {
