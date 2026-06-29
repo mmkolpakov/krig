@@ -107,6 +107,38 @@ public final class space/kscience/krig/flow/FlowConsumerSpec : space/kscience/kr
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/flow/FlowConversionInput {
+	public synthetic fun <init> (Lspace/kscience/krig/flow/FlowPort;DILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/krig/flow/FlowPort;DLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/flow/FlowPort;
+	public final fun component2-wz1UyFI ()D
+	public final fun copy-onG-kC4 (Lspace/kscience/krig/flow/FlowPort;D)Lspace/kscience/krig/flow/FlowConversionInput;
+	public static synthetic fun copy-onG-kC4$default (Lspace/kscience/krig/flow/FlowConversionInput;Lspace/kscience/krig/flow/FlowPort;DILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionInput;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCoefficient-wz1UyFI ()D
+	public final fun getPort ()Lspace/kscience/krig/flow/FlowPort;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/flow/FlowConversionSpec : space/kscience/krig/flow/FlowBlockSpec {
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/util/List;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowRate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/util/List;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowRate;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Lspace/kscience/krig/flow/FlowPort;
+	public final fun component4-VdO3wG0 ()Lspace/kscience/krig/flow/FlowRate;
+	public final fun copy-jXkENGA (Lspace/kscience/dataforge/names/Name;Ljava/util/List;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowRate;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public static synthetic fun copy-jXkENGA$default (Lspace/kscience/krig/flow/FlowConversionSpec;Lspace/kscience/dataforge/names/Name;Ljava/util/List;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowRate;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getInputs ()Ljava/util/List;
+	public final fun getOutput ()Lspace/kscience/krig/flow/FlowPort;
+	public final fun getProductionLimit-VdO3wG0 ()Lspace/kscience/krig/flow/FlowRate;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/flow/FlowDelayedSpec : space/kscience/krig/flow/FlowBlockSpec {
 	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;ILspace/kscience/krig/flow/FlowRate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;ILspace/kscience/krig/flow/FlowRate;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -164,6 +196,14 @@ public final class space/kscience/krig/flow/FlowGraphBuilder {
 	public final fun consumer-efY3WH4 (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;DLspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowConsumerSpec;
 	public static synthetic fun consumer-efY3WH4$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;DLjava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConsumerSpec;
 	public static synthetic fun consumer-efY3WH4$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;DLspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConsumerSpec;
+	public final fun conversion-aiMW-44 (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/krig/flow/FlowRate;Ljava/lang/String;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public final fun conversion-aiMW-44 (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public static synthetic fun conversion-aiMW-44$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/krig/flow/FlowRate;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public static synthetic fun conversion-aiMW-44$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public final fun conversion-sMtaifk (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public final fun conversion-sMtaifk (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public static synthetic fun conversion-sMtaifk$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionSpec;
+	public static synthetic fun conversion-sMtaifk$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowConversionSpec;
 	public final fun delayed-nXJrnOA (Ljava/lang/String;Ljava/lang/String;ILspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/flow/FlowDelayedSpec;
 	public final fun delayed-nXJrnOA (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;ILspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowDelayedSpec;
 	public static synthetic fun delayed-nXJrnOA$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;ILspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowDelayedSpec;
@@ -180,10 +220,6 @@ public final class space/kscience/krig/flow/FlowGraphBuilder {
 	public final fun producer-efY3WH4 (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;DLspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowProducerSpec;
 	public static synthetic fun producer-efY3WH4$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;DLjava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowProducerSpec;
 	public static synthetic fun producer-efY3WH4$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;DLspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowProducerSpec;
-	public final fun reaction-sMtaifk (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/flow/FlowReactionSpec;
-	public final fun reaction-sMtaifk (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowReactionSpec;
-	public static synthetic fun reaction-sMtaifk$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowReactionSpec;
-	public static synthetic fun reaction-sMtaifk$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;DLspace/kscience/krig/flow/FlowRate;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowReactionSpec;
 	public final fun separate-uTSsKKM (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;)Lspace/kscience/krig/flow/FlowSeparateSpec;
 	public final fun separate-uTSsKKM (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/Map;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/flow/FlowSeparateSpec;
 	public static synthetic fun separate-uTSsKKM$default (Lspace/kscience/krig/flow/FlowGraphBuilder;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowSeparateSpec;
@@ -326,26 +362,6 @@ public final class space/kscience/krig/flow/FlowRatio : java/lang/Comparable {
 public final class space/kscience/krig/flow/FlowRatio$Companion {
 	public final fun getONE-wz1UyFI ()D
 	public final fun getZERO-wz1UyFI ()D
-}
-
-public final class space/kscience/krig/flow/FlowReactionSpec : space/kscience/krig/flow/FlowBlockSpec {
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;DLspace/kscience/krig/flow/FlowRate;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;DLspace/kscience/krig/flow/FlowRate;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Lspace/kscience/krig/flow/FlowPort;
-	public final fun component3 ()Lspace/kscience/krig/flow/FlowPort;
-	public final fun component4-wz1UyFI ()D
-	public final fun component5-VdO3wG0 ()Lspace/kscience/krig/flow/FlowRate;
-	public final fun copy-XpamtgI (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;DLspace/kscience/krig/flow/FlowRate;)Lspace/kscience/krig/flow/FlowReactionSpec;
-	public static synthetic fun copy-XpamtgI$default (Lspace/kscience/krig/flow/FlowReactionSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/flow/FlowPort;Lspace/kscience/krig/flow/FlowPort;DLspace/kscience/krig/flow/FlowRate;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowReactionSpec;
-	public fun equals (Ljava/lang/Object;)Z
-	public fun getId ()Lspace/kscience/dataforge/names/Name;
-	public final fun getInput ()Lspace/kscience/krig/flow/FlowPort;
-	public final fun getInputLimit-VdO3wG0 ()Lspace/kscience/krig/flow/FlowRate;
-	public final fun getOutput ()Lspace/kscience/krig/flow/FlowPort;
-	public final fun getYield-wz1UyFI ()D
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
 }
 
 public final class space/kscience/krig/flow/FlowSeparateSpec : space/kscience/krig/flow/FlowBlockSpec {

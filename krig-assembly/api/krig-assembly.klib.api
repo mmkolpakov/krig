@@ -416,6 +416,22 @@ final class space.kscience.krig.assembly/DeviceFactoryPlugin : space.kscience.da
     }
 }
 
+final class space.kscience.krig.assembly/ProcessFlowImportOptions { // space.kscience.krig.assembly/ProcessFlowImportOptions|null[0]
+    constructor <init>(space.kscience.krig.flow/FlowUnit = ..., kotlin/Long = ...) // space.kscience.krig.assembly/ProcessFlowImportOptions.<init>|<init>(space.kscience.krig.flow.FlowUnit;kotlin.Long){}[0]
+
+    final val defaultUnit // space.kscience.krig.assembly/ProcessFlowImportOptions.defaultUnit|{}defaultUnit[0]
+        final fun <get-defaultUnit>(): space.kscience.krig.flow/FlowUnit // space.kscience.krig.assembly/ProcessFlowImportOptions.defaultUnit.<get-defaultUnit>|<get-defaultUnit>(){}[0]
+    final val delayStepMillis // space.kscience.krig.assembly/ProcessFlowImportOptions.delayStepMillis|{}delayStepMillis[0]
+        final fun <get-delayStepMillis>(): kotlin/Long // space.kscience.krig.assembly/ProcessFlowImportOptions.delayStepMillis.<get-delayStepMillis>|<get-delayStepMillis>(){}[0]
+
+    final fun component1(): space.kscience.krig.flow/FlowUnit // space.kscience.krig.assembly/ProcessFlowImportOptions.component1|component1(){}[0]
+    final fun component2(): kotlin/Long // space.kscience.krig.assembly/ProcessFlowImportOptions.component2|component2(){}[0]
+    final fun copy(space.kscience.krig.flow/FlowUnit = ..., kotlin/Long = ...): space.kscience.krig.assembly/ProcessFlowImportOptions // space.kscience.krig.assembly/ProcessFlowImportOptions.copy|copy(space.kscience.krig.flow.FlowUnit;kotlin.Long){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/ProcessFlowImportOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/ProcessFlowImportOptions.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/ProcessFlowImportOptions.toString|toString(){}[0]
+}
+
 final object space.kscience.krig.assembly/AcquisitionConnectors { // space.kscience.krig.assembly/AcquisitionConnectors|null[0]
     final val KrigDevice // space.kscience.krig.assembly/AcquisitionConnectors.KrigDevice|{}KrigDevice[0]
         final fun <get-KrigDevice>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/AcquisitionConnectors.KrigDevice.<get-KrigDevice>|<get-KrigDevice>(){}[0]
@@ -465,6 +481,8 @@ final fun space.kscience.krig.assembly/acquisitionTagReader(kotlin.time/Clock = 
 final fun space.kscience.krig.assembly/connectorAcquisitionReader(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.assembly/AcquisitionSourceReader>): space.kscience.krig.assembly/AcquisitionSourceReader // space.kscience.krig.assembly/connectorAcquisitionReader|connectorAcquisitionReader(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.assembly.AcquisitionSourceReader>){}[0]
 final fun space.kscience.krig.assembly/dataAcquisition(kotlin/Function1<space.kscience.krig.assembly/DataAcquisitionBuilder, kotlin/Unit>): space.kscience.krig.assembly/DataAcquisitionConfiguration // space.kscience.krig.assembly/dataAcquisition|dataAcquisition(kotlin.Function1<space.kscience.krig.assembly.DataAcquisitionBuilder,kotlin.Unit>){}[0]
 final fun space.kscience.krig.assembly/deviceTreeAcquisitionReader(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/Device>): space.kscience.krig.assembly/AcquisitionSourceReader // space.kscience.krig.assembly/deviceTreeAcquisitionReader|deviceTreeAcquisitionReader(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.core.contracts.Device>){}[0]
+final fun space.kscience.krig.assembly/importProcessFlowGraphFromJson(kotlin/String, space.kscience.krig.assembly/ProcessFlowImportOptions = ...): space.kscience.krig.flow/FlowGraph // space.kscience.krig.assembly/importProcessFlowGraphFromJson|importProcessFlowGraphFromJson(kotlin.String;space.kscience.krig.assembly.ProcessFlowImportOptions){}[0]
+final fun space.kscience.krig.assembly/importProcessFlowGraphFromMeta(space.kscience.dataforge.meta/Meta, space.kscience.krig.assembly/ProcessFlowImportOptions = ..., kotlin/Boolean = ...): space.kscience.krig.flow/FlowGraph // space.kscience.krig.assembly/importProcessFlowGraphFromMeta|importProcessFlowGraphFromMeta(space.kscience.dataforge.meta.Meta;space.kscience.krig.assembly.ProcessFlowImportOptions;kotlin.Boolean){}[0]
 final fun space.kscience.krig.assembly/krigJson(space.kscience.dataforge.context/Context, kotlin/Array<out space.kscience.krig.api.serialization/SerializationContributor>...): kotlinx.serialization.json/Json // space.kscience.krig.assembly/krigJson|krigJson(space.kscience.dataforge.context.Context;kotlin.Array<out|space.kscience.krig.api.serialization.SerializationContributor>...){}[0]
 final fun space.kscience.krig.assembly/krigStorageJson(space.kscience.dataforge.context/Context, kotlin/Array<out space.kscience.krig.api.serialization/SerializationContributor>...): kotlinx.serialization.json/Json // space.kscience.krig.assembly/krigStorageJson|krigStorageJson(space.kscience.dataforge.context.Context;kotlin.Array<out|space.kscience.krig.api.serialization.SerializationContributor>...){}[0]
 final fun space.kscience.krig.assembly/observedAcquisitionTagReader(kotlin.coroutines/SuspendFunction1<space.kscience.krig.assembly/AcquisitionTagSpec, space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>>): space.kscience.krig.assembly/AcquisitionTagReader // space.kscience.krig.assembly/observedAcquisitionTagReader|observedAcquisitionTagReader(kotlin.coroutines.SuspendFunction1<space.kscience.krig.assembly.AcquisitionTagSpec,space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>>){}[0]

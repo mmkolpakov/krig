@@ -1,14 +1,24 @@
 package space.kscience.krig.assembly
 
+import kotlinx.coroutines.test.runTest
+import space.kscience.dataforge.io.JsonMetaFormat
+import space.kscience.dataforge.io.parse
+import space.kscience.dataforge.names.asName
+import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.core.contracts.typed.readObservedOutcome
+import space.kscience.krig.flow.FlowPropertyContracts
+import space.kscience.krig.flow.toSteppedBackend
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
-class FlowModelCompatibilityTest {
+class ProcessFlowDialectTest {
 
     @Test
-    fun chemicalFactoryFixtureDefinesCompatibilityTarget() {
-        val model = FlowModelConfiguration.fromJsonString(ChemicalFactoryJson)
+    fun chemicalFactoryFixtureDefinesExternalDialectTarget() {
+        val model = ExternalFlowModelDocument.fromJsonString(ChemicalFactoryJson)
 
         assertEquals("flowModel", model.type)
         assertEquals("ChemicalFactory", model.name)
@@ -18,14 +28,14 @@ class FlowModelCompatibilityTest {
         )
         assertEquals(7, model.parameters.flowBindings.size)
 
-        val diagnostics = model.validateCompatibilityTarget()
-        assertTrue(diagnostics.none { it.severity == FlowModelDiagnosticSeverity.Error }, diagnostics.toString())
+        val diagnostics = model.validateProcessFlowDialect()
+        assertTrue(diagnostics.none { it.severity == ProcessFlowDiagnosticSeverity.Error }, diagnostics.toString())
         assertTrue(diagnostics.any { it.code == "flow.parameter.legacy-spelling" }, diagnostics.toString())
     }
 
     @Test
     fun diagnosticsCatchUnknownModelsPortsAndAmbiguousEndpoints() {
-        val model = FlowModelConfiguration.fromJsonString(
+        val model = ExternalFlowModelDocument.fromJsonString(
             """
             {
               "type": "flowModel",
@@ -55,7 +65,7 @@ class FlowModelCompatibilityTest {
             """.trimIndent(),
         )
 
-        val diagnostics = model.validateCompatibilityTarget()
+        val diagnostics = model.validateProcessFlowDialect()
         val codes = diagnostics.map { it.code }.toSet()
 
         assertTrue("flow.parameter.unsupported" in codes, diagnostics.toString())
@@ -67,7 +77,7 @@ class FlowModelCompatibilityTest {
 
     @Test
     fun modifierKindsAreRecognizedButNotExpandedIntoCoreApi() {
-        val model = FlowModelConfiguration.fromJsonString(
+        val model = ExternalFlowModelDocument.fromJsonString(
             """
             {
               "type": "flowModel",
@@ -89,9 +99,67 @@ class FlowModelCompatibilityTest {
             """.trimIndent(),
         )
 
-        val diagnostics = model.validateCompatibilityTarget()
+        val diagnostics = model.validateProcessFlowDialect()
 
         assertTrue(diagnostics.none { it.code == "flow.model.type.unsupported" }, diagnostics.toString())
+    }
+
+    @Test
+    fun chemicalFactoryFixtureBuildsExecutableProcessFlowGraph() = runTest {
+        val graph = importProcessFlowGraphFromJson(ChemicalFactoryJson)
+        val backend = graph.toSteppedBackend()
+
+        backend.step(1.seconds)
+
+        val consumed = backend.readObservedOutcome(
+            FlowPropertyContracts.totalConsumed("consumer".asName()),
+        ).getOrThrow()
+        val reactorOutput = backend.readObservedOutcome(
+            FlowPropertyContracts.lastOutput("reactor".asName()),
+        ).getOrThrow()
+
+        assertEquals(1.0, consumed.value)
+        assertEquals(1.0, reactorOutput.value)
+    }
+
+    @Test
+    fun processFlowMetaInputBuildsSameGraphShape() {
+        val graph = importProcessFlowGraphFromMeta(JsonMetaFormat().parse(ChemicalFactoryJson))
+
+        assertEquals(
+            setOf("aProducer", "bProducer", "mixer", "abBuffer", "cProducer", "cBuffer", "reactor", "consumer"),
+            graph.blocks.keys.map { it.toString() }.toSet(),
+        )
+        assertEquals(7, graph.connections.size)
+    }
+
+    @Test
+    fun adapterRejectsUnitMismatchDuringConfiguration() {
+        assertFailsWith<IllegalArgumentException> {
+            importProcessFlowGraphFromJson(
+                """
+                {
+                  "type": "flowModel",
+                  "name": "UnitMismatch",
+                  "parameters": {
+                    "models": {
+                      "source": {
+                        "type": "producer",
+                        "parameters": { "productionCapacity": 1.0, "unit": "kg" }
+                      },
+                      "sink": {
+                        "type": "consumer",
+                        "parameters": { "consumptionCapacity": 1.0, "unit": "l" }
+                      }
+                    },
+                    "flowBindings": [
+                      { "producer": "source", "consumer": "sink" }
+                    ]
+                  }
+                }
+                """.trimIndent(),
+            )
+        }
     }
 }
 

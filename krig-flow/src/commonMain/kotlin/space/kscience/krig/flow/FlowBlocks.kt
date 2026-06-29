@@ -67,16 +67,28 @@ public data class FlowDelayedSpec(
     }
 }
 
-/** Single-input/single-output conversion; [yield] is output amount per input amount. */
-public data class FlowReactionSpec(
+/** One input of [FlowConversionSpec]; [coefficient] is input amount per output amount. */
+public data class FlowConversionInput(
+    public val port: FlowPort,
+    public val coefficient: FlowRatio = FlowRatio.ONE,
+) {
+    init {
+        require(coefficient.value > 0.0) { "Conversion input '${port.id}' coefficient must be positive" }
+    }
+}
+
+/** Multi-input conversion; each input coefficient is input amount per output amount. */
+public data class FlowConversionSpec(
     override val id: Name,
-    public val input: FlowPort,
+    public val inputs: List<FlowConversionInput>,
     public val output: FlowPort,
-    public val yield: FlowRatio = FlowRatio.ONE,
-    public val inputLimit: FlowRate? = null,
+    public val productionLimit: FlowRate? = null,
 ) : FlowBlockSpec {
     init {
-        require(yield.value > 0.0) { "Reaction '$id' yield must be positive" }
+        require(inputs.isNotEmpty()) { "Conversion '$id' must have at least one input" }
+        require(inputs.map { it.port.id }.toSet().size == inputs.size) {
+            "Conversion '$id' input port ids must be unique"
+        }
     }
 }
 

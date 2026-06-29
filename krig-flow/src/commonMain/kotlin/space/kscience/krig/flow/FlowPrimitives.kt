@@ -50,7 +50,7 @@ public value class FlowRate(public val valuePerSecond: Double) : Comparable<Flow
     }
 }
 
-/** Non-negative finite multiplier for conversion yields and split shares. */
+/** Non-negative finite multiplier for conversion ratios and split shares. */
 @JvmInline
 public value class FlowRatio(public val value: Double) : Comparable<FlowRatio> {
     init {

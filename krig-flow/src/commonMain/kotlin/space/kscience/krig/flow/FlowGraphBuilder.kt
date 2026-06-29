@@ -158,40 +158,74 @@ public class FlowGraphBuilder {
     )
 
     @IgnorableReturnValue
-    public fun reaction(
+    public fun conversion(
         id: Name,
         inputUnit: FlowUnit,
         outputUnit: FlowUnit = inputUnit,
-        yield: FlowRatio = FlowRatio.ONE,
+        outputPerInput: FlowRatio = FlowRatio.ONE,
         inputLimit: FlowRate? = null,
         input: Name = DefaultPorts.Input,
         output: Name = DefaultPorts.Output,
-    ): FlowReactionSpec = add(
-        FlowReactionSpec(
+    ): FlowConversionSpec {
+        require(outputPerInput.value > 0.0) { "Conversion '$id' outputPerInput must be positive" }
+        val productionLimit = inputLimit?.let { FlowRate(it.valuePerSecond * outputPerInput.value) }
+        return add(
+            FlowConversionSpec(
+                id = id,
+                inputs = listOf(FlowConversionInput(FlowPort(input, inputUnit), FlowRatio(1.0 / outputPerInput.value))),
+                output = FlowPort(output, outputUnit),
+                productionLimit = productionLimit,
+            ),
+        )
+    }
+
+    @IgnorableReturnValue
+    public fun conversion(
+        id: Name,
+        unit: FlowUnit,
+        inputCoefficients: Map<Name, FlowRatio>,
+        productionLimit: FlowRate? = null,
+        output: Name = DefaultPorts.Output,
+    ): FlowConversionSpec = add(
+        FlowConversionSpec(
             id = id,
-            input = FlowPort(input, inputUnit),
-            output = FlowPort(output, outputUnit),
-            yield = yield,
-            inputLimit = inputLimit,
+            inputs = inputCoefficients.map { (port, coefficient) -> FlowConversionInput(FlowPort(port, unit), coefficient) },
+            output = FlowPort(output, unit),
+            productionLimit = productionLimit,
         ),
     )
 
     @IgnorableReturnValue
-    public fun reaction(
+    public fun conversion(
         id: String,
         inputUnit: FlowUnit,
         outputUnit: FlowUnit = inputUnit,
-        yield: FlowRatio = FlowRatio.ONE,
+        outputPerInput: FlowRatio = FlowRatio.ONE,
         inputLimit: FlowRate? = null,
         input: String = "in",
         output: String = "out",
-    ): FlowReactionSpec = reaction(
+    ): FlowConversionSpec = conversion(
         id = id.asName(),
         inputUnit = inputUnit,
         outputUnit = outputUnit,
-        yield = yield,
+        outputPerInput = outputPerInput,
         inputLimit = inputLimit,
         input = input.asName(),
+        output = output.asName(),
+    )
+
+    @IgnorableReturnValue
+    public fun conversion(
+        id: String,
+        unit: FlowUnit,
+        inputCoefficients: Map<String, FlowRatio>,
+        productionLimit: FlowRate? = null,
+        output: String = "out",
+    ): FlowConversionSpec = conversion(
+        id = id.asName(),
+        unit = unit,
+        inputCoefficients = inputCoefficients.mapKeys { (port, _) -> port.asName() },
+        productionLimit = productionLimit,
         output = output.asName(),
     )
 
@@ -311,7 +345,7 @@ internal fun FlowBlockSpec.inputPorts(): Map<Name, FlowPort> = when (this) {
     is FlowLimitedSpec -> mapOf(input.id to input)
     is FlowMixSpec -> inputs.associateBy { it.id }
     is FlowProducerSpec -> emptyMap()
-    is FlowReactionSpec -> mapOf(input.id to input)
+    is FlowConversionSpec -> inputs.associate { it.port.id to it.port }
     is FlowSeparateSpec -> mapOf(input.id to input)
 }
 
@@ -322,6 +356,6 @@ internal fun FlowBlockSpec.outputPorts(): Map<Name, FlowPort> = when (this) {
     is FlowLimitedSpec -> mapOf(output.id to output)
     is FlowMixSpec -> mapOf(output.id to output)
     is FlowProducerSpec -> mapOf(output.id to output)
-    is FlowReactionSpec -> mapOf(output.id to output)
+    is FlowConversionSpec -> mapOf(output.id to output)
     is FlowSeparateSpec -> outputs.associate { it.port.id to it.port }
 }

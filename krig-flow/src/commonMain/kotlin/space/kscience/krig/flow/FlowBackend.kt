@@ -57,7 +57,7 @@ public fun FlowGraph.toSteppedBackend(clock: Clock = Clock.System): TypedStepped
                 observedSnapshotReader(id, FlowPropertyContracts.totalProduced(id), clock, ::snapshot) { totalProduced.value }
                 observedSnapshotReader(id, FlowPropertyContracts.lastOutput(id), clock, ::snapshot) { lastOutput.value }
             }
-            is FlowReactionSpec -> {
+            is FlowConversionSpec -> {
                 observedInventoryBlock(id, clock, ::snapshot)
             }
             is FlowSeparateSpec -> {

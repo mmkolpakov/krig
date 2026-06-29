@@ -116,7 +116,7 @@ private fun FlowBlockSpec.toRuntime(): RuntimeFlowBlock = when (this) {
     is FlowLimitedSpec -> RuntimeLimited(this)
     is FlowMixSpec -> RuntimeMix(this)
     is FlowProducerSpec -> RuntimeProducer(this)
-    is FlowReactionSpec -> RuntimeReaction(this)
+    is FlowConversionSpec -> RuntimeConversion(this)
     is FlowSeparateSpec -> RuntimeSeparate(this)
 }
 
@@ -347,47 +347,59 @@ private class RuntimeDelayed(private val spec: FlowDelayedSpec) : RuntimeFlowBlo
     private fun acceptIndex(): Int = (currentIndex + spec.delaySteps) % buckets.size
 }
 
-private class RuntimeReaction(private val spec: FlowReactionSpec) : RuntimeFlowBlock {
-    private var inputInventory = 0.0
-    private var inputRemaining = 0.0
+private class RuntimeConversion(private val spec: FlowConversionSpec) : RuntimeFlowBlock {
+    private val inputIds: List<Name> = spec.inputs.map { it.port.id }
+    private val inputIndex: Map<Name, Int> = inputIds.withIndex().associate { (index, id) -> id to index }
+    private val coefficients: DoubleArray = spec.inputs.map { it.coefficient.value }.toDoubleArray()
+    private val inventories = DoubleArray(spec.inputs.size)
+    private var outputRemaining = 0.0
     private var lastInput = 0.0
     private var lastOutput = 0.0
 
     override fun beginStep(seconds: Double) {
-        inputRemaining = spec.inputLimit?.valuePerSecond?.times(seconds) ?: Double.POSITIVE_INFINITY
+        outputRemaining = spec.productionLimit?.valuePerSecond?.times(seconds) ?: Double.POSITIVE_INFINITY
         lastInput = 0.0
         lastOutput = 0.0
     }
 
     override fun available(portId: Name): Double {
         if (portId != spec.output.id) return 0.0
-        return inputInventory * spec.yield.value
+        var available = Double.POSITIVE_INFINITY
+        for (index in inventories.indices) {
+            available = min(available, inventories[index] / coefficients[index])
+        }
+        return min(available, outputRemaining)
     }
 
-    override fun remainingInput(portId: Name): Double =
-        if (portId == spec.input.id) inputRemaining else 0.0
+    override fun remainingInput(portId: Name): Double {
+        val index = inputIndex[portId] ?: return 0.0
+        if (outputRemaining == Double.POSITIVE_INFINITY) return Double.POSITIVE_INFINITY
+        return (outputRemaining * coefficients[index] - inventories[index]).coerceAtLeast(0.0)
+    }
 
     override fun take(portId: Name, amount: Double): Double {
         if (portId != spec.output.id) return 0.0
         val taken = amount.coerceIn(0.0, available(portId))
-        inputInventory = (inputInventory - taken / spec.yield.value).coerceAtLeast(0.0)
+        for (index in inventories.indices) {
+            inventories[index] = (inventories[index] - taken * coefficients[index]).coerceAtLeast(0.0)
+        }
+        outputRemaining -= taken
         lastOutput += taken
         return taken
     }
 
     override fun accept(portId: Name, amount: Double): Double {
-        if (portId != spec.input.id) return 0.0
-        val accepted = amount.coerceIn(0.0, inputRemaining)
-        inputInventory += accepted
-        inputRemaining -= accepted
+        val index = inputIndex[portId] ?: return 0.0
+        val accepted = amount.coerceIn(0.0, remainingInput(portId))
+        inventories[index] += accepted
         lastInput += accepted
         return accepted
     }
 
     override fun snapshot(): FlowBlockSnapshot = FlowBlockSnapshot(
         id = spec.id,
-        kind = "reaction",
-        inventory = FlowAmount(inputInventory),
+        kind = "conversion",
+        inventory = FlowAmount(inventories.total()),
         lastInput = FlowAmount(lastInput),
         lastOutput = FlowAmount(lastOutput),
     )

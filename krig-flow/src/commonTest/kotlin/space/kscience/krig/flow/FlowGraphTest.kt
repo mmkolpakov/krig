@@ -78,10 +78,10 @@ class FlowGraphTest {
     }
 
     @Test
-    fun reactionConvertsInputByYield() {
+    fun conversionTransformsInputByOutputRatio() {
         val graph = flowGraph {
             producer("feed", FlowUnits.Kilogram, FlowRate(10.0))
-            reaction("reactor", FlowUnits.Kilogram, yield = FlowRatio(0.5))
+            conversion("reactor", FlowUnits.Kilogram, outputPerInput = FlowRatio(0.5))
             consumer("product", FlowUnits.Kilogram, capacity = FlowRate(10.0))
             connect("feed", "reactor")
             connect("reactor", "product")
@@ -93,6 +93,44 @@ class FlowGraphTest {
         assertEquals(5.0, snapshot.getValue("reactor".asName()).lastOutput.value)
         assertEquals(5.0, snapshot.getValue("product".asName()).totalConsumed.value)
         assertEquals(0.0, snapshot.getValue("reactor".asName()).inventory?.value)
+    }
+
+    @Test
+    fun singleInputConversionLimitDoesNotAccumulateExcessFeed() {
+        val graph = flowGraph {
+            producer("feed", FlowUnits.Kilogram, FlowRate(10.0))
+            conversion("reactor", FlowUnits.Kilogram, outputPerInput = FlowRatio(2.0), inputLimit = FlowRate(1.0))
+            consumer("product", FlowUnits.Kilogram, capacity = FlowRate(10.0))
+            connect("feed", "reactor")
+            connect("reactor", "product")
+        }
+
+        val snapshot = graph.step(1.seconds).snapshot.blocks
+        assertEquals(1.0, snapshot.getValue("feed".asName()).totalProduced.value)
+        assertEquals(1.0, snapshot.getValue("reactor".asName()).lastInput.value)
+        assertEquals(2.0, snapshot.getValue("reactor".asName()).lastOutput.value)
+        assertEquals(0.0, snapshot.getValue("reactor".asName()).inventory?.value)
+    }
+
+    @Test
+    fun conversionConsumesMultipleInputsByCoefficients() {
+        val graph = flowGraph {
+            producer("a", FlowUnits.Kilogram, FlowRate(3.0))
+            producer("b", FlowUnits.Kilogram, FlowRate(10.0))
+            conversion(
+                id = "reactor",
+                unit = FlowUnits.Kilogram,
+                inputCoefficients = mapOf("a" to FlowRatio.ONE, "b" to FlowRatio(2.0)),
+            )
+            consumer("product", FlowUnits.Kilogram, capacity = FlowRate(10.0))
+            connect("a", "reactor", targetPort = "a")
+            connect("b", "reactor", targetPort = "b")
+            connect("reactor", "product")
+        }
+
+        val snapshot = graph.step(1.seconds).snapshot.blocks
+        assertEquals(3.0, snapshot.getValue("product".asName()).totalConsumed.value)
+        assertEquals(4.0, snapshot.getValue("reactor".asName()).inventory?.value)
     }
 
     @Test
@@ -169,7 +207,7 @@ class FlowGraphTest {
     fun extendedBlocksStepRepeatably() {
         fun create(): FlowGraph = flowGraph {
             producer("feed", FlowUnits.Kilogram, FlowRate(6.0))
-            reaction("reactor", FlowUnits.Kilogram, yield = FlowRatio(0.5))
+            conversion("reactor", FlowUnits.Kilogram, outputPerInput = FlowRatio(0.5))
             limited("pipe", FlowUnits.Kilogram, outputLimit = FlowRate(2.0))
             delayed("line", FlowUnits.Kilogram, delaySteps = 1)
             consumer("sink", FlowUnits.Kilogram, capacity = FlowRate(10.0))

@@ -373,6 +373,27 @@ public final class space/kscience/krig/assembly/PluginDiscoveryJvmKt {
 	public static final fun discoverServicePlugins (Lspace/kscience/dataforge/context/Context;)Ljava/util/List;
 }
 
+public final class space/kscience/krig/assembly/ProcessFlowImportKt {
+	public static final fun importProcessFlowGraphFromJson (Ljava/lang/String;Lspace/kscience/krig/assembly/ProcessFlowImportOptions;)Lspace/kscience/krig/flow/FlowGraph;
+	public static synthetic fun importProcessFlowGraphFromJson$default (Ljava/lang/String;Lspace/kscience/krig/assembly/ProcessFlowImportOptions;ILjava/lang/Object;)Lspace/kscience/krig/flow/FlowGraph;
+	public static final fun importProcessFlowGraphFromMeta (Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/ProcessFlowImportOptions;Z)Lspace/kscience/krig/flow/FlowGraph;
+	public static synthetic fun importProcessFlowGraphFromMeta$default (Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/ProcessFlowImportOptions;ZILjava/lang/Object;)Lspace/kscience/krig/flow/FlowGraph;
+}
+
+public final class space/kscience/krig/assembly/ProcessFlowImportOptions {
+	public synthetic fun <init> (Ljava/lang/String;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-c0_JsPU ()Ljava/lang/String;
+	public final fun component2 ()J
+	public final fun copy-fv1HKxs (Ljava/lang/String;J)Lspace/kscience/krig/assembly/ProcessFlowImportOptions;
+	public static synthetic fun copy-fv1HKxs$default (Lspace/kscience/krig/assembly/ProcessFlowImportOptions;Ljava/lang/String;JILjava/lang/Object;)Lspace/kscience/krig/assembly/ProcessFlowImportOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDefaultUnit-c0_JsPU ()Ljava/lang/String;
+	public final fun getDelayStepMillis ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface class space/kscience/krig/assembly/Reducer {
 	public abstract fun reduce-kPrB3XE ([D)[D
 }
