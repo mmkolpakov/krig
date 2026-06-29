@@ -74,7 +74,6 @@ public final class space/kscience/krig/api/factory/DeviceFactoryConfigValidation
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/Meta;)V
 	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
 	public final fun getDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
-	public final fun getFactoryId ()Lspace/kscience/dataforge/names/Name;
 }
 
 public final class space/kscience/krig/api/factory/DeviceFactoryKt {

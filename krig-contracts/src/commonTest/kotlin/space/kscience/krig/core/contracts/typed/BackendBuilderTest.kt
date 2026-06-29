@@ -22,7 +22,6 @@ import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
-import space.kscience.krig.core.contracts.readObservedOutcome
 import space.kscience.krig.core.contracts.readBinaryOutcome
 import space.kscience.krig.core.contracts.stringValue
 import space.kscience.krig.core.contracts.writeOutcome

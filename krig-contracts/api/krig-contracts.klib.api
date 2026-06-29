@@ -558,8 +558,6 @@ final class space.kscience.krig.api.factory/DeviceFactoryConfigValidationExcepti
         final fun <get-config>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.config.<get-config>|<get-config>(){}[0]
     final val descriptor // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.descriptor|{}descriptor[0]
         final fun <get-descriptor>(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    final val factoryId // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.factoryId|{}factoryId[0]
-        final fun <get-factoryId>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.factory/DeviceFactoryConfigValidationException.factoryId.<get-factoryId>|<get-factoryId>(){}[0]
 }
 
 final class space.kscience.krig.api.hub/HubConflictException : kotlin/Exception { // space.kscience.krig.api.hub/HubConflictException|null[0]

@@ -16,7 +16,6 @@ import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.validationFault
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
-import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.Device

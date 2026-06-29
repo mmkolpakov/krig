@@ -7,7 +7,6 @@ package space.kscience.krig.core.contracts
 
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.context.Context
-import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.DataQuality

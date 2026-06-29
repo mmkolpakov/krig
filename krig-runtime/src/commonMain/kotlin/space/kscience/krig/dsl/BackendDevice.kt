@@ -103,7 +103,7 @@ public interface DescriptorSource {
  */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 public class BackendDevice @InternalKrigApi constructor(
-    private val backend: DeviceBackend,
+    backend: DeviceBackend,
     name: Name,
     runtime: DeviceRuntime,
     private val descriptorSource: DescriptorSource = DescriptorSource.Empty,

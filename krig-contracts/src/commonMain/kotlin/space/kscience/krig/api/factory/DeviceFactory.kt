@@ -64,7 +64,7 @@ public abstract class DeviceFactory<D : Device, C>(
 
 /** Thrown when dynamic factory config does not satisfy the factory's construction [descriptor]. */
 public class DeviceFactoryConfigValidationException(
-    public val factoryId: Name,
+    factoryId: Name,
     public val descriptor: MetaDescriptor,
     public val config: Meta,
 ) : IllegalArgumentException("Config for DeviceFactory '$factoryId' does not match its configDescriptor")

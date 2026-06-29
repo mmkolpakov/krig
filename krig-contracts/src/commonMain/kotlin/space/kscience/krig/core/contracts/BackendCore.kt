@@ -14,7 +14,6 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.faultDetails
 import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.UnstableKrigForSubclassing
 import kotlin.time.Duration
 
@@ -137,7 +136,7 @@ private class BoundBackendCore(
         return super.writeBatch(values)
     }
 
-    override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+    override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta =
         handlers.actions[action.name]?.invoke(environment, argument)
             ?: unknownAction(action.name)
 
@@ -201,10 +200,3 @@ internal fun validationFailure(message: String, property: Name? = null): Nothing
             details = faultDetails(message, property = property),
         ),
     )
-
-internal fun OperationOutcome.Fail.throwFault(): Nothing =
-    throw OperationFaultException(fault)
-
-internal fun OperationOutcome<Unit>.getOrThrowUnit(): Unit {
-    getOrThrow()
-}

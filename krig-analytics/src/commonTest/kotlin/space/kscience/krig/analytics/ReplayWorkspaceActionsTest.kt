@@ -8,7 +8,6 @@ import space.kscience.dataforge.data.get
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
-import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.workspace.Workspace
 import space.kscience.krig.api.data.DeviceSnapshot

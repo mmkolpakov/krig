@@ -1,5 +1,3 @@
-@file:Suppress("UnusedSymbol", "UnusedReceiverParameter")
-
 package space.kscience.krig.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation

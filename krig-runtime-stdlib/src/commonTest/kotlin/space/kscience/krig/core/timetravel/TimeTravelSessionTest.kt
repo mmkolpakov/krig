@@ -10,7 +10,6 @@ import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
-import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.storage.journal.InMemoryEventJournal
 import space.kscience.krig.storage.journal.SequenceCursor

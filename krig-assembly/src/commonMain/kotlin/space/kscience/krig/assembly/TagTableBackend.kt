@@ -13,7 +13,6 @@ import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
-import space.kscience.krig.api.result.map
 import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.typed.TypedAction
@@ -52,7 +51,7 @@ public fun TagTable.toBackend(
 ): TypedDeviceBackend = TagTableBackend(this, reader, writer, propertyKind, clock)
 
 private class TagTableBackend(
-    private val table: TagTable,
+    table: TagTable,
     private val sourceReader: AcquisitionSourceReader,
     private val sampleWriter: TagTableSampleWriter?,
     private val propertyKind: PropertyKind,
@@ -159,7 +158,7 @@ private class TagTableBackend(
             writer.write(tag, ObservedValue(value, environment.clock.now(), DataQuality.GOOD)).getOrThrow()
         }
 
-        override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta? =
+        override suspend fun execute(action: ActionDescriptor, argument: Meta?): Meta =
             unknownAction(action.name)
 
         override fun close() = Unit
