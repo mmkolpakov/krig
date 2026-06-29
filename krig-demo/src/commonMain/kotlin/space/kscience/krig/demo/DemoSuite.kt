@@ -33,6 +33,10 @@ fun main(): Unit = runBlocking {
  */
 suspend fun alpha3Showcase() {
     batchAcquisitionDemo()
+    tagTableBackendDemo()
+    labDiscoveryAdHocDemo()
+    edgeTelemetryWireDemo()
+    distributedTypedProxyDemo()
     binaryPayloadDemo()
     telemetryAnalyticsDemo()
     timeTravelDemo()

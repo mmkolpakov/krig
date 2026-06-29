@@ -10,6 +10,7 @@ import space.kscience.krig.core.contracts.write
 import space.kscience.krig.dsl.device
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
@@ -54,5 +55,44 @@ class GoldenPathDemoTest {
 
         pump.close()
         ctx.close()
+    }
+
+    @Test
+    fun tagTableBackendProjectsTypedAndRawPaths() = runTest {
+        val snapshot = tagTableBackendSnapshot()
+
+        assertEquals(2, snapshot.manifestProperties)
+        assertEquals(1_420.0, snapshot.typedRpm)
+        assertEquals("auto", snapshot.rawMode)
+        assertEquals(QualitySeverity.UNCERTAIN, snapshot.rpmQuality)
+    }
+
+    @Test
+    fun labDiscoveryKeepsAdHocMetaPathExplicit() = runTest {
+        val snapshot = labDiscoverySnapshot()
+
+        assertFalse(snapshot.strictWriteAccepted)
+        assertTrue(snapshot.adHocPropertyVisible)
+        assertEquals(2.5, snapshot.discoveredGain)
+    }
+
+    @Test
+    fun distributedTypedActivationUsesSchemaHash() {
+        val announcement = PumpManifest.remoteAnnouncement(deviceId = "edge.lineA.pump")
+        val accepted = activateTypedProxy(PumpManifest, announcement)
+        val rejected = activateTypedProxy(PumpManifest, announcement.copy(schemaHash = "fnv1a64:0000000000000000"))
+
+        assertTrue(accepted.typedFacadeEnabled)
+        assertFalse(rejected.typedFacadeEnabled)
+        assertTrue(rejected.reason.contains("schema mismatch"))
+    }
+
+    @Test
+    fun edgeTelemetryWireChunkStaysCommonAndQualityAware() {
+        val chunk = edgeTelemetryWireChunk(sampleCount = 16)
+
+        assertEquals(16, chunk.rowCount)
+        assertEquals(QualitySeverity.UNCERTAIN, chunk.qualityAt(row = 0, seriesIndex = 0).severity)
+        assertEquals(QualitySeverity.GOOD, chunk.qualityAt(row = 1, seriesIndex = 0).severity)
     }
 }
