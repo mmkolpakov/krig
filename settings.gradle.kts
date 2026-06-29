@@ -72,6 +72,9 @@ include(
     // Flow simulation — optional continuous-flow primitives over KRig stepping backends.
     ":krig-flow",
 
+    // UI schema — neutral KMP form descriptors projected from device manifests.
+    ":krig-ui-schema",
+
     // Jupyter integration — JVM-only convenience module for notebook demos.
     ":krig-jupyter",
 

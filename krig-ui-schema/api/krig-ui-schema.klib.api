@@ -1,0 +1,160 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <space.kscience:krig-ui-schema>
+final enum class space.kscience.krig.ui.schema/DeviceFormPropertyOrigin : kotlin/Enum<space.kscience.krig.ui.schema/DeviceFormPropertyOrigin> { // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin|null[0]
+    enum entry Discovered // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.Discovered|null[0]
+    enum entry Manifest // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.Manifest|null[0]
+
+    final val entries // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.ui.schema/DeviceFormPropertyOrigin> // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.ui.schema/DeviceFormPropertyOrigin // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.ui.schema/DeviceFormPropertyOrigin> // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.values|values#static(){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormPropertyOrigin> // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.ui.schema/DeviceFormPropertyOrigin.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+final class space.kscience.krig.ui.schema/DeviceFormAction { // space.kscience.krig.ui.schema/DeviceFormAction|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/String? = ..., kotlinx.serialization.json/JsonObject, kotlinx.serialization.json/JsonObject) // space.kscience.krig.ui.schema/DeviceFormAction.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String?;kotlinx.serialization.json.JsonObject;kotlinx.serialization.json.JsonObject){}[0]
+
+    final val description // space.kscience.krig.ui.schema/DeviceFormAction.description|{}description[0]
+        final fun <get-description>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormAction.description.<get-description>|<get-description>(){}[0]
+    final val inputSchema // space.kscience.krig.ui.schema/DeviceFormAction.inputSchema|{}inputSchema[0]
+        final fun <get-inputSchema>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormAction.inputSchema.<get-inputSchema>|<get-inputSchema>(){}[0]
+    final val name // space.kscience.krig.ui.schema/DeviceFormAction.name|{}name[0]
+        final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormAction.name.<get-name>|<get-name>(){}[0]
+    final val outputSchema // space.kscience.krig.ui.schema/DeviceFormAction.outputSchema|{}outputSchema[0]
+        final fun <get-outputSchema>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormAction.outputSchema.<get-outputSchema>|<get-outputSchema>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormAction.component1|component1(){}[0]
+    final fun component2(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormAction.component2|component2(){}[0]
+    final fun component3(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormAction.component3|component3(){}[0]
+    final fun component4(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormAction.component4|component4(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonObject = ..., kotlinx.serialization.json/JsonObject = ...): space.kscience.krig.ui.schema/DeviceFormAction // space.kscience.krig.ui.schema/DeviceFormAction.copy|copy(space.kscience.dataforge.names.Name;kotlin.String?;kotlinx.serialization.json.JsonObject;kotlinx.serialization.json.JsonObject){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormAction.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormAction.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormAction.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormAction> { // space.kscience.krig.ui.schema/DeviceFormAction.$serializer|null[0]
+        final val descriptor // space.kscience.krig.ui.schema/DeviceFormAction.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormAction.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormAction.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormAction // space.kscience.krig.ui.schema/DeviceFormAction.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormAction) // space.kscience.krig.ui.schema/DeviceFormAction.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormAction){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.ui.schema/DeviceFormAction.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormAction> // space.kscience.krig.ui.schema/DeviceFormAction.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.ui.schema/DeviceFormProperty { // space.kscience.krig.ui.schema/DeviceFormProperty|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyKind, space.kscience.krig.api.descriptors/TypeId, kotlin/Boolean, kotlin/Boolean, kotlin/String? = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonObject, space.kscience.krig.ui.schema/DeviceFormPropertyOrigin = ...) // space.kscience.krig.ui.schema/DeviceFormProperty.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;space.kscience.krig.api.descriptors.TypeId;kotlin.Boolean;kotlin.Boolean;kotlin.String?;kotlin.String?;kotlinx.serialization.json.JsonObject;space.kscience.krig.ui.schema.DeviceFormPropertyOrigin){}[0]
+
+    final val description // space.kscience.krig.ui.schema/DeviceFormProperty.description|{}description[0]
+        final fun <get-description>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormProperty.description.<get-description>|<get-description>(){}[0]
+    final val kind // space.kscience.krig.ui.schema/DeviceFormProperty.kind|{}kind[0]
+        final fun <get-kind>(): space.kscience.krig.api.descriptors/PropertyKind // space.kscience.krig.ui.schema/DeviceFormProperty.kind.<get-kind>|<get-kind>(){}[0]
+    final val mutable // space.kscience.krig.ui.schema/DeviceFormProperty.mutable|{}mutable[0]
+        final fun <get-mutable>(): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormProperty.mutable.<get-mutable>|<get-mutable>(){}[0]
+    final val name // space.kscience.krig.ui.schema/DeviceFormProperty.name|{}name[0]
+        final fun <get-name>(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormProperty.name.<get-name>|<get-name>(){}[0]
+    final val origin // space.kscience.krig.ui.schema/DeviceFormProperty.origin|{}origin[0]
+        final fun <get-origin>(): space.kscience.krig.ui.schema/DeviceFormPropertyOrigin // space.kscience.krig.ui.schema/DeviceFormProperty.origin.<get-origin>|<get-origin>(){}[0]
+    final val readable // space.kscience.krig.ui.schema/DeviceFormProperty.readable|{}readable[0]
+        final fun <get-readable>(): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormProperty.readable.<get-readable>|<get-readable>(){}[0]
+    final val unit // space.kscience.krig.ui.schema/DeviceFormProperty.unit|{}unit[0]
+        final fun <get-unit>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormProperty.unit.<get-unit>|<get-unit>(){}[0]
+    final val valueSchema // space.kscience.krig.ui.schema/DeviceFormProperty.valueSchema|{}valueSchema[0]
+        final fun <get-valueSchema>(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormProperty.valueSchema.<get-valueSchema>|<get-valueSchema>(){}[0]
+    final val valueTypeId // space.kscience.krig.ui.schema/DeviceFormProperty.valueTypeId|{}valueTypeId[0]
+        final fun <get-valueTypeId>(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.ui.schema/DeviceFormProperty.valueTypeId.<get-valueTypeId>|<get-valueTypeId>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormProperty.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.api.descriptors/PropertyKind // space.kscience.krig.ui.schema/DeviceFormProperty.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.api.descriptors/TypeId // space.kscience.krig.ui.schema/DeviceFormProperty.component3|component3(){}[0]
+    final fun component4(): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormProperty.component4|component4(){}[0]
+    final fun component5(): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormProperty.component5|component5(){}[0]
+    final fun component6(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormProperty.component6|component6(){}[0]
+    final fun component7(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormProperty.component7|component7(){}[0]
+    final fun component8(): kotlinx.serialization.json/JsonObject // space.kscience.krig.ui.schema/DeviceFormProperty.component8|component8(){}[0]
+    final fun component9(): space.kscience.krig.ui.schema/DeviceFormPropertyOrigin // space.kscience.krig.ui.schema/DeviceFormProperty.component9|component9(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.api.descriptors/PropertyKind = ..., space.kscience.krig.api.descriptors/TypeId = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/String? = ..., kotlin/String? = ..., kotlinx.serialization.json/JsonObject = ..., space.kscience.krig.ui.schema/DeviceFormPropertyOrigin = ...): space.kscience.krig.ui.schema/DeviceFormProperty // space.kscience.krig.ui.schema/DeviceFormProperty.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.api.descriptors.PropertyKind;space.kscience.krig.api.descriptors.TypeId;kotlin.Boolean;kotlin.Boolean;kotlin.String?;kotlin.String?;kotlinx.serialization.json.JsonObject;space.kscience.krig.ui.schema.DeviceFormPropertyOrigin){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormProperty.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormProperty.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormProperty.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormProperty> { // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer|null[0]
+        final val descriptor // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormProperty // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormProperty) // space.kscience.krig.ui.schema/DeviceFormProperty.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormProperty){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.ui.schema/DeviceFormProperty.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.ui.schema/DeviceFormProperty.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormProperty> // space.kscience.krig.ui.schema/DeviceFormProperty.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.ui.schema/DeviceFormSchema { // space.kscience.krig.ui.schema/DeviceFormSchema|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/String, kotlin/String, kotlin/String, kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty>, kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormAction>, kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> = ...) // space.kscience.krig.ui.schema/DeviceFormSchema.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String;kotlin.String;kotlin.String;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormProperty>;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormAction>;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormProperty>){}[0]
+
+    final val actions // space.kscience.krig.ui.schema/DeviceFormSchema.actions|{}actions[0]
+        final fun <get-actions>(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormAction> // space.kscience.krig.ui.schema/DeviceFormSchema.actions.<get-actions>|<get-actions>(){}[0]
+    final val deviceContractFqName // space.kscience.krig.ui.schema/DeviceFormSchema.deviceContractFqName|{}deviceContractFqName[0]
+        final fun <get-deviceContractFqName>(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.deviceContractFqName.<get-deviceContractFqName>|<get-deviceContractFqName>(){}[0]
+    final val discoveredProperties // space.kscience.krig.ui.schema/DeviceFormSchema.discoveredProperties|{}discoveredProperties[0]
+        final fun <get-discoveredProperties>(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> // space.kscience.krig.ui.schema/DeviceFormSchema.discoveredProperties.<get-discoveredProperties>|<get-discoveredProperties>(){}[0]
+    final val manifestId // space.kscience.krig.ui.schema/DeviceFormSchema.manifestId|{}manifestId[0]
+        final fun <get-manifestId>(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormSchema.manifestId.<get-manifestId>|<get-manifestId>(){}[0]
+    final val manifestVersion // space.kscience.krig.ui.schema/DeviceFormSchema.manifestVersion|{}manifestVersion[0]
+        final fun <get-manifestVersion>(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.manifestVersion.<get-manifestVersion>|<get-manifestVersion>(){}[0]
+    final val properties // space.kscience.krig.ui.schema/DeviceFormSchema.properties|{}properties[0]
+        final fun <get-properties>(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> // space.kscience.krig.ui.schema/DeviceFormSchema.properties.<get-properties>|<get-properties>(){}[0]
+    final val schemaHash // space.kscience.krig.ui.schema/DeviceFormSchema.schemaHash|{}schemaHash[0]
+        final fun <get-schemaHash>(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.schemaHash.<get-schemaHash>|<get-schemaHash>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.ui.schema/DeviceFormSchema.component1|component1(){}[0]
+    final fun component2(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.component2|component2(){}[0]
+    final fun component3(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.component3|component3(){}[0]
+    final fun component4(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.component4|component4(){}[0]
+    final fun component5(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> // space.kscience.krig.ui.schema/DeviceFormSchema.component5|component5(){}[0]
+    final fun component6(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormAction> // space.kscience.krig.ui.schema/DeviceFormSchema.component6|component6(){}[0]
+    final fun component7(): kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> // space.kscience.krig.ui.schema/DeviceFormSchema.component7|component7(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/String = ..., kotlin/String = ..., kotlin/String = ..., kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> = ..., kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormAction> = ..., kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormProperty> = ...): space.kscience.krig.ui.schema/DeviceFormSchema // space.kscience.krig.ui.schema/DeviceFormSchema.copy|copy(space.kscience.dataforge.names.Name;kotlin.String;kotlin.String;kotlin.String;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormProperty>;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormAction>;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormProperty>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormSchema.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormSchema.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormSchema.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormSchema> { // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer|null[0]
+        final val descriptor // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormSchema // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormSchema) // space.kscience.krig.ui.schema/DeviceFormSchema.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormSchema){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.ui.schema/DeviceFormSchema.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.ui.schema/DeviceFormSchema.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormSchema> // space.kscience.krig.ui.schema/DeviceFormSchema.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final fun (space.kscience.krig.api.descriptors/ActionDescriptor).space.kscience.krig.ui.schema/toDeviceFormAction(): space.kscience.krig.ui.schema/DeviceFormAction // space.kscience.krig.ui.schema/toDeviceFormAction|toDeviceFormAction@space.kscience.krig.api.descriptors.ActionDescriptor(){}[0]
+final fun (space.kscience.krig.api.descriptors/PropertyDescriptor).space.kscience.krig.ui.schema/toDeviceFormProperty(space.kscience.krig.ui.schema/DeviceFormPropertyOrigin = ...): space.kscience.krig.ui.schema/DeviceFormProperty // space.kscience.krig.ui.schema/toDeviceFormProperty|toDeviceFormProperty@space.kscience.krig.api.descriptors.PropertyDescriptor(space.kscience.krig.ui.schema.DeviceFormPropertyOrigin){}[0]
+final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.ui.schema/toDeviceFormSchema(kotlin.collections/Iterable<space.kscience.krig.api.descriptors/PropertyDescriptor> = ...): space.kscience.krig.ui.schema/DeviceFormSchema // space.kscience.krig.ui.schema/toDeviceFormSchema|toDeviceFormSchema@space.kscience.krig.core.contracts.DeviceManifest(kotlin.collections.Iterable<space.kscience.krig.api.descriptors.PropertyDescriptor>){}[0]
