@@ -2,6 +2,8 @@ package space.kscience.krig.core.contracts.typed
 
 import kotlinx.coroutines.flow.StateFlow
 import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.meta.DeviceActionContract
@@ -16,6 +18,21 @@ public interface TypedDevice {
     /** Reads [spec] and returns predictable operation failures as values. */
     public suspend fun <T> readOutcome(spec: DevicePropertyContract<T>): OperationOutcome<T> =
         runCatchingOperation { reader(spec).read() }
+
+    /** Returns a quality-aware typed read handle for the given property spec, or `null` when unsupported. */
+    public fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T>? = null
+
+    /** Reads [spec] together with timestamp and data quality. */
+    public suspend fun <T> readObservedOutcome(
+        spec: DevicePropertyContract<T>,
+    ): OperationOutcome<ObservedValue<T?>> =
+        observedReader(spec)?.let { reader -> runCatchingOperation { reader.readObserved() } }
+            ?: OperationOutcome.Fail(
+                GenericOperationFault(
+                    faultType = OperationFaultTypes.UnsupportedValue,
+                    message = "Typed observed reader for property '${spec.name}' is not available.",
+                ),
+            )
 
     /** Returns a typed write handle for the given mutable property spec. */
     public fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T>

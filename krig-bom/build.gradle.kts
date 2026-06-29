@@ -18,6 +18,7 @@ val publishedModules = listOf(
     ":krig-assembly",
     ":krig-magix",
     ":krig-simulation",
+    ":krig-flow",
     ":krig-server",
     ":krig-arrow",
     ":krig-analytics",

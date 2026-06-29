@@ -69,6 +69,9 @@ include(
     // Simulation — deterministic virtual-time adapters for tests, notebooks and replay.
     ":krig-simulation",
 
+    // Flow simulation — optional continuous-flow primitives over KRig stepping backends.
+    ":krig-flow",
+
     // Jupyter integration — JVM-only convenience module for notebook demos.
     ":krig-jupyter",
 

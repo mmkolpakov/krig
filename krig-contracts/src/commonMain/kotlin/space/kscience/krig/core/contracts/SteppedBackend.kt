@@ -1,6 +1,7 @@
-﻿package space.kscience.krig.core.contracts
+package space.kscience.krig.core.contracts
 
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
 import kotlin.time.Duration
 
 /**
@@ -12,3 +13,7 @@ import kotlin.time.Duration
 public interface SteppedBackend : DeviceBackend {
     public fun step(dt: Duration)
 }
+
+/** Stepped backend that keeps the typed contract surface visible to callers. */
+@OptIn(UnstableKrigForSubclassing::class)
+public interface TypedSteppedBackend : SteppedBackend, TypedDeviceBackend

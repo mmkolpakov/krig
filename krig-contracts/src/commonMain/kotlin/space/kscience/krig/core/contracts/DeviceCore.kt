@@ -33,6 +33,7 @@ import space.kscience.krig.core.capabilities.CapabilityKey
 import space.kscience.krig.core.capabilities.Capability
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedDevice
+import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -129,6 +130,20 @@ public interface Device : AutoCloseable, TypedDevice, DeviceEnvironment {
     @OptIn(KrigPerformancePitfall::class)
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         TypedReader { spec.converter.read(readProperty(spec.name)) }
+
+    /** Fallback observed reader — bridges through [readObservedOutcome] + converter and may allocate. */
+    @OptIn(KrigPerformancePitfall::class)
+    override fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T> =
+        TypedObservedReader { readObservedOutcome(spec).getOrThrow() }
+
+    /** Typed analogue of [readObservedOutcome] that preserves timestamp and quality. */
+    @OptIn(KrigPerformancePitfall::class)
+    override suspend fun <T> readObservedOutcome(
+        spec: DevicePropertyContract<T>,
+    ): OperationOutcome<ObservedValue<T?>> =
+        readObservedOutcome(spec.name).map { observed ->
+            observed.map { meta -> meta?.let(spec.converter::read) }
+        }
 
     /** Fallback [TypedWriter] — bridges through [writeProperty] + converter and may allocate. */
     @OptIn(KrigPerformancePitfall::class)

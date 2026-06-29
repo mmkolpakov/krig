@@ -17,6 +17,7 @@ import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import kotlinx.coroutines.CancellationException
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.contracts.AbstractDevice
@@ -31,6 +32,7 @@ import space.kscience.krig.core.contracts.execute
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
+import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -133,6 +135,16 @@ public class BackendDevice @InternalKrigApi constructor(
 
     override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T> =
         contractBackend?.reader(spec) ?: TypedReader { spec.converter.read(readProperty(spec.name)) }
+
+    override fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T> =
+        contractBackend?.observedReader(spec) ?: super.observedReader(spec)
+
+    override suspend fun <T> readObservedOutcome(
+        spec: DevicePropertyContract<T>,
+    ): OperationOutcome<ObservedValue<T?>> =
+        contractBackend?.observedReader(spec)?.let { observedReader ->
+            runCatchingOperation { observedReader.readObserved() }
+        } ?: super.readObservedOutcome(spec)
 
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
         contractBackend?.writer(spec) ?: TypedWriter { value ->

@@ -1,22 +1,30 @@
 package space.kscience.krig.core.contracts.typed
 
-import space.kscience.krig.core.contracts.DeviceBackend
+import space.kscience.dataforge.names.Name
+import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultTypes
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
 import space.kscience.krig.core.UnstableKrigForSubclassing
+import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.meta.DeviceActionContract
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
-import space.kscience.dataforge.names.Name
 
 /**
  * Optional typed data-plane SPI for [DeviceBackend] implementations.
  *
  * Backends implement this when they can expose native typed handles without crossing
- * the `Meta` serialization boundary. Returning `null` leaves the device on the
- * documented `Meta` fallback path.
+ * the `Meta` serialization boundary. Returning `null` keeps the native handle absent;
+ * device wrappers can still use the documented `Meta` fallback path.
  */
 public interface TypedBackend {
     /** Native typed read handle, or `null` to use the `Meta` fallback. */
     public fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>?
+
+    /** Native quality-aware typed read handle, or `null` to use the `Meta` observed fallback. */
+    public fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T>? = null
 
     /** Native typed write handle, or `null` to use the `Meta` fallback. */
     public fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T>?
@@ -42,4 +50,23 @@ public interface TypedDeviceBackend : DeviceBackend, TypedBackend {
 
     /** All registered action specs keyed by name — the enumeration counterpart of [actionSpec]. */
     public fun actionSpecs(): Map<Name, DeviceActionContract<*, *>> = emptyMap()
+}
+
+/**
+ * Reads [spec] through a native typed observed handle.
+ *
+ * This backend-only helper returns a predictable failure when the native handle is absent.
+ * Use a `Device` wrapper when the `Meta` fallback path should be available.
+ */
+public suspend fun <T> TypedBackend.readObservedOutcome(
+    spec: DevicePropertyContract<T>,
+): OperationOutcome<ObservedValue<T?>> {
+    val handle = observedReader(spec)
+        ?: return OperationOutcome.Fail(
+            GenericOperationFault(
+                faultType = OperationFaultTypes.UnsupportedValue,
+                message = "Typed observed reader for property '${spec.name}' is not available.",
+            ),
+        )
+    return runCatchingOperation { handle.readObserved() }
 }

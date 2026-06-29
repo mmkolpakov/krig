@@ -17,6 +17,7 @@ import space.kscience.krig.core.contracts.typed.BatchObservedReadBody
 import space.kscience.krig.core.contracts.typed.BatchWriteBody
 import space.kscience.krig.core.contracts.typed.TypedAction
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
+import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -310,18 +311,18 @@ public class DeviceBackendBuilder internal constructor() {
 
 /**
  * Builds a [DeviceBackend] from [block]. The result is always a [TypedDeviceBackend] (native handles
- * when declared, `Meta` fallback otherwise) and additionally a [SteppedBackend] when [onStep] is set.
+ * when declared, `Meta` fallback otherwise) and additionally a [TypedSteppedBackend] when [onStep] is set.
  */
 public fun deviceBackend(block: DeviceBackendBuilder.() -> Unit): TypedDeviceBackend =
     DeviceBackendBuilder().apply(block).build()
 
 /**
- * Same DSL as [deviceBackend] but the declared return type is [SteppedBackend]. [block] **must**
+ * Same DSL as [deviceBackend] but the declared return type is [TypedSteppedBackend]. [block] **must**
  * declare [onStep][DeviceBackendBuilder.onStep]; otherwise this fails fast. Prefer it when the caller
  * needs the stepped type statically (e.g. to pass into a `SimulationSession`).
  */
-public fun steppedBackend(block: DeviceBackendBuilder.() -> Unit): SteppedBackend =
-    deviceBackend(block) as? SteppedBackend
+public fun steppedBackend(block: DeviceBackendBuilder.() -> Unit): TypedSteppedBackend =
+    deviceBackend(block) as? TypedSteppedBackend
         ?: error("steppedBackend { } requires an onStep { } block; use deviceBackend { } for state-less backends")
 
 // --- backend entries and Meta adapters -------------------------------------------------------
@@ -363,6 +364,13 @@ private class BuiltTypedBackend(
         val observedEntry = observedReaders[spec.name] ?: return null
         checkCompatible(observedEntry.spec, spec)
         return TypedReader { (observedEntry as ObservedReaderEntry<T>).reader().value }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T>? {
+        val observedEntry = observedReaders[spec.name] ?: return null
+        checkCompatible(observedEntry.spec, spec)
+        return TypedObservedReader { (observedEntry as ObservedReaderEntry<T>).reader() }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -411,7 +419,7 @@ private class BuiltTypedBackend(
 private class SteppingTypedBackend(
     backend: TypedDeviceBackend,
     private val stepBody: (Duration) -> Unit,
-) : TypedDeviceBackend by backend, SteppedBackend {
+) : TypedDeviceBackend by backend, TypedSteppedBackend {
     override fun step(dt: Duration): Unit = stepBody(dt)
 }
 

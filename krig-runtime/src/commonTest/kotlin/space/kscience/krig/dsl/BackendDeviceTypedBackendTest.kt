@@ -28,6 +28,7 @@ import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.api.result.okUnit
 import space.kscience.krig.api.services.AllowAllAuthorizationService
 import space.kscience.krig.api.services.AuditService
@@ -37,6 +38,7 @@ import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.contracts.typed.TypedReader
+import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.meta.DevicePropertyContract
@@ -45,6 +47,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 
 class BackendDeviceTypedBackendTest {
     private val valueName: Name = "value".asName()
@@ -77,6 +80,42 @@ class BackendDeviceTypedBackendTest {
         assertEquals(0, backend.metaReads)
         assertEquals(0, backend.metaWrites)
         assertEquals(11.0, backend.lastWritten)
+    }
+
+    @Test
+    fun backendDeviceUsesTypedObservedBackendBeforeMetaFallback() = runTest {
+        val backend = NativeTypedBackend()
+        val device = BackendDevice(
+            backend = backend,
+            name = "typed-observed-device".asName(),
+            context = Context("typed-observed-backend-test"),
+            descriptorSource = DescriptorSource.Empty,
+        )
+
+        val observed = device.readObservedOutcome(valueSpec).getOrThrow()
+
+        assertEquals(8.0, observed.value)
+        assertEquals(backend.observedTime, observed.time)
+        assertEquals(DataQuality.GOOD, observed.quality)
+        assertEquals(0, backend.metaReads)
+    }
+
+    @Test
+    fun backendDeviceFallsBackToMetaWhenTypedObservedReaderIsAbsent() = runTest {
+        val backend = deviceBackend {
+            reader(valueSpec) { 3.5 }
+        }
+        val device = BackendDevice(
+            backend = backend,
+            name = "typed-observed-fallback-device".asName(),
+            context = Context("typed-observed-fallback-test"),
+            descriptorSource = DescriptorSource.Empty,
+        )
+
+        val observed = device.readObservedOutcome(valueSpec).getOrThrow()
+
+        assertEquals(3.5, observed.value)
+        assertEquals(DataQuality.GOOD, observed.quality)
     }
 
     @Test
@@ -239,10 +278,19 @@ class BackendDeviceTypedBackendTest {
             private set
         var lastWritten: Double? = null
             private set
+        val observedTime: Instant = Instant.fromEpochMilliseconds(123)
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> reader(spec: DevicePropertyContract<T>): TypedReader<T>? =
             if (spec.name == valueName) TypedReader { 7.0 } as TypedReader<T> else null
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T>? =
+            if (spec.name == valueName) {
+                TypedObservedReader { ObservedValue(8.0, observedTime, DataQuality.GOOD) } as TypedObservedReader<T>
+            } else {
+                null
+            }
 
         @Suppress("UNCHECKED_CAST")
         override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T>? =

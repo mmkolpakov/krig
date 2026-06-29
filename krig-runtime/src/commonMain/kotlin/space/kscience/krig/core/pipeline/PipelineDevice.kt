@@ -27,6 +27,7 @@ import space.kscience.krig.core.contracts.DeviceNode
 import space.kscience.krig.core.contracts.EmptyDeviceNodeChildren
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.typed.TypedAction
+import space.kscience.krig.core.contracts.typed.TypedObservedReader
 import space.kscience.krig.core.contracts.typed.TypedReader
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.contracts.typed.TypedWriter
@@ -191,6 +192,9 @@ public class PipelineDevice @InternalKrigApi constructor(
             CachedReader(spec.descriptor, spec.converter, engine.compileReader(spec))
         }.readerFor(spec)
 
+    override fun <T> observedReader(spec: DevicePropertyContract<T>): TypedObservedReader<T> =
+        TypedObservedReader { readObservedOutcome(spec).getOrThrow() }
+
     override fun <T> writer(spec: MutableDevicePropertyContract<T>): TypedWriter<T> =
         cache.writer(spec.name) {
             CachedWriter(spec.descriptor, spec.converter, engine.compileWriter(spec))
@@ -204,6 +208,15 @@ public class PipelineDevice @InternalKrigApi constructor(
         return compiled.outcomeReaderOrNull()?.readOutcome()
             ?: catchingOperationOutcome { compiled.read() }
     }
+
+    override suspend fun <T> readObservedOutcome(
+        spec: DevicePropertyContract<T>,
+    ): OperationOutcome<ObservedValue<T?>> =
+        guardingLifecycle {
+            engine.pipelinedSingleRead(spec.name, "read observed") {
+                delegate.readObservedOutcome(spec)
+            }
+        }
 
     override suspend fun <T> writeOutcome(
         spec: MutableDevicePropertyContract<T>,

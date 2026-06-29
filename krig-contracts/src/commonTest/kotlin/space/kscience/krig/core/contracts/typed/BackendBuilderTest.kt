@@ -133,10 +133,14 @@ class BackendBuilderTest {
         val observed = context(device) {
             backend.readObserved(Spec.value.descriptor).getOrThrow()
         }
+        val typedObserved = backend.readObservedOutcome(Spec.value).getOrThrow()
 
         assertEquals(7.5, observed.value?.doubleValue)
         assertEquals(time, observed.time)
         assertEquals(quality, observed.quality)
+        assertEquals(7.5, typedObserved.value)
+        assertEquals(time, typedObserved.time)
+        assertEquals(quality, typedObserved.quality)
         assertEquals(7.5, backend.reader(Spec.value)?.read())
     }
 

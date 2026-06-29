@@ -18,6 +18,7 @@ import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.result.getOrThrow
+import space.kscience.krig.core.contracts.typed.readObservedOutcome
 import space.kscience.krig.core.meta.DeviceContractBuilder
 import space.kscience.dataforge.context.Context
 import space.kscience.dataforge.meta.Meta
@@ -211,11 +212,15 @@ class DeviceBackendBuilderTest {
         val meta = context(device) {
             backend.read(BackendSpec.value.descriptor).getOrThrow()
         }
+        val typedObserved = backend.readObservedOutcome(BackendSpec.value).getOrThrow()
 
         assertEquals(12.5, observed.value?.doubleValue)
         assertEquals(time, observed.time)
         assertEquals(quality, observed.quality)
         assertEquals(12.5, meta.doubleValue)
+        assertEquals(12.5, typedObserved.value)
+        assertEquals(time, typedObserved.time)
+        assertEquals(quality, typedObserved.quality)
     }
 
     @Test
