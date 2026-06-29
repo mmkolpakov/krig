@@ -3,11 +3,19 @@ package space.kscience.krig.demo
 import kotlinx.coroutines.test.runTest
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
+import space.kscience.krig.api.messages.DeviceMessageType
+import space.kscience.krig.api.messages.KrigWireFormats
+import space.kscience.krig.api.messages.KrigWireTopics
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.core.contracts.RemoteTypedActivationStatus
+import space.kscience.krig.core.contracts.activateTypedFacade
 import space.kscience.krig.core.contracts.read
 import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.write
+import space.kscience.krig.core.contracts.remoteManifestRef
 import space.kscience.krig.dsl.device
+import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -78,12 +86,13 @@ class GoldenPathDemoTest {
 
     @Test
     fun distributedTypedActivationUsesSchemaHash() {
-        val announcement = PumpManifest.remoteAnnouncement(deviceId = "edge.lineA.pump")
-        val accepted = activateTypedProxy(PumpManifest, announcement)
-        val rejected = activateTypedProxy(PumpManifest, announcement.copy(schemaHash = "fnv1a64:0000000000000000"))
+        val announcement = PumpManifest.remoteManifestRef(deviceId = "edge.lineA.pump".parseAsName())
+        val accepted = PumpManifest.activateTypedFacade(announcement)
+        val rejected = PumpManifest.activateTypedFacade(announcement.copy(schemaHash = "fnv1a64:0000000000000000"))
 
         assertTrue(accepted.typedFacadeEnabled)
         assertFalse(rejected.typedFacadeEnabled)
+        assertEquals(RemoteTypedActivationStatus.SchemaMismatch, rejected.status)
         assertTrue(rejected.reason.contains("schema mismatch"))
     }
 
@@ -94,5 +103,16 @@ class GoldenPathDemoTest {
         assertEquals(16, chunk.rowCount)
         assertEquals(QualitySeverity.UNCERTAIN, chunk.qualityAt(row = 0, seriesIndex = 0).severity)
         assertEquals(QualitySeverity.GOOD, chunk.qualityAt(row = 1, seriesIndex = 0).severity)
+    }
+
+    @Test
+    fun magixEnvelopeCarriesKrigFrameConstants() {
+        val snapshot = magixEnvelopeSnapshot()
+
+        assertEquals(KrigWireFormats.MagixEnvelope, snapshot.outerFormat)
+        assertEquals(KrigWireFormats.DeviceMessageFrame, snapshot.innerFormat)
+        assertEquals(KrigWireTopics.deviceMessages("edge.lineA.pump".parseAsName()), snapshot.topic)
+        assertEquals(DeviceMessageType.PropertyChanged, snapshot.messageType)
+        assertNotNull(snapshot.schemaHeader)
     }
 }

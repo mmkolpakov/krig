@@ -769,6 +769,44 @@ public final class space/kscience/krig/api/messages/FaultScope {
 	public final fun getPROPERTY ()Lspace/kscience/dataforge/names/Name;
 }
 
+public final class space/kscience/krig/api/messages/KrigWireFormats {
+	public static final field DenseDoubleTimeSeriesChunk Ljava/lang/String;
+	public static final field DeviceManifest Ljava/lang/String;
+	public static final field DeviceMessage Ljava/lang/String;
+	public static final field DeviceMessageFrame Ljava/lang/String;
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/KrigWireFormats;
+	public static final field MagixEnvelope Ljava/lang/String;
+	public final fun getAll ()Ljava/util/Set;
+}
+
+public final class space/kscience/krig/api/messages/KrigWireHeaders {
+	public static final field CorrelationId Ljava/lang/String;
+	public static final field Hlc Ljava/lang/String;
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/KrigWireHeaders;
+	public static final field ManifestId Ljava/lang/String;
+	public static final field ManifestVersion Ljava/lang/String;
+	public static final field MessageType Ljava/lang/String;
+	public static final field SchemaHash Ljava/lang/String;
+	public final fun getAll ()Ljava/util/Set;
+}
+
+public final class space/kscience/krig/api/messages/KrigWireTopics {
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/KrigWireTopics;
+	public final fun device (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public final fun deviceManifest (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public final fun deviceMessages (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public final fun deviceTelemetry (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public final fun getDevices ()Lspace/kscience/dataforge/names/Name;
+	public final fun getLifecycle ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifestSuffix ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifests ()Lspace/kscience/dataforge/names/Name;
+	public final fun getMessages ()Lspace/kscience/dataforge/names/Name;
+	public final fun getMessagesSuffix ()Lspace/kscience/dataforge/names/Name;
+	public final fun getRoot ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTelemetry ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTelemetrySuffix ()Lspace/kscience/dataforge/names/Name;
+}
+
 public final class space/kscience/krig/api/messages/MessageContext {
 	public static final field Companion Lspace/kscience/krig/api/messages/MessageContext$Companion;
 	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/data/HlcTimestamp;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V

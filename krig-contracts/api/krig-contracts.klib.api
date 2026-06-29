@@ -58,6 +58,24 @@ final enum class space.kscience.krig.core.contracts/DiscardPolicy : kotlin/Enum<
     final fun values(): kotlin/Array<space.kscience.krig.core.contracts/DiscardPolicy> // space.kscience.krig.core.contracts/DiscardPolicy.values|values#static(){}[0]
 }
 
+final enum class space.kscience.krig.core.contracts/RemoteTypedActivationStatus : kotlin/Enum<space.kscience.krig.core.contracts/RemoteTypedActivationStatus> { // space.kscience.krig.core.contracts/RemoteTypedActivationStatus|null[0]
+    enum entry Enabled // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.Enabled|null[0]
+    enum entry ManifestMismatch // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.ManifestMismatch|null[0]
+    enum entry SchemaMismatch // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.SchemaMismatch|null[0]
+    enum entry VersionMismatch // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.VersionMismatch|null[0]
+
+    final val entries // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.core.contracts/RemoteTypedActivationStatus> // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.core.contracts/RemoteTypedActivationStatus // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.core.contracts/RemoteTypedActivationStatus> // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.values|values#static(){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.core.contracts/RemoteTypedActivationStatus> // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
 abstract fun interface <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.core.contracts.typed/TypedAction { // space.kscience.krig.core.contracts.typed/TypedAction|null[0]
     abstract suspend fun execute(#A): #B? // space.kscience.krig.core.contracts.typed/TypedAction.execute|execute(1:0){}[0]
 }
@@ -696,6 +714,88 @@ final class space.kscience.krig.core.contracts/MetaBackendAdapter : space.kscien
     final suspend fun (context(space.kscience.krig.core.contracts/DeviceEnvironment)).write(space.kscience.krig.api.descriptors/PropertyDescriptor, space.kscience.dataforge.meta/Meta): space.kscience.krig.api.result/OperationOutcome<kotlin/Unit> // space.kscience.krig.core.contracts/MetaBackendAdapter.write|write(space.kscience.krig.core.contracts.DeviceEnvironment)(space.kscience.krig.api.descriptors.PropertyDescriptor;space.kscience.dataforge.meta.Meta){}[0]
 }
 
+final class space.kscience.krig.core.contracts/RemoteDeviceManifestRef { // space.kscience.krig.core.contracts/RemoteDeviceManifestRef|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.names/Name, kotlin/String, kotlin/String) // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String){}[0]
+
+    final val deviceId // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.deviceId|{}deviceId[0]
+        final fun <get-deviceId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.deviceId.<get-deviceId>|<get-deviceId>(){}[0]
+    final val manifestId // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.manifestId|{}manifestId[0]
+        final fun <get-manifestId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.manifestId.<get-manifestId>|<get-manifestId>(){}[0]
+    final val schemaHash // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.schemaHash|{}schemaHash[0]
+        final fun <get-schemaHash>(): kotlin/String // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.schemaHash.<get-schemaHash>|<get-schemaHash>(){}[0]
+    final val version // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.version|{}version[0]
+        final fun <get-version>(): kotlin/String // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.version.<get-version>|<get-version>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.component2|component2(){}[0]
+    final fun component3(): kotlin/String // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.component3|component3(){}[0]
+    final fun component4(): kotlin/String // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.component4|component4(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ..., kotlin/String = ..., kotlin/String = ...): space.kscience.krig.core.contracts/RemoteDeviceManifestRef // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.core.contracts/RemoteDeviceManifestRef> { // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer|null[0]
+        final val descriptor // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.core.contracts/RemoteDeviceManifestRef // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.core.contracts/RemoteDeviceManifestRef) // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.core.contracts.RemoteDeviceManifestRef){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.core.contracts/RemoteDeviceManifestRef> // space.kscience.krig.core.contracts/RemoteDeviceManifestRef.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.core.contracts/RemoteTypedActivation { // space.kscience.krig.core.contracts/RemoteTypedActivation|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/RemoteTypedActivationStatus, space.kscience.krig.core.contracts/RemoteDeviceManifestRef, space.kscience.dataforge.names/Name, kotlin/String, kotlin/String) // space.kscience.krig.core.contracts/RemoteTypedActivation.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.RemoteTypedActivationStatus;space.kscience.krig.core.contracts.RemoteDeviceManifestRef;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String){}[0]
+
+    final val deviceId // space.kscience.krig.core.contracts/RemoteTypedActivation.deviceId|{}deviceId[0]
+        final fun <get-deviceId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteTypedActivation.deviceId.<get-deviceId>|<get-deviceId>(){}[0]
+    final val expectedManifestId // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedManifestId|{}expectedManifestId[0]
+        final fun <get-expectedManifestId>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedManifestId.<get-expectedManifestId>|<get-expectedManifestId>(){}[0]
+    final val expectedSchemaHash // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedSchemaHash|{}expectedSchemaHash[0]
+        final fun <get-expectedSchemaHash>(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedSchemaHash.<get-expectedSchemaHash>|<get-expectedSchemaHash>(){}[0]
+    final val expectedVersion // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedVersion|{}expectedVersion[0]
+        final fun <get-expectedVersion>(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.expectedVersion.<get-expectedVersion>|<get-expectedVersion>(){}[0]
+    final val reason // space.kscience.krig.core.contracts/RemoteTypedActivation.reason|{}reason[0]
+        final fun <get-reason>(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.reason.<get-reason>|<get-reason>(){}[0]
+    final val remote // space.kscience.krig.core.contracts/RemoteTypedActivation.remote|{}remote[0]
+        final fun <get-remote>(): space.kscience.krig.core.contracts/RemoteDeviceManifestRef // space.kscience.krig.core.contracts/RemoteTypedActivation.remote.<get-remote>|<get-remote>(){}[0]
+    final val status // space.kscience.krig.core.contracts/RemoteTypedActivation.status|{}status[0]
+        final fun <get-status>(): space.kscience.krig.core.contracts/RemoteTypedActivationStatus // space.kscience.krig.core.contracts/RemoteTypedActivation.status.<get-status>|<get-status>(){}[0]
+    final val typedFacadeEnabled // space.kscience.krig.core.contracts/RemoteTypedActivation.typedFacadeEnabled|{}typedFacadeEnabled[0]
+        final fun <get-typedFacadeEnabled>(): kotlin/Boolean // space.kscience.krig.core.contracts/RemoteTypedActivation.typedFacadeEnabled.<get-typedFacadeEnabled>|<get-typedFacadeEnabled>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteTypedActivation.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.core.contracts/RemoteTypedActivationStatus // space.kscience.krig.core.contracts/RemoteTypedActivation.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.core.contracts/RemoteDeviceManifestRef // space.kscience.krig.core.contracts/RemoteTypedActivation.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.names/Name // space.kscience.krig.core.contracts/RemoteTypedActivation.component4|component4(){}[0]
+    final fun component5(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.component5|component5(){}[0]
+    final fun component6(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.component6|component6(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.krig.core.contracts/RemoteTypedActivationStatus = ..., space.kscience.krig.core.contracts/RemoteDeviceManifestRef = ..., space.kscience.dataforge.names/Name = ..., kotlin/String = ..., kotlin/String = ...): space.kscience.krig.core.contracts/RemoteTypedActivation // space.kscience.krig.core.contracts/RemoteTypedActivation.copy|copy(space.kscience.dataforge.names.Name;space.kscience.krig.core.contracts.RemoteTypedActivationStatus;space.kscience.krig.core.contracts.RemoteDeviceManifestRef;space.kscience.dataforge.names.Name;kotlin.String;kotlin.String){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.contracts/RemoteTypedActivation.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.core.contracts/RemoteTypedActivation.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.core.contracts/RemoteTypedActivation.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.core.contracts/RemoteTypedActivation> { // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer|null[0]
+        final val descriptor // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.core.contracts/RemoteTypedActivation // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.core.contracts/RemoteTypedActivation) // space.kscience.krig.core.contracts/RemoteTypedActivation.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.core.contracts.RemoteTypedActivation){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.core.contracts/RemoteTypedActivation.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.core.contracts/RemoteTypedActivation.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.core.contracts/RemoteTypedActivation> // space.kscience.krig.core.contracts/RemoteTypedActivation.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.core.contracts/SubscribeOptions { // space.kscience.krig.core.contracts/SubscribeOptions|null[0]
     constructor <init>(kotlin/Double? = ..., kotlin.collections/Set<kotlin/String> = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...) // space.kscience.krig.core.contracts/SubscribeOptions.<init>|<init>(kotlin.Double?;kotlin.collections.Set<kotlin.String>;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
 
@@ -827,6 +927,8 @@ final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.c
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireIntSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Int>): space.kscience.krig.core.contracts.sampling/RingIntSampler // space.kscience.krig.core.contracts.sampling/requireIntSampler|requireIntSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Int>){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts.sampling/requireLongSampler(space.kscience.krig.core.meta/DevicePropertyContract<kotlin/Long>): space.kscience.krig.core.contracts.sampling/RingLongSampler // space.kscience.krig.core.contracts.sampling/requireLongSampler|requireLongSampler@space.kscience.krig.core.contracts.Device(space.kscience.krig.core.meta.DevicePropertyContract<kotlin.Long>){}[0]
 final fun (space.kscience.krig.core.contracts/Device).space.kscience.krig.core.contracts/asNode(): space.kscience.krig.core.contracts/DeviceNode // space.kscience.krig.core.contracts/asNode|asNode@space.kscience.krig.core.contracts.Device(){}[0]
+final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.core.contracts/activateTypedFacade(space.kscience.krig.core.contracts/RemoteDeviceManifestRef): space.kscience.krig.core.contracts/RemoteTypedActivation // space.kscience.krig.core.contracts/activateTypedFacade|activateTypedFacade@space.kscience.krig.core.contracts.DeviceManifest(space.kscience.krig.core.contracts.RemoteDeviceManifestRef){}[0]
+final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.core.contracts/remoteManifestRef(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/RemoteDeviceManifestRef // space.kscience.krig.core.contracts/remoteManifestRef|remoteManifestRef@space.kscience.krig.core.contracts.DeviceManifest(space.kscience.dataforge.names.Name){}[0]
 final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.core.contracts/schemaHash(): kotlin/String // space.kscience.krig.core.contracts/schemaHash|schemaHash@space.kscience.krig.core.contracts.DeviceManifest(){}[0]
 final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.core.contracts/toJsonSchema(): kotlinx.serialization.json/JsonObject // space.kscience.krig.core.contracts/toJsonSchema|toJsonSchema@space.kscience.krig.core.contracts.DeviceManifest(){}[0]
 final fun (space.kscience.krig.core.contracts/DeviceNode).space.kscience.krig.api.hub/resolveDevice(space.kscience.dataforge.names/Name): space.kscience.krig.core.contracts/Device? // space.kscience.krig.api.hub/resolveDevice|resolveDevice@space.kscience.krig.core.contracts.DeviceNode(space.kscience.dataforge.names.Name){}[0]

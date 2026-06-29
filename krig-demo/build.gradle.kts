@@ -21,6 +21,7 @@ kotlin {
                 implementation(project(":krig-runtime"))
                 implementation(project(":krig-runtime-stdlib"))
                 implementation(project(":krig-assembly"))
+                implementation(project(":krig-magix"))
                 implementation(project(":krig-simulation"))
             }
         }

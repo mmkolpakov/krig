@@ -706,6 +706,98 @@ public final class space/kscience/krig/core/contracts/MetaBackendAdapterKt {
 public final class space/kscience/krig/core/contracts/OperationTrackingScope$Key : kotlin/coroutines/CoroutineContext$Key {
 }
 
+public final class space/kscience/krig/core/contracts/RemoteDeviceManifestRef {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeviceId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifestId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/core/contracts/RemoteDeviceManifestRef$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteDeviceManifestRef$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedActivation {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedActivation$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public final fun component3 ()Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/RemoteTypedActivation;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeviceId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getExpectedManifestId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getExpectedSchemaHash ()Ljava/lang/String;
+	public final fun getExpectedVersion ()Ljava/lang/String;
+	public final fun getReason ()Ljava/lang/String;
+	public final fun getRemote ()Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+	public final fun getStatus ()Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public final fun getTypedFacadeEnabled ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/core/contracts/RemoteTypedActivation$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/core/contracts/RemoteTypedActivation$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/core/contracts/RemoteTypedActivation;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedActivation$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedActivationKt {
+	public static final fun activateTypedFacade (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;)Lspace/kscience/krig/core/contracts/RemoteTypedActivation;
+	public static final fun remoteManifestRef (Lspace/kscience/krig/core/contracts/DeviceManifest;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/RemoteDeviceManifestRef;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedActivationStatus : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus$Companion;
+	public static final field Enabled Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static final field ManifestMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static final field SchemaMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static final field VersionMismatch Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+	public static fun values ()[Lspace/kscience/krig/core/contracts/RemoteTypedActivationStatus;
+}
+
+public final class space/kscience/krig/core/contracts/RemoteTypedActivationStatus$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public abstract interface class space/kscience/krig/core/contracts/SteppedBackend : space/kscience/krig/core/contracts/DeviceBackend {
 	public abstract fun step-LRDsOJo (J)V
 }
