@@ -47,6 +47,18 @@ final enum class space.kscience.krig.api.annotations/EmissionStrategy : kotlin/E
     final fun values(): kotlin/Array<space.kscience.krig.api.annotations/EmissionStrategy> // space.kscience.krig.api.annotations/EmissionStrategy.values|values#static(){}[0]
 }
 
+final enum class space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy : kotlin/Enum<space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy> { // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy|null[0]
+    enum entry Backpressure // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.Backpressure|null[0]
+    enum entry DropLatest // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.DropLatest|null[0]
+    enum entry DropOldest // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.DropOldest|null[0]
+
+    final val entries // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy> // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy> // space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy.values|values#static(){}[0]
+}
+
 final enum class space.kscience.krig.core.contracts/DiscardPolicy : kotlin/Enum<space.kscience.krig.core.contracts/DiscardPolicy> { // space.kscience.krig.core.contracts/DiscardPolicy|null[0]
     enum entry KeepLatest // space.kscience.krig.core.contracts/DiscardPolicy.KeepLatest|null[0]
     enum entry KeepOldest // space.kscience.krig.core.contracts/DiscardPolicy.KeepOldest|null[0]
@@ -725,37 +737,27 @@ final class space.kscience.krig.core.contracts/DeviceBackendBuilder { // space.k
 }
 
 final class space.kscience.krig.core.contracts/DeviceMessaging { // space.kscience.krig.core.contracts/DeviceMessaging|null[0]
-    constructor <init>(kotlin/Int = ..., kotlin/Int = ..., space.kscience.krig.core.contracts/DeviceMessaging.Strategy = ..., kotlin/Int = ...) // space.kscience.krig.core.contracts/DeviceMessaging.<init>|<init>(kotlin.Int;kotlin.Int;space.kscience.krig.core.contracts.DeviceMessaging.Strategy;kotlin.Int){}[0]
+    constructor <init>(kotlin/Int = ..., kotlin/Int = ..., space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy = ..., kotlin/Int = ...) // space.kscience.krig.core.contracts/DeviceMessaging.<init>|<init>(kotlin.Int;kotlin.Int;space.kscience.krig.core.contracts.DeviceMessageDeliveryPolicy;kotlin.Int){}[0]
 
     final val controlBufferCapacity // space.kscience.krig.core.contracts/DeviceMessaging.controlBufferCapacity|{}controlBufferCapacity[0]
         final fun <get-controlBufferCapacity>(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.controlBufferCapacity.<get-controlBufferCapacity>|<get-controlBufferCapacity>(){}[0]
+    final val controlDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessaging.controlDeliveryPolicy|{}controlDeliveryPolicy[0]
+        final fun <get-controlDeliveryPolicy>(): space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessaging.controlDeliveryPolicy.<get-controlDeliveryPolicy>|<get-controlDeliveryPolicy>(){}[0]
     final val dataBufferCapacity // space.kscience.krig.core.contracts/DeviceMessaging.dataBufferCapacity|{}dataBufferCapacity[0]
         final fun <get-dataBufferCapacity>(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.dataBufferCapacity.<get-dataBufferCapacity>|<get-dataBufferCapacity>(){}[0]
-    final val dataStrategy // space.kscience.krig.core.contracts/DeviceMessaging.dataStrategy|{}dataStrategy[0]
-        final fun <get-dataStrategy>(): space.kscience.krig.core.contracts/DeviceMessaging.Strategy // space.kscience.krig.core.contracts/DeviceMessaging.dataStrategy.<get-dataStrategy>|<get-dataStrategy>(){}[0]
+    final val dataDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessaging.dataDeliveryPolicy|{}dataDeliveryPolicy[0]
+        final fun <get-dataDeliveryPolicy>(): space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessaging.dataDeliveryPolicy.<get-dataDeliveryPolicy>|<get-dataDeliveryPolicy>(){}[0]
     final val replay // space.kscience.krig.core.contracts/DeviceMessaging.replay|{}replay[0]
         final fun <get-replay>(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.replay.<get-replay>|<get-replay>(){}[0]
 
     final fun component1(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.component1|component1(){}[0]
     final fun component2(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.component2|component2(){}[0]
-    final fun component3(): space.kscience.krig.core.contracts/DeviceMessaging.Strategy // space.kscience.krig.core.contracts/DeviceMessaging.component3|component3(){}[0]
+    final fun component3(): space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy // space.kscience.krig.core.contracts/DeviceMessaging.component3|component3(){}[0]
     final fun component4(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.component4|component4(){}[0]
-    final fun copy(kotlin/Int = ..., kotlin/Int = ..., space.kscience.krig.core.contracts/DeviceMessaging.Strategy = ..., kotlin/Int = ...): space.kscience.krig.core.contracts/DeviceMessaging // space.kscience.krig.core.contracts/DeviceMessaging.copy|copy(kotlin.Int;kotlin.Int;space.kscience.krig.core.contracts.DeviceMessaging.Strategy;kotlin.Int){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., space.kscience.krig.core.contracts/DeviceMessageDeliveryPolicy = ..., kotlin/Int = ...): space.kscience.krig.core.contracts/DeviceMessaging // space.kscience.krig.core.contracts/DeviceMessaging.copy|copy(kotlin.Int;kotlin.Int;space.kscience.krig.core.contracts.DeviceMessageDeliveryPolicy;kotlin.Int){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.contracts/DeviceMessaging.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.core.contracts/DeviceMessaging.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.contracts/DeviceMessaging.toString|toString(){}[0]
-
-    final enum class Strategy : kotlin/Enum<space.kscience.krig.core.contracts/DeviceMessaging.Strategy> { // space.kscience.krig.core.contracts/DeviceMessaging.Strategy|null[0]
-        enum entry DropLatest // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.DropLatest|null[0]
-        enum entry DropOldest // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.DropOldest|null[0]
-        enum entry Suspend // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.Suspend|null[0]
-
-        final val entries // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.entries|#static{}entries[0]
-            final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.core.contracts/DeviceMessaging.Strategy> // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.entries.<get-entries>|<get-entries>#static(){}[0]
-
-        final fun valueOf(kotlin/String): space.kscience.krig.core.contracts/DeviceMessaging.Strategy // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.valueOf|valueOf#static(kotlin.String){}[0]
-        final fun values(): kotlin/Array<space.kscience.krig.core.contracts/DeviceMessaging.Strategy> // space.kscience.krig.core.contracts/DeviceMessaging.Strategy.values|values#static(){}[0]
-    }
 
     final object Companion { // space.kscience.krig.core.contracts/DeviceMessaging.Companion|null[0]
         final val Default // space.kscience.krig.core.contracts/DeviceMessaging.Companion.Default|{}Default[0]

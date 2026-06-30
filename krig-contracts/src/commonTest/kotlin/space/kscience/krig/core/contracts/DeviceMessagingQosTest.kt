@@ -11,18 +11,19 @@ class DeviceMessagingQosTest {
         val messaging = DeviceMessaging.fromMeta(Meta { "dataBufferCapacity" put 1024 })
         assertEquals(1024, messaging.dataBufferCapacity)
         assertEquals(DeviceMessaging.Default.controlBufferCapacity, messaging.controlBufferCapacity)
-        assertEquals(DeviceMessaging.Default.dataStrategy, messaging.dataStrategy)
+        assertEquals(DeviceMessageDeliveryPolicy.Backpressure, messaging.controlDeliveryPolicy)
+        assertEquals(DeviceMessaging.Default.dataDeliveryPolicy, messaging.dataDeliveryPolicy)
     }
 
     @Test
-    fun fromMetaParsesStrategyCaseInsensitively() {
+    fun fromMetaParsesDataDeliveryPolicyCaseInsensitively() {
         val messaging = DeviceMessaging.fromMeta(
             Meta {
-                "dataStrategy" put "dropoldest"
+                "dataDeliveryPolicy" put "dropoldest"
                 "dataBufferCapacity" put 8
             },
         )
-        assertEquals(DeviceMessaging.Strategy.DropOldest, messaging.dataStrategy)
+        assertEquals(DeviceMessageDeliveryPolicy.DropOldest, messaging.dataDeliveryPolicy)
     }
 
     @Test
@@ -36,13 +37,13 @@ class DeviceMessagingQosTest {
             "qos_profile" put "highRate"
             "qos_library" put {
                 "highRate" put {
-                    "dataStrategy" put "DropOldest"
+                    "dataDeliveryPolicy" put "DropOldest"
                     "dataBufferCapacity" put 2048
                 }
             }
         }
         val messaging = DeviceMessaging.resolve(config)
-        assertEquals(DeviceMessaging.Strategy.DropOldest, messaging.dataStrategy)
+        assertEquals(DeviceMessageDeliveryPolicy.DropOldest, messaging.dataDeliveryPolicy)
         assertEquals(2048, messaging.dataBufferCapacity)
     }
 
@@ -52,7 +53,7 @@ class DeviceMessagingQosTest {
             "qos_profile" put "highRate"
             "qos_library" put {
                 "highRate" put {
-                    "dataStrategy" put "DropOldest"
+                    "dataDeliveryPolicy" put "DropOldest"
                     "dataBufferCapacity" put 2048
                 }
             }
@@ -63,6 +64,6 @@ class DeviceMessagingQosTest {
         val messaging = DeviceMessaging.resolve(config)
         // inline wins on the overlapping key; non-overlapping profile key still applies via laminate
         assertEquals(512, messaging.dataBufferCapacity)
-        assertEquals(DeviceMessaging.Strategy.DropOldest, messaging.dataStrategy)
+        assertEquals(DeviceMessageDeliveryPolicy.DropOldest, messaging.dataDeliveryPolicy)
     }
 }

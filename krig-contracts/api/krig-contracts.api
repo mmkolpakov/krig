@@ -617,21 +617,31 @@ public final class space/kscience/krig/core/contracts/DeviceManifestSchemaKt {
 	public static final fun validateMeta (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/dataforge/meta/Meta;)Z
 }
 
+public final class space/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy : java/lang/Enum {
+	public static final field Backpressure Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
+	public static final field DropLatest Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
+	public static final field DropOldest Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
+	public static fun values ()[Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
+}
+
 public final class space/kscience/krig/core/contracts/DeviceMessaging {
 	public static final field Companion Lspace/kscience/krig/core/contracts/DeviceMessaging$Companion;
 	public fun <init> ()V
-	public fun <init> (IILspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;I)V
-	public synthetic fun <init> (IILspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (IILspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;I)V
+	public synthetic fun <init> (IILspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()I
 	public final fun component2 ()I
-	public final fun component3 ()Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
+	public final fun component3 ()Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
 	public final fun component4 ()I
-	public final fun copy (IILspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;I)Lspace/kscience/krig/core/contracts/DeviceMessaging;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/DeviceMessaging;IILspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;IILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
+	public final fun copy (IILspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;I)Lspace/kscience/krig/core/contracts/DeviceMessaging;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/DeviceMessaging;IILspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;IILjava/lang/Object;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getControlBufferCapacity ()I
+	public final fun getControlDeliveryPolicy ()Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
 	public final fun getDataBufferCapacity ()I
-	public final fun getDataStrategy ()Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
+	public final fun getDataDeliveryPolicy ()Lspace/kscience/krig/core/contracts/DeviceMessageDeliveryPolicy;
 	public final fun getReplay ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -641,15 +651,6 @@ public final class space/kscience/krig/core/contracts/DeviceMessaging$Companion 
 	public final fun fromMeta (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public final fun getDefault ()Lspace/kscience/krig/core/contracts/DeviceMessaging;
 	public final fun resolve (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/contracts/DeviceMessaging;
-}
-
-public final class space/kscience/krig/core/contracts/DeviceMessaging$Strategy : java/lang/Enum {
-	public static final field DropLatest Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
-	public static final field DropOldest Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
-	public static final field Suspend Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
-	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
-	public static fun values ()[Lspace/kscience/krig/core/contracts/DeviceMessaging$Strategy;
 }
 
 public abstract interface class space/kscience/krig/core/contracts/DeviceNode {
