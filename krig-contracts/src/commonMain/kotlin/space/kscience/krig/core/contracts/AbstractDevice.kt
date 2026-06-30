@@ -77,6 +77,12 @@ public abstract class AbstractDevice(
     }
 
     @InternalKrigApi
+    final override fun <C : Capability<*>> getOrRegisterCapability(
+        key: CapabilityKey<C>,
+        factory: () -> C,
+    ): C = capabilityRegistry.getOrRegisterCapability(key, factory)
+
+    @InternalKrigApi
     override fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =
         capabilityRegistry.capability(key)
 

@@ -29,6 +29,13 @@ public interface CapabilityHost {
 
     public fun registerCapability(capability: Capability<*>)
 
+    public fun <C : Capability<*>> getOrRegisterCapability(key: CapabilityKey<C>, factory: () -> C): C {
+        capability(key)?.let { return it }
+        val capability = factory()
+        registerCapability(capability)
+        return capability(key) ?: capability
+    }
+
     public suspend fun installCapability(capability: Capability<*>) {
         registerCapability(capability)
         context(this@CapabilityHost) { capability.onAttach() }
@@ -51,6 +58,19 @@ public class CapabilityRegistry {
     public fun registerCapability(capability: Capability<*>) {
         synchronized(lock) { capabilities[capability.key.id] = capability }
     }
+
+    @Suppress("UNCHECKED_CAST")
+    public fun <C : Capability<*>> getOrRegisterCapability(key: CapabilityKey<C>, factory: () -> C): C =
+        synchronized(lock) {
+            capabilities[key.id] as? C ?: run {
+                val capability = factory()
+                require(capability.key.id == key.id) {
+                    "Capability factory produced '${capability.key.id}' for requested key '${key.id}'."
+                }
+                capabilities[key.id] = capability
+                capability
+            }
+        }
 
     @Suppress("UNCHECKED_CAST")
     public fun <C : Capability<*>> capability(key: CapabilityKey<C>): C? =

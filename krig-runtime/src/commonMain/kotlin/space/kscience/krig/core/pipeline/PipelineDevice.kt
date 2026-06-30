@@ -115,6 +115,15 @@ public class PipelineDevice @InternalKrigApi constructor(
         capabilityRegistry.registerCapability(capability)
     }
 
+    @InternalKrigApi
+    override fun <C : Capability<*>> getOrRegisterCapability(
+        key: CapabilityKey<C>,
+        factory: () -> C,
+    ): C =
+        capabilityRegistry.capability(key)
+            ?: (delegate as? CapabilityHost)?.capability(key)
+            ?: capabilityRegistry.getOrRegisterCapability(key, factory)
+
     // --- Lifecycle delegation + centralised failure promotion ---
 
     override val lifecycleStateFlow: StateFlow<LifecycleState>?

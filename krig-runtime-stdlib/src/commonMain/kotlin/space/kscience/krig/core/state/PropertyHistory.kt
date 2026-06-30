@@ -1,5 +1,7 @@
 package space.kscience.krig.core.state
 
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
@@ -17,6 +19,9 @@ import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.payloads
 import space.kscience.krig.core.InternalKrigApi
+import space.kscience.krig.core.capabilities.Capability
+import space.kscience.krig.core.capabilities.CapabilityKey
+import space.kscience.krig.core.contracts.CapabilityHost
 import space.kscience.krig.core.contracts.Device
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
@@ -80,10 +85,58 @@ internal class CollectedPropertyHistory<T>(
 
 }
 
+private object PropertyHistoryRegistryKey : CapabilityKey<PropertyHistoryRegistryCapability> {
+    override val id: Name = "krig.propertyHistoryRegistry".parseAsName()
+}
+
+@OptIn(InternalKrigApi::class)
+private class PropertyHistoryRegistryCapability : Capability<PropertyHistoryRegistry> {
+    override val key: CapabilityKey<*> = PropertyHistoryRegistryKey
+    override val state: PropertyHistoryRegistry = PropertyHistoryRegistry()
+
+    context(host: CapabilityHost)
+    override suspend fun onDetach() {
+        state.clear()
+    }
+}
+
+private data class PropertyHistoryCacheKey(
+    val propertyName: Name,
+    val converter: MetaConverter<*>,
+    val maxSize: Int,
+    val started: SharingStarted,
+)
+
+private class PropertyHistoryRegistry {
+    private val lock = SynchronizedObject()
+    private val histories: MutableMap<PropertyHistoryCacheKey, PropertyHistory<*>> = linkedMapOf()
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> getOrCreate(
+        scope: CoroutineScope,
+        messages: Flow<DeviceMessage>,
+        deviceName: Name,
+        propertyName: Name,
+        converter: MetaConverter<T>,
+        maxSize: Int,
+        started: SharingStarted,
+    ): PropertyHistory<T> = synchronized(lock) {
+        val key = PropertyHistoryCacheKey(propertyName, converter, maxSize, started)
+        histories.getOrPut(key) {
+            CollectedPropertyHistory(scope, messages, deviceName, propertyName, converter, maxSize, started)
+        } as PropertyHistory<T>
+    }
+
+    fun clear() {
+        synchronized(lock) { histories.clear() }
+    }
+}
+
 /**
  * Returns a live [PropertyHistory] for [property] on this device, backed by
  * [Device.messageFlow] and scoped to [Device.deviceScope]. Keeps the last
- * [maxSize] decoded samples; decode failures are dropped.
+ * [maxSize] decoded samples; repeated calls with the same options reuse one
+ * device-scoped collector. Decode failures are dropped.
  */
 @OptIn(InternalKrigApi::class)
 public fun <T> Device.propertyHistory(
@@ -91,9 +144,23 @@ public fun <T> Device.propertyHistory(
     converter: MetaConverter<T>,
     maxSize: Int = DEFAULT_PROPERTY_HISTORY_MAX_SIZE,
     started: SharingStarted = SharingStarted.Eagerly,
-): PropertyHistory<T> = CollectedPropertyHistory(
-    deviceScope, messageFlow.payloads(), name, property, converter, maxSize, started,
-)
+): PropertyHistory<T> {
+    val registry = (this as? CapabilityHost)
+        ?.getOrRegisterCapability(PropertyHistoryRegistryKey) { PropertyHistoryRegistryCapability() }
+        ?.state
+
+    return registry?.getOrCreate(
+        scope = deviceScope,
+        messages = messageFlow.payloads(),
+        deviceName = name,
+        propertyName = property,
+        converter = converter,
+        maxSize = maxSize,
+        started = started,
+    ) ?: CollectedPropertyHistory(
+        deviceScope, messageFlow.payloads(), name, property, converter, maxSize, started,
+    )
+}
 
 /** String-name overload of [Device.propertyHistory]. */
 @OptIn(InternalKrigApi::class)

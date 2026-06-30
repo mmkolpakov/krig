@@ -3,18 +3,16 @@ package space.kscience.krig.demo
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.yield
 import kotlin.time.Instant
-import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
-import space.kscience.krig.core.state.collectPropertyHistory
+import space.kscience.krig.core.state.propertyHistory
 import space.kscience.krig.dsl.device
 import space.kscience.krig.dsl.noResult
 import space.kscience.dataforge.meta.MetaConverter
@@ -47,30 +45,14 @@ suspend fun deviceDslDemo(): Unit = coroutineScope {
     println("  setpoint <- 25.0")
 
     println("\n=== Property history ===")
-    val history = collectPropertyHistory(
-        scope = thermo.deviceScope,
-        messages = flowOf(
-            PropertyChangedMessage(
-                time = Instant.fromEpochMilliseconds(1_000),
-                property = "setpoint".asName(),
-                value = metaOf(26.0),
-                sourceDevice = thermo.name,
-            ),
-            PropertyChangedMessage(
-                time = Instant.fromEpochMilliseconds(2_000),
-                property = "setpoint".asName(),
-                value = metaOf(27.0),
-                sourceDevice = thermo.name,
-            ),
-        ),
-        deviceName = thermo.name,
-        propertyName = "setpoint".asName(),
-        converter = MetaConverter.double,
-    )
+    val setpoint = "setpoint".asName()
+    val history = thermo.propertyHistory(setpoint, MetaConverter.double)
     val samplesDeferred = async(start = CoroutineStart.UNDISPATCHED) {
         history.flowHistory(Instant.DISTANT_PAST, Instant.DISTANT_FUTURE).take(2).toList()
     }
     yield()
+    thermo.writeProperty(setpoint, metaOf(26.0))
+    thermo.writeProperty(setpoint, metaOf(27.0))
     val samples = samplesDeferred.await()
     println("  recent setpoint values: ${samples.map { it.value }}")
 
