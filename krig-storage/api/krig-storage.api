@@ -251,17 +251,52 @@ public final class space/kscience/krig/storage/quality/KrigFlaggedDoubleBuffer :
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk {
+public abstract interface class space/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk {
+	public abstract fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public abstract fun getRowCount ()I
+	public abstract fun getSeries ()Ljava/util/List;
+	public abstract fun getTimes ()Ljava/util/List;
+	public abstract fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public abstract fun severityColumn (I)[I
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk : space/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk {
 	public fun <init> (Ljava/util/List;Ljava/util/List;)V
-	public final fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
-	public final fun column-qFCK38E (I)[D
-	public final fun getRowCount ()I
+	public fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun column (I)[Z
+	public fun getRowCount ()I
 	public final fun getRows ()Ljava/util/List;
-	public final fun getSeries ()Ljava/util/List;
-	public final fun getTimes ()Ljava/util/List;
-	public final fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public fun getSeries ()Ljava/util/List;
+	public fun getTimes ()Ljava/util/List;
+	public fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesRow;
+	public fun severityColumn (I)[I
+	public final fun value (II)Z
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesRow {
+	public fun <init> (Lkotlin/time/Instant;[ZLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;[ZLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun get (I)Z
+	public final fun getAggregateQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getBaselineQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getQualityOverrides ()Ljava/util/Map;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValues ()[Z
+	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk : space/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun column-qFCK38E (I)[D
+	public fun getRowCount ()I
+	public final fun getRows ()Ljava/util/List;
+	public fun getSeries ()Ljava/util/List;
+	public fun getTimes ()Ljava/util/List;
+	public fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
 	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesRow;
-	public final fun severityColumn (I)[I
+	public fun severityColumn (I)[I
 	public final fun value (II)D
 }
 
@@ -279,6 +314,58 @@ public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesR
 	public final fun getTime ()Lkotlin/time/Instant;
 	public final fun getValues ()[D
 	public final fun getValuesBuffer-E20IKn8 ()[D
+	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk : space/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun column (I)[I
+	public fun getRowCount ()I
+	public final fun getRows ()Ljava/util/List;
+	public fun getSeries ()Ljava/util/List;
+	public fun getTimes ()Ljava/util/List;
+	public fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesRow;
+	public fun severityColumn (I)[I
+	public final fun value (II)I
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseIntTimeSeriesRow {
+	public fun <init> (Lkotlin/time/Instant;[ILspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;[ILspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun get (I)I
+	public final fun getAggregateQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getBaselineQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getQualityOverrides ()Ljava/util/Map;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValues ()[I
+	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk : space/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk {
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public fun aggregateQualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun column (I)[J
+	public fun getRowCount ()I
+	public final fun getRows ()Ljava/util/List;
+	public fun getSeries ()Ljava/util/List;
+	public fun getTimes ()Ljava/util/List;
+	public fun qualityAt (II)Lspace/kscience/krig/api/data/DataQuality;
+	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesRow;
+	public fun severityColumn (I)[I
+	public final fun value (II)J
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesRow {
+	public fun <init> (Lkotlin/time/Instant;[JLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;[JLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun get (I)J
+	public final fun getAggregateQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getBaselineQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun getQualityOverrides ()Ljava/util/Map;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getValues ()[J
 	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
 }
 
@@ -360,8 +447,14 @@ public final class space/kscience/krig/storage/timeseries/TimeSeriesChunk {
 }
 
 public final class space/kscience/krig/storage/timeseries/TimeSeriesChunkKt {
+	public static final fun toDenseBooleanChunk (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;Z)Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;
+	public static synthetic fun toDenseBooleanChunk$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;ZILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;
 	public static final fun toDenseDoubleChunk (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;D)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
 	public static synthetic fun toDenseDoubleChunk$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;DILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
+	public static final fun toDenseIntChunk (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;I)Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;
+	public static synthetic fun toDenseIntChunk$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;IILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;
+	public static final fun toDenseLongChunk (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;J)Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;
+	public static synthetic fun toDenseLongChunk$default (Lspace/kscience/krig/storage/timeseries/TimeSeriesChunk;JILjava/lang/Object;)Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;
 }
 
 public abstract interface class space/kscience/krig/storage/timeseries/TimeSeriesChunkSink {

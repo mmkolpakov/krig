@@ -67,6 +67,19 @@ abstract interface space.kscience.krig.storage.journal/EventJournal : kotlin/Aut
     open suspend fun writeAll(kotlin.collections/Iterable<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>>) // space.kscience.krig.storage.journal/EventJournal.writeAll|writeAll(kotlin.collections.Iterable<space.kscience.krig.api.messages.DeviceMessageFrame<space.kscience.krig.api.messages.DeviceMessage>>){}[0]
 }
 
+abstract interface space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk { // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk|null[0]
+    abstract val rowCount // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.rowCount|{}rowCount[0]
+        abstract fun <get-rowCount>(): kotlin/Int // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    abstract val series // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.series|{}series[0]
+        abstract fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.series.<get-series>|<get-series>(){}[0]
+    abstract val times // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.times|{}times[0]
+        abstract fun <get-times>(): kotlin.collections/List<kotlin.time/Instant> // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.times.<get-times>|<get-times>(){}[0]
+
+    abstract fun aggregateQualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.aggregateQualityAt|aggregateQualityAt(kotlin.Int){}[0]
+    abstract fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
+    abstract fun severityColumn(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk.severityColumn|severityColumn(kotlin.Int){}[0]
+}
+
 abstract interface space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink|null[0]
     abstract suspend fun append(space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink.append|append(space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk){}[0]
 }
@@ -238,7 +251,45 @@ final class space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer : space.
     final fun toString(): kotlin/String // space.kscience.krig.storage.quality/KrigFlaggedDoubleBuffer.toString|toString(){}[0]
 }
 
-final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk|null[0]
+final class space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk : space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseBooleanTimeSeriesRow>){}[0]
+
+    final val rowCount // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.rowCount|{}rowCount[0]
+        final fun <get-rowCount>(): kotlin/Int // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    final val rows // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.rows|{}rows[0]
+        final fun <get-rows>(): kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow> // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.rows.<get-rows>|<get-rows>(){}[0]
+    final val series // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.series|{}series[0]
+        final fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.series.<get-series>|<get-series>(){}[0]
+    final val times // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.times|{}times[0]
+        final fun <get-times>(): kotlin.collections/List<kotlin.time/Instant> // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.times.<get-times>|<get-times>(){}[0]
+
+    final fun aggregateQualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.aggregateQualityAt|aggregateQualityAt(kotlin.Int){}[0]
+    final fun column(kotlin/Int): kotlin/BooleanArray // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.column|column(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
+    final fun row(kotlin/Int): space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.row|row(kotlin.Int){}[0]
+    final fun severityColumn(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.severityColumn|severityColumn(kotlin.Int){}[0]
+    final fun value(kotlin/Int, kotlin/Int): kotlin/Boolean // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk.value|value(kotlin.Int;kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow { // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow|null[0]
+    constructor <init>(kotlin.time/Instant, kotlin/BooleanArray, space.kscience.krig.api.data/DataQuality = ..., kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> = ...) // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.<init>|<init>(kotlin.time.Instant;kotlin.BooleanArray;space.kscience.krig.api.data.DataQuality;kotlin.collections.Map<kotlin.Int,space.kscience.krig.api.data.DataQuality>){}[0]
+
+    final val aggregateQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.aggregateQuality|{}aggregateQuality[0]
+        final fun <get-aggregateQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.aggregateQuality.<get-aggregateQuality>|<get-aggregateQuality>(){}[0]
+    final val baselineQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.baselineQuality|{}baselineQuality[0]
+        final fun <get-baselineQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.baselineQuality.<get-baselineQuality>|<get-baselineQuality>(){}[0]
+    final val qualityOverrides // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.qualityOverrides|{}qualityOverrides[0]
+        final fun <get-qualityOverrides>(): kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.qualityOverrides.<get-qualityOverrides>|<get-qualityOverrides>(){}[0]
+    final val time // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.time.<get-time>|<get-time>(){}[0]
+    final val values // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.values|{}values[0]
+        final fun <get-values>(): kotlin/BooleanArray // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.values.<get-values>|<get-values>(){}[0]
+
+    final fun get(kotlin/Int): kotlin/Boolean // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.get|get(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk : space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk|null[0]
     constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow>){}[0]
 
     final val rowCount // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk.rowCount|{}rowCount[0]
@@ -276,6 +327,82 @@ final class space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow { //
 
     final fun get(kotlin/Int): kotlin/Double // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.get|get(kotlin.Int){}[0]
     final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk : space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseIntTimeSeriesRow>){}[0]
+
+    final val rowCount // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.rowCount|{}rowCount[0]
+        final fun <get-rowCount>(): kotlin/Int // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    final val rows // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.rows|{}rows[0]
+        final fun <get-rows>(): kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow> // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.rows.<get-rows>|<get-rows>(){}[0]
+    final val series // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.series|{}series[0]
+        final fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.series.<get-series>|<get-series>(){}[0]
+    final val times // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.times|{}times[0]
+        final fun <get-times>(): kotlin.collections/List<kotlin.time/Instant> // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.times.<get-times>|<get-times>(){}[0]
+
+    final fun aggregateQualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.aggregateQualityAt|aggregateQualityAt(kotlin.Int){}[0]
+    final fun column(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.column|column(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
+    final fun row(kotlin/Int): space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.row|row(kotlin.Int){}[0]
+    final fun severityColumn(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.severityColumn|severityColumn(kotlin.Int){}[0]
+    final fun value(kotlin/Int, kotlin/Int): kotlin/Int // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk.value|value(kotlin.Int;kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow { // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow|null[0]
+    constructor <init>(kotlin.time/Instant, kotlin/IntArray, space.kscience.krig.api.data/DataQuality = ..., kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> = ...) // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.<init>|<init>(kotlin.time.Instant;kotlin.IntArray;space.kscience.krig.api.data.DataQuality;kotlin.collections.Map<kotlin.Int,space.kscience.krig.api.data.DataQuality>){}[0]
+
+    final val aggregateQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.aggregateQuality|{}aggregateQuality[0]
+        final fun <get-aggregateQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.aggregateQuality.<get-aggregateQuality>|<get-aggregateQuality>(){}[0]
+    final val baselineQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.baselineQuality|{}baselineQuality[0]
+        final fun <get-baselineQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.baselineQuality.<get-baselineQuality>|<get-baselineQuality>(){}[0]
+    final val qualityOverrides // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.qualityOverrides|{}qualityOverrides[0]
+        final fun <get-qualityOverrides>(): kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.qualityOverrides.<get-qualityOverrides>|<get-qualityOverrides>(){}[0]
+    final val time // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.time.<get-time>|<get-time>(){}[0]
+    final val values // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.values|{}values[0]
+        final fun <get-values>(): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.values.<get-values>|<get-values>(){}[0]
+
+    final fun get(kotlin/Int): kotlin/Int // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.get|get(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk : space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk { // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk|null[0]
+    constructor <init>(kotlin.collections/List<space.kscience.dataforge.names/Name>, kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow>) // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.<init>|<init>(kotlin.collections.List<space.kscience.dataforge.names.Name>;kotlin.collections.List<space.kscience.krig.storage.timeseries.DenseLongTimeSeriesRow>){}[0]
+
+    final val rowCount // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.rowCount|{}rowCount[0]
+        final fun <get-rowCount>(): kotlin/Int // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    final val rows // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.rows|{}rows[0]
+        final fun <get-rows>(): kotlin.collections/List<space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow> // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.rows.<get-rows>|<get-rows>(){}[0]
+    final val series // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.series|{}series[0]
+        final fun <get-series>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.series.<get-series>|<get-series>(){}[0]
+    final val times // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.times|{}times[0]
+        final fun <get-times>(): kotlin.collections/List<kotlin.time/Instant> // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.times.<get-times>|<get-times>(){}[0]
+
+    final fun aggregateQualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.aggregateQualityAt|aggregateQualityAt(kotlin.Int){}[0]
+    final fun column(kotlin/Int): kotlin/LongArray // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.column|column(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int, kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.qualityAt|qualityAt(kotlin.Int;kotlin.Int){}[0]
+    final fun row(kotlin/Int): space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.row|row(kotlin.Int){}[0]
+    final fun severityColumn(kotlin/Int): kotlin/IntArray // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.severityColumn|severityColumn(kotlin.Int){}[0]
+    final fun value(kotlin/Int, kotlin/Int): kotlin/Long // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk.value|value(kotlin.Int;kotlin.Int){}[0]
+}
+
+final class space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow { // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow|null[0]
+    constructor <init>(kotlin.time/Instant, kotlin/LongArray, space.kscience.krig.api.data/DataQuality = ..., kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> = ...) // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.<init>|<init>(kotlin.time.Instant;kotlin.LongArray;space.kscience.krig.api.data.DataQuality;kotlin.collections.Map<kotlin.Int,space.kscience.krig.api.data.DataQuality>){}[0]
+
+    final val aggregateQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.aggregateQuality|{}aggregateQuality[0]
+        final fun <get-aggregateQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.aggregateQuality.<get-aggregateQuality>|<get-aggregateQuality>(){}[0]
+    final val baselineQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.baselineQuality|{}baselineQuality[0]
+        final fun <get-baselineQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.baselineQuality.<get-baselineQuality>|<get-baselineQuality>(){}[0]
+    final val qualityOverrides // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.qualityOverrides|{}qualityOverrides[0]
+        final fun <get-qualityOverrides>(): kotlin.collections/Map<kotlin/Int, space.kscience.krig.api.data/DataQuality> // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.qualityOverrides.<get-qualityOverrides>|<get-qualityOverrides>(){}[0]
+    final val time // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.time.<get-time>|<get-time>(){}[0]
+    final val values // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.values|{}values[0]
+        final fun <get-values>(): kotlin/LongArray // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.values.<get-values>|<get-values>(){}[0]
+
+    final fun get(kotlin/Int): kotlin/Long // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.get|get(kotlin.Int){}[0]
+    final fun qualityAt(kotlin/Int): space.kscience.krig.api.data/DataQuality // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesRow.qualityAt|qualityAt(kotlin.Int){}[0]
 }
 
 final class space.kscience.krig.storage.timeseries/RowsCompression { // space.kscience.krig.storage.timeseries/RowsCompression|null[0]
@@ -384,7 +511,10 @@ final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.st
 final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/minOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/minOrNaN|minOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/compressRows|compressRows@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink).space.kscience.krig.storage.timeseries/compressing(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink // space.kscience.krig.storage.timeseries/compressing|compressing@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunkSink(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
+final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Boolean>).space.kscience.krig.storage.timeseries/toDenseBooleanChunk(kotlin/Boolean = ...): space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseBooleanChunk|toDenseBooleanChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Boolean>(kotlin.Boolean){}[0]
 final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Double>).space.kscience.krig.storage.timeseries/toDenseDoubleChunk(kotlin/Double = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseDoubleChunk|toDenseDoubleChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Double>(kotlin.Double){}[0]
+final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Int>).space.kscience.krig.storage.timeseries/toDenseIntChunk(kotlin/Int = ...): space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseIntChunk|toDenseIntChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Int>(kotlin.Int){}[0]
+final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Long>).space.kscience.krig.storage.timeseries/toDenseLongChunk(kotlin/Long = ...): space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseLongChunk|toDenseLongChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Long>(kotlin.Long){}[0]
 final fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>>).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>> // space.kscience.krig.storage.timeseries/compressRows|compressRows@kotlinx.coroutines.flow.Flow<space.kscience.krig.storage.timeseries.TimeSeriesChunk<0:0>>(space.kscience.krig.storage.timeseries.RowsCompression){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A> // space.kscience.krig.storage.timeseries/compressRows|compressRows@space.kscience.krig.storage.timeseries.TimeSeriesChunk<0:0>(space.kscience.krig.storage.timeseries.RowsCompression){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.krig.storage.timeseries/TimeSeriesChunkSink<#A>).space.kscience.krig.storage.timeseries/compressing(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/TimeSeriesChunkSink<#A> // space.kscience.krig.storage.timeseries/compressing|compressing@space.kscience.krig.storage.timeseries.TimeSeriesChunkSink<0:0>(space.kscience.krig.storage.timeseries.RowsCompression){0§<kotlin.Any?>}[0]
