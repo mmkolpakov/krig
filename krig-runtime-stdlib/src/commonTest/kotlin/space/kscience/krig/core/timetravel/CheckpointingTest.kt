@@ -23,6 +23,9 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.storage.journal.CheckpointAnchor
+import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.journal.JournalCompactionPolicy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -162,6 +165,71 @@ class CheckpointingTest {
         } catch (expected: IllegalArgumentException) {
             // ok
         }
+    }
+
+    @Test
+    fun journalCompactionRequiresCheckpointAnchorCursor() = runTest {
+        val counter = CounterReplay()
+        val store = RecordingSnapshotStore()
+        val journal = InMemoryEventJournal()
+        val scope = detachedScope()
+        val devName = "counter".asName()
+        val events = (1..2).map { counterEvent(100L + it, it) }
+        events.forEach { journal.write(it) }
+
+        val feed = events.asFlow()
+            .onEach { counter.applyEvent(it) }
+            .testEnvelopes()
+        val job = counter.runCheckpointing(
+            subject = devName,
+            messageFlow = feed,
+            snapshotStore = store,
+            strategy = CheckpointStrategy.everyNEvents(2),
+            scope = scope,
+            clock = FakeClock(startMs = 900),
+            journal = journal,
+            compactionPolicy = JournalCompactionPolicy.TruncateCoveredCursor,
+        )
+        job.join()
+
+        assertEquals(2, journal.size())
+        assertEquals(null, store.saved.single().anchor)
+        scope.cancel()
+    }
+
+    @Test
+    fun checkpointAnchorCursorAllowsJournalCompaction() = runTest {
+        val counter = CounterReplay()
+        val store = RecordingSnapshotStore()
+        val journal = InMemoryEventJournal()
+        val scope = detachedScope()
+        val devName = "counter".asName()
+        val events = (1..2).map { counterEvent(200L + it, it) }
+        val cursors = events.map { journal.write(it) }
+        var latestIndex = -1
+
+        val feed = events.asFlow()
+            .onEach {
+                counter.applyEvent(it)
+                latestIndex++
+            }
+            .testEnvelopes()
+        val job = counter.runCheckpointing(
+            subject = devName,
+            messageFlow = feed,
+            snapshotStore = store,
+            strategy = CheckpointStrategy.everyNEvents(2),
+            scope = scope,
+            clock = FakeClock(startMs = 950),
+            journal = journal,
+            compactionPolicy = JournalCompactionPolicy.TruncateCoveredCursor,
+            anchorProvider = { cursors.getOrNull(latestIndex)?.let(::CheckpointAnchor) },
+        )
+        job.join()
+
+        assertEquals(0, journal.size())
+        assertEquals(CheckpointAnchor(cursors.last()), store.saved.single().anchor)
+        scope.cancel()
     }
 
     @Test

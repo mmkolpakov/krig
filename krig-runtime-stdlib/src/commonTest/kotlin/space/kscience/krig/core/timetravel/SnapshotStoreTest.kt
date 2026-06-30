@@ -8,6 +8,8 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.asValue
 import space.kscience.dataforge.meta.int
 import space.kscience.dataforge.names.asName
+import space.kscience.krig.storage.journal.CheckpointAnchor
+import space.kscience.krig.storage.journal.SequenceCursor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -139,5 +141,15 @@ class SnapshotStoreTest {
         )
 
         assertEquals(11, codec.decode(entry).state.int)
+    }
+
+    @Test
+    fun snapshotCodecStoresOptionalCheckpointAnchor() {
+        val codec = SnapshotCodec()
+        val anchor = CheckpointAnchor(coveredCursor = SequenceCursor(7))
+        val entry = codec.encode("dev".asName(), snap(atMs = 100, value = 42), anchor)
+
+        assertEquals(anchor, entry.anchor)
+        assertEquals(42, codec.decode(entry).state.int)
     }
 }

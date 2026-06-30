@@ -10,9 +10,12 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageType
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.api.messages.frame
+import space.kscience.krig.api.serialization.krigStorageJson
 import space.kscience.krig.core.ExperimentalKrigApi
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.asName
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Clock
@@ -63,6 +66,17 @@ class EventJournalTest {
         val remaining = storage.readAll().toList().map { (it.payload as PropertyChangedMessage).value }
         assertEquals(listOf(Meta { "value" put 3 }, Meta { "value" put 4 }), remaining)
         assertEquals(2, storage.size())
+    }
+
+    @Test
+    fun checkpointAnchorSerializesSequenceCursor() {
+        val json = krigStorageJson()
+        val anchor = CheckpointAnchor(coveredCursor = SequenceCursor(42))
+
+        val encoded = json.encodeToString(anchor)
+        val decoded = json.decodeFromString<CheckpointAnchor>(encoded)
+
+        assertEquals(anchor, decoded)
     }
 
     @Test

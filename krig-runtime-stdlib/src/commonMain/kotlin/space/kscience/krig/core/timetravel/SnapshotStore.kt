@@ -12,6 +12,7 @@ import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.serialization.krigStorageJson
 import space.kscience.krig.core.ExperimentalKrigApi
+import space.kscience.krig.storage.journal.CheckpointAnchor
 import kotlin.concurrent.atomics.AtomicReference
 import kotlin.concurrent.atomics.update
 import kotlin.time.Instant
@@ -24,6 +25,7 @@ public data class SnapshotEntry(
     public val schema: StorageSchema,
     public val state: Meta,
     public val capabilitySnapshots: Map<String, Meta> = emptyMap(),
+    public val anchor: CheckpointAnchor? = null,
 )
 
 /** Transforms stored snapshots before recovery. */
@@ -48,13 +50,18 @@ public class SnapshotCodec(
     private val migrations: SnapshotMigrations = SnapshotMigrations.empty,
     private val schema: StorageSchema = StorageSchemas.deviceSnapshotV1,
 ) {
-    public fun encode(subject: Name, snapshot: DeviceSnapshot): SnapshotEntry =
+    public fun encode(
+        subject: Name,
+        snapshot: DeviceSnapshot,
+        anchor: CheckpointAnchor? = null,
+    ): SnapshotEntry =
         SnapshotEntry(
             subject = subject,
             at = snapshot.at,
             schema = schema,
             state = snapshot.state,
             capabilitySnapshots = snapshot.capabilitySnapshots,
+            anchor = anchor,
         )
 
     public fun decode(entry: SnapshotEntry): DeviceSnapshot {
@@ -93,7 +100,8 @@ public suspend fun SnapshotStore.save(
     subject: Name,
     snapshot: DeviceSnapshot,
     codec: SnapshotCodec = SnapshotCodec(),
-): Unit = save(codec.encode(subject, snapshot))
+    anchor: CheckpointAnchor? = null,
+): Unit = save(codec.encode(subject, snapshot, anchor))
 
 public suspend fun SnapshotStore.latestSnapshotBefore(
     subject: Name,

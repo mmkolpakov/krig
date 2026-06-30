@@ -12,6 +12,10 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
+import space.kscience.krig.api.data.DeviceSnapshot
+import space.kscience.krig.storage.journal.CheckpointAnchor
+import space.kscience.krig.storage.journal.EventJournal
+import space.kscience.krig.storage.journal.JournalCompactionPolicy
 import kotlin.time.Clock
 import kotlin.time.Duration
 
@@ -24,6 +28,9 @@ public class CheckpointContext(
     public val clock: Clock,
     public val snapshotCodec: SnapshotCodec,
     public val retentionPolicy: SnapshotRetentionPolicy,
+    public val journal: EventJournal? = null,
+    public val compactionPolicy: JournalCompactionPolicy = JournalCompactionPolicy.Disabled,
+    public val anchorProvider: () -> CheckpointAnchor? = { null },
 )
 
 /** Snapshot capture strategy. Integrations may provide their own implementation. */
@@ -54,14 +61,14 @@ public fun interface CheckpointStrategy {
             require(duration.isPositive()) { "CheckpointStrategy.everyDuration requires a positive duration" }
             return CheckpointStrategy { context ->
                 context.scope.launch {
-                    var latestSavedContent: Pair<Meta, Map<String, Meta>>? = null
+                    var latestSavedContent: SnapshotContent? = null
                     while (isActive) {
                         delay(duration)
                         val snapshot = context.reconstructible.captureSnapshot(context.clock.now())
-                        val content = snapshot.state to snapshot.capabilitySnapshots
+                        val anchor = context.anchorProvider()
+                        val content = SnapshotContent(snapshot.state, snapshot.capabilitySnapshots, anchor)
                         if (content != latestSavedContent) {
-                            context.snapshotStore.save(context.subject, snapshot, context.snapshotCodec)
-                            context.snapshotStore.applyRetention(context.subject, context.retentionPolicy)
+                            context.saveSnapshot(snapshot, anchor)
                             latestSavedContent = content
                         }
                     }
@@ -87,6 +94,9 @@ public fun Reconstructible.runCheckpointing(
     clock: Clock = Clock.System,
     snapshotCodec: SnapshotCodec = SnapshotCodec(),
     retentionPolicy: SnapshotRetentionPolicy = SnapshotRetentionPolicy.keepAll,
+    journal: EventJournal? = null,
+    compactionPolicy: JournalCompactionPolicy = JournalCompactionPolicy.Disabled,
+    anchorProvider: () -> CheckpointAnchor? = { null },
 ): Job = strategy.start(
     CheckpointContext(
         reconstructible = this,
@@ -97,10 +107,24 @@ public fun Reconstructible.runCheckpointing(
         clock = clock,
         snapshotCodec = snapshotCodec,
         retentionPolicy = retentionPolicy,
+        journal = journal,
+        compactionPolicy = compactionPolicy,
+        anchorProvider = anchorProvider,
     ),
 )
 
+private data class SnapshotContent(
+    val state: Meta,
+    val capabilitySnapshots: Map<String, Meta>,
+    val anchor: CheckpointAnchor?,
+)
+
 private suspend fun CheckpointContext.saveSnapshot() {
-    snapshotStore.save(subject, reconstructible.captureSnapshot(clock.now()), snapshotCodec)
+    saveSnapshot(reconstructible.captureSnapshot(clock.now()), anchorProvider())
+}
+
+private suspend fun CheckpointContext.saveSnapshot(snapshot: DeviceSnapshot, anchor: CheckpointAnchor?) {
+    snapshotStore.save(subject, snapshot, snapshotCodec, anchor)
     snapshotStore.applyRetention(subject, retentionPolicy)
+    journal?.let { compactionPolicy.compact(it, anchor) }
 }

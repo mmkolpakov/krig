@@ -36,6 +36,35 @@ public abstract interface class space/kscience/krig/api/data/Snapshotting {
 	public abstract fun restoreSnapshot (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class space/kscience/krig/storage/journal/CheckpointAnchor {
+	public static final field Companion Lspace/kscience/krig/storage/journal/CheckpointAnchor$Companion;
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/krig/storage/journal/EventCursor;)V
+	public synthetic fun <init> (Lspace/kscience/krig/storage/journal/EventCursor;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/storage/journal/EventCursor;
+	public final fun copy (Lspace/kscience/krig/storage/journal/EventCursor;)Lspace/kscience/krig/storage/journal/CheckpointAnchor;
+	public static synthetic fun copy$default (Lspace/kscience/krig/storage/journal/CheckpointAnchor;Lspace/kscience/krig/storage/journal/EventCursor;ILjava/lang/Object;)Lspace/kscience/krig/storage/journal/CheckpointAnchor;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCoveredCursor ()Lspace/kscience/krig/storage/journal/EventCursor;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/storage/journal/CheckpointAnchor$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/storage/journal/CheckpointAnchor$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/storage/journal/CheckpointAnchor;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/storage/journal/CheckpointAnchor;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/storage/journal/CheckpointAnchor$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public abstract interface class space/kscience/krig/storage/journal/CursorReplayLog : space/kscience/krig/storage/journal/ReplayLog {
 	public abstract fun replayFrom (Lspace/kscience/krig/storage/journal/EventCursor;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun replayFrom$default (Lspace/kscience/krig/storage/journal/CursorReplayLog;Lspace/kscience/krig/storage/journal/EventCursor;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
@@ -48,6 +77,20 @@ public final class space/kscience/krig/storage/journal/CursorReplayLog$DefaultIm
 }
 
 public abstract interface class space/kscience/krig/storage/journal/EventCursor : java/lang/Comparable {
+	public static final field Companion Lspace/kscience/krig/storage/journal/EventCursor$Companion;
+}
+
+public final class space/kscience/krig/storage/journal/EventCursor$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/storage/journal/EventCursorSerializer : kotlinx/serialization/KSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/storage/journal/EventCursorSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/storage/journal/EventCursor;
+	public fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/storage/journal/EventCursor;)V
 }
 
 public abstract interface class space/kscience/krig/storage/journal/EventJournal : java/lang/AutoCloseable, space/kscience/krig/storage/journal/CursorReplayLog, space/kscience/krig/storage/journal/ReplaySink {
@@ -100,6 +143,16 @@ public final class space/kscience/krig/storage/journal/InMemoryEventJournal : sp
 	public fun writeAll (Ljava/lang/Iterable;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public abstract interface class space/kscience/krig/storage/journal/JournalCompactionPolicy {
+	public static final field Companion Lspace/kscience/krig/storage/journal/JournalCompactionPolicy$Companion;
+	public abstract fun compact (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/krig/storage/journal/CheckpointAnchor;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/storage/journal/JournalCompactionPolicy$Companion {
+	public final fun getDisabled ()Lspace/kscience/krig/storage/journal/JournalCompactionPolicy;
+	public final fun getTruncateCoveredCursor ()Lspace/kscience/krig/storage/journal/JournalCompactionPolicy;
+}
+
 public abstract interface class space/kscience/krig/storage/journal/ReplayLog {
 	public abstract fun replay (Lkotlin/time/Instant;Lkotlin/time/Instant;)Lkotlinx/coroutines/flow/Flow;
 }
@@ -128,6 +181,7 @@ public abstract interface class space/kscience/krig/storage/journal/ReplaySink {
 }
 
 public final class space/kscience/krig/storage/journal/SequenceCursor : space/kscience/krig/storage/journal/EventCursor {
+	public static final field Companion Lspace/kscience/krig/storage/journal/SequenceCursor$Companion;
 	public static final synthetic fun box-impl (J)Lspace/kscience/krig/storage/journal/SequenceCursor;
 	public synthetic fun compareTo (Ljava/lang/Object;)I
 	public fun compareTo (Lspace/kscience/krig/storage/journal/EventCursor;)I
@@ -142,6 +196,21 @@ public final class space/kscience/krig/storage/journal/SequenceCursor : space/ks
 	public fun toString ()Ljava/lang/String;
 	public static fun toString-impl (J)Ljava/lang/String;
 	public final synthetic fun unbox-impl ()J
+}
+
+public final synthetic class space/kscience/krig/storage/journal/SequenceCursor$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/storage/journal/SequenceCursor$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-nPMXQ9s (Lkotlinx/serialization/encoding/Decoder;)J
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-x5-j1CM (Lkotlinx/serialization/encoding/Encoder;J)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/storage/journal/SequenceCursor$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/storage/profile/StorageProfile {

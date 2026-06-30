@@ -3,6 +3,7 @@ package space.kscience.krig.storage.journal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.takeWhile
+import kotlinx.serialization.Serializable
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import kotlin.jvm.JvmInline
@@ -13,9 +14,11 @@ import kotlin.time.Instant
  * with sequence IDs, database offsets, or Kafka offsets. Not a device HLC timestamp — the cursor is
  * assigned by the store at write time, which is what makes branching deterministic.
  */
+@Serializable(with = EventCursorSerializer::class)
 public interface EventCursor : Comparable<EventCursor>
 
 /** Monotonic sequence cursor assigned by an [EventJournal] when an event is written. */
+@Serializable
 @JvmInline
 public value class SequenceCursor(public val sequence: Long) : EventCursor {
     override fun compareTo(other: EventCursor): Int {

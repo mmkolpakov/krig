@@ -6,6 +6,17 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-storage>
+abstract fun interface space.kscience.krig.storage.journal/JournalCompactionPolicy { // space.kscience.krig.storage.journal/JournalCompactionPolicy|null[0]
+    abstract suspend fun compact(space.kscience.krig.storage.journal/EventJournal, space.kscience.krig.storage.journal/CheckpointAnchor?) // space.kscience.krig.storage.journal/JournalCompactionPolicy.compact|compact(space.kscience.krig.storage.journal.EventJournal;space.kscience.krig.storage.journal.CheckpointAnchor?){}[0]
+
+    final object Companion { // space.kscience.krig.storage.journal/JournalCompactionPolicy.Companion|null[0]
+        final val Disabled // space.kscience.krig.storage.journal/JournalCompactionPolicy.Companion.Disabled|{}Disabled[0]
+            final fun <get-Disabled>(): space.kscience.krig.storage.journal/JournalCompactionPolicy // space.kscience.krig.storage.journal/JournalCompactionPolicy.Companion.Disabled.<get-Disabled>|<get-Disabled>(){}[0]
+        final val TruncateCoveredCursor // space.kscience.krig.storage.journal/JournalCompactionPolicy.Companion.TruncateCoveredCursor|{}TruncateCoveredCursor[0]
+            final fun <get-TruncateCoveredCursor>(): space.kscience.krig.storage.journal/JournalCompactionPolicy // space.kscience.krig.storage.journal/JournalCompactionPolicy.Companion.TruncateCoveredCursor.<get-TruncateCoveredCursor>|<get-TruncateCoveredCursor>(){}[0]
+    }
+}
+
 abstract fun interface space.kscience.krig.storage.journal/ReplayLog { // space.kscience.krig.storage.journal/ReplayLog|null[0]
     abstract fun replay(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/ReplayLog.replay|replay(kotlin.time.Instant;kotlin.time.Instant){}[0]
 }
@@ -36,7 +47,12 @@ abstract interface space.kscience.krig.storage.journal/CursorReplayLog : space.k
     open fun replayRecords(kotlin.time/Instant, kotlin.time/Instant): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.journal/ReplayRecord> // space.kscience.krig.storage.journal/CursorReplayLog.replayRecords|replayRecords(kotlin.time.Instant;kotlin.time.Instant){}[0]
 }
 
-abstract interface space.kscience.krig.storage.journal/EventCursor : kotlin/Comparable<space.kscience.krig.storage.journal/EventCursor> // space.kscience.krig.storage.journal/EventCursor|null[0]
+abstract interface space.kscience.krig.storage.journal/EventCursor : kotlin/Comparable<space.kscience.krig.storage.journal/EventCursor> { // space.kscience.krig.storage.journal/EventCursor|null[0]
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.storage.journal/EventCursor.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.storage.journal/EventCursor> // space.kscience.krig.storage.journal/EventCursor.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.storage.journal/EventCursor.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
 
 abstract interface space.kscience.krig.storage.journal/EventJournal : kotlin/AutoCloseable, space.kscience.krig.storage.journal/CursorReplayLog, space.kscience.krig.storage.journal/ReplaySink { // space.kscience.krig.storage.journal/EventJournal|null[0]
     abstract fun readAll(): kotlinx.coroutines.flow/Flow<space.kscience.krig.api.messages/DeviceMessageFrame<space.kscience.krig.api.messages/DeviceMessage>> // space.kscience.krig.storage.journal/EventJournal.readAll|readAll(){}[0]
@@ -145,6 +161,32 @@ final class space.kscience.krig.api.data/DeviceSnapshot { // space.kscience.krig
         final val $childSerializers // space.kscience.krig.api.data/DeviceSnapshot.Companion.$childSerializers|{}$childSerializers[0]
 
         final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.data/DeviceSnapshot> // space.kscience.krig.api.data/DeviceSnapshot.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.storage.journal/CheckpointAnchor { // space.kscience.krig.storage.journal/CheckpointAnchor|null[0]
+    constructor <init>(space.kscience.krig.storage.journal/EventCursor? = ...) // space.kscience.krig.storage.journal/CheckpointAnchor.<init>|<init>(space.kscience.krig.storage.journal.EventCursor?){}[0]
+
+    final val coveredCursor // space.kscience.krig.storage.journal/CheckpointAnchor.coveredCursor|{}coveredCursor[0]
+        final fun <get-coveredCursor>(): space.kscience.krig.storage.journal/EventCursor? // space.kscience.krig.storage.journal/CheckpointAnchor.coveredCursor.<get-coveredCursor>|<get-coveredCursor>(){}[0]
+
+    final fun component1(): space.kscience.krig.storage.journal/EventCursor? // space.kscience.krig.storage.journal/CheckpointAnchor.component1|component1(){}[0]
+    final fun copy(space.kscience.krig.storage.journal/EventCursor? = ...): space.kscience.krig.storage.journal/CheckpointAnchor // space.kscience.krig.storage.journal/CheckpointAnchor.copy|copy(space.kscience.krig.storage.journal.EventCursor?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.journal/CheckpointAnchor.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.storage.journal/CheckpointAnchor.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.storage.journal/CheckpointAnchor.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.storage.journal/CheckpointAnchor> { // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer|null[0]
+        final val descriptor // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.storage.journal/CheckpointAnchor // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.storage.journal/CheckpointAnchor) // space.kscience.krig.storage.journal/CheckpointAnchor.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.storage.journal.CheckpointAnchor){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.storage.journal/CheckpointAnchor.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.storage.journal/CheckpointAnchor> // space.kscience.krig.storage.journal/CheckpointAnchor.Companion.serializer|serializer(){}[0]
     }
 }
 
@@ -286,6 +328,19 @@ final value class space.kscience.krig.storage.journal/SequenceCursor : space.ksc
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.journal/SequenceCursor.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.storage.journal/SequenceCursor.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.storage.journal/SequenceCursor.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.storage.journal/SequenceCursor> { // space.kscience.krig.storage.journal/SequenceCursor.$serializer|null[0]
+        final val descriptor // space.kscience.krig.storage.journal/SequenceCursor.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.storage.journal/SequenceCursor.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.storage.journal/SequenceCursor.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.storage.journal/SequenceCursor // space.kscience.krig.storage.journal/SequenceCursor.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.storage.journal/SequenceCursor) // space.kscience.krig.storage.journal/SequenceCursor.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.storage.journal.SequenceCursor){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.storage.journal/SequenceCursor.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.storage.journal/SequenceCursor> // space.kscience.krig.storage.journal/SequenceCursor.Companion.serializer|serializer(){}[0]
+    }
 }
 
 final value class space.kscience.krig.storage.profile/StorageProfile { // space.kscience.krig.storage.profile/StorageProfile|null[0]
@@ -297,6 +352,14 @@ final value class space.kscience.krig.storage.profile/StorageProfile { // space.
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.storage.profile/StorageProfile.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.storage.profile/StorageProfile.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.storage.profile/StorageProfile.toString|toString(){}[0]
+}
+
+final object space.kscience.krig.storage.journal/EventCursorSerializer : kotlinx.serialization/KSerializer<space.kscience.krig.storage.journal/EventCursor> { // space.kscience.krig.storage.journal/EventCursorSerializer|null[0]
+    final val descriptor // space.kscience.krig.storage.journal/EventCursorSerializer.descriptor|{}descriptor[0]
+        final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.storage.journal/EventCursorSerializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+    final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.storage.journal/EventCursor // space.kscience.krig.storage.journal/EventCursorSerializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+    final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.storage.journal/EventCursor) // space.kscience.krig.storage.journal/EventCursorSerializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.storage.journal.EventCursor){}[0]
 }
 
 final object space.kscience.krig.storage.profile/StorageProfiles { // space.kscience.krig.storage.profile/StorageProfiles|null[0]
