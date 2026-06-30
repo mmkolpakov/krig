@@ -1,3 +1,5 @@
+@file:OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
+
 package space.kscience.krig.assembly
 
 import kotlinx.coroutines.delay
@@ -5,6 +7,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlinx.io.IOException
+import space.kscience.dataforge.context.Context
+import space.kscience.dataforge.meta.Meta
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualityNamespaces
@@ -17,6 +21,9 @@ import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
 import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.runCatchingOperation
+import space.kscience.krig.core.contracts.AbstractDevice
+import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.metaOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,6 +35,23 @@ import kotlin.time.Instant
 
 private object FixedAcquisitionClock : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(123)
+}
+
+private class SlowBatchDevice(
+    name: Name,
+    context: Context,
+) : AbstractDevice(name, DeviceRuntime(context)) {
+    override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+        runCatchingOperation { error("single-property path is not used by this test") }
+
+    override suspend fun doReadBatchOutcome(
+        properties: Collection<Name>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+        delay(50.milliseconds)
+        return properties.associateWith {
+            OperationOutcome.Ok(ObservedValue(metaOf(1.0), FixedAcquisitionClock.now(), DataQuality.GOOD))
+        }
+    }
 }
 
 class AcquisitionPollingTest {
@@ -129,6 +153,66 @@ class AcquisitionPollingTest {
 
         assertEquals(listOf(listOf("rpm".asName(), "temperature".asName())), batches)
         assertEquals(listOf("rpm".asName(), "temperature".asName()), observations.map { it.spec.id })
+    }
+
+    @Test
+    fun batchTimeoutPolicyUsesSlowestTagByDefault() = runTest {
+        val tags = listOf(
+            AcquisitionTagSpec("fast".asName(), "stand".asName(), "fast", timeoutMs = 10),
+            AcquisitionTagSpec("slow".asName(), "stand".asName(), "slow", timeoutMs = 100),
+        )
+
+        assertEquals(100, BatchTimeoutPolicy.SlowestTag.resolveBatchTimeoutMs(tags))
+    }
+
+    @Test
+    fun batchTimeoutPolicyCanKeepStrictTagBudget() = runTest {
+        val tags = listOf(
+            AcquisitionTagSpec("fast".asName(), "stand".asName(), "fast", timeoutMs = 10),
+            AcquisitionTagSpec("slow".asName(), "stand".asName(), "slow", timeoutMs = 100),
+        )
+
+        assertEquals(10, BatchTimeoutPolicy.TightestTag.resolveBatchTimeoutMs(tags))
+    }
+
+    @Test
+    fun deviceTreeReaderUsesSlowestTagTimeoutByDefault() = runTest {
+        val config = dataAcquisition {
+            source("stand", connector = AcquisitionConnectors.KrigDevice)
+            tag("fast").from("stand", "fast", TypeIds.DOUBLE, timeout = 10.milliseconds)
+            tag("slow").from("stand", "slow", TypeIds.DOUBLE, timeout = 100.milliseconds)
+            timer("fast", 10.milliseconds) { samples("fast", "slow") }
+        }
+        val reader = deviceTreeAcquisitionReader(
+            mapOf("stand".asName() to SlowBatchDevice("stand".asName(), Context("batch-slowest"))),
+        )
+
+        val observations = config.pollTimer("fast", flowOf(Unit), reader, FixedAcquisitionClock).toList()
+
+        assertEquals(2, observations.size)
+        assertTrue(observations.all { it.isOk })
+    }
+
+    @Test
+    fun deviceTreeReaderCanUseTightestTagTimeout() = runTest {
+        val config = dataAcquisition {
+            source(
+                id = "stand",
+                connector = AcquisitionConnectors.KrigDevice,
+                batchTimeoutPolicy = BatchTimeoutPolicy.TightestTag,
+            )
+            tag("fast").from("stand", "fast", TypeIds.DOUBLE, timeout = 10.milliseconds)
+            tag("slow").from("stand", "slow", TypeIds.DOUBLE, timeout = 100.milliseconds)
+            timer("fast", 10.milliseconds) { samples("fast", "slow") }
+        }
+        val reader = deviceTreeAcquisitionReader(
+            mapOf("stand".asName() to SlowBatchDevice("stand".asName(), Context("batch-tightest"))),
+        )
+
+        val observations = config.pollTimer("fast", flowOf(Unit), reader, FixedAcquisitionClock).toList()
+
+        assertEquals(2, observations.size)
+        assertTrue(observations.all { it.fault is TimeoutFault })
     }
 
     @Test

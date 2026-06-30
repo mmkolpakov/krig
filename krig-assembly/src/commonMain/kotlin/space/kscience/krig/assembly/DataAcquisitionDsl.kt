@@ -25,7 +25,9 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: Name,
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
-    ): AcquisitionSourceSpec = AcquisitionSourceSpec(id, connector, config, topologyPath).also(sources::add)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec =
+        AcquisitionSourceSpec(id, connector, config, topologyPath, batchTimeoutPolicy).also(sources::add)
 
     @IgnorableReturnValue
     public fun source(
@@ -33,7 +35,8 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: String,
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
-    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config, topologyPath)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config, topologyPath, batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun source(
@@ -41,7 +44,8 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: String,
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
-    ): AcquisitionSourceSpec = source(id, connector.asName(), config, topologyPath)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec = source(id, connector.asName(), config, topologyPath, batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun source(
@@ -49,28 +53,32 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: Name,
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
-    ): AcquisitionSourceSpec = source(id.asName(), connector, config, topologyPath)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec = source(id.asName(), connector, config, topologyPath, batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun source(
         id: Name,
         connector: Name,
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id, connector, Meta(block))
+    ): AcquisitionSourceSpec = source(id, connector, Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun source(
         id: String,
         connector: String,
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), Meta(block))
+    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun source(
         id: Name,
         connector: String,
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id, connector.asName(), Meta(block))
+    ): AcquisitionSourceSpec = source(id, connector.asName(), Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
 
     /** Declares a source id backed by a hierarchical device topology path. */
     @IgnorableReturnValue
@@ -79,7 +87,8 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: Name = AcquisitionConnectors.KrigDevice,
         topologyPath: Name,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = source(id, connector, config, topologyPath)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec = source(id, connector, config, topologyPath, batchTimeoutPolicy)
 
     @IgnorableReturnValue
     public fun topologySource(
@@ -87,7 +96,8 @@ public class DataAcquisitionBuilder internal constructor() {
         connector: Name = AcquisitionConnectors.KrigDevice,
         topologyPath: Name,
         config: Meta = Meta.EMPTY,
-    ): AcquisitionSourceSpec = topologySource(id.asName(), connector, topologyPath, config)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ): AcquisitionSourceSpec = topologySource(id.asName(), connector, topologyPath, config, batchTimeoutPolicy)
 
     /** Declares a timer and the tag ids sampled by that timer. */
     public fun timer(

@@ -82,11 +82,10 @@ public fun connectorAcquisitionReader(
  * convention otherwise, and reads the tagged properties in one
  * [readBatchOutcome][Device.readBatchOutcome] call.
  *
- * Per-tag [timeoutMs][AcquisitionTagSpec.timeoutMs] is honoured at the batch granularity: the
- * coalesced read is bounded by the **tightest** (smallest) declared timeout among the batch's tags,
- * so no tag waits longer than its SLA. On expiry all tags in the batch fail with [TimeoutFault]
- * (the read is a single coalesced operation and cannot be cancelled per-tag). Tags without a timeout
- * impose no bound. This mirrors the per-tag [bySource] path, which had been the only one applying timeouts.
+ * Per-tag [timeoutMs][AcquisitionTagSpec.timeoutMs] is projected through
+ * [AcquisitionSourceSpec.batchTimeoutPolicy] because one coalesced read cannot be cancelled per tag.
+ * On expiry all tags in the batch fail with [TimeoutFault]. Tags without a timeout do not contribute
+ * a bound unless the connector applies one in [AcquisitionSourceSpec.config].
  */
 public fun deviceTreeAcquisitionReader(
     devices: Map<Name, Device>,
@@ -99,7 +98,7 @@ public fun deviceTreeAcquisitionReader(
     // semantically hierarchical ("engine.rpm" reads `rpm` from child `engine`), so it is parsed
     // by dots rather than taken as a single token.
     val addresses = tags.map { it.address.parseAsName() }
-    val batchTimeoutMs = tags.mapNotNull { it.timeoutMs }.minOrNull()
+    val batchTimeoutMs = source.batchTimeoutPolicy.resolveBatchTimeoutMs(tags)
     val outcomes = try {
         if (batchTimeoutMs == null) {
             device.readBatchOutcome(addresses)

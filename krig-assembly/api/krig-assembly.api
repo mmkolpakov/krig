@@ -39,17 +39,19 @@ public abstract interface class space/kscience/krig/assembly/AcquisitionSourceRe
 
 public final class space/kscience/krig/assembly/AcquisitionSourceSpec {
 	public static final field Companion Lspace/kscience/krig/assembly/AcquisitionSourceSpec$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
 	public final fun component3 ()Lspace/kscience/dataforge/meta/Meta;
 	public final fun component4 ()Lspace/kscience/dataforge/names/Name;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun component5 ()Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/AcquisitionSourceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBatchTimeoutPolicy ()Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
 	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
 	public final fun getConnector ()Lspace/kscience/dataforge/names/Name;
 	public final fun getId ()Lspace/kscience/dataforge/names/Name;
@@ -155,6 +157,20 @@ public final class space/kscience/krig/assembly/AcquisitionTimerSpec$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/assembly/BatchTimeoutPolicy : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/assembly/BatchTimeoutPolicy$Companion;
+	public static final field SlowestTag Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+	public static final field TightestTag Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+	public static final field Unbounded Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+	public static fun values ()[Lspace/kscience/krig/assembly/BatchTimeoutPolicy;
+}
+
+public final class space/kscience/krig/assembly/BatchTimeoutPolicy$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public abstract interface class space/kscience/krig/assembly/ConfigurationLoadResult {
 }
 
@@ -203,27 +219,30 @@ public abstract interface annotation class space/kscience/krig/assembly/Contribu
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionBuilder {
-	public final fun source (Ljava/lang/String;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun source (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun source$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
 	public final fun tag (Ljava/lang/String;)Lspace/kscience/krig/assembly/DataAcquisitionBuilder$AcquisitionTagHandle;
 	public final fun tag (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/assembly/DataAcquisitionBuilder$AcquisitionTagHandle;
 	public final fun timer-8Mi8wO0 (Ljava/lang/String;JLkotlin/jvm/functions/Function1;)V
 	public final fun timer-8Mi8wO0 (Lspace/kscience/dataforge/names/Name;JLkotlin/jvm/functions/Function1;)V
 	public static synthetic fun timer-8Mi8wO0$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;JLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun timer-8Mi8wO0$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;JLkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
-	public final fun topologySource (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public final fun topologySource (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun topologySource$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
-	public static synthetic fun topologySource$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun topologySource (Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public final fun topologySource (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun topologySource$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Ljava/lang/String;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
+	public static synthetic fun topologySource$default (Lspace/kscience/krig/assembly/DataAcquisitionBuilder;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/BatchTimeoutPolicy;ILjava/lang/Object;)Lspace/kscience/krig/assembly/AcquisitionSourceSpec;
 }
 
 public final class space/kscience/krig/assembly/DataAcquisitionBuilder$AcquisitionTagBinding {
@@ -276,6 +295,7 @@ public final class space/kscience/krig/assembly/DataAcquisitionConfigurationKt {
 	public static synthetic fun fromMeta$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;
 	public static final fun load (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;Z)Lspace/kscience/krig/assembly/ConfigurationLoadResult;
 	public static synthetic fun load$default (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration$Companion;Lspace/kscience/dataforge/meta/Meta;ZILjava/lang/Object;)Lspace/kscience/krig/assembly/ConfigurationLoadResult;
+	public static final fun resolveBatchTimeoutMs (Lspace/kscience/krig/assembly/BatchTimeoutPolicy;Ljava/util/List;)Ljava/lang/Long;
 	public static final fun toAcquisitionSourceId (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
 	public static final fun toMeta (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun validate (Lspace/kscience/krig/assembly/DataAcquisitionConfiguration;)Ljava/util/List;

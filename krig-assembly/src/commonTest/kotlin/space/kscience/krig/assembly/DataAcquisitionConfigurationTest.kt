@@ -28,8 +28,22 @@ class DataAcquisitionConfigurationTest {
 
         assertTrue(config.validate().isEmpty())
         assertEquals("external.virtual".asName(), config.sources.single().connector)
+        assertEquals(BatchTimeoutPolicy.SlowestTag, config.sources.single().batchTimeoutPolicy)
         assertEquals("engine.rpm", config.tags.single().address)
         assertEquals(250, config.tags.single().timeoutMs)
+    }
+
+    @Test
+    fun dslConfiguresSourceBatchTimeoutPolicy() {
+        val config = dataAcquisition {
+            source(
+                id = "stand",
+                connector = "external.virtual",
+                batchTimeoutPolicy = BatchTimeoutPolicy.TightestTag,
+            )
+        }
+
+        assertEquals(BatchTimeoutPolicy.TightestTag, config.sources.single().batchTimeoutPolicy)
     }
 
     @Test

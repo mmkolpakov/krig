@@ -1,6 +1,7 @@
 package space.kscience.krig.assembly
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
@@ -52,6 +53,36 @@ public object AcquisitionConnectors {
 }
 
 /**
+ * How a source-level, coalesced read derives one timeout from tags with individual budgets.
+ *
+ * A batch read cannot cancel one physical operation per tag, so the policy is explicit:
+ * [TightestTag] preserves every tag SLA at the cost of failing slow batch members,
+ * [SlowestTag] lets the whole batch use the largest declared budget, and [Unbounded] delegates
+ * timeout handling completely to the connector.
+ */
+@Serializable
+public enum class BatchTimeoutPolicy {
+    @SerialName("tightest-tag")
+    TightestTag,
+
+    @SerialName("slowest-tag")
+    SlowestTag,
+
+    @SerialName("unbounded")
+    Unbounded,
+}
+
+/** Resolves the source-level timeout in milliseconds for a coalesced read of [tags]. */
+public fun BatchTimeoutPolicy.resolveBatchTimeoutMs(tags: List<AcquisitionTagSpec>): Long? {
+    val declared = tags.mapNotNull { it.timeoutMs }
+    return when (this) {
+        BatchTimeoutPolicy.TightestTag -> declared.minOrNull()
+        BatchTimeoutPolicy.SlowestTag -> declared.maxOrNull()
+        BatchTimeoutPolicy.Unbounded -> null
+    }
+}
+
+/**
  * Opaque connector instance. [id] is the acquisition source id used by tags and timers; it is not a
  * topology path. Connectors that need a hierarchical KRig device path use [topologyPath]. When a
  * `krig.device` source omits [topologyPath], the SDK also accepts the historical single-token
@@ -63,13 +94,15 @@ public data class AcquisitionSourceSpec(
     public val connector: Name,
     public val config: Meta = Meta.EMPTY,
     public val topologyPath: Name? = null,
+    public val batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
 ) {
     public constructor(
         id: Name,
         connector: String,
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
-    ) : this(id, connector.asName(), config, topologyPath)
+        batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    ) : this(id, connector.asName(), config, topologyPath, batchTimeoutPolicy)
 
     init {
         require(id != Name.EMPTY) { "AcquisitionSourceSpec id must not be empty" }
