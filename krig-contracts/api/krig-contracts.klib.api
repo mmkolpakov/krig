@@ -378,6 +378,31 @@ abstract interface space.kscience.krig.core.pipeline/ReadDecorator { // space.ks
     abstract fun <#A1: kotlin/Any?> decorate(space.kscience.krig.core.meta/DevicePropertyContract<#A1>, space.kscience.krig.core.contracts.typed/TypedReader<#A1>): space.kscience.krig.core.contracts.typed/TypedReader<#A1> // space.kscience.krig.core.pipeline/ReadDecorator.decorate|decorate(space.kscience.krig.core.meta.DevicePropertyContract<0:0>;space.kscience.krig.core.contracts.typed.TypedReader<0:0>){0§<kotlin.Any?>}[0]
 }
 
+sealed interface space.kscience.krig.core.operations/HlcLocalClockPolicy { // space.kscience.krig.core.operations/HlcLocalClockPolicy|null[0]
+    abstract fun localPhysicalMilliseconds(kotlin/Long, kotlin/Long): kotlin/Long // space.kscience.krig.core.operations/HlcLocalClockPolicy.localPhysicalMilliseconds|localPhysicalMilliseconds(kotlin.Long;kotlin.Long){}[0]
+
+    final class ClampAndIncrementLogical : space.kscience.krig.core.operations/HlcLocalClockPolicy { // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical|null[0]
+        constructor <init>(kotlin.time/Duration) // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.<init>|<init>(kotlin.time.Duration){}[0]
+
+        final val maxFutureDrift // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.maxFutureDrift|{}maxFutureDrift[0]
+            final fun <get-maxFutureDrift>(): kotlin.time/Duration // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.maxFutureDrift.<get-maxFutureDrift>|<get-maxFutureDrift>(){}[0]
+
+        final fun component1(): kotlin.time/Duration // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.component1|component1(){}[0]
+        final fun copy(kotlin.time/Duration = ...): space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.copy|copy(kotlin.time.Duration){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.hashCode|hashCode(){}[0]
+        final fun localPhysicalMilliseconds(kotlin/Long, kotlin/Long): kotlin/Long // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.localPhysicalMilliseconds|localPhysicalMilliseconds(kotlin.Long;kotlin.Long){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.core.operations/HlcLocalClockPolicy.ClampAndIncrementLogical.toString|toString(){}[0]
+    }
+
+    final object AcceptPhysicalTime : space.kscience.krig.core.operations/HlcLocalClockPolicy { // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.hashCode|hashCode(){}[0]
+        final fun localPhysicalMilliseconds(kotlin/Long, kotlin/Long): kotlin/Long // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.localPhysicalMilliseconds|localPhysicalMilliseconds(kotlin.Long;kotlin.Long){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.toString|toString(){}[0]
+    }
+}
+
 abstract class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/AbstractRingSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/AbstractRingSampler|null[0]
     constructor <init>(kotlin/Int, space.kscience.attributes/SafeType<#A>, kotlin/Boolean = ...) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.<init>|<init>(kotlin.Int;space.kscience.attributes.SafeType<1:0>;kotlin.Boolean){}[0]
 
@@ -1013,7 +1038,7 @@ final class space.kscience.krig.core.meta/DeviceContractRegistry { // space.ksci
 }
 
 final class space.kscience.krig.core.operations/HybridLogicalClock { // space.kscience.krig.core.operations/HybridLogicalClock|null[0]
-    constructor <init>(kotlin.time/Clock = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.data/HlcNodeId = ...) // space.kscience.krig.core.operations/HybridLogicalClock.<init>|<init>(kotlin.time.Clock;kotlin.time.Duration?;space.kscience.krig.api.data.HlcNodeId){}[0]
+    constructor <init>(kotlin.time/Clock = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.data/HlcNodeId = ..., space.kscience.krig.core.operations/HlcLocalClockPolicy = ...) // space.kscience.krig.core.operations/HybridLogicalClock.<init>|<init>(kotlin.time.Clock;kotlin.time.Duration?;space.kscience.krig.api.data.HlcNodeId;space.kscience.krig.core.operations.HlcLocalClockPolicy){}[0]
 
     final fun snapshot(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.snapshot|snapshot(){}[0]
     final fun tick(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.tick|tick(){}[0]

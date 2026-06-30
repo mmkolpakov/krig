@@ -91,6 +91,41 @@ class HybridLogicalClockTest {
     }
 
     @Test
+    fun tickClampsLocalClockJumpAndAdvancesLogicalCounter() {
+        val hlc = HybridLogicalClock(
+            physicalClock = ScriptedClock(listOf(1_000, 10_000, 1_050)),
+            localClockPolicy = HlcLocalClockPolicy.ClampAndIncrementLogical(100.milliseconds),
+        )
+
+        val first = hlc.tick()
+        val clamped = hlc.tick()
+        val recovered = hlc.tick()
+
+        assertEquals(1_000L, first.physicalMilliseconds)
+        assertEquals(0L, first.logicalCounter)
+        assertEquals(1_000L, clamped.physicalMilliseconds)
+        assertEquals(1L, clamped.logicalCounter)
+        assertEquals(1_050L, recovered.physicalMilliseconds)
+        assertEquals(0L, recovered.logicalCounter)
+        assertTrue(first < clamped && clamped < recovered)
+    }
+
+    @Test
+    fun updateClampsLocalClockJumpBeforeMergingRemoteTimestamp() {
+        val hlc = HybridLogicalClock(
+            physicalClock = ScriptedClock(listOf(1_000, 10_000)),
+            maxRemoteFutureDrift = 100.milliseconds,
+            localClockPolicy = HlcLocalClockPolicy.ClampAndIncrementLogical(100.milliseconds),
+        )
+        hlc.tick().let { }
+
+        val merged = hlc.update(HlcTimestamp(physicalMilliseconds = 1_010, logicalCounter = 7))
+
+        assertEquals(1_010L, merged.physicalMilliseconds)
+        assertEquals(8L, merged.logicalCounter)
+    }
+
+    @Test
     fun updateBumpsLogicalWhenLocalAndRemoteSharePhysical() {
         val hlc = HybridLogicalClock(ScriptedClock(listOf(100, 100, 100)))
         hlc.tick().let { } // lastPhysicalMs=100, logical=0
