@@ -3,7 +3,8 @@ package space.kscience.krig.assembly
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withTimeout
 import kotlinx.io.IOException
 import space.kscience.dataforge.meta.Meta
@@ -18,6 +19,7 @@ import space.kscience.krig.api.data.QualityPolicy
 import space.kscience.krig.api.data.toDataQuality
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
@@ -165,13 +167,20 @@ public fun DataAcquisitionConfiguration.pollTimer(
                 ?: error("Acquisition timer '$timerId' references unknown source '$sourceId'.")
             source to sourceTags
         }
-    return ticks.transform {
-        val byTagId = LinkedHashMap<Name, SamplingObservation<AcquisitionTagSpec>>(timerTags.size)
-        for ((source, sourceTags) in tagsBySource) {
-            val outcomes = reader.readSourceCatching(source, sourceTags)
-            sourceTags.forEach { tag -> byTagId[tag.id] = tag.toObservation(outcomes[tag.id], clock, qualityPolicy) }
+    return flow {
+        val circuitBreakers = tagsBySource.associate { (source, _) -> source.id to AcquisitionCircuitBreaker(source) }
+        ticks.collect {
+            val byTagId = LinkedHashMap<Name, SamplingObservation<AcquisitionTagSpec>>(timerTags.size)
+            for ((source, sourceTags) in tagsBySource) {
+                val outcomes = circuitBreakers.getValue(source.id).readOrFail(sourceTags, clock) {
+                    reader.readSourceCatching(source, sourceTags)
+                }
+                sourceTags.forEach { tag ->
+                    byTagId[tag.id] = tag.toObservation(outcomes[tag.id], clock, qualityPolicy)
+                }
+            }
+            timerTags.forEach { tag -> emit(byTagId.getValue(tag.id)) }
         }
-        timerTags.forEach { tag -> emit(byTagId.getValue(tag.id)) }
     }
 }
 
@@ -280,3 +289,69 @@ private fun AcquisitionTagSpec.failed(
 private fun List<AcquisitionTagSpec>.failAll(
     fault: OperationFault,
 ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> = associate { it.id to fail(fault) }
+
+private class AcquisitionCircuitBreaker(source: AcquisitionSourceSpec) {
+    private val sourceId: Name = source.id
+    private val policy: AcquisitionCircuitBreakerPolicy = source.circuitBreaker
+    private var state: AcquisitionCircuitState = AcquisitionCircuitState.Closed
+    private var consecutiveFailures: Int = 0
+    private var openedAtMs: Long = 0
+
+    suspend fun readOrFail(
+        tags: List<AcquisitionTagSpec>,
+        clock: Clock,
+        read: suspend () -> Map<Name, OperationOutcome<ObservedValue<Meta?>>>,
+    ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+        if (!policy.enabled) return read()
+
+        val nowMs = clock.now().toEpochMilliseconds()
+        if (state == AcquisitionCircuitState.Open) {
+            val elapsedMs = nowMs - openedAtMs
+            if (elapsedMs >= policy.resetTimeoutMs) {
+                state = AcquisitionCircuitState.HalfOpen
+            } else {
+                return tags.failAll(circuitOpenFault(elapsedMs))
+            }
+        }
+
+        val outcomes = read()
+        if (outcomes.isSourceFailure(tags)) {
+            onFailure(nowMs)
+        } else {
+            close()
+        }
+        return outcomes
+    }
+
+    private fun onFailure(nowMs: Long) {
+        consecutiveFailures += 1
+        if (state == AcquisitionCircuitState.HalfOpen || consecutiveFailures >= policy.failureThreshold) {
+            state = AcquisitionCircuitState.Open
+            openedAtMs = nowMs
+            consecutiveFailures = 0
+        }
+    }
+
+    private fun close() {
+        state = AcquisitionCircuitState.Closed
+        openedAtMs = 0
+        consecutiveFailures = 0
+    }
+
+    private fun circuitOpenFault(elapsedMs: Long): GenericOperationFault =
+        GenericOperationFault(
+            faultType = AcquisitionFaultTypes.CircuitOpen,
+            message = "Acquisition source '$sourceId' circuit is open.",
+            details = Meta {
+                OperationFaultDetails.MESSAGE put "Acquisition source '$sourceId' is skipped while its circuit is open."
+                OperationFaultDetails.NAME put sourceId.toString()
+                "state".asName() put state.name
+                "elapsedMs".asName() put elapsedMs
+                "resetTimeoutMs".asName() put policy.resetTimeoutMs
+            },
+        )
+}
+
+private fun Map<Name, OperationOutcome<ObservedValue<Meta?>>>.isSourceFailure(
+    tags: List<AcquisitionTagSpec>,
+): Boolean = tags.isNotEmpty() && tags.all { tag -> this[tag.id] is OperationOutcome.Fail }

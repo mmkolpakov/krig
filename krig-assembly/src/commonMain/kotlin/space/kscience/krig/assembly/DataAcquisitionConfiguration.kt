@@ -82,6 +82,42 @@ public fun BatchTimeoutPolicy.resolveBatchTimeoutMs(tags: List<AcquisitionTagSpe
     }
 }
 
+/** Assembly-local fault types produced by acquisition infrastructure. */
+public object AcquisitionFaultTypes {
+    public val CircuitOpen: Name = "fault.acquisition.circuit-open".asName()
+}
+
+/** Runtime state names used by source-level acquisition circuit breakers. */
+public enum class AcquisitionCircuitState {
+    Closed,
+    Open,
+    HalfOpen,
+}
+
+/**
+ * Source-level resilience policy for repeated connector failures.
+ *
+ * [failureThreshold] is the number of consecutive source failures that opens the circuit. `0`
+ * disables the breaker. While open, reads are skipped until [resetTimeoutMs] elapses; the next read
+ * is a half-open probe and closes the circuit only if it succeeds.
+ */
+@Serializable
+public data class AcquisitionCircuitBreakerPolicy(
+    public val failureThreshold: Int = 0,
+    public val resetTimeoutMs: Long = 1_000,
+) {
+    init {
+        require(failureThreshold >= 0) { "failureThreshold must be non-negative, got $failureThreshold" }
+        require(resetTimeoutMs > 0) { "resetTimeoutMs must be positive, got $resetTimeoutMs" }
+    }
+
+    public val enabled: Boolean get() = failureThreshold > 0
+
+    public companion object {
+        public val Disabled: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy()
+    }
+}
+
 /**
  * Opaque connector instance. [id] is the acquisition source id used by tags and timers; it is not a
  * topology path. Connectors that need a hierarchical KRig device path use [topologyPath]. When a
@@ -95,6 +131,7 @@ public data class AcquisitionSourceSpec(
     public val config: Meta = Meta.EMPTY,
     public val topologyPath: Name? = null,
     public val batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+    public val circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
 ) {
     public constructor(
         id: Name,
@@ -102,7 +139,8 @@ public data class AcquisitionSourceSpec(
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ) : this(id, connector.asName(), config, topologyPath, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ) : this(id, connector.asName(), config, topologyPath, batchTimeoutPolicy, circuitBreaker)
 
     init {
         require(id != Name.EMPTY) { "AcquisitionSourceSpec id must not be empty" }

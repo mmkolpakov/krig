@@ -18,6 +18,7 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.TimeoutFault
 import space.kscience.krig.api.faults.TransportFault
 import space.kscience.krig.api.result.OperationOutcome
@@ -35,6 +36,16 @@ import kotlin.time.Instant
 
 private object FixedAcquisitionClock : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(123)
+}
+
+private class MutableAcquisitionClock(
+    private var epochMs: Long = 123,
+) : Clock {
+    override fun now(): Instant = Instant.fromEpochMilliseconds(epochMs)
+
+    fun advanceBy(milliseconds: Long) {
+        epochMs += milliseconds
+    }
 }
 
 private class SlowBatchDevice(
@@ -257,5 +268,67 @@ class AcquisitionPollingTest {
         assertEquals(2, observations.size)
         assertTrue(observations.all { it.fault is TransportFault })
         assertTrue(observations.all { it.observed.value == null })
+    }
+
+    @Test
+    fun pollTimerOpensCircuitAfterRepeatedSourceFailures() = runTest {
+        val config = dataAcquisition {
+            source(
+                id = "stand",
+                connector = "external.virtual",
+                circuitBreaker = AcquisitionCircuitBreakerPolicy(failureThreshold = 2, resetTimeoutMs = 1_000),
+            )
+            tag("rpm").from("stand", "rpm", TypeIds.DOUBLE)
+            timer("fast", 10.milliseconds) { samples("rpm") }
+        }
+        var calls = 0
+        val reader = AcquisitionSourceReader { _, _ ->
+            calls += 1
+            throw IOException("link down")
+        }
+
+        val observations = config.pollTimer("fast", flowOf(Unit, Unit, Unit), reader, FixedAcquisitionClock).toList()
+
+        assertEquals(2, calls)
+        assertIs<TransportFault>(observations[0].fault)
+        assertIs<TransportFault>(observations[1].fault)
+        val openFault = assertIs<GenericOperationFault>(observations[2].fault)
+        assertEquals(AcquisitionFaultTypes.CircuitOpen, openFault.faultType)
+    }
+
+    @Test
+    fun pollTimerHalfOpenProbeClosesCircuitAfterResetTimeout() = runTest {
+        val clock = MutableAcquisitionClock()
+        val config = dataAcquisition {
+            source(
+                id = "stand",
+                connector = "external.virtual",
+                circuitBreaker = AcquisitionCircuitBreakerPolicy(failureThreshold = 1, resetTimeoutMs = 100),
+            )
+            tag("rpm").from("stand", "rpm", TypeIds.DOUBLE)
+            timer("fast", 10.milliseconds) { samples("rpm") }
+        }
+        var calls = 0
+        val reader = AcquisitionSourceReader { _, tags ->
+            calls += 1
+            if (calls == 1) throw IOException("link down")
+            tags.associate { tag ->
+                tag.id to OperationOutcome.Ok(ObservedValue(metaOf(1.0), clock.now(), DataQuality.GOOD))
+            }
+        }
+        val ticks = kotlinx.coroutines.flow.flow {
+            emit(Unit)
+            emit(Unit)
+            clock.advanceBy(200)
+            emit(Unit)
+        }
+
+        val observations = config.pollTimer("fast", ticks, reader, clock).toList()
+
+        assertEquals(2, calls)
+        assertIs<TransportFault>(observations[0].fault)
+        val openFault = assertIs<GenericOperationFault>(observations[1].fault)
+        assertEquals(AcquisitionFaultTypes.CircuitOpen, openFault.faultType)
+        assertTrue(observations[2].isOk)
     }
 }

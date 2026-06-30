@@ -29,6 +29,7 @@ class DataAcquisitionConfigurationTest {
         assertTrue(config.validate().isEmpty())
         assertEquals("external.virtual".asName(), config.sources.single().connector)
         assertEquals(BatchTimeoutPolicy.SlowestTag, config.sources.single().batchTimeoutPolicy)
+        assertEquals(AcquisitionCircuitBreakerPolicy.Disabled, config.sources.single().circuitBreaker)
         assertEquals("engine.rpm", config.tags.single().address)
         assertEquals(250, config.tags.single().timeoutMs)
     }
@@ -44,6 +45,20 @@ class DataAcquisitionConfigurationTest {
         }
 
         assertEquals(BatchTimeoutPolicy.TightestTag, config.sources.single().batchTimeoutPolicy)
+    }
+
+    @Test
+    fun dslConfiguresSourceCircuitBreakerPolicy() {
+        val policy = AcquisitionCircuitBreakerPolicy(failureThreshold = 3, resetTimeoutMs = 5_000)
+        val config = dataAcquisition {
+            source(
+                id = "stand",
+                connector = "external.virtual",
+                circuitBreaker = policy,
+            )
+        }
+
+        assertEquals(policy, config.sources.single().circuitBreaker)
     }
 
     @Test

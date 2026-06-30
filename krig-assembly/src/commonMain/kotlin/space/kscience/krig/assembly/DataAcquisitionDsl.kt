@@ -26,8 +26,9 @@ public class DataAcquisitionBuilder internal constructor() {
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
     ): AcquisitionSourceSpec =
-        AcquisitionSourceSpec(id, connector, config, topologyPath, batchTimeoutPolicy).also(sources::add)
+        AcquisitionSourceSpec(id, connector, config, topologyPath, batchTimeoutPolicy, circuitBreaker).also(sources::add)
 
     @IgnorableReturnValue
     public fun source(
@@ -36,7 +37,9 @@ public class DataAcquisitionBuilder internal constructor() {
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), config, topologyPath, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ): AcquisitionSourceSpec =
+        source(id.asName(), connector.asName(), config, topologyPath, batchTimeoutPolicy, circuitBreaker)
 
     @IgnorableReturnValue
     public fun source(
@@ -45,7 +48,8 @@ public class DataAcquisitionBuilder internal constructor() {
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ): AcquisitionSourceSpec = source(id, connector.asName(), config, topologyPath, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ): AcquisitionSourceSpec = source(id, connector.asName(), config, topologyPath, batchTimeoutPolicy, circuitBreaker)
 
     @IgnorableReturnValue
     public fun source(
@@ -54,31 +58,53 @@ public class DataAcquisitionBuilder internal constructor() {
         config: Meta = Meta.EMPTY,
         topologyPath: Name? = null,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ): AcquisitionSourceSpec = source(id.asName(), connector, config, topologyPath, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ): AcquisitionSourceSpec = source(id.asName(), connector, config, topologyPath, batchTimeoutPolicy, circuitBreaker)
 
     @IgnorableReturnValue
     public fun source(
         id: Name,
         connector: Name,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id, connector, Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
+    ): AcquisitionSourceSpec = source(
+        id = id,
+        connector = connector,
+        config = Meta(block),
+        batchTimeoutPolicy = batchTimeoutPolicy,
+        circuitBreaker = circuitBreaker,
+    )
 
     @IgnorableReturnValue
     public fun source(
         id: String,
         connector: String,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id.asName(), connector.asName(), Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
+    ): AcquisitionSourceSpec = source(
+        id = id.asName(),
+        connector = connector.asName(),
+        config = Meta(block),
+        batchTimeoutPolicy = batchTimeoutPolicy,
+        circuitBreaker = circuitBreaker,
+    )
 
     @IgnorableReturnValue
     public fun source(
         id: Name,
         connector: String,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
         block: MutableMeta.() -> Unit,
-    ): AcquisitionSourceSpec = source(id, connector.asName(), Meta(block), batchTimeoutPolicy = batchTimeoutPolicy)
+    ): AcquisitionSourceSpec = source(
+        id = id,
+        connector = connector.asName(),
+        config = Meta(block),
+        batchTimeoutPolicy = batchTimeoutPolicy,
+        circuitBreaker = circuitBreaker,
+    )
 
     /** Declares a source id backed by a hierarchical device topology path. */
     @IgnorableReturnValue
@@ -88,7 +114,8 @@ public class DataAcquisitionBuilder internal constructor() {
         topologyPath: Name,
         config: Meta = Meta.EMPTY,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ): AcquisitionSourceSpec = source(id, connector, config, topologyPath, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ): AcquisitionSourceSpec = source(id, connector, config, topologyPath, batchTimeoutPolicy, circuitBreaker)
 
     @IgnorableReturnValue
     public fun topologySource(
@@ -97,7 +124,9 @@ public class DataAcquisitionBuilder internal constructor() {
         topologyPath: Name,
         config: Meta = Meta.EMPTY,
         batchTimeoutPolicy: BatchTimeoutPolicy = BatchTimeoutPolicy.SlowestTag,
-    ): AcquisitionSourceSpec = topologySource(id.asName(), connector, topologyPath, config, batchTimeoutPolicy)
+        circuitBreaker: AcquisitionCircuitBreakerPolicy = AcquisitionCircuitBreakerPolicy.Disabled,
+    ): AcquisitionSourceSpec =
+        topologySource(id.asName(), connector, topologyPath, config, batchTimeoutPolicy, circuitBreaker)
 
     /** Declares a timer and the tag ids sampled by that timer. */
     public fun timer(
