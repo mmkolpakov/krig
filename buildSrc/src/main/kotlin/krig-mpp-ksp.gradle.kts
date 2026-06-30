@@ -44,6 +44,67 @@ plugins.withId("org.jetbrains.kotlin.multiplatform") {
     }.configureEach {
         dependsOn("kspCommonMainKotlinMetadata")
     }
+
+    tasks.register("krigKspIncrementalReport") {
+        group = "verification"
+        description = "Collect KRig KSP dirty-set logs into a stable report for incremental-boundary review."
+        dependsOn("kspCommonMainKotlinMetadata", "kspKotlinJvm")
+        outputs.upToDateWhen { false }
+
+        doLast {
+            val reportFile = layout.buildDirectory.file("reports/krig/ksp-incremental-report.txt").get().asFile
+            val buildRoot = layout.buildDirectory.get().asFile
+            val logNames = setOf(
+                "kspDirtySet.log",
+                "kspDirtySetByDeps.log",
+                "kspDirtySetByOutputs.log",
+                "kspSourceToOutputs.log",
+            )
+            val logFiles = buildRoot
+                .walkTopDown()
+                .filter { file -> file.isFile && file.name in logNames }
+                .sortedBy { file -> file.relativeTo(buildRoot).invariantSeparatorsPath }
+                .toList()
+
+            reportFile.parentFile.mkdirs()
+            reportFile.writeText(
+                buildString {
+                    appendLine("KRig KSP incremental boundary report")
+                    appendLine("Project: ${project.path}")
+                    appendLine()
+                    appendLine("Run with: ./gradlew ${project.path}:krigKspIncrementalReport \"-Pksp.incremental=true\" \"-Pksp.incremental.log=true\"")
+                    appendLine()
+                    appendLine("Generator baseline:")
+                    appendLine("- DeviceContractGenerator: isolating common contract artifacts.")
+                    appendLine("- SerializersModuleGenerator: isolating per-subclass contributors plus one aggregating serializers index.")
+                    appendLine("- ContributesAggregator: JVM aggregation plugin output per target id.")
+                    appendLine()
+                    appendLine("Manual scenario matrix:")
+                    appendLine("- non-annotated source changed: should not expand KRig generated outputs.")
+                    appendLine("- one @Serializable subclass changed: subclass contributor plus serializers index may be dirty.")
+                    appendLine("- one @Contributes object changed: target JVM aggregation plugin may be dirty.")
+                    appendLine("- unrelated file changed: inspect whether aggregating outputs are the only KRig-generated dirtiness.")
+                    appendLine()
+                    if (logFiles.isEmpty()) {
+                        appendLine("No KSP incremental logs found. Re-run with \"-Pksp.incremental=true\" \"-Pksp.incremental.log=true\" after a clean build and one incremental rebuild.")
+                    } else {
+                        appendLine("Collected logs:")
+                        for (file in logFiles) {
+                            appendLine()
+                            appendLine("## ${file.relativeTo(buildRoot).invariantSeparatorsPath}")
+                            val lines = file.readLines()
+                            val excerpt = lines.take(200)
+                            for (line in excerpt) appendLine(line)
+                            if (lines.size > excerpt.size) {
+                                appendLine("... truncated ${lines.size - excerpt.size} lines ...")
+                            }
+                        }
+                    }
+                },
+            )
+            logger.lifecycle("KRig KSP incremental report written to ${reportFile.relativeTo(project.rootDir)}")
+        }
+    }
 }
 
 ksp {

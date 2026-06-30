@@ -15,15 +15,15 @@ import kotlin.test.assertEquals
  * per-subclass contributors and one aggregating index. The index records all source
  * files that contributed registrations in `Dependencies(aggregating = true, ...)`.
  *
- * Manual Gradle test:
+ * Manual Gradle smoke:
  * ```
- * ./gradlew clean :module:compileKotlinJvm -Pksp.incremental=true
- * cat build/kotlin/kspJvmKotlin/kspDirtySet.log
- * ./gradlew :module:compileKotlinJvm -Pksp.incremental=true
- * cat build/kotlin/kspJvmKotlin/kspDirtySetByDeps.log
+ * ./gradlew :krig-model:krigKspIncrementalReport "-Pksp.incremental=true" "-Pksp.incremental.log=true"
+ * cat krig-model/build/reports/krig/ksp-incremental-report.txt
  * ```
- * Keep this manual check around until the compile-testing harness can exercise a
- * real multi-invocation incremental Gradle build.
+ * The report records the generator baseline and the KSP dirty-set logs for the
+ * actual `krig-mpp-ksp` common/JVM split. Use it for the four boundary scenarios:
+ * non-annotated source, `@Serializable` subclass, `@Contributes` object, and
+ * unrelated source changes.
  */
 @OptIn(ExperimentalCompilerApi::class)
 class KspIncrementalRegressionTest {
