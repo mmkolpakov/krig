@@ -257,6 +257,7 @@ public class space/kscience/krig/core/runtime/MutableDeviceHub : space/kscience/
 	public fun attachAll (Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun attachAll (Ljava/util/Map;Z)V
 	public fun close ()V
+	public fun decommission (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun detach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun getChildren ()Ljava/util/Map;
 	public fun getChildrenFlow ()Lkotlinx/coroutines/flow/StateFlow;
@@ -264,8 +265,10 @@ public class space/kscience/krig/core/runtime/MutableDeviceHub : space/kscience/
 	public fun getDevices ()Ljava/util/Map;
 	public fun getDevicesFlow ()Lkotlinx/coroutines/flow/StateFlow;
 	public fun getHubEvents ()Lkotlinx/coroutines/flow/Flow;
+	public fun release (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun replace (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public fun shutdown (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun transfer (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/core/runtime/MutableDeviceHubKt {

@@ -172,6 +172,34 @@ public open class MutableDeviceHub(
     }
 
     override suspend fun detach(name: Name, reason: DeviceDepartureReason): Device? {
+        val detached = detachInternal(name, reason) ?: return null
+        if (detached.owned) closeDeviceBounded(detached.device) { detached.device.shutdown() }
+        return detached.device
+    }
+
+    override suspend fun release(name: Name, reason: DeviceDepartureReason): Device? =
+        detachInternal(name, reason)?.device
+
+    override suspend fun decommission(name: Name, reason: DeviceDepartureReason): Device? {
+        val detached = detachInternal(name, reason) ?: return null
+        closeDeviceBounded(detached.device) { detached.device.shutdown() }
+        return detached.device
+    }
+
+    override suspend fun transfer(name: Name, target: DeviceHub, targetName: Name): Device? {
+        if (target === this && targetName == name) return devices[name]
+
+        val detached = detachInternal(name, DeviceDepartureReason.Transferred) ?: return null
+        try {
+            target.attach(targetName, detached.device)
+        } catch (cause: Exception) {
+            attachAll(mapOf(name to detached.device), owned = detached.owned)
+            throw cause
+        }
+        return detached.device
+    }
+
+    private fun detachInternal(name: Name, reason: DeviceDepartureReason): DetachOutcome? {
         val detached = synchronized(topologyLock) {
             val active = topologyState as? HubState.Active ?: return@synchronized null
             val prev = active.children[name] ?: return@synchronized null
@@ -183,10 +211,8 @@ public open class MutableDeviceHub(
             DetachOutcome(prev, wasOwned, HubEvent.Detached(name, clock.now(), reason))
         } ?: return null
         emitTopologyEvent(detached.event)
-        // Only owned children are closed by the hub; shared/external devices keep their own lifecycle.
-        if (detached.owned) closeDeviceBounded(detached.device) { detached.device.shutdown() }
         dispatchDetachedHooks(name, detached.device)
-        return detached.device
+        return detached
     }
 
     override fun close() {

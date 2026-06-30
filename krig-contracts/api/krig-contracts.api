@@ -107,19 +107,26 @@ public final class space/kscience/krig/api/factory/DeviceTemplateKt {
 public abstract interface class space/kscience/krig/api/hub/DeviceHub : space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/DeviceNode {
 	public abstract fun attach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun attachAll (Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun decommission (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun decommission$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun detach (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun detach$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun getDevices ()Ljava/util/Map;
 	public abstract fun getDevicesFlow ()Lkotlinx/coroutines/flow/StateFlow;
 	public abstract fun getHubEvents ()Lkotlinx/coroutines/flow/Flow;
+	public abstract fun release (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun release$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public abstract fun replace (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;ZLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun replace$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public abstract fun transfer (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun transfer$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class space/kscience/krig/api/hub/DeviceHub$DefaultImpls {
 	public static fun action (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public static fun actionSpec (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public static fun close (Lspace/kscience/krig/api/hub/DeviceHub;)V
+	public static synthetic fun decommission$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static synthetic fun detach$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static fun executeOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DeviceActionContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun getChildrenFlow (Lspace/kscience/krig/api/hub/DeviceHub;)Lkotlinx/coroutines/flow/StateFlow;
@@ -138,10 +145,12 @@ public final class space/kscience/krig/api/hub/DeviceHub$DefaultImpls {
 	public static fun readObservedOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun readOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun reader (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedReader;
+	public static synthetic fun release$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/messages/DeviceDepartureReason;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static synthetic fun replace$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/Device;ZLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static fun sampler (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedSampler;
 	public static fun shutdown (Lspace/kscience/krig/api/hub/DeviceHub;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun subscribe (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/api/context/Principal;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun transfer$default (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static fun writeBatchOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Ljava/util/Map;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun writeBinaryOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/io/Binary;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static fun writeOutcome (Lspace/kscience/krig/api/hub/DeviceHub;Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

@@ -104,6 +104,13 @@ class ApiSerializationRoundTripTest {
     }
 
     @Test
+    fun detachReasonTopologyLifecycleRoundTrip() {
+        roundTrip<DeviceDepartureReason>(DeviceDepartureReason.Released)
+        roundTrip<DeviceDepartureReason>(DeviceDepartureReason.Decommissioned)
+        roundTrip<DeviceDepartureReason>(DeviceDepartureReason.Transferred)
+    }
+
+    @Test
     fun detachReasonCustomRoundTrip() {
         roundTrip<DeviceDepartureReason>(
             DeviceDepartureReason.Custom(id = "watchdog.timeout", message = "no ack in 5s"),

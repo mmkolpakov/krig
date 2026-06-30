@@ -37,6 +37,18 @@ public sealed interface DeviceDepartureReason {
     @SerialName("departure.evicted")
     public data object Evicted : DeviceDepartureReason
 
+    @Serializable
+    @SerialName("departure.released")
+    public data object Released : DeviceDepartureReason
+
+    @Serializable
+    @SerialName("departure.decommissioned")
+    public data object Decommissioned : DeviceDepartureReason
+
+    @Serializable
+    @SerialName("departure.transferred")
+    public data object Transferred : DeviceDepartureReason
+
     /** Vendor-specific cause; [id] is stable, [message] is human-readable. */
     @Serializable
     @SerialName("departure.custom")

@@ -31,6 +31,8 @@ import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 @OptIn(InternalKrigApi::class, ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
@@ -40,9 +42,17 @@ class DeviceHubE2ETest {
         var closed: Boolean = false
             private set
 
+        var shutdowns: Int = 0
+            private set
+
         override fun close() {
             closed = true
             super.close()
+        }
+
+        override suspend fun shutdown() {
+            shutdowns += 1
+            super.shutdown()
         }
 
         override suspend fun doReadPropertyOutcome(
@@ -173,5 +183,51 @@ class DeviceHubE2ETest {
         assertEquals(1, hub.devices.size)
         assertEquals(9, conflicts.size)
         assertTrue(conflicts.all { it is HubConflictException })
+    }
+
+    @Test
+    fun releaseRemovesOwnedChildWithoutStoppingIt() = runTest {
+        val hubCtx = freshContext("release")
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
+        val child = trackingDevice("a", hubCtx)
+        hub.attach(child.name, child)
+
+        val released = hub.release(child.name)
+
+        assertSame(child, released)
+        assertEquals(emptyMap(), hub.devices)
+        assertFalse(child.closed)
+        assertEquals(0, child.shutdowns)
+    }
+
+    @Test
+    fun decommissionStopsSharedChildExplicitly() = runTest {
+        val hubCtx = freshContext("decommission")
+        val hub = MutableDeviceHub("hub".asName(), hubCtx)
+        val child = trackingDevice("a", hubCtx)
+        hub.attach(child.name, child, owned = false)
+
+        val removed = hub.decommission(child.name)
+
+        assertSame(child, removed)
+        assertEquals(emptyMap(), hub.devices)
+        assertEquals(1, child.shutdowns)
+    }
+
+    @Test
+    fun transferMovesChildWithoutStoppingIt() = runTest {
+        val hubCtx = freshContext("transfer")
+        val source = MutableDeviceHub("source".asName(), hubCtx)
+        val target = MutableDeviceHub("target".asName(), hubCtx)
+        val child = trackingDevice("a", hubCtx)
+        source.attach(child.name, child)
+
+        val moved = source.transfer(child.name, target)
+
+        assertSame(child, moved)
+        assertEquals(emptyMap(), source.devices)
+        assertSame(child, target.devices[child.name])
+        assertFalse(child.closed)
+        assertEquals(0, child.shutdowns)
     }
 }

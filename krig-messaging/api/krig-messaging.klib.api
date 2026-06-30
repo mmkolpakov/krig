@@ -187,6 +187,14 @@ sealed interface space.kscience.krig.api.messages/DeviceDepartureReason { // spa
         final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.Crashed.toString|toString(){}[0]
     }
 
+    final object Decommissioned : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned> // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.Decommissioned.toString|toString(){}[0]
+    }
+
     final object Evicted : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.Evicted|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceDepartureReason.Evicted.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceDepartureReason.Evicted.hashCode|hashCode(){}[0]
@@ -219,12 +227,28 @@ sealed interface space.kscience.krig.api.messages/DeviceDepartureReason { // spa
         final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.ParentClosed.toString|toString(){}[0]
     }
 
+    final object Released : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.Released|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceDepartureReason.Released.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceDepartureReason.Released.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceDepartureReason.Released> // space.kscience.krig.api.messages/DeviceDepartureReason.Released.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceDepartureReason.Released.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.Released.toString|toString(){}[0]
+    }
+
     final object Timeout : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout.hashCode|hashCode(){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceDepartureReason.Timeout> // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout.serializer|serializer(){}[0]
         final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.Timeout.toString|toString(){}[0]
+    }
+
+    final object Transferred : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred.hashCode|hashCode(){}[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.messages/DeviceDepartureReason.Transferred> // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.api.messages/DeviceDepartureReason.Transferred.toString|toString(){}[0]
     }
 
     final object TransportDisconnected : kotlinx.serialization.internal/SerializerFactory, space.kscience.krig.api.messages/DeviceDepartureReason { // space.kscience.krig.api.messages/DeviceDepartureReason.TransportDisconnected|null[0]

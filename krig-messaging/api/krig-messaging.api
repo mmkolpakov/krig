@@ -471,6 +471,14 @@ public final class space/kscience/krig/api/messages/DeviceDepartureReason$Custom
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/api/messages/DeviceDepartureReason$Decommissioned : space/kscience/krig/api/messages/DeviceDepartureReason {
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/DeviceDepartureReason$Decommissioned;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/messages/DeviceDepartureReason$Evicted : space/kscience/krig/api/messages/DeviceDepartureReason {
 	public static final field INSTANCE Lspace/kscience/krig/api/messages/DeviceDepartureReason$Evicted;
 	public fun equals (Ljava/lang/Object;)Z
@@ -503,8 +511,24 @@ public final class space/kscience/krig/api/messages/DeviceDepartureReason$Parent
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class space/kscience/krig/api/messages/DeviceDepartureReason$Released : space/kscience/krig/api/messages/DeviceDepartureReason {
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/DeviceDepartureReason$Released;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class space/kscience/krig/api/messages/DeviceDepartureReason$Timeout : space/kscience/krig/api/messages/DeviceDepartureReason {
 	public static final field INSTANCE Lspace/kscience/krig/api/messages/DeviceDepartureReason$Timeout;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/messages/DeviceDepartureReason$Transferred : space/kscience/krig/api/messages/DeviceDepartureReason {
+	public static final field INSTANCE Lspace/kscience/krig/api/messages/DeviceDepartureReason$Transferred;
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
