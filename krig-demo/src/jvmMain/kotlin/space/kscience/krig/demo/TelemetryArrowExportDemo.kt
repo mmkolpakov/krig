@@ -14,8 +14,17 @@ private const val SAMPLE_COUNT: Int = 1_000
  * `main` entry points.
  */
 public fun main() {
-    val chunk = edgeTelemetryWireChunk(SAMPLE_COUNT)
     val path = Path.of("build", "telemetry.arrow")
+    val bytes = writeTelemetryArrowExport(path)
+
+    println("Exported $SAMPLE_COUNT rows to ${path.toAbsolutePath()} ($bytes bytes)")
+}
+
+internal fun writeTelemetryArrowExport(
+    path: Path,
+    sampleCount: Int = SAMPLE_COUNT,
+): Long {
+    val chunk = edgeTelemetryWireChunk(sampleCount)
     chunk.writeArrowIpcFile(
         path,
         schemaMetadata = mapOf(
@@ -24,6 +33,5 @@ public fun main() {
             "krig.series.pressure.unit" to "bar",
         ),
     )
-
-    println("Exported ${chunk.rows.size} rows to ${path.toAbsolutePath()} (${Files.size(path)} bytes)")
+    return Files.size(path)
 }

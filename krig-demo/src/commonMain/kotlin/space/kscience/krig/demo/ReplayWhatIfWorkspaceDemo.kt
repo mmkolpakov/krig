@@ -1,3 +1,5 @@
+@file:OptIn(space.kscience.krig.core.ExperimentalKrigApi::class)
+
 package space.kscience.krig.demo
 
 import space.kscience.dataforge.data.await

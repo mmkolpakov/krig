@@ -40,3 +40,16 @@ kotlin {
         }
     }
 }
+
+private val arrowJvmArgs = listOf(
+    "--add-opens=java.base/java.nio=ALL-UNNAMED",
+    "--enable-native-access=ALL-UNNAMED",
+)
+
+tasks.withType<Test>().configureEach {
+    jvmArgs(arrowJvmArgs)
+}
+
+tasks.withType<JavaExec>().configureEach {
+    jvmArgs(arrowJvmArgs)
+}

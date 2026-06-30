@@ -24,7 +24,7 @@ internal data class MagixFrameRoundTrip<T : DeviceMessage>(
 )
 
 internal inline fun <reified T : DeviceMessage> roundTripKrigFrameThroughMagix(
-    frame: DeviceMessageFrame<out DeviceMessage>,
+    frame: DeviceMessageFrame<DeviceMessage>,
     topic: Name,
     headers: JsonObject = buildJsonObject { },
     json: Json = krigJson(),

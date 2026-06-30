@@ -8,6 +8,7 @@ import space.kscience.krig.api.messages.KrigWireFormats
 import space.kscience.krig.api.messages.KrigWireTopics
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.tasks.DeviceTaskPhase
+import space.kscience.krig.assembly.AcquisitionFaultTypes
 import space.kscience.krig.flow.FlowMessageType
 import space.kscience.krig.flow.FlowQualities
 import space.kscience.krig.core.contracts.RemoteTypedActivationStatus
@@ -17,6 +18,8 @@ import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.core.contracts.remoteManifestRef
 import space.kscience.krig.dsl.device
+import space.kscience.krig.simulation.SimulationCorrectionStatus
+import space.kscience.magix.api.MagixSubscriptionPushdown
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.names.parseAsName
 import kotlin.test.Test
@@ -109,6 +112,17 @@ class GoldenPathDemoTest {
     }
 
     @Test
+    fun edgeTelemetryPayloadCoversPrimitiveIndustrialColumns() {
+        val payload = edgeTelemetryWirePayload(sampleCount = 16)
+
+        assertEquals(16, payload.analog.rowCount)
+        assertEquals(1_200, payload.registers.value(row = 0, seriesIndex = 0))
+        assertFalse(payload.coils.value(row = 0, seriesIndex = 0))
+        assertTrue(payload.coils.value(row = 1, seriesIndex = 0))
+        assertEquals(QualitySeverity.UNCERTAIN, payload.registers.qualityAt(row = 0, seriesIndex = 0).severity)
+    }
+
+    @Test
     fun magixEnvelopeCarriesKrigFrameConstants() {
         val snapshot = magixEnvelopeSnapshot()
 
@@ -117,6 +131,15 @@ class GoldenPathDemoTest {
         assertEquals(KrigWireTopics.deviceMessages("edge.lineA.pump".parseAsName()), snapshot.topic)
         assertEquals(DeviceMessageType.PropertyChanged, snapshot.messageType)
         assertNotNull(snapshot.schemaHeader)
+    }
+
+    @Test
+    fun magixAclPushdownRemainsLocallyEnforced() = runTest {
+        val snapshot = magixAclPushdownSnapshot()
+
+        assertEquals(MagixSubscriptionPushdown.MessageFilter, snapshot.pushdown)
+        assertEquals(1, snapshot.received)
+        assertTrue(snapshot.deniedDroppedLocally)
     }
 
     @Test
@@ -130,6 +153,27 @@ class GoldenPathDemoTest {
         assertEquals(2.0, snapshot.amount)
         assertEquals(1, snapshot.sequence)
         assertEquals(FlowQualities.DelayedMaterial.code?.id, snapshot.delayedQualityCode)
+    }
+
+    @Test
+    fun deadPlcCircuitBreakerSkipsOpenSource() = runTest {
+        val snapshot = deadPlcCircuitBreakerSnapshot()
+
+        assertEquals(1, snapshot.connectorAttempts)
+        assertEquals(AcquisitionFaultTypes.CircuitOpen, snapshot.secondFaultType)
+        assertEquals(QualitySeverity.BAD, snapshot.secondQualitySeverity)
+        assertTrue(snapshot.firstFaultType != snapshot.secondFaultType)
+    }
+
+    @Test
+    fun correctableSimulationCapturesCheckpointAndAppliesPolicy() = runTest {
+        val snapshot = correctableSimulationSnapshot()
+
+        assertEquals(10_100, snapshot.checkpointTimeMs)
+        assertEquals(100.0, snapshot.predictedTemperature)
+        assertEquals(92.0, snapshot.observedTemperature)
+        assertEquals(96.0, snapshot.correctedTemperature)
+        assertEquals(SimulationCorrectionStatus.Accepted, snapshot.status)
     }
 
     @Test
