@@ -4,6 +4,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSDeclaration
 
 /**
  * Main KSP processor for krig. Delegates to a list of independent generators,
@@ -22,12 +23,36 @@ public class KrigSymbolProcessor(
         }
     }
 
+    private var lastDeferredLabels: List<String> = emptyList()
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val deferred = mutableListOf<KSAnnotated>()
         for (generator in generators) {
             deferred += generator.process(resolver)
         }
+        lastDeferredLabels = deferred.map { it.diagnosticLabel() }.distinct()
         return deferred
+    }
+
+    override fun finish() {
+        if (lastDeferredLabels.isNotEmpty()) {
+            val suffix = if (lastDeferredLabels.size > 20) {
+                " and ${lastDeferredLabels.size - 20} more."
+            } else {
+                "."
+            }
+            environment.logger.error(
+                "KRig KSP finished with unresolved deferred symbols: " +
+                    lastDeferredLabels.take(20).joinToString() + suffix,
+            )
+            generators.forEach { it.onError() }
+            return
+        }
+        generators.forEach { it.finish() }
+    }
+
+    override fun onError() {
+        generators.forEach { it.onError() }
     }
 }
 
@@ -36,6 +61,15 @@ public class KrigSymbolProcessor(
  */
 internal interface Generator {
     fun process(resolver: Resolver): List<KSAnnotated>
+
+    fun finish() {}
+
+    fun onError() {}
+}
+
+private fun KSAnnotated.diagnosticLabel(): String = when (this) {
+    is KSDeclaration -> qualifiedName?.asString() ?: simpleName.asString()
+    else -> toString()
 }
 
 internal enum class KrigProcessingLayer {

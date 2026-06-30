@@ -40,6 +40,8 @@ internal class SerializersModuleGenerator(
     private val collectedContributors: MutableMap<String, ContributorRef> = linkedMapOf()
     /** Latch for the aggregating index, emitted only after a clean round with no new symbols. */
     private var emittedIndex: Boolean = false
+    private var outputPackage: String? = null
+    private var lastIndexDependencies: Array<KSFile> = emptyArray()
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val deferred = mutableListOf<KSAnnotated>()
@@ -75,6 +77,7 @@ internal class SerializersModuleGenerator(
                         "Apply the `krig-mpp-ksp` convention plugin which sets it automatically.",
             )
         val outputPackage = "space.kscience.krig.generated.$moduleSuffix"
+        this.outputPackage = outputPackage
 
         var discoveredThisRound = false
         for ((baseFqn, subclasses) in allSubclasses.toSortedMap()) {
@@ -96,12 +99,11 @@ internal class SerializersModuleGenerator(
         // Wait one quiet round before writing the aggregating index. This lets
         // generated/deferred serializers from earlier rounds join the registry.
         if (!emittedIndex && deferred.isEmpty() && !discoveredThisRound && collectedContributors.isNotEmpty()) {
-            val filesByPath = resolver.getAllFiles().associateBy { it.filePath }
-            val allContainingFiles = collectedContributors.values
-                .mapNotNull { filesByPath[it.sourceFilePath] }
-                .toTypedArray()
-            emitIndex(outputPackage, collectedContributors.values.toList(), allContainingFiles)
+            refreshIndexDependencies(resolver)
+            emitIndex(outputPackage, collectedContributors.values.toList(), lastIndexDependencies)
             emittedIndex = true
+        } else if (collectedContributors.isNotEmpty()) {
+            refreshIndexDependencies(resolver)
         }
 
         if (allSubclasses.isEmpty() && collectedContributors.isEmpty()) {
@@ -109,6 +111,19 @@ internal class SerializersModuleGenerator(
         }
 
         return deferred
+    }
+
+    override fun finish() {
+        val outputPackage = outputPackage ?: return
+        if (!emittedIndex && collectedContributors.isNotEmpty()) {
+            emitIndex(outputPackage, collectedContributors.values.toList(), lastIndexDependencies)
+            emittedIndex = true
+        }
+    }
+
+    override fun onError() {
+        collectedContributors.clear()
+        emittedIndex = true
     }
 
     /**
@@ -238,6 +253,13 @@ internal class SerializersModuleGenerator(
         )
         file.write(text.toByteArray())
         file.close()
+    }
+
+    private fun refreshIndexDependencies(resolver: Resolver) {
+        val filesByPath = resolver.getAllFiles().associateBy { it.filePath }
+        lastIndexDependencies = collectedContributors.values
+            .mapNotNull { filesByPath[it.sourceFilePath] }
+            .toTypedArray()
     }
 
     /** Stable 6-hex-digit suffix from FQN to disambiguate shadowing class names. */
