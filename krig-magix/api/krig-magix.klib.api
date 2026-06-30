@@ -14,6 +14,17 @@ open annotation class space.kscience.magix.api/UnstableMagixEndpoint : kotlin/An
     constructor <init>() // space.kscience.magix.api/UnstableMagixEndpoint.<init>|<init>(){}[0]
 }
 
+final enum class space.kscience.magix.api/MagixSubscriptionPushdown : kotlin/Enum<space.kscience.magix.api/MagixSubscriptionPushdown> { // space.kscience.magix.api/MagixSubscriptionPushdown|null[0]
+    enum entry MessageFilter // space.kscience.magix.api/MagixSubscriptionPushdown.MessageFilter|null[0]
+    enum entry None // space.kscience.magix.api/MagixSubscriptionPushdown.None|null[0]
+
+    final val entries // space.kscience.magix.api/MagixSubscriptionPushdown.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.magix.api/MagixSubscriptionPushdown> // space.kscience.magix.api/MagixSubscriptionPushdown.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.magix.api/MagixSubscriptionPushdown // space.kscience.magix.api/MagixSubscriptionPushdown.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.magix.api/MagixSubscriptionPushdown> // space.kscience.magix.api/MagixSubscriptionPushdown.values|values#static(){}[0]
+}
+
 abstract fun interface space.kscience.magix.api/MagixEndpointFactory : space.kscience.dataforge.context/Factory<space.kscience.magix.api/MagixEndpoint> { // space.kscience.magix.api/MagixEndpointFactory|null[0]
     abstract fun build(space.kscience.dataforge.context/Context, space.kscience.dataforge.meta/Meta): space.kscience.magix.api/MagixEndpoint // space.kscience.magix.api/MagixEndpointFactory.build|build(space.kscience.dataforge.context.Context;space.kscience.dataforge.meta.Meta){}[0]
 
@@ -92,6 +103,26 @@ final class <#A: kotlin/Any?> space.kscience.magix.api/MagixFormat { // space.ks
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.magix.api/MagixFormat.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.magix.api/MagixFormat.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.magix.api/MagixFormat.toString|toString(){}[0]
+}
+
+final class space.kscience.magix.api/AuthorizedMagixSubscriptionPlan { // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan|null[0]
+    constructor <init>(space.kscience.magix.api/MagixMessageFilter = ..., space.kscience.magix.api/MagixSubscriptionPushdown = ...) // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.<init>|<init>(space.kscience.magix.api.MagixMessageFilter;space.kscience.magix.api.MagixSubscriptionPushdown){}[0]
+
+    final val brokerFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.brokerFilter|{}brokerFilter[0]
+        final fun <get-brokerFilter>(): space.kscience.magix.api/MagixMessageFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.brokerFilter.<get-brokerFilter>|<get-brokerFilter>(){}[0]
+    final val localFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.localFilter|{}localFilter[0]
+        final fun <get-localFilter>(): space.kscience.magix.api/MagixMessageFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.localFilter.<get-localFilter>|<get-localFilter>(){}[0]
+    final val messageFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.messageFilter|{}messageFilter[0]
+        final fun <get-messageFilter>(): space.kscience.magix.api/MagixMessageFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.messageFilter.<get-messageFilter>|<get-messageFilter>(){}[0]
+    final val pushdown // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.pushdown|{}pushdown[0]
+        final fun <get-pushdown>(): space.kscience.magix.api/MagixSubscriptionPushdown // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.pushdown.<get-pushdown>|<get-pushdown>(){}[0]
+
+    final fun component1(): space.kscience.magix.api/MagixMessageFilter // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.component1|component1(){}[0]
+    final fun component2(): space.kscience.magix.api/MagixSubscriptionPushdown // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.component2|component2(){}[0]
+    final fun copy(space.kscience.magix.api/MagixMessageFilter = ..., space.kscience.magix.api/MagixSubscriptionPushdown = ...): space.kscience.magix.api/AuthorizedMagixSubscriptionPlan // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.copy|copy(space.kscience.magix.api.MagixMessageFilter;space.kscience.magix.api.MagixSubscriptionPushdown){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.magix.api/AuthorizedMagixSubscriptionPlan.toString|toString(){}[0]
 }
 
 final class space.kscience.magix.api/MagixMessage { // space.kscience.magix.api/MagixMessage|null[0]
@@ -232,6 +263,7 @@ final const val space.kscience.magix.api/KRIG_ENVELOPE_FORMAT // space.kscience.
     final fun <get-KRIG_ENVELOPE_FORMAT>(): kotlin/String // space.kscience.magix.api/KRIG_ENVELOPE_FORMAT.<get-KRIG_ENVELOPE_FORMAT>|<get-KRIG_ENVELOPE_FORMAT>(){}[0]
 
 final fun (kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage>).space.kscience.magix.api/filter(space.kscience.magix.api/MagixMessageFilter): kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage> // space.kscience.magix.api/filter|filter@kotlinx.coroutines.flow.Flow<space.kscience.magix.api.MagixMessage>(space.kscience.magix.api.MagixMessageFilter){}[0]
+final fun (space.kscience.magix.api/MagixEndpoint).space.kscience.magix.api/authorizedSubscribe(space.kscience.magix.api/AuthorizedMagixSubscriptionPlan, kotlin.coroutines/SuspendFunction1<space.kscience.magix.api/MagixMessage, kotlin/Boolean>): kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage> // space.kscience.magix.api/authorizedSubscribe|authorizedSubscribe@space.kscience.magix.api.MagixEndpoint(space.kscience.magix.api.AuthorizedMagixSubscriptionPlan;kotlin.coroutines.SuspendFunction1<space.kscience.magix.api.MagixMessage,kotlin.Boolean>){}[0]
 final fun (space.kscience.magix.api/MagixEndpoint).space.kscience.magix.api/authorizedSubscribe(space.kscience.magix.api/MagixMessageFilter = ..., kotlin.coroutines/SuspendFunction1<space.kscience.magix.api/MagixMessage, kotlin/Boolean>): kotlinx.coroutines.flow/Flow<space.kscience.magix.api/MagixMessage> // space.kscience.magix.api/authorizedSubscribe|authorizedSubscribe@space.kscience.magix.api.MagixEndpoint(space.kscience.magix.api.MagixMessageFilter;kotlin.coroutines.SuspendFunction1<space.kscience.magix.api.MagixMessage,kotlin.Boolean>){}[0]
 final fun (space.kscience.magix.api/MagixFlowPlugin).space.kscience.magix.api/start(kotlinx.coroutines/CoroutineScope, kotlinx.coroutines.flow/MutableSharedFlow<space.kscience.magix.api/MagixMessage>): kotlinx.coroutines/Job // space.kscience.magix.api/start|start@space.kscience.magix.api.MagixFlowPlugin(kotlinx.coroutines.CoroutineScope;kotlinx.coroutines.flow.MutableSharedFlow<space.kscience.magix.api.MagixMessage>){}[0]
 final fun (space.kscience.magix.api/MagixMessage).space.kscience.magix.api/header(kotlin/String): kotlinx.serialization.json/JsonElement? // space.kscience.magix.api/header|header@space.kscience.magix.api.MagixMessage(kotlin.String){}[0]

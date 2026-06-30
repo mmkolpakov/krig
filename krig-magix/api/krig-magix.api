@@ -1,7 +1,25 @@
+public final class space/kscience/magix/api/AuthorizedMagixSubscriptionPlan {
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/magix/api/MagixMessageFilter;Lspace/kscience/magix/api/MagixSubscriptionPushdown;)V
+	public synthetic fun <init> (Lspace/kscience/magix/api/MagixMessageFilter;Lspace/kscience/magix/api/MagixSubscriptionPushdown;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/magix/api/MagixMessageFilter;
+	public final fun component2 ()Lspace/kscience/magix/api/MagixSubscriptionPushdown;
+	public final fun copy (Lspace/kscience/magix/api/MagixMessageFilter;Lspace/kscience/magix/api/MagixSubscriptionPushdown;)Lspace/kscience/magix/api/AuthorizedMagixSubscriptionPlan;
+	public static synthetic fun copy$default (Lspace/kscience/magix/api/AuthorizedMagixSubscriptionPlan;Lspace/kscience/magix/api/MagixMessageFilter;Lspace/kscience/magix/api/MagixSubscriptionPushdown;ILjava/lang/Object;)Lspace/kscience/magix/api/AuthorizedMagixSubscriptionPlan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBrokerFilter ()Lspace/kscience/magix/api/MagixMessageFilter;
+	public final fun getLocalFilter ()Lspace/kscience/magix/api/MagixMessageFilter;
+	public final fun getMessageFilter ()Lspace/kscience/magix/api/MagixMessageFilter;
+	public final fun getPushdown ()Lspace/kscience/magix/api/MagixSubscriptionPushdown;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public abstract interface annotation class space/kscience/magix/api/ExperimentalMagixApi : java/lang/annotation/Annotation {
 }
 
 public final class space/kscience/magix/api/MagixAuthorizationKt {
+	public static final fun authorizedSubscribe (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/AuthorizedMagixSubscriptionPlan;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
 	public static final fun authorizedSubscribe (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixMessageFilter;Lkotlin/jvm/functions/Function2;)Lkotlinx/coroutines/flow/Flow;
 	public static synthetic fun authorizedSubscribe$default (Lspace/kscience/magix/api/MagixEndpoint;Lspace/kscience/magix/api/MagixMessageFilter;Lkotlin/jvm/functions/Function2;ILjava/lang/Object;)Lkotlinx/coroutines/flow/Flow;
 }
@@ -186,6 +204,14 @@ public final class space/kscience/magix/api/MagixMessageFilterKt {
 
 public final class space/kscience/magix/api/MagixMessageKt {
 	public static final fun header (Lspace/kscience/magix/api/MagixMessage;Ljava/lang/String;)Lkotlinx/serialization/json/JsonElement;
+}
+
+public final class space/kscience/magix/api/MagixSubscriptionPushdown : java/lang/Enum {
+	public static final field MessageFilter Lspace/kscience/magix/api/MagixSubscriptionPushdown;
+	public static final field None Lspace/kscience/magix/api/MagixSubscriptionPushdown;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/magix/api/MagixSubscriptionPushdown;
+	public static fun values ()[Lspace/kscience/magix/api/MagixSubscriptionPushdown;
 }
 
 public abstract interface annotation class space/kscience/magix/api/UnstableMagixEndpoint : java/lang/annotation/Annotation {
