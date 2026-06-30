@@ -3,6 +3,7 @@
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.SteppedBackend
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 /**
  * Step-by-step coordinator for a group of devices on a [SimulationScheduler].
@@ -22,6 +23,7 @@ public class SimulationSession(
     private val connections: List<SteppedBackend> = emptyList(),
 ) {
     public val currentTimeMs: Long get() = scheduler.currentTimeMs
+    public val currentInstant: Instant get() = scheduler.asClock().now()
 
     public suspend fun step() {
         scheduler.advanceBy(stepDuration)

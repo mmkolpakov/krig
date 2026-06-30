@@ -171,6 +171,15 @@ public final class space/kscience/krig/concurrency/StateFlowWaitKt {
 	public static final fun waitUntil (Lkotlinx/coroutines/flow/StateFlow;Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class space/kscience/krig/simulation/AssimilationPolicies {
+	public static final field INSTANCE Lspace/kscience/krig/simulation/AssimilationPolicies;
+	public final fun noop ()Lspace/kscience/krig/simulation/AssimilationPolicy;
+}
+
+public abstract interface class space/kscience/krig/simulation/AssimilationPolicy {
+	public abstract fun correct (Ljava/lang/Object;Lspace/kscience/krig/simulation/SimulationCheckpoint;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public class space/kscience/krig/simulation/ClockManager : space/kscience/dataforge/context/AbstractPlugin, space/kscience/krig/core/contracts/RuntimeClockSource {
 	public static final field Companion Lspace/kscience/krig/simulation/ClockManager$Companion;
 	public fun <init> (Lspace/kscience/dataforge/meta/Meta;)V
@@ -278,8 +287,61 @@ public final class space/kscience/krig/simulation/RungeKuttaWorkspace {
 	public final fun getSize ()I
 }
 
+public final class space/kscience/krig/simulation/SimulationCheckpoint {
+	public fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/simulation/SimulationStateVector;)V
+	public synthetic fun <init> (Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/simulation/SimulationStateVector;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lkotlin/time/Instant;
+	public final fun component2 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component3 ()Lspace/kscience/krig/simulation/SimulationStateVector;
+	public final fun copy (Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/simulation/SimulationStateVector;)Lspace/kscience/krig/simulation/SimulationCheckpoint;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/SimulationCheckpoint;Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/simulation/SimulationStateVector;ILjava/lang/Object;)Lspace/kscience/krig/simulation/SimulationCheckpoint;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getState ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getTime ()Lkotlin/time/Instant;
+	public final fun getVector ()Lspace/kscience/krig/simulation/SimulationStateVector;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class space/kscience/krig/simulation/SimulationCheckpointSource {
+	public abstract fun captureCheckpoint (Lkotlin/time/Instant;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public abstract interface class space/kscience/krig/simulation/SimulationContext : kotlinx/coroutines/CoroutineScope {
 	public abstract fun getScheduler ()Lspace/kscience/krig/simulation/SimulationScheduler;
+}
+
+public final class space/kscience/krig/simulation/SimulationCorrection {
+	public fun <init> (Ljava/lang/Object;Lspace/kscience/krig/simulation/SimulationCheckpoint;Lspace/kscience/krig/simulation/SimulationCorrectionStatus;Lspace/kscience/dataforge/meta/Meta;)V
+	public synthetic fun <init> (Ljava/lang/Object;Lspace/kscience/krig/simulation/SimulationCheckpoint;Lspace/kscience/krig/simulation/SimulationCorrectionStatus;Lspace/kscience/dataforge/meta/Meta;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()Lspace/kscience/krig/simulation/SimulationCheckpoint;
+	public final fun component3 ()Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public final fun component4 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun copy (Ljava/lang/Object;Lspace/kscience/krig/simulation/SimulationCheckpoint;Lspace/kscience/krig/simulation/SimulationCorrectionStatus;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/simulation/SimulationCorrection;
+	public static synthetic fun copy$default (Lspace/kscience/krig/simulation/SimulationCorrection;Ljava/lang/Object;Lspace/kscience/krig/simulation/SimulationCheckpoint;Lspace/kscience/krig/simulation/SimulationCorrectionStatus;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/simulation/SimulationCorrection;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCheckpoint ()Lspace/kscience/krig/simulation/SimulationCheckpoint;
+	public final fun getDiagnostics ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getState ()Ljava/lang/Object;
+	public final fun getStatus ()Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/SimulationCorrectionKt {
+	public static final fun captureCheckpoint (Lspace/kscience/krig/simulation/SimulationSession;Lspace/kscience/krig/simulation/SimulationCheckpointSource;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun checkpoint (Lspace/kscience/krig/simulation/StateVectorProjection;Lkotlin/time/Instant;Ljava/lang/Object;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/simulation/SimulationCheckpoint;
+	public static synthetic fun checkpoint$default (Lspace/kscience/krig/simulation/StateVectorProjection;Lkotlin/time/Instant;Ljava/lang/Object;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/krig/simulation/SimulationCheckpoint;
+}
+
+public final class space/kscience/krig/simulation/SimulationCorrectionStatus : java/lang/Enum {
+	public static final field Accepted Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public static final field Noop Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public static final field Rejected Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
+	public static fun values ()[Lspace/kscience/krig/simulation/SimulationCorrectionStatus;
 }
 
 public abstract interface annotation class space/kscience/krig/simulation/SimulationDsl : java/lang/annotation/Annotation {
@@ -304,10 +366,30 @@ public abstract interface class space/kscience/krig/simulation/SimulationSchedul
 public final class space/kscience/krig/simulation/SimulationSession {
 	public synthetic fun <init> (Lspace/kscience/krig/simulation/SimulationScheduler;Ljava/util/List;JLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Lspace/kscience/krig/simulation/SimulationScheduler;Ljava/util/List;JLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCurrentInstant ()Lkotlin/time/Instant;
 	public final fun getCurrentTimeMs ()J
 	public final fun getDevices ()Ljava/util/List;
 	public final fun getStepDuration-UwyO8pc ()J
 	public final fun step (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class space/kscience/krig/simulation/SimulationStateVector {
+	public static final field Companion Lspace/kscience/krig/simulation/SimulationStateVector$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get (I)D
+	public final fun getCoordinates ()Ljava/util/List;
+	public final fun getSize ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/simulation/SimulationStateVector$Companion {
+	public final fun of ([D)Lspace/kscience/krig/simulation/SimulationStateVector;
+}
+
+public abstract interface class space/kscience/krig/simulation/StateVectorProjection {
+	public abstract fun project (Ljava/lang/Object;)Lspace/kscience/krig/simulation/SimulationStateVector;
 }
 
 public final class space/kscience/krig/simulation/TimeDslKt {

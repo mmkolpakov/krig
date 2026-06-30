@@ -24,6 +24,26 @@ final enum class space.kscience.krig.concurrency/ResourceEventType : kotlin/Enum
     final fun values(): kotlin/Array<space.kscience.krig.concurrency/ResourceEventType> // space.kscience.krig.concurrency/ResourceEventType.values|values#static(){}[0]
 }
 
+final enum class space.kscience.krig.simulation/SimulationCorrectionStatus : kotlin/Enum<space.kscience.krig.simulation/SimulationCorrectionStatus> { // space.kscience.krig.simulation/SimulationCorrectionStatus|null[0]
+    enum entry Accepted // space.kscience.krig.simulation/SimulationCorrectionStatus.Accepted|null[0]
+    enum entry Noop // space.kscience.krig.simulation/SimulationCorrectionStatus.Noop|null[0]
+    enum entry Rejected // space.kscience.krig.simulation/SimulationCorrectionStatus.Rejected|null[0]
+
+    final val entries // space.kscience.krig.simulation/SimulationCorrectionStatus.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.simulation/SimulationCorrectionStatus> // space.kscience.krig.simulation/SimulationCorrectionStatus.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.simulation/SimulationCorrectionStatus // space.kscience.krig.simulation/SimulationCorrectionStatus.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.simulation/SimulationCorrectionStatus> // space.kscience.krig.simulation/SimulationCorrectionStatus.values|values#static(){}[0]
+}
+
+abstract fun interface <#A: kotlin/Any?> space.kscience.krig.simulation/AssimilationPolicy { // space.kscience.krig.simulation/AssimilationPolicy|null[0]
+    abstract suspend fun correct(#A, space.kscience.krig.simulation/SimulationCheckpoint): space.kscience.krig.simulation/SimulationCorrection<#A> // space.kscience.krig.simulation/AssimilationPolicy.correct|correct(1:0;space.kscience.krig.simulation.SimulationCheckpoint){}[0]
+}
+
+abstract fun interface <#A: kotlin/Any?> space.kscience.krig.simulation/StateVectorProjection { // space.kscience.krig.simulation/StateVectorProjection|null[0]
+    abstract fun project(#A): space.kscience.krig.simulation/SimulationStateVector // space.kscience.krig.simulation/StateVectorProjection.project|project(1:0){}[0]
+}
+
 abstract fun interface space.kscience.krig.concurrency/ResourceEventSink { // space.kscience.krig.concurrency/ResourceEventSink|null[0]
     abstract fun emit(space.kscience.krig.concurrency/ResourceEvent) // space.kscience.krig.concurrency/ResourceEventSink.emit|emit(space.kscience.krig.concurrency.ResourceEvent){}[0]
 
@@ -39,6 +59,10 @@ abstract fun interface space.kscience.krig.concurrency/ResourcePreemptionPolicy 
 
 abstract fun interface space.kscience.krig.simulation/Derivatives { // space.kscience.krig.simulation/Derivatives|null[0]
     abstract fun evaluate(kotlin/DoubleArray, kotlin/DoubleArray) // space.kscience.krig.simulation/Derivatives.evaluate|evaluate(kotlin.DoubleArray;kotlin.DoubleArray){}[0]
+}
+
+abstract fun interface space.kscience.krig.simulation/SimulationCheckpointSource { // space.kscience.krig.simulation/SimulationCheckpointSource|null[0]
+    abstract suspend fun captureCheckpoint(kotlin.time/Instant): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/SimulationCheckpointSource.captureCheckpoint|captureCheckpoint(kotlin.time.Instant){}[0]
 }
 
 abstract interface space.kscience.krig.simulation/ProcessScope : kotlinx.coroutines/CoroutineScope // space.kscience.krig.simulation/ProcessScope|null[0]
@@ -90,6 +114,28 @@ sealed interface space.kscience.krig.simulation/ClockMode { // space.kscience.kr
         final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/ClockMode.System.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.simulation/ClockMode.System.toString|toString(){}[0]
     }
+}
+
+final class <#A: kotlin/Any?> space.kscience.krig.simulation/SimulationCorrection { // space.kscience.krig.simulation/SimulationCorrection|null[0]
+    constructor <init>(#A, space.kscience.krig.simulation/SimulationCheckpoint, space.kscience.krig.simulation/SimulationCorrectionStatus, space.kscience.dataforge.meta/Meta = ...) // space.kscience.krig.simulation/SimulationCorrection.<init>|<init>(1:0;space.kscience.krig.simulation.SimulationCheckpoint;space.kscience.krig.simulation.SimulationCorrectionStatus;space.kscience.dataforge.meta.Meta){}[0]
+
+    final val checkpoint // space.kscience.krig.simulation/SimulationCorrection.checkpoint|{}checkpoint[0]
+        final fun <get-checkpoint>(): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/SimulationCorrection.checkpoint.<get-checkpoint>|<get-checkpoint>(){}[0]
+    final val diagnostics // space.kscience.krig.simulation/SimulationCorrection.diagnostics|{}diagnostics[0]
+        final fun <get-diagnostics>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.simulation/SimulationCorrection.diagnostics.<get-diagnostics>|<get-diagnostics>(){}[0]
+    final val state // space.kscience.krig.simulation/SimulationCorrection.state|{}state[0]
+        final fun <get-state>(): #A // space.kscience.krig.simulation/SimulationCorrection.state.<get-state>|<get-state>(){}[0]
+    final val status // space.kscience.krig.simulation/SimulationCorrection.status|{}status[0]
+        final fun <get-status>(): space.kscience.krig.simulation/SimulationCorrectionStatus // space.kscience.krig.simulation/SimulationCorrection.status.<get-status>|<get-status>(){}[0]
+
+    final fun component1(): #A // space.kscience.krig.simulation/SimulationCorrection.component1|component1(){}[0]
+    final fun component2(): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/SimulationCorrection.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.simulation/SimulationCorrectionStatus // space.kscience.krig.simulation/SimulationCorrection.component3|component3(){}[0]
+    final fun component4(): space.kscience.dataforge.meta/Meta // space.kscience.krig.simulation/SimulationCorrection.component4|component4(){}[0]
+    final fun copy(#A = ..., space.kscience.krig.simulation/SimulationCheckpoint = ..., space.kscience.krig.simulation/SimulationCorrectionStatus = ..., space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.simulation/SimulationCorrection<#A> // space.kscience.krig.simulation/SimulationCorrection.copy|copy(1:0;space.kscience.krig.simulation.SimulationCheckpoint;space.kscience.krig.simulation.SimulationCorrectionStatus;space.kscience.dataforge.meta.Meta){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.simulation/SimulationCorrection.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/SimulationCorrection.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.simulation/SimulationCorrection.toString|toString(){}[0]
 }
 
 final class space.kscience.krig.concurrency/Resource { // space.kscience.krig.concurrency/Resource|null[0]
@@ -267,9 +313,30 @@ final class space.kscience.krig.simulation/RungeKuttaWorkspace { // space.kscien
         final fun <get-size>(): kotlin/Int // space.kscience.krig.simulation/RungeKuttaWorkspace.size.<get-size>|<get-size>(){}[0]
 }
 
+final class space.kscience.krig.simulation/SimulationCheckpoint { // space.kscience.krig.simulation/SimulationCheckpoint|null[0]
+    constructor <init>(kotlin.time/Instant, space.kscience.dataforge.meta/Meta = ..., space.kscience.krig.simulation/SimulationStateVector? = ...) // space.kscience.krig.simulation/SimulationCheckpoint.<init>|<init>(kotlin.time.Instant;space.kscience.dataforge.meta.Meta;space.kscience.krig.simulation.SimulationStateVector?){}[0]
+
+    final val state // space.kscience.krig.simulation/SimulationCheckpoint.state|{}state[0]
+        final fun <get-state>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.simulation/SimulationCheckpoint.state.<get-state>|<get-state>(){}[0]
+    final val time // space.kscience.krig.simulation/SimulationCheckpoint.time|{}time[0]
+        final fun <get-time>(): kotlin.time/Instant // space.kscience.krig.simulation/SimulationCheckpoint.time.<get-time>|<get-time>(){}[0]
+    final val vector // space.kscience.krig.simulation/SimulationCheckpoint.vector|{}vector[0]
+        final fun <get-vector>(): space.kscience.krig.simulation/SimulationStateVector? // space.kscience.krig.simulation/SimulationCheckpoint.vector.<get-vector>|<get-vector>(){}[0]
+
+    final fun component1(): kotlin.time/Instant // space.kscience.krig.simulation/SimulationCheckpoint.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.meta/Meta // space.kscience.krig.simulation/SimulationCheckpoint.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.simulation/SimulationStateVector? // space.kscience.krig.simulation/SimulationCheckpoint.component3|component3(){}[0]
+    final fun copy(kotlin.time/Instant = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.krig.simulation/SimulationStateVector? = ...): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/SimulationCheckpoint.copy|copy(kotlin.time.Instant;space.kscience.dataforge.meta.Meta;space.kscience.krig.simulation.SimulationStateVector?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.simulation/SimulationCheckpoint.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/SimulationCheckpoint.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.simulation/SimulationCheckpoint.toString|toString(){}[0]
+}
+
 final class space.kscience.krig.simulation/SimulationSession { // space.kscience.krig.simulation/SimulationSession|null[0]
     constructor <init>(space.kscience.krig.simulation/SimulationScheduler, kotlin.collections/List<space.kscience.krig.core.contracts/Device>, kotlin.time/Duration, kotlin.collections/List<space.kscience.krig.core.contracts/SteppedBackend> = ...) // space.kscience.krig.simulation/SimulationSession.<init>|<init>(space.kscience.krig.simulation.SimulationScheduler;kotlin.collections.List<space.kscience.krig.core.contracts.Device>;kotlin.time.Duration;kotlin.collections.List<space.kscience.krig.core.contracts.SteppedBackend>){}[0]
 
+    final val currentInstant // space.kscience.krig.simulation/SimulationSession.currentInstant|{}currentInstant[0]
+        final fun <get-currentInstant>(): kotlin.time/Instant // space.kscience.krig.simulation/SimulationSession.currentInstant.<get-currentInstant>|<get-currentInstant>(){}[0]
     final val currentTimeMs // space.kscience.krig.simulation/SimulationSession.currentTimeMs|{}currentTimeMs[0]
         final fun <get-currentTimeMs>(): kotlin/Long // space.kscience.krig.simulation/SimulationSession.currentTimeMs.<get-currentTimeMs>|<get-currentTimeMs>(){}[0]
     final val devices // space.kscience.krig.simulation/SimulationSession.devices|{}devices[0]
@@ -278,6 +345,24 @@ final class space.kscience.krig.simulation/SimulationSession { // space.kscience
         final fun <get-stepDuration>(): kotlin.time/Duration // space.kscience.krig.simulation/SimulationSession.stepDuration.<get-stepDuration>|<get-stepDuration>(){}[0]
 
     final suspend fun step() // space.kscience.krig.simulation/SimulationSession.step|step(){}[0]
+}
+
+final class space.kscience.krig.simulation/SimulationStateVector { // space.kscience.krig.simulation/SimulationStateVector|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/Double>) // space.kscience.krig.simulation/SimulationStateVector.<init>|<init>(kotlin.collections.List<kotlin.Double>){}[0]
+
+    final val coordinates // space.kscience.krig.simulation/SimulationStateVector.coordinates|{}coordinates[0]
+        final fun <get-coordinates>(): kotlin.collections/List<kotlin/Double> // space.kscience.krig.simulation/SimulationStateVector.coordinates.<get-coordinates>|<get-coordinates>(){}[0]
+    final val size // space.kscience.krig.simulation/SimulationStateVector.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // space.kscience.krig.simulation/SimulationStateVector.size.<get-size>|<get-size>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.simulation/SimulationStateVector.equals|equals(kotlin.Any?){}[0]
+    final fun get(kotlin/Int): kotlin/Double // space.kscience.krig.simulation/SimulationStateVector.get|get(kotlin.Int){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.simulation/SimulationStateVector.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.simulation/SimulationStateVector.toString|toString(){}[0]
+
+    final object Companion { // space.kscience.krig.simulation/SimulationStateVector.Companion|null[0]
+        final fun of(kotlin/DoubleArray...): space.kscience.krig.simulation/SimulationStateVector // space.kscience.krig.simulation/SimulationStateVector.Companion.of|of(kotlin.DoubleArray...){}[0]
+    }
 }
 
 final class space.kscience.krig.simulation/VirtualTimeScope { // space.kscience.krig.simulation/VirtualTimeScope|null[0]
@@ -359,6 +444,10 @@ final object space.kscience.krig.concurrency/ResourcePreemptionPolicies { // spa
         final fun <get-Priority>(): space.kscience.krig.concurrency/ResourcePreemptionPolicy // space.kscience.krig.concurrency/ResourcePreemptionPolicies.Priority.<get-Priority>|<get-Priority>(){}[0]
 }
 
+final object space.kscience.krig.simulation/AssimilationPolicies { // space.kscience.krig.simulation/AssimilationPolicies|null[0]
+    final fun <#A1: kotlin/Any?> noop(): space.kscience.krig.simulation/AssimilationPolicy<#A1> // space.kscience.krig.simulation/AssimilationPolicies.noop|noop(){0§<kotlin.Any?>}[0]
+}
+
 final fun (kotlinx.coroutines/CoroutineScope).space.kscience.krig.simulation/process(kotlin/String = ..., kotlin.coroutines/SuspendFunction1<space.kscience.krig.simulation/ProcessScope, kotlin/Unit>): kotlinx.coroutines/Job // space.kscience.krig.simulation/process|process@kotlinx.coroutines.CoroutineScope(kotlin.String;kotlin.coroutines.SuspendFunction1<space.kscience.krig.simulation.ProcessScope,kotlin.Unit>){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.simulation/withVirtualTime(kotlin.time/Instant = ...): space.kscience.krig.simulation/VirtualTimeScope // space.kscience.krig.simulation/withVirtualTime|withVirtualTime@space.kscience.dataforge.context.Context(kotlin.time.Instant){}[0]
 final fun (space.kscience.dataforge.context/ContextBuilder).space.kscience.krig.simulation/withTimeCompression(kotlin/Double) // space.kscience.krig.simulation/withTimeCompression|withTimeCompression@space.kscience.dataforge.context.ContextBuilder(kotlin.Double){}[0]
@@ -368,11 +457,13 @@ final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simu
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/asSamplingClock(): space.kscience.krig.core.operations/SamplingClock // space.kscience.krig.simulation/asSamplingClock|asSamplingClock@space.kscience.krig.simulation.ClockManager(){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/fixedRateTicks(kotlin.time/Duration): kotlinx.coroutines.flow/Flow<kotlin/Unit> // space.kscience.krig.simulation/fixedRateTicks|fixedRateTicks@space.kscience.krig.simulation.ClockManager(kotlin.time.Duration){}[0]
 final fun (space.kscience.krig.simulation/ClockManager).space.kscience.krig.simulation/sharedTicks(kotlinx.coroutines/CoroutineScope, kotlin.time/Duration, kotlinx.coroutines.flow/SharingStarted = ...): kotlinx.coroutines.flow/SharedFlow<kotlin/Unit> // space.kscience.krig.simulation/sharedTicks|sharedTicks@space.kscience.krig.simulation.ClockManager(kotlinx.coroutines.CoroutineScope;kotlin.time.Duration;kotlinx.coroutines.flow.SharingStarted){}[0]
+final fun <#A: kotlin/Any?> (space.kscience.krig.simulation/StateVectorProjection<#A>).space.kscience.krig.simulation/checkpoint(kotlin.time/Instant, #A, space.kscience.dataforge.meta/Meta = ...): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/checkpoint|checkpoint@space.kscience.krig.simulation.StateVectorProjection<0:0>(kotlin.time.Instant;0:0;space.kscience.dataforge.meta.Meta){0§<kotlin.Any?>}[0]
 final fun space.kscience.krig.simulation/rungeKutta4(kotlin/DoubleArray, kotlin.time/Duration, space.kscience.krig.simulation/Derivatives) // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.DoubleArray;kotlin.time.Duration;space.kscience.krig.simulation.Derivatives){}[0]
 final fun space.kscience.krig.simulation/rungeKutta4(kotlin/DoubleArray, kotlin.time/Duration, space.kscience.krig.simulation/Derivatives, space.kscience.krig.simulation/RungeKuttaWorkspace) // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.DoubleArray;kotlin.time.Duration;space.kscience.krig.simulation.Derivatives;space.kscience.krig.simulation.RungeKuttaWorkspace){}[0]
 final fun space.kscience.krig.simulation/simulationScope(space.kscience.krig.simulation/DeterministicScheduler): space.kscience.krig.simulation/SimulationContext // space.kscience.krig.simulation/simulationScope|simulationScope(space.kscience.krig.simulation.DeterministicScheduler){}[0]
 final inline fun space.kscience.krig.simulation/rungeKutta4(kotlin/Double, kotlin.time/Duration, kotlin/Function1<kotlin/Double, kotlin/Double>): kotlin/Double // space.kscience.krig.simulation/rungeKutta4|rungeKutta4(kotlin.Double;kotlin.time.Duration;kotlin.Function1<kotlin.Double,kotlin.Double>){}[0]
 final suspend fun (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/hold(kotlin.time/Duration) // space.kscience.krig.simulation/hold|hold@space.kscience.krig.simulation.ProcessScope(kotlin.time.Duration){}[0]
+final suspend fun (space.kscience.krig.simulation/SimulationSession).space.kscience.krig.simulation/captureCheckpoint(space.kscience.krig.simulation/SimulationCheckpointSource): space.kscience.krig.simulation/SimulationCheckpoint // space.kscience.krig.simulation/captureCheckpoint|captureCheckpoint@space.kscience.krig.simulation.SimulationSession(space.kscience.krig.simulation.SimulationCheckpointSource){}[0]
 final suspend fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/StateFlow<#A>).space.kscience.krig.concurrency/waitUntil(kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.concurrency/waitUntil|waitUntil@kotlinx.coroutines.flow.StateFlow<0:0>(kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/request(space.kscience.krig.concurrency/Resource, kotlin/Int = ..., space.kscience.krig.concurrency/ResourcePriority = ..., kotlin.coroutines/SuspendFunction0<#A>): #A // space.kscience.krig.simulation/request|request@space.kscience.krig.simulation.ProcessScope(space.kscience.krig.concurrency.Resource;kotlin.Int;space.kscience.krig.concurrency.ResourcePriority;kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
 final suspend fun <#A: kotlin/Any?> (space.kscience.krig.simulation/ProcessScope).space.kscience.krig.simulation/waitUntil(kotlinx.coroutines.flow/StateFlow<#A>, kotlin/Function1<#A, kotlin/Boolean>): #A // space.kscience.krig.simulation/waitUntil|waitUntil@space.kscience.krig.simulation.ProcessScope(kotlinx.coroutines.flow.StateFlow<0:0>;kotlin.Function1<0:0,kotlin.Boolean>){0§<kotlin.Any?>}[0]
