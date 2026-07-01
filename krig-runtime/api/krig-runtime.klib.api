@@ -153,8 +153,12 @@ sealed interface space.kscience.krig.dsl/DeviceBuilder { // space.kscience.krig.
     abstract var allowAdHocProperties // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties|{}allowAdHocProperties[0]
         abstract fun <get-allowAdHocProperties>(): kotlin/Boolean // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties.<get-allowAdHocProperties>|<get-allowAdHocProperties>(){}[0]
         abstract fun <set-allowAdHocProperties>(kotlin/Boolean) // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties.<set-allowAdHocProperties>|<set-allowAdHocProperties>(kotlin.Boolean){}[0]
+    abstract var dynamicDiscoveryPolicy // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        abstract fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
+        abstract fun <set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts/DynamicDiscoveryPolicy) // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy.<set-dynamicDiscoveryPolicy>|<set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts.DynamicDiscoveryPolicy){}[0]
 
     abstract fun <#A1: kotlin/Any> install(space.kscience.krig.core.features/PipelineFeature<#A1, *>, kotlin/Function1<#A1, kotlin/Unit> = ...) // space.kscience.krig.dsl/DeviceBuilder.install|install(space.kscience.krig.core.features.PipelineFeature<0:0,*>;kotlin.Function1<0:0,kotlin.Unit>){0§<kotlin.Any>}[0]
+    abstract fun discoveredProperty(space.kscience.krig.api.descriptors/PropertyDescriptor) // space.kscience.krig.dsl/DeviceBuilder.discoveredProperty|discoveredProperty(space.kscience.krig.api.descriptors.PropertyDescriptor){}[0]
     abstract fun manifest(space.kscience.krig.core.contracts/DeviceManifest) // space.kscience.krig.dsl/DeviceBuilder.manifest|manifest(space.kscience.krig.core.contracts.DeviceManifest){}[0]
     abstract fun pipeline(kotlin/Function1<space.kscience.krig.core.pipeline/PipelineProfileScope, kotlin/Unit>) // space.kscience.krig.dsl/DeviceBuilder.pipeline|pipeline(kotlin.Function1<space.kscience.krig.core.pipeline.PipelineProfileScope,kotlin.Unit>){}[0]
 }
@@ -327,7 +331,7 @@ final class space.kscience.krig.core.pipeline/PipelineBuilder : space.kscience.k
     final fun useConnectionState(kotlin/Function0<space.kscience.krig.api.lifecycle/ConnectionState>) // space.kscience.krig.core.pipeline/PipelineBuilder.useConnectionState|useConnectionState(kotlin.Function0<space.kscience.krig.api.lifecycle.ConnectionState>){}[0]
 }
 
-final class space.kscience.krig.core.pipeline/PipelineDevice : space.kscience.krig.core.contracts/CapabilityHost, space.kscience.krig.core.contracts/Device, space.kscience.krig.core.contracts/DeviceNode, space.kscience.krig.core.contracts/LifecycleStateHolder { // space.kscience.krig.core.pipeline/PipelineDevice|null[0]
+final class space.kscience.krig.core.pipeline/PipelineDevice : space.kscience.krig.core.contracts/CapabilityHost, space.kscience.krig.core.contracts/Device, space.kscience.krig.core.contracts/DeviceNode, space.kscience.krig.core.contracts/DynamicDescriptorOverlay, space.kscience.krig.core.contracts/LifecycleStateHolder { // space.kscience.krig.core.pipeline/PipelineDevice|null[0]
     final val actionDescriptors // space.kscience.krig.core.pipeline/PipelineDevice.actionDescriptors|{}actionDescriptors[0]
         final fun <get-actionDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/ActionDescriptor> // space.kscience.krig.core.pipeline/PipelineDevice.actionDescriptors.<get-actionDescriptors>|<get-actionDescriptors>(){}[0]
     final val capabilityScope // space.kscience.krig.core.pipeline/PipelineDevice.capabilityScope|{}capabilityScope[0]
@@ -348,6 +352,10 @@ final class space.kscience.krig.core.pipeline/PipelineDevice : space.kscience.kr
         final fun <get-device>(): space.kscience.krig.core.contracts/Device // space.kscience.krig.core.pipeline/PipelineDevice.device.<get-device>|<get-device>(){}[0]
     final val deviceScope // space.kscience.krig.core.pipeline/PipelineDevice.deviceScope|{}deviceScope[0]
         final fun <get-deviceScope>(): kotlinx.coroutines/CoroutineScope // space.kscience.krig.core.pipeline/PipelineDevice.deviceScope.<get-deviceScope>|<get-deviceScope>(){}[0]
+    final val discoveredPropertyDescriptors // space.kscience.krig.core.pipeline/PipelineDevice.discoveredPropertyDescriptors|{}discoveredPropertyDescriptors[0]
+        final fun <get-discoveredPropertyDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyDescriptor> // space.kscience.krig.core.pipeline/PipelineDevice.discoveredPropertyDescriptors.<get-discoveredPropertyDescriptors>|<get-discoveredPropertyDescriptors>(){}[0]
+    final val dynamicDiscoveryPolicy // space.kscience.krig.core.pipeline/PipelineDevice.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        final fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.core.pipeline/PipelineDevice.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
     final val installedCapabilities // space.kscience.krig.core.pipeline/PipelineDevice.installedCapabilities|{}installedCapabilities[0]
         final fun <get-installedCapabilities>(): kotlin.collections/Collection<space.kscience.krig.core.capabilities/Capability<*>> // space.kscience.krig.core.pipeline/PipelineDevice.installedCapabilities.<get-installedCapabilities>|<get-installedCapabilities>(){}[0]
     final val lifecycleState // space.kscience.krig.core.pipeline/PipelineDevice.lifecycleState|{}lifecycleState[0]
@@ -401,9 +409,13 @@ final class space.kscience.krig.core.pipeline/PipelineProfileScope { // space.ks
     final fun profile(space.kscience.krig.core.pipeline/PipelineProfile) // space.kscience.krig.core.pipeline/PipelineProfileScope.profile|profile(space.kscience.krig.core.pipeline.PipelineProfile){}[0]
 }
 
-final class space.kscience.krig.dsl/BackendDevice : space.kscience.krig.core.contracts/AbstractDevice { // space.kscience.krig.dsl/BackendDevice|null[0]
+final class space.kscience.krig.dsl/BackendDevice : space.kscience.krig.core.contracts/AbstractDevice, space.kscience.krig.core.contracts/DynamicDescriptorOverlay { // space.kscience.krig.dsl/BackendDevice|null[0]
     final val actionDescriptors // space.kscience.krig.dsl/BackendDevice.actionDescriptors|{}actionDescriptors[0]
         final fun <get-actionDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/ActionDescriptor> // space.kscience.krig.dsl/BackendDevice.actionDescriptors.<get-actionDescriptors>|<get-actionDescriptors>(){}[0]
+    final val discoveredPropertyDescriptors // space.kscience.krig.dsl/BackendDevice.discoveredPropertyDescriptors|{}discoveredPropertyDescriptors[0]
+        final fun <get-discoveredPropertyDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyDescriptor> // space.kscience.krig.dsl/BackendDevice.discoveredPropertyDescriptors.<get-discoveredPropertyDescriptors>|<get-discoveredPropertyDescriptors>(){}[0]
+    final val dynamicDiscoveryPolicy // space.kscience.krig.dsl/BackendDevice.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        final fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/BackendDevice.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
     final val propertyDescriptors // space.kscience.krig.dsl/BackendDevice.propertyDescriptors|{}propertyDescriptors[0]
         final fun <get-propertyDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyDescriptor> // space.kscience.krig.dsl/BackendDevice.propertyDescriptors.<get-propertyDescriptors>|<get-propertyDescriptors>(){}[0]
 
@@ -451,6 +463,9 @@ final class space.kscience.krig.dsl/DeclarativeDeviceBuilder : space.kscience.kr
     final var closeBody // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody|{}closeBody[0]
         final fun <get-closeBody>(): kotlin/Function0<kotlin/Unit>? // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody.<get-closeBody>|<get-closeBody>(){}[0]
         final fun <set-closeBody>(kotlin/Function0<kotlin/Unit>?) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody.<set-closeBody>|<set-closeBody>(kotlin.Function0<kotlin.Unit>?){}[0]
+    final var dynamicDiscoveryPolicy // space.kscience.krig.dsl/DeclarativeDeviceBuilder.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        final fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/DeclarativeDeviceBuilder.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
+        final fun <set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts/DynamicDiscoveryPolicy) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.dynamicDiscoveryPolicy.<set-dynamicDiscoveryPolicy>|<set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts.DynamicDiscoveryPolicy){}[0]
     final var stepBody // space.kscience.krig.dsl/DeclarativeDeviceBuilder.stepBody|{}stepBody[0]
         final fun <get-stepBody>(): kotlin/Function1<kotlin.time/Duration, kotlin/Unit>? // space.kscience.krig.dsl/DeclarativeDeviceBuilder.stepBody.<get-stepBody>|<get-stepBody>(){}[0]
         final fun <set-stepBody>(kotlin/Function1<kotlin.time/Duration, kotlin/Unit>?) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.stepBody.<set-stepBody>|<set-stepBody>(kotlin.Function1<kotlin.time.Duration,kotlin.Unit>?){}[0]
@@ -458,6 +473,7 @@ final class space.kscience.krig.dsl/DeclarativeDeviceBuilder : space.kscience.kr
     final fun <#A1: kotlin/Any> install(space.kscience.krig.core.features/PipelineFeature<#A1, *>, kotlin/Function1<#A1, kotlin/Unit>) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.install|install(space.kscience.krig.core.features.PipelineFeature<0:0,*>;kotlin.Function1<0:0,kotlin.Unit>){0§<kotlin.Any>}[0]
     final fun action(kotlin/String, space.kscience.krig.dsl/DeviceActionBlock) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.action|action(kotlin.String;space.kscience.krig.dsl.DeviceActionBlock){}[0]
     final fun action(space.kscience.dataforge.names/Name, space.kscience.krig.dsl/DeviceActionBlock) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.action|action(space.kscience.dataforge.names.Name;space.kscience.krig.dsl.DeviceActionBlock){}[0]
+    final fun discoveredProperty(space.kscience.krig.api.descriptors/PropertyDescriptor) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.discoveredProperty|discoveredProperty(space.kscience.krig.api.descriptors.PropertyDescriptor){}[0]
     final fun manifest(space.kscience.krig.core.contracts/DeviceManifest) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.manifest|manifest(space.kscience.krig.core.contracts.DeviceManifest){}[0]
     final fun mutable(kotlin/Boolean): kotlin.properties/PropertyDelegateProvider<kotlin/Any?, kotlin.properties/ReadOnlyProperty<kotlin/Any?, kotlin/Unit>> // space.kscience.krig.dsl/DeclarativeDeviceBuilder.mutable|mutable(kotlin.Boolean){}[0]
     final fun mutable(kotlin/Double): kotlin.properties/PropertyDelegateProvider<kotlin/Any?, kotlin.properties/ReadOnlyProperty<kotlin/Any?, kotlin/Unit>> // space.kscience.krig.dsl/DeclarativeDeviceBuilder.mutable|mutable(kotlin.Double){}[0]
@@ -500,8 +516,12 @@ final class space.kscience.krig.dsl/ExplicitDeviceBuilder : space.kscience.krig.
     final var allowAdHocProperties // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties|{}allowAdHocProperties[0]
         final fun <get-allowAdHocProperties>(): kotlin/Boolean // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties.<get-allowAdHocProperties>|<get-allowAdHocProperties>(){}[0]
         final fun <set-allowAdHocProperties>(kotlin/Boolean) // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties.<set-allowAdHocProperties>|<set-allowAdHocProperties>(kotlin.Boolean){}[0]
+    final var dynamicDiscoveryPolicy // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        final fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
+        final fun <set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts/DynamicDiscoveryPolicy) // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy.<set-dynamicDiscoveryPolicy>|<set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts.DynamicDiscoveryPolicy){}[0]
 
     final fun <#A1: kotlin/Any> install(space.kscience.krig.core.features/PipelineFeature<#A1, *>, kotlin/Function1<#A1, kotlin/Unit>) // space.kscience.krig.dsl/ExplicitDeviceBuilder.install|install(space.kscience.krig.core.features.PipelineFeature<0:0,*>;kotlin.Function1<0:0,kotlin.Unit>){0§<kotlin.Any>}[0]
+    final fun discoveredProperty(space.kscience.krig.api.descriptors/PropertyDescriptor) // space.kscience.krig.dsl/ExplicitDeviceBuilder.discoveredProperty|discoveredProperty(space.kscience.krig.api.descriptors.PropertyDescriptor){}[0]
     final fun manifest(space.kscience.krig.core.contracts/DeviceManifest) // space.kscience.krig.dsl/ExplicitDeviceBuilder.manifest|manifest(space.kscience.krig.core.contracts.DeviceManifest){}[0]
     final fun pipeline(kotlin/Function1<space.kscience.krig.core.pipeline/PipelineProfileScope, kotlin/Unit>) // space.kscience.krig.dsl/ExplicitDeviceBuilder.pipeline|pipeline(kotlin.Function1<space.kscience.krig.core.pipeline.PipelineProfileScope,kotlin.Unit>){}[0]
 }

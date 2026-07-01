@@ -13,6 +13,7 @@ import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.DeviceEnvironment
 import space.kscience.krig.core.features.PipelineFeature
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.TransportBackend
 import space.kscience.krig.core.contracts.booleanValue
 import space.kscience.krig.core.contracts.doubleValue
@@ -57,6 +58,19 @@ public sealed interface DeviceBuilder {
      * schema is discovered at runtime.
      */
     public var allowAdHocProperties: Boolean
+
+    /**
+     * Explicit policy for properties absent from the static manifest/DSL contract.
+     *
+     * [DynamicDiscoveryPolicy.Strict] is the production default. [DynamicDiscoveryPolicy.AdHoc] is the
+     * transient lab/REPL path; [DynamicDiscoveryPolicy.Learn] remembers first-seen synthetic descriptors
+     * in the runtime overlay; [DynamicDiscoveryPolicy.Catalog] accepts only descriptors registered through
+     * [discoveredProperty].
+     */
+    public var dynamicDiscoveryPolicy: DynamicDiscoveryPolicy
+
+    /** Seeds the dynamic overlay used by [DynamicDiscoveryPolicy.Catalog] and [DynamicDiscoveryPolicy.Learn]. */
+    public fun discoveredProperty(descriptor: PropertyDescriptor)
 
     /** Installs descriptors from a [DeviceManifest]. */
     public fun manifest(manifest: DeviceManifest)
@@ -165,12 +179,20 @@ internal class DeviceBuilderCore internal constructor(
 
     private var pipelineProfile: PipelineProfile = PipelineProfile.Production
 
-    @Suppress("OVERRIDE_DEPRECATION")
-    override var allowAdHocProperties: Boolean = false
+    override var dynamicDiscoveryPolicy: DynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Strict
+
+    override var allowAdHocProperties: Boolean
+        get() = dynamicDiscoveryPolicy != DynamicDiscoveryPolicy.Strict
+        set(value) {
+            dynamicDiscoveryPolicy = if (value) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict
+        }
 
     @PublishedApi
     internal var descriptorSource: DescriptorSource = DescriptorSource.Empty
         private set
+
+    @PublishedApi
+    internal val discoveredProperties: MutableMap<Name, PropertyDescriptor> = linkedMapOf()
 
     override fun descriptors(source: DescriptorSource) {
         descriptorSource = source
@@ -178,6 +200,10 @@ internal class DeviceBuilderCore internal constructor(
 
     override fun manifest(manifest: DeviceManifest) {
         descriptorSource = DescriptorSource.of(manifest.properties, manifest.actions)
+    }
+
+    override fun discoveredProperty(descriptor: PropertyDescriptor) {
+        discoveredProperties[descriptor.name] = descriptor
     }
 
     override fun <C : Any> install(
@@ -204,7 +230,8 @@ internal class DeviceBuilderCore internal constructor(
             name = deviceName,
             runtime = runtime,
             descriptorSource = descriptorSource,
-            allowAdHocProperties = allowAdHocProperties,
+            dynamicDiscoveryPolicy = dynamicDiscoveryPolicy,
+            initialDiscoveredProperties = discoveredProperties,
         )
         val pipelined = wrapWithPipeline(baseDevice, pipeline, deviceName.toString(), runtime.context)
         // A DSL sibling read/write of a contract-backed property is routed back through the assembled

@@ -35,6 +35,8 @@ import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.BoundDeviceBackend
+import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
+import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.doubleValue
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.deviceBackend
@@ -46,6 +48,7 @@ import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Instant
@@ -60,7 +63,7 @@ class BackendDeviceTypedBackendTest {
             PropertyDescriptor(name = name, kind = PropertyKind.PHYSICAL, valueTypeId = TypeIds.DOUBLE)
     }
 
-    private fun permissiveContext(): Context = Context("loose-meta-test") {
+    private fun permissiveContext(name: String): Context = Context(name) {
         plugin(AllowAllAuthorizationService)
         plugin(AuditService)
     }
@@ -264,7 +267,8 @@ class BackendDeviceTypedBackendTest {
     @Test
     fun deviceBuilderAllowsAdHocPropertiesOnlyWhenEnabled() = runTest {
         val backend = LooseMetaBackend()
-        val device = device("loose-meta", backend, permissiveContext()) {
+        val ctx = permissiveContext("loose-meta-test")
+        val device = device("loose-meta", backend, ctx) {
             allowAdHocProperties = true
         }
 
@@ -273,6 +277,111 @@ class BackendDeviceTypedBackendTest {
 
         assertEquals("loose".asName(), backend.lastWrite)
         assertEquals(9.0, backend.lastValue?.doubleValue)
+
+        device.close()
+        ctx.close()
+    }
+
+    @Test
+    fun adHocDynamicPropertiesStayTransient() = runTest {
+        val looseName = "loose".asName()
+        val device = BackendDevice(
+            backend = LooseMetaBackend(),
+            name = "ad-hoc-meta".asName(),
+            context = Context("ad-hoc-meta-test"),
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.AdHoc,
+        )
+
+        assertEquals(7.0, device.readProperty(looseName).doubleValue)
+
+        assertTrue(device.discoveredPropertyDescriptors.isEmpty())
+        assertTrue(device.propertyDescriptors.isEmpty())
+    }
+
+    @Test
+    fun learnDynamicPropertiesExposeOverlayOnly() = runTest {
+        val looseName = "loose".asName()
+        val device = BackendDevice(
+            backend = LooseMetaBackend(),
+            name = "learn-meta".asName(),
+            context = Context("learn-meta-test"),
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Learn,
+        )
+
+        assertTrue(device.discoveredPropertyDescriptors.isEmpty())
+        assertEquals(7.0, device.readProperty(looseName).doubleValue)
+
+        assertEquals(setOf(looseName), device.discoveredPropertyDescriptors.keys)
+        assertTrue(device.propertyDescriptors.isEmpty())
+    }
+
+    @Test
+    fun catalogDynamicPropertiesRequireSeededDescriptor() = runTest {
+        val looseName = "loose".asName()
+        val looseDescriptor = PropertyDescriptor(
+            name = looseName,
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = TypeIds.META,
+        )
+        val device = BackendDevice(
+            backend = LooseMetaBackend(),
+            name = "catalog-meta".asName(),
+            context = Context("catalog-meta-test"),
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Catalog,
+            initialDiscoveredProperties = mapOf(looseName to looseDescriptor),
+        )
+
+        assertEquals(7.0, device.readProperty(looseName).doubleValue)
+        assertEquals(setOf(looseName), device.discoveredPropertyDescriptors.keys)
+        assertTrue(device.propertyDescriptors.isEmpty())
+
+        val unknown = device.readPropertyOutcome("other".asName())
+        val failure = assertIs<OperationOutcome.Fail>(unknown)
+        assertEquals(OperationFaultTypes.UnknownProperty, failure.fault.faultType)
+    }
+
+    @Test
+    fun dynamicOverlaySurvivesPipelineAssembly() = runTest {
+        val looseName = "loose".asName()
+        val looseDescriptor = PropertyDescriptor(
+            name = looseName,
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = TypeIds.META,
+        )
+        val ctx = permissiveContext("catalog-builder-meta-test")
+        val device = device("catalog-builder-meta", LooseMetaBackend(), ctx) {
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Catalog
+            discoveredProperty(looseDescriptor)
+        }
+
+        assertEquals(7.0, device.readProperty(looseName).doubleValue)
+
+        val overlay = assertIs<DynamicDescriptorOverlay>(device)
+        assertEquals(DynamicDiscoveryPolicy.Catalog, overlay.dynamicDiscoveryPolicy)
+        assertEquals(setOf(looseName), overlay.discoveredPropertyDescriptors.keys)
+        assertTrue(device.propertyDescriptors.isEmpty())
+
+        device.close()
+        ctx.close()
+    }
+
+    @Test
+    fun declaredReadOnlyPropertiesStayReadOnlyInAdHocMode() = runTest {
+        val descriptor = PropertyDescriptor(
+            name = valueName,
+            kind = PropertyKind.PHYSICAL,
+            valueTypeId = TypeIds.DOUBLE,
+        )
+        val device = BackendDevice(
+            backend = LooseMetaBackend(),
+            name = "declared-ad-hoc-meta".asName(),
+            context = Context("declared-ad-hoc-meta-test"),
+            descriptorSource = DescriptorSource.of(mapOf(valueName to descriptor)),
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.AdHoc,
+        )
+
+        assertFalse(device.propertySpec(valueName) is MutableDevicePropertyContract<*>)
+        assertTrue(device.propertySpec("loose".asName()) is MutableDevicePropertyContract<*>)
     }
 
     private inner class NativeTypedBackend : DeviceBackend, TypedBackend {

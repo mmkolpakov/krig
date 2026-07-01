@@ -70,6 +70,19 @@ final enum class space.kscience.krig.core.contracts/DiscardPolicy : kotlin/Enum<
     final fun values(): kotlin/Array<space.kscience.krig.core.contracts/DiscardPolicy> // space.kscience.krig.core.contracts/DiscardPolicy.values|values#static(){}[0]
 }
 
+final enum class space.kscience.krig.core.contracts/DynamicDiscoveryPolicy : kotlin/Enum<space.kscience.krig.core.contracts/DynamicDiscoveryPolicy> { // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy|null[0]
+    enum entry AdHoc // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.AdHoc|null[0]
+    enum entry Catalog // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.Catalog|null[0]
+    enum entry Learn // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.Learn|null[0]
+    enum entry Strict // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.Strict|null[0]
+
+    final val entries // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.core.contracts/DynamicDiscoveryPolicy> // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.core.contracts/DynamicDiscoveryPolicy> // space.kscience.krig.core.contracts/DynamicDiscoveryPolicy.values|values#static(){}[0]
+}
+
 final enum class space.kscience.krig.core.contracts/RemoteTypedActivationStatus : kotlin/Enum<space.kscience.krig.core.contracts/RemoteTypedActivationStatus> { // space.kscience.krig.core.contracts/RemoteTypedActivationStatus|null[0]
     enum entry Enabled // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.Enabled|null[0]
     enum entry ManifestMismatch // space.kscience.krig.core.contracts/RemoteTypedActivationStatus.ManifestMismatch|null[0]
@@ -351,6 +364,13 @@ abstract interface space.kscience.krig.core.contracts/DeviceNode { // space.ksci
         abstract fun <get-device>(): space.kscience.krig.core.contracts/Device? // space.kscience.krig.core.contracts/DeviceNode.device.<get-device>|<get-device>(){}[0]
     open val childrenFlow // space.kscience.krig.core.contracts/DeviceNode.childrenFlow|{}childrenFlow[0]
         open fun <get-childrenFlow>(): kotlinx.coroutines.flow/StateFlow<kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.core.contracts/DeviceNode>> // space.kscience.krig.core.contracts/DeviceNode.childrenFlow.<get-childrenFlow>|<get-childrenFlow>(){}[0]
+}
+
+abstract interface space.kscience.krig.core.contracts/DynamicDescriptorOverlay { // space.kscience.krig.core.contracts/DynamicDescriptorOverlay|null[0]
+    abstract val discoveredPropertyDescriptors // space.kscience.krig.core.contracts/DynamicDescriptorOverlay.discoveredPropertyDescriptors|{}discoveredPropertyDescriptors[0]
+        abstract fun <get-discoveredPropertyDescriptors>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.api.descriptors/PropertyDescriptor> // space.kscience.krig.core.contracts/DynamicDescriptorOverlay.discoveredPropertyDescriptors.<get-discoveredPropertyDescriptors>|<get-discoveredPropertyDescriptors>(){}[0]
+    abstract val dynamicDiscoveryPolicy // space.kscience.krig.core.contracts/DynamicDescriptorOverlay.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
+        abstract fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.core.contracts/DynamicDescriptorOverlay.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
 }
 
 abstract interface space.kscience.krig.core.contracts/GracefullyCloseable { // space.kscience.krig.core.contracts/GracefullyCloseable|null[0]

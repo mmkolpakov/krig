@@ -761,6 +761,21 @@ public final class space/kscience/krig/core/contracts/DiscardPolicy : java/lang/
 	public static fun values ()[Lspace/kscience/krig/core/contracts/DiscardPolicy;
 }
 
+public abstract interface class space/kscience/krig/core/contracts/DynamicDescriptorOverlay {
+	public abstract fun getDiscoveredPropertyDescriptors ()Ljava/util/Map;
+	public abstract fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+}
+
+public final class space/kscience/krig/core/contracts/DynamicDiscoveryPolicy : java/lang/Enum {
+	public static final field AdHoc Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public static final field Catalog Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public static final field Learn Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public static final field Strict Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public static fun values ()[Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+}
+
 public abstract interface class space/kscience/krig/core/contracts/GracefullyCloseable {
 	public abstract fun closeGracefully-VtjQ1oo (JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }

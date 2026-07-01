@@ -1,11 +1,14 @@
 @file:OptIn(
     InternalKrigApi::class,
     space.kscience.krig.core.KrigPerformancePitfall::class,
+    kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
 )
 
 package space.kscience.krig.dsl
 
 import kotlinx.coroutines.CancellationException
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.io.IOException
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
@@ -28,6 +31,8 @@ import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
+import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.ignoreNonCancellationFailure
 import space.kscience.krig.core.contracts.ignoreCleanupFailureSuspending
 import space.kscience.krig.core.contracts.readProperty
@@ -49,6 +54,8 @@ import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.meta.descriptors.MetaDescriptor
 import space.kscience.dataforge.names.Name
+import kotlin.concurrent.atomics.AtomicReference
+import kotlin.concurrent.atomics.update
 
 /**
  * Descriptor source consulted by [BackendDevice] to resolve the full
@@ -107,8 +114,11 @@ public class BackendDevice @InternalKrigApi constructor(
     name: Name,
     runtime: DeviceRuntime,
     private val descriptorSource: DescriptorSource = DescriptorSource.Empty,
-    private val allowAdHocProperties: Boolean = false,
-) : AbstractDevice(name, runtime) {
+    allowAdHocProperties: Boolean = false,
+    override val dynamicDiscoveryPolicy: DynamicDiscoveryPolicy =
+        if (allowAdHocProperties) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict,
+    initialDiscoveredProperties: Map<Name, PropertyDescriptor> = emptyMap(),
+) : AbstractDevice(name, runtime), DynamicDescriptorOverlay {
     @InternalKrigApi
     public constructor(
         backend: DeviceBackend,
@@ -116,12 +126,28 @@ public class BackendDevice @InternalKrigApi constructor(
         context: Context,
         descriptorSource: DescriptorSource = DescriptorSource.Empty,
         allowAdHocProperties: Boolean = false,
-    ) : this(backend, name, DeviceRuntime.from(context), descriptorSource, allowAdHocProperties)
+        dynamicDiscoveryPolicy: DynamicDiscoveryPolicy =
+            if (allowAdHocProperties) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict,
+        initialDiscoveredProperties: Map<Name, PropertyDescriptor> = emptyMap(),
+    ) : this(
+        backend,
+        name,
+        DeviceRuntime.from(context),
+        descriptorSource,
+        allowAdHocProperties,
+        dynamicDiscoveryPolicy,
+        initialDiscoveredProperties,
+    )
 
     private val contractBackend: TypedBackend? = backend as? TypedBackend
     private val typedDeviceBackend: TypedDeviceBackend? = backend as? TypedDeviceBackend
     private val boundBackend: BoundDeviceBackend =
         backend.bind(BackendEnvironment.from(runtime, name))
+    private val discoveredProperties: AtomicReference<PersistentMap<Name, PropertyDescriptor>> =
+        AtomicReference(initialDiscoveredProperties.toPersistentMap())
+
+    override val discoveredPropertyDescriptors: Map<Name, PropertyDescriptor>
+        get() = discoveredProperties.load()
 
     /**
      * Introspection materialized from the declared descriptor source plus the typed backend's
@@ -353,8 +379,8 @@ public class BackendDevice @InternalKrigApi constructor(
     override fun propertySpec(propertyName: Name): DevicePropertyContract<*>? {
         typedDeviceBackend?.propertySpec(propertyName)?.let { return it }
         val declared = descriptorSource.property(propertyName)
-        val descriptor = declared ?: if (allowAdHocProperties) syntheticProperty(propertyName) else return null
-        return if (descriptor.isMutable || (declared == null && allowAdHocProperties)) {
+        val descriptor = declared ?: dynamicProperty(propertyName) ?: return null
+        return if (descriptor.isMutable || (declared == null && descriptor.isDynamicSynthetic(propertyName))) {
             BackendMutableMetaPropertyContract(descriptor)
         } else {
             BackendMetaPropertyContract(descriptor)
@@ -364,6 +390,21 @@ public class BackendDevice @InternalKrigApi constructor(
     override fun actionSpec(actionName: Name): DeviceActionContract<*, *>? =
         typedDeviceBackend?.actionSpec(actionName)
             ?: descriptorSource.action(actionName)?.let(::BackendMetaActionContract)
+
+    private fun dynamicProperty(name: Name): PropertyDescriptor? = when (dynamicDiscoveryPolicy) {
+        DynamicDiscoveryPolicy.Strict -> null
+        DynamicDiscoveryPolicy.AdHoc -> syntheticProperty(name)
+        DynamicDiscoveryPolicy.Learn -> discoveredProperties.load()[name] ?: learnSyntheticProperty(name)
+        DynamicDiscoveryPolicy.Catalog -> discoveredProperties.load()[name]
+    }
+
+    private fun learnSyntheticProperty(name: Name): PropertyDescriptor {
+        val descriptor = syntheticProperty(name)
+        discoveredProperties.update { current ->
+            if (name in current) current else current.put(name, descriptor)
+        }
+        return discoveredProperties.load()[name] ?: descriptor
+    }
 
     private fun syntheticProperty(name: Name): PropertyDescriptor = PropertyDescriptor(
         name = name,
@@ -375,9 +416,7 @@ public class BackendDevice @InternalKrigApi constructor(
     private fun propertyDescriptor(propertyName: Name, operation: String): OperationOutcome<PropertyDescriptor> {
         typedDeviceBackend?.propertySpec(propertyName)?.descriptor?.let { return OperationOutcome.Ok(it) }
         descriptorSource.property(propertyName)?.let { return OperationOutcome.Ok(it) }
-        return if (allowAdHocProperties) {
-            OperationOutcome.Ok(syntheticProperty(propertyName))
-        } else {
+        return dynamicProperty(propertyName)?.let { OperationOutcome.Ok(it) } ?: run {
             OperationOutcome.Fail(
                 GenericOperationFault(
                     faultType = OperationFaultTypes.UnknownProperty,
@@ -390,6 +429,11 @@ public class BackendDevice @InternalKrigApi constructor(
             )
         }
     }
+
+    private fun PropertyDescriptor.isDynamicSynthetic(propertyName: Name): Boolean =
+        dynamicDiscoveryPolicy == DynamicDiscoveryPolicy.AdHoc ||
+                (dynamicDiscoveryPolicy == DynamicDiscoveryPolicy.Learn &&
+                        discoveredProperties.load()[propertyName] == this)
 
     private fun actionDescriptor(actionName: Name): OperationOutcome<ActionDescriptor> {
         typedDeviceBackend?.actionSpec(actionName)?.descriptor?.let { return OperationOutcome.Ok(it) }

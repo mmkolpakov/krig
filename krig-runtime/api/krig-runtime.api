@@ -212,7 +212,7 @@ public final class space/kscience/krig/core/pipeline/PipelineBuilderDeviceOperat
 	public static final fun onWrite (Lspace/kscience/krig/core/pipeline/PipelineBuilder;Lspace/kscience/krig/core/pipeline/OperationGate;)V
 }
 
-public final class space/kscience/krig/core/pipeline/PipelineDevice : space/kscience/krig/core/contracts/CapabilityHost, space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/DeviceNode, space/kscience/krig/core/contracts/LifecycleStateHolder {
+public final class space/kscience/krig/core/pipeline/PipelineDevice : space/kscience/krig/core/contracts/CapabilityHost, space/kscience/krig/core/contracts/Device, space/kscience/krig/core/contracts/DeviceNode, space/kscience/krig/core/contracts/DynamicDescriptorOverlay, space/kscience/krig/core/contracts/LifecycleStateHolder {
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public fun capability (Lspace/kscience/krig/core/capabilities/CapabilityKey;)Lspace/kscience/krig/core/capabilities/Capability;
@@ -229,6 +229,8 @@ public final class space/kscience/krig/core/pipeline/PipelineDevice : space/ksci
 	public fun getDataFlow ()Lkotlinx/coroutines/flow/Flow;
 	public fun getDevice ()Lspace/kscience/krig/core/contracts/Device;
 	public fun getDeviceScope ()Lkotlinx/coroutines/CoroutineScope;
+	public fun getDiscoveredPropertyDescriptors ()Ljava/util/Map;
+	public fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public fun getInstalledCapabilities ()Ljava/util/Collection;
 	public fun getLifecycleState ()Lspace/kscience/krig/api/lifecycle/LifecycleState;
 	public fun getLifecycleStateFlow ()Lkotlinx/coroutines/flow/StateFlow;
@@ -288,11 +290,13 @@ public final class space/kscience/krig/core/pipeline/PipelineProfileScope {
 	public final fun profile (Lspace/kscience/krig/core/pipeline/PipelineProfile;)V
 }
 
-public final class space/kscience/krig/dsl/BackendDevice : space/kscience/krig/core/contracts/AbstractDevice {
+public final class space/kscience/krig/dsl/BackendDevice : space/kscience/krig/core/contracts/AbstractDevice, space/kscience/krig/core/contracts/DynamicDescriptorOverlay {
 	public fun action (Lspace/kscience/krig/core/meta/DeviceActionContract;)Lspace/kscience/krig/core/contracts/typed/TypedAction;
 	public fun actionSpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DeviceActionContract;
 	public fun close ()V
 	public fun getActionDescriptors ()Ljava/util/Map;
+	public fun getDiscoveredPropertyDescriptors ()Ljava/util/Map;
+	public fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public fun getPropertyDescriptors ()Ljava/util/Map;
 	public fun observedReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;)Lspace/kscience/krig/core/contracts/typed/TypedObservedReader;
 	public fun propertySpec (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/meta/DevicePropertyContract;
@@ -328,6 +332,7 @@ public final class space/kscience/krig/dsl/DeclarativeDeviceBuilder : space/ksci
 	public fun <init> (Lspace/kscience/krig/dsl/DeviceBuilderCore;)V
 	public final fun action (Ljava/lang/String;Lspace/kscience/krig/dsl/DeviceActionBlock;)V
 	public final fun action (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/dsl/DeviceActionBlock;)V
+	public fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
 	public final fun getActionDescriptors ()Ljava/util/Map;
 	public final fun getActions ()Ljava/util/Map;
 	public fun getAllowAdHocProperties ()Z
@@ -335,6 +340,7 @@ public final class space/kscience/krig/dsl/DeclarativeDeviceBuilder : space/ksci
 	public final fun getCore ()Lspace/kscience/krig/dsl/DeviceBuilderCore;
 	public fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
 	public fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
+	public fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public final fun getObservedReaders ()Ljava/util/Map;
 	public final fun getPropertyDescriptors ()Ljava/util/Map;
 	public final fun getReaders ()Ljava/util/Map;
@@ -369,6 +375,7 @@ public final class space/kscience/krig/dsl/DeclarativeDeviceBuilder : space/ksci
 	public final fun readString (Lspace/kscience/krig/dsl/DeviceReadBlock;)Lkotlin/properties/PropertyDelegateProvider;
 	public fun setAllowAdHocProperties (Z)V
 	public final fun setCloseBody (Lkotlin/jvm/functions/Function0;)V
+	public fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 	public final fun setStepBody (Lkotlin/jvm/functions/Function1;)V
 }
 
@@ -423,14 +430,17 @@ public final class space/kscience/krig/dsl/DeviceActionScope$DefaultImpls {
 }
 
 public abstract interface class space/kscience/krig/dsl/DeviceBuilder {
+	public abstract fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
 	public abstract fun getAllowAdHocProperties ()Z
 	public abstract fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
 	public abstract fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
+	public abstract fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public abstract fun install (Lspace/kscience/krig/core/features/PipelineFeature;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun install$default (Lspace/kscience/krig/dsl/DeviceBuilder;Lspace/kscience/krig/core/features/PipelineFeature;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public abstract fun manifest (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
 	public abstract fun pipeline (Lkotlin/jvm/functions/Function1;)V
 	public abstract fun setAllowAdHocProperties (Z)V
+	public abstract fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 }
 
 public final class space/kscience/krig/dsl/DeviceBuilder$DefaultImpls {
@@ -536,14 +546,17 @@ public final class space/kscience/krig/dsl/ExplicitDeviceBuilder : space/kscienc
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/context/Context;Lspace/kscience/krig/core/contracts/DeviceBackend;)V
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/DeviceRuntime;Lspace/kscience/krig/core/contracts/DeviceBackend;)V
 	public fun <init> (Lspace/kscience/krig/dsl/DeviceBuilderCore;Lspace/kscience/krig/core/contracts/DeviceBackend;)V
+	public fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
 	public fun getAllowAdHocProperties ()Z
 	public final fun getCore ()Lspace/kscience/krig/dsl/DeviceBuilderCore;
 	public fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
 	public fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
+	public fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public fun install (Lspace/kscience/krig/core/features/PipelineFeature;Lkotlin/jvm/functions/Function1;)V
 	public fun manifest (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
 	public fun pipeline (Lkotlin/jvm/functions/Function1;)V
 	public fun setAllowAdHocProperties (Z)V
+	public fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 }
 
 public final class space/kscience/krig/dsl/ExpressionDslKt {

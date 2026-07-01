@@ -15,6 +15,7 @@ import space.kscience.krig.core.UnstableKrigForSubclassing
 import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.BoundDeviceBackend
 import space.kscience.krig.core.contracts.DeviceBackend
+import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
@@ -50,7 +51,7 @@ internal suspend fun labDiscoverySnapshot(): LabDiscoverySnapshot {
     val strictWrite = strict.writePropertyOutcome(gainName, metaOf(2.5))
 
     val discovery = device("discoveryProbe", backend, ctx) {
-        allowAdHocProperties = true
+        dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.AdHoc
     }
     discovery.writeProperty(gainName, metaOf(2.5))
     val discovered = discovery.readProperty(gainName)

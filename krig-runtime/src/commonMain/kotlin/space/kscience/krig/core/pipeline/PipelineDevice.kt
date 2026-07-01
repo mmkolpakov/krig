@@ -11,6 +11,7 @@ import space.kscience.dataforge.io.Binary
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.lifecycle.LifecycleState
 import space.kscience.krig.api.result.OperationOutcome
@@ -23,6 +24,8 @@ import space.kscience.krig.core.contracts.CapabilityRegistry
 import space.kscience.krig.core.contracts.CapabilityToggles
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceNode
+import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
+import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.EmptyDeviceNodeChildren
 import space.kscience.krig.core.contracts.LifecycleStateHolder
 import space.kscience.krig.core.contracts.typed.TypedAction
@@ -61,7 +64,7 @@ public class PipelineDevice @InternalKrigApi constructor(
     batchReadDecorators: List<BatchReadDecorator> = emptyList(),
     registry: ResourceLockRegistry = ResourceLockRegistry(),
     capabilities: Collection<Capability<*>> = emptyList(),
-) : Device by delegate, LifecycleStateHolder, CapabilityHost, DeviceNode {
+) : Device by delegate, LifecycleStateHolder, CapabilityHost, DeviceNode, DynamicDescriptorOverlay {
 
     private val engine = PipelineEngine(
         delegate = delegate,
@@ -91,6 +94,12 @@ public class PipelineDevice @InternalKrigApi constructor(
 
     override val childrenFlow: StateFlow<Map<Name, DeviceNode>>
         get() = (delegate as? DeviceNode)?.childrenFlow ?: EmptyDeviceNodeChildren
+
+    override val dynamicDiscoveryPolicy: DynamicDiscoveryPolicy
+        get() = (delegate as? DynamicDescriptorOverlay)?.dynamicDiscoveryPolicy ?: DynamicDiscoveryPolicy.Strict
+
+    override val discoveredPropertyDescriptors: Map<Name, PropertyDescriptor>
+        get() = (delegate as? DynamicDescriptorOverlay)?.discoveredPropertyDescriptors.orEmpty()
 
     // --- Capability host: own registry merged with the delegate ---
 
