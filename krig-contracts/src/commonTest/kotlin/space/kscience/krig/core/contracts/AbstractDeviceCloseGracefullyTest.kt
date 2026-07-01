@@ -28,6 +28,7 @@ import space.kscience.dataforge.names.asName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -92,6 +93,57 @@ class AbstractDeviceCloseGracefullyTest {
 
         assertTrue(closeJob.isCompleted)
         assertEquals(1, device.shutdownCalls)
+    }
+
+    @Test
+    fun closeGracefullyReportsStoppingAndStoppedLifecycle() = runTest {
+        val shutdownStarted = CompletableDeferred<Unit>()
+        val allowShutdown = CompletableDeferred<Unit>()
+        val device = object : DrainTestDevice() {
+            override suspend fun shutdown() {
+                shutdownStarted.complete(Unit)
+                allowShutdown.await()
+                super.shutdown()
+            }
+        }
+
+        val closeJob = launch { device.closeGracefully(1.seconds) }
+        shutdownStarted.await()
+
+        assertEquals(LifecycleState.Stopping, device.lifecycleState)
+
+        allowShutdown.complete(Unit)
+        closeJob.join()
+
+        assertEquals(LifecycleState.Stopped, device.lifecycleState)
+        assertEquals(1, device.shutdownCalls)
+    }
+
+    @Test
+    fun closeGracefullyPromotesShutdownFailureToLifecycleFailed() = runTest {
+        val failure = IllegalStateException("shutdown failed")
+        val device = object : DrainTestDevice() {
+            override suspend fun shutdown() {
+                throw failure
+            }
+        }
+
+        val thrown = assertFailsWith<IllegalStateException> {
+            device.closeGracefully(1.seconds)
+        }
+
+        assertSame(failure, thrown)
+        val state = device.lifecycleState as LifecycleState.Failed
+        assertSame(failure, state.cause)
+    }
+
+    @Test
+    fun closeReportsStoppedLifecycle() {
+        val device = DrainTestDevice()
+
+        device.close()
+
+        assertEquals(LifecycleState.Stopped, device.lifecycleState)
     }
 
     @Test

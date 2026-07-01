@@ -49,11 +49,13 @@ internal class OperationDrainController(
 
     suspend fun closeGracefully(
         drainTimeout: Duration,
+        onOwnerCloseStarted: () -> Unit = {},
         shutdownBlock: suspend () -> Unit,
     ) {
         val plan = beginClose() ?: return
         if (plan.owner) {
             try {
+                onOwnerCloseStarted()
                 val _ = plan.drainWaiter?.let { waiter ->
                     withTimeoutOrNull(drainTimeout) { waiter.await() }
                 }

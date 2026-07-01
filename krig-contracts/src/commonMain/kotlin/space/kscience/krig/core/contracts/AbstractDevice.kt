@@ -276,8 +276,13 @@ public abstract class AbstractDevice(
 
     /** Non-suspending close: closes the plane mailboxes and signals scope cancellation. */
     override fun close() {
-        messageBus.close()
-        deviceScope.cancel("Device '$name' closed")
+        updateLifecycleState(LifecycleState.Stopping)
+        try {
+            messageBus.close()
+            deviceScope.cancel("Device '$name' closed")
+        } finally {
+            updateLifecycleState(LifecycleState.Stopped)
+        }
     }
 
     @InternalKrigApi
@@ -298,6 +303,19 @@ public abstract class AbstractDevice(
         drainTimeout: Duration,
         shutdownBlock: suspend () -> Unit,
     ) {
-        operationController.closeGracefully(drainTimeout, shutdownBlock)
+        operationController.closeGracefully(
+            drainTimeout = drainTimeout,
+            onOwnerCloseStarted = { updateLifecycleState(LifecycleState.Stopping) },
+        ) {
+            try {
+                shutdownBlock()
+                updateLifecycleState(LifecycleState.Stopped)
+            } catch (ce: CancellationException) {
+                throw ce
+            } catch (e: Throwable) {
+                updateLifecycleState(LifecycleState.Failed(e))
+                throw e
+            }
+        }
     }
 }
