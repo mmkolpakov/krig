@@ -5,7 +5,6 @@ import space.kscience.dataforge.io.asBinary
 import space.kscience.dataforge.io.toByteArray
 import space.kscience.dataforge.meta.Meta
 import space.kscience.dataforge.meta.int
-import space.kscience.dataforge.meta.long
 import space.kscience.dataforge.meta.string
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
