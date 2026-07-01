@@ -18,11 +18,14 @@ import space.kscience.krig.api.factory.DeviceFactoryConfigValidationException
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.DeviceRuntime
+import space.kscience.krig.core.contracts.manifestOf
+import space.kscience.krig.core.contracts.schemaHash
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 private class StubDevice(name: Name, context: Context) : AbstractDevice(name, DeviceRuntime(context)) {
     override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
@@ -36,6 +39,10 @@ private class StubDevice(name: Name, context: Context) : AbstractDevice(name, De
 }
 
 private fun factoryContext(name: String): Context = Context(name) { plugin(DeviceFactoryPlugin) }
+private fun factoryCatalogContext(name: String): Context = Context(name) {
+    plugin(DeviceFactoryPlugin)
+    plugin(DeviceCatalog)
+}
 
 class MetaDeviceGroupTest {
 
@@ -60,6 +67,94 @@ class MetaDeviceGroupTest {
 
         assertEquals(setOf("motor".asName(), "sensor".asName()), group.devices.keys)
         assertIs<StubDevice>(group.devices["motor".asName()])
+    }
+
+    @Test
+    fun buildsGroupFromTopologySpec() {
+        val context = factoryContext("topology-spec")
+        context.deviceFactories().register(
+            DeviceFactory("stub") { childContext ->
+                StubDevice(childContext.name, childContext)
+            },
+        )
+
+        val group = context.assembleDeviceTopology(
+            "crate",
+            DeviceTopologySpec(
+                children = mapOf(
+                    "motor".asName() to DeviceInstanceSpec(factory = "stub".asName()),
+                ),
+            ),
+        )
+
+        assertEquals(setOf("motor".asName()), group.devices.keys)
+        assertIs<StubDevice>(group.devices["motor".asName()])
+    }
+
+    @Test
+    fun topologySpecValidatesManifestRequirementBeforeCreation() {
+        val context = factoryCatalogContext("topology-spec-manifest")
+        val manifest = manifestOf("demo.stub".asName(), properties = emptyMap(), version = "1.0.0")
+        context.deviceCatalog().register(manifest)
+        var created = false
+        context.deviceFactories().register(
+            DeviceFactory("stub") { childContext ->
+                created = true
+                StubDevice(childContext.name, childContext)
+            },
+        )
+
+        val group = context.assembleDeviceTopology(
+            "crate",
+            DeviceTopologySpec(
+                children = mapOf(
+                    "motor".asName() to DeviceInstanceSpec(
+                        factory = "stub".asName(),
+                        manifest = DeviceManifestRequirement(
+                            manifestId = manifest.id,
+                            version = manifest.version,
+                            schemaHash = manifest.schemaHash(),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        assertEquals(setOf("motor".asName()), group.devices.keys)
+        assertTrue(created)
+    }
+
+    @Test
+    fun manifestRequirementMismatchFailsBeforeFactoryCreation() {
+        val context = factoryCatalogContext("topology-spec-manifest-mismatch")
+        val manifest = manifestOf("demo.stub".asName(), properties = emptyMap(), version = "1.0.0")
+        context.deviceCatalog().register(manifest)
+        var created = false
+        context.deviceFactories().register(
+            DeviceFactory("stub") { childContext ->
+                created = true
+                StubDevice(childContext.name, childContext)
+            },
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            context.assembleDeviceTopology(
+                "crate",
+                DeviceTopologySpec(
+                    children = mapOf(
+                        "motor".asName() to DeviceInstanceSpec(
+                            factory = "stub".asName(),
+                            manifest = DeviceManifestRequirement(
+                                manifestId = manifest.id,
+                                version = manifest.version,
+                                schemaHash = "fnv1a64:0000000000000000",
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        }
+        assertFalse(created, "Factory create() must not run for incompatible manifest requirements")
     }
 
     @Test

@@ -13,6 +13,7 @@ fun main(): Unit = runBlocking {
     calibrationTaskDemo()
     metaInteropDemo()
     deviceTreeDemo()
+    factoryTopologyDemo()
     deviceTreeAcquisitionDemo()
     externalPollingDemo()
     streamingDemo()

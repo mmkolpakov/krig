@@ -424,6 +424,99 @@ public final class space/kscience/krig/assembly/DeviceGroupAcquisitionKt {
 	public static final fun readAt (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class space/kscience/krig/assembly/DeviceInstanceSpec {
+	public static final field Companion Lspace/kscience/krig/assembly/DeviceInstanceSpec$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/DeviceManifestRequirement;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/DeviceManifestRequirement;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component3 ()Lspace/kscience/krig/assembly/DeviceManifestRequirement;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/DeviceManifestRequirement;)Lspace/kscience/krig/assembly/DeviceInstanceSpec;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DeviceInstanceSpec;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Lspace/kscience/krig/assembly/DeviceManifestRequirement;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DeviceInstanceSpec;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getConfig ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun getFactory ()Lspace/kscience/dataforge/names/Name;
+	public final fun getManifest ()Lspace/kscience/krig/assembly/DeviceManifestRequirement;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/assembly/DeviceInstanceSpec$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/assembly/DeviceInstanceSpec$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/assembly/DeviceInstanceSpec;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/assembly/DeviceInstanceSpec;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/assembly/DeviceInstanceSpec$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/assembly/DeviceManifestRequirement {
+	public static final field Companion Lspace/kscience/krig/assembly/DeviceManifestRequirement$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/assembly/DeviceManifestRequirement;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DeviceManifestRequirement;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DeviceManifestRequirement;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getManifestId ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/assembly/DeviceManifestRequirement$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/assembly/DeviceManifestRequirement$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/assembly/DeviceManifestRequirement;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/assembly/DeviceManifestRequirement;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/assembly/DeviceManifestRequirement$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/assembly/DeviceTopologySpec {
+	public static final field Companion Lspace/kscience/krig/assembly/DeviceTopologySpec$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Lspace/kscience/krig/assembly/DeviceTopologySpec;
+	public static synthetic fun copy$default (Lspace/kscience/krig/assembly/DeviceTopologySpec;Ljava/util/Map;ILjava/lang/Object;)Lspace/kscience/krig/assembly/DeviceTopologySpec;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getChildren ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/assembly/DeviceTopologySpec$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/assembly/DeviceTopologySpec$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/assembly/DeviceTopologySpec;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/assembly/DeviceTopologySpec;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/assembly/DeviceTopologySpec$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/assembly/InMemoryTagTableReader : space/kscience/krig/assembly/AcquisitionSourceReader, space/kscience/krig/assembly/TagTableSampleWriter {
 	public fun <init> ()V
 	public fun <init> (Ljava/util/Map;Lkotlin/time/Clock;Lspace/kscience/krig/api/data/DataQuality;)V
@@ -449,8 +542,11 @@ public final class space/kscience/krig/assembly/ManifestValidationPolicy : java/
 }
 
 public final class space/kscience/krig/assembly/MetaDeviceGroupKt {
+	public static final fun assembleDeviceTopology (Lspace/kscience/dataforge/context/Context;Ljava/lang/String;Lspace/kscience/krig/assembly/DeviceTopologySpec;)Lspace/kscience/krig/core/runtime/DeviceGroup;
+	public static final fun assembleDeviceTopology (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/assembly/DeviceTopologySpec;)Lspace/kscience/krig/core/runtime/DeviceGroup;
 	public static final fun metaDeviceGroup (Lspace/kscience/dataforge/context/Context;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/runtime/DeviceGroup;
 	public static final fun metaDeviceGroup (Lspace/kscience/dataforge/context/Context;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/core/runtime/DeviceGroup;
+	public static final fun toDeviceTopologySpec (Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/krig/assembly/DeviceTopologySpec;
 }
 
 public final class space/kscience/krig/assembly/PipelineFeatureContract {

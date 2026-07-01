@@ -496,6 +496,98 @@ final class space.kscience.krig.assembly/DeviceFactoryPlugin : space.kscience.da
     }
 }
 
+final class space.kscience.krig.assembly/DeviceInstanceSpec { // space.kscience.krig.assembly/DeviceInstanceSpec|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta = ..., space.kscience.krig.assembly/DeviceManifestRequirement? = ...) // space.kscience.krig.assembly/DeviceInstanceSpec.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;space.kscience.krig.assembly.DeviceManifestRequirement?){}[0]
+
+    final val config // space.kscience.krig.assembly/DeviceInstanceSpec.config|{}config[0]
+        final fun <get-config>(): space.kscience.dataforge.meta/Meta // space.kscience.krig.assembly/DeviceInstanceSpec.config.<get-config>|<get-config>(){}[0]
+    final val factory // space.kscience.krig.assembly/DeviceInstanceSpec.factory|{}factory[0]
+        final fun <get-factory>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/DeviceInstanceSpec.factory.<get-factory>|<get-factory>(){}[0]
+    final val manifest // space.kscience.krig.assembly/DeviceInstanceSpec.manifest|{}manifest[0]
+        final fun <get-manifest>(): space.kscience.krig.assembly/DeviceManifestRequirement? // space.kscience.krig.assembly/DeviceInstanceSpec.manifest.<get-manifest>|<get-manifest>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/DeviceInstanceSpec.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.meta/Meta // space.kscience.krig.assembly/DeviceInstanceSpec.component2|component2(){}[0]
+    final fun component3(): space.kscience.krig.assembly/DeviceManifestRequirement? // space.kscience.krig.assembly/DeviceInstanceSpec.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.meta/Meta = ..., space.kscience.krig.assembly/DeviceManifestRequirement? = ...): space.kscience.krig.assembly/DeviceInstanceSpec // space.kscience.krig.assembly/DeviceInstanceSpec.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta;space.kscience.krig.assembly.DeviceManifestRequirement?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/DeviceInstanceSpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/DeviceInstanceSpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/DeviceInstanceSpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/DeviceInstanceSpec> { // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/DeviceInstanceSpec // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/DeviceInstanceSpec) // space.kscience.krig.assembly/DeviceInstanceSpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.DeviceInstanceSpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/DeviceInstanceSpec.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/DeviceInstanceSpec> // space.kscience.krig.assembly/DeviceInstanceSpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DeviceManifestRequirement { // space.kscience.krig.assembly/DeviceManifestRequirement|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name, kotlin/String? = ..., kotlin/String? = ...) // space.kscience.krig.assembly/DeviceManifestRequirement.<init>|<init>(space.kscience.dataforge.names.Name;kotlin.String?;kotlin.String?){}[0]
+
+    final val manifestId // space.kscience.krig.assembly/DeviceManifestRequirement.manifestId|{}manifestId[0]
+        final fun <get-manifestId>(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/DeviceManifestRequirement.manifestId.<get-manifestId>|<get-manifestId>(){}[0]
+    final val schemaHash // space.kscience.krig.assembly/DeviceManifestRequirement.schemaHash|{}schemaHash[0]
+        final fun <get-schemaHash>(): kotlin/String? // space.kscience.krig.assembly/DeviceManifestRequirement.schemaHash.<get-schemaHash>|<get-schemaHash>(){}[0]
+    final val version // space.kscience.krig.assembly/DeviceManifestRequirement.version|{}version[0]
+        final fun <get-version>(): kotlin/String? // space.kscience.krig.assembly/DeviceManifestRequirement.version.<get-version>|<get-version>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/DeviceManifestRequirement.component1|component1(){}[0]
+    final fun component2(): kotlin/String? // space.kscience.krig.assembly/DeviceManifestRequirement.component2|component2(){}[0]
+    final fun component3(): kotlin/String? // space.kscience.krig.assembly/DeviceManifestRequirement.component3|component3(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., kotlin/String? = ..., kotlin/String? = ...): space.kscience.krig.assembly/DeviceManifestRequirement // space.kscience.krig.assembly/DeviceManifestRequirement.copy|copy(space.kscience.dataforge.names.Name;kotlin.String?;kotlin.String?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/DeviceManifestRequirement.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/DeviceManifestRequirement.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/DeviceManifestRequirement.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/DeviceManifestRequirement> { // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/DeviceManifestRequirement // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/DeviceManifestRequirement) // space.kscience.krig.assembly/DeviceManifestRequirement.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.DeviceManifestRequirement){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/DeviceManifestRequirement.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/DeviceManifestRequirement> // space.kscience.krig.assembly/DeviceManifestRequirement.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.assembly/DeviceTopologySpec { // space.kscience.krig.assembly/DeviceTopologySpec|null[0]
+    constructor <init>(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.assembly/DeviceInstanceSpec> = ...) // space.kscience.krig.assembly/DeviceTopologySpec.<init>|<init>(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.assembly.DeviceInstanceSpec>){}[0]
+
+    final val children // space.kscience.krig.assembly/DeviceTopologySpec.children|{}children[0]
+        final fun <get-children>(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.assembly/DeviceInstanceSpec> // space.kscience.krig.assembly/DeviceTopologySpec.children.<get-children>|<get-children>(){}[0]
+
+    final fun component1(): kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.assembly/DeviceInstanceSpec> // space.kscience.krig.assembly/DeviceTopologySpec.component1|component1(){}[0]
+    final fun copy(kotlin.collections/Map<space.kscience.dataforge.names/Name, space.kscience.krig.assembly/DeviceInstanceSpec> = ...): space.kscience.krig.assembly/DeviceTopologySpec // space.kscience.krig.assembly/DeviceTopologySpec.copy|copy(kotlin.collections.Map<space.kscience.dataforge.names.Name,space.kscience.krig.assembly.DeviceInstanceSpec>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.assembly/DeviceTopologySpec.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.assembly/DeviceTopologySpec.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.assembly/DeviceTopologySpec.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.assembly/DeviceTopologySpec> { // space.kscience.krig.assembly/DeviceTopologySpec.$serializer|null[0]
+        final val descriptor // space.kscience.krig.assembly/DeviceTopologySpec.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.assembly/DeviceTopologySpec.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.assembly/DeviceTopologySpec.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.assembly/DeviceTopologySpec // space.kscience.krig.assembly/DeviceTopologySpec.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.assembly/DeviceTopologySpec) // space.kscience.krig.assembly/DeviceTopologySpec.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.assembly.DeviceTopologySpec){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.assembly/DeviceTopologySpec.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.assembly/DeviceTopologySpec.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.assembly/DeviceTopologySpec> // space.kscience.krig.assembly/DeviceTopologySpec.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.assembly/InMemoryTagTableReader : space.kscience.krig.assembly/AcquisitionSourceReader, space.kscience.krig.assembly/TagTableSampleWriter { // space.kscience.krig.assembly/InMemoryTagTableReader|null[0]
     constructor <init>(kotlin.collections/Map<space.kscience.krig.assembly/TagTableAddress, space.kscience.krig.api.data/ObservedValue<space.kscience.dataforge.meta/Meta?>> = ..., kotlin.time/Clock = ..., space.kscience.krig.api.data/DataQuality = ...) // space.kscience.krig.assembly/InMemoryTagTableReader.<init>|<init>(kotlin.collections.Map<space.kscience.krig.assembly.TagTableAddress,space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>>;kotlin.time.Clock;space.kscience.krig.api.data.DataQuality){}[0]
 
@@ -607,6 +699,8 @@ final val space.kscience.krig.assembly/outputSuffixes // space.kscience.krig.ass
     final fun (space.kscience.krig.assembly/ReductionSpec).<get-outputSuffixes>(): kotlin.collections/List<space.kscience.dataforge.names/Name> // space.kscience.krig.assembly/outputSuffixes.<get-outputSuffixes>|<get-outputSuffixes>@space.kscience.krig.assembly.ReductionSpec(){}[0]
 
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/asSerializationContributor(): space.kscience.krig.api.serialization/SerializationContributor // space.kscience.krig.assembly/asSerializationContributor|asSerializationContributor@space.kscience.dataforge.context.Context(){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/assembleDeviceTopology(kotlin/String, space.kscience.krig.assembly/DeviceTopologySpec): space.kscience.krig.core.runtime/DeviceGroup // space.kscience.krig.assembly/assembleDeviceTopology|assembleDeviceTopology@space.kscience.dataforge.context.Context(kotlin.String;space.kscience.krig.assembly.DeviceTopologySpec){}[0]
+final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/assembleDeviceTopology(space.kscience.dataforge.names/Name, space.kscience.krig.assembly/DeviceTopologySpec): space.kscience.krig.core.runtime/DeviceGroup // space.kscience.krig.assembly/assembleDeviceTopology|assembleDeviceTopology@space.kscience.dataforge.context.Context(space.kscience.dataforge.names.Name;space.kscience.krig.assembly.DeviceTopologySpec){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/deviceCatalog(): space.kscience.krig.assembly/DeviceCatalog // space.kscience.krig.assembly/deviceCatalog|deviceCatalog@space.kscience.dataforge.context.Context(){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/deviceFactories(): space.kscience.krig.assembly/DeviceFactoryPlugin // space.kscience.krig.assembly/deviceFactories|deviceFactories@space.kscience.dataforge.context.Context(){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/findFactory(space.kscience.dataforge.names/Name): space.kscience.krig.api.factory/DeviceFactory<*, *>? // space.kscience.krig.assembly/findFactory|findFactory@space.kscience.dataforge.context.Context(space.kscience.dataforge.names.Name){}[0]
@@ -616,6 +710,7 @@ final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembl
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/metaDeviceGroup(kotlin/String, space.kscience.dataforge.meta/Meta): space.kscience.krig.core.runtime/DeviceGroup // space.kscience.krig.assembly/metaDeviceGroup|metaDeviceGroup@space.kscience.dataforge.context.Context(kotlin.String;space.kscience.dataforge.meta.Meta){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/metaDeviceGroup(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta/Meta): space.kscience.krig.core.runtime/DeviceGroup // space.kscience.krig.assembly/metaDeviceGroup|metaDeviceGroup@space.kscience.dataforge.context.Context(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.Meta){}[0]
 final fun (space.kscience.dataforge.context/Context).space.kscience.krig.assembly/registerManifests(kotlin.collections/Iterable<space.kscience.krig.core.contracts/DeviceManifest>) // space.kscience.krig.assembly/registerManifests|registerManifests@space.kscience.dataforge.context.Context(kotlin.collections.Iterable<space.kscience.krig.core.contracts.DeviceManifest>){}[0]
+final fun (space.kscience.dataforge.meta/Meta).space.kscience.krig.assembly/toDeviceTopologySpec(): space.kscience.krig.assembly/DeviceTopologySpec // space.kscience.krig.assembly/toDeviceTopologySpec|toDeviceTopologySpec@space.kscience.dataforge.meta.Meta(){}[0]
 final fun (space.kscience.dataforge.names/Name).space.kscience.krig.assembly/asAcquisitionTopologyPath(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/asAcquisitionTopologyPath|asAcquisitionTopologyPath@space.kscience.dataforge.names.Name(){}[0]
 final fun (space.kscience.dataforge.names/Name).space.kscience.krig.assembly/toAcquisitionSourceId(): space.kscience.dataforge.names/Name // space.kscience.krig.assembly/toAcquisitionSourceId|toAcquisitionSourceId@space.kscience.dataforge.names.Name(){}[0]
 final fun (space.kscience.krig.assembly/AcquisitionRunner).space.kscience.krig.assembly/observations(space.kscience.krig.core.operations/ClockState = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.assembly/SamplingObservation<space.kscience.krig.assembly/AcquisitionTagSpec>> // space.kscience.krig.assembly/observations|observations@space.kscience.krig.assembly.AcquisitionRunner(space.kscience.krig.core.operations.ClockState){}[0]
