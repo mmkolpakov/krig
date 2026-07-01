@@ -141,6 +141,77 @@ class PipelineExecutorTest {
     }
 
     @Test
+    fun resourceArbitrationRejectsBeforeLockAcquisition() = runTest {
+        val lock = ResourceLock("bus".asName())
+        val descriptor = doubleDescriptor()
+        val fault = InvalidStateFault(operation = "arbitration-test")
+        var seenRequest: ResourceArbitrationRequest? = null
+        var terminalCalled = false
+        val execute = compileOperationExecutor(
+            gates = emptyList(),
+            observers = emptyList(),
+            registry = ResourceLockRegistry(),
+        )
+        val plan = OperationPlan(
+            context = OperationContext(OperationKinds.Read, descriptor.name, descriptor),
+            policy = OperationPolicy(
+                locks = listOf(lock),
+                resourceArbitration = ResourceArbitrationPolicy { request ->
+                    seenRequest = request
+                    ResourceArbitrationDecision.Reject(fault)
+                },
+            ),
+        )
+
+        val result = execute(plan, Unit) {
+            terminalCalled = true
+            OperationOutcome.Ok(1.0)
+        }
+
+        val failure = assertIs<OperationOutcome.Fail>(result)
+        assertEquals(fault, failure.fault)
+        assertEquals(listOf(lock), seenRequest?.locks)
+        assertEquals(emptySet(), seenRequest?.heldLocks)
+        assertEquals(false, terminalCalled)
+    }
+
+    @Test
+    fun preemptionDecisionFailsClosedWithoutPreemptiveExecutor() = runTest {
+        val lock = ResourceLock("bus".asName())
+        val descriptor = doubleDescriptor()
+        var terminalCalled = false
+        val execute = compileOperationExecutor(
+            gates = emptyList(),
+            observers = emptyList(),
+            registry = ResourceLockRegistry(),
+        )
+        val plan = OperationPlan(
+            context = OperationContext(OperationKinds.Write, descriptor.name, descriptor),
+            policy = OperationPolicy(
+                locks = listOf(lock),
+                resourceArbitration = ResourceArbitrationPolicy {
+                    ResourceArbitrationDecision.Preempt(
+                        ResourcePreemptionPlan(
+                            resources = setOf(lock.resourceName),
+                            reason = "emergency stop",
+                        ),
+                    )
+                },
+            ),
+        )
+
+        val result = execute(plan, Unit) {
+            terminalCalled = true
+            OperationOutcome.Ok(1.0)
+        }
+
+        val failure = assertIs<OperationOutcome.Fail>(result)
+        val fault = assertIs<GenericOperationFault>(failure.fault)
+        assertEquals(OperationFaultTypes.InvalidState, fault.faultType)
+        assertEquals(false, terminalCalled)
+    }
+
+    @Test
     fun retryDoesNotRetryNonRecoverableFaults() = runTest {
         var attempts = 0
         val result = withIoRetry(RetryPolicy(maxAttempts = 1_000_000, initialDelay = 10.milliseconds)) {

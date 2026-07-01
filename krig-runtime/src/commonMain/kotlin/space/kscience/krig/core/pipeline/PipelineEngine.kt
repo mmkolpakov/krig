@@ -93,12 +93,14 @@ internal class PipelineEngine(
                 timeout = opSpec.defaultTimeout,
                 retry = opSpec.defaultRetry,
                 locks = descriptor.requiredLocks,
+                resourceArbitration = opSpec.resourceArbitration,
             )
         } else {
             OperationPolicy(
                 timeout = descriptor.timeout ?: opSpec.defaultTimeout,
                 retry = descriptor.retryPolicy ?: opSpec.defaultRetry,
                 locks = descriptor.requiredLocks,
+                resourceArbitration = opSpec.resourceArbitration,
             )
         }
 
@@ -370,6 +372,7 @@ internal class PipelineEngine(
             timeout = timeout,
             retry = retry,
             locks = descriptors.flatMap { it.requiredLocks },
+            resourceArbitration = opSpec.resourceArbitration,
         )
     }
 }

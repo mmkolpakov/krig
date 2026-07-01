@@ -196,6 +196,7 @@ public final class space/kscience/krig/core/pipeline/PipelineBuilder : space/ksc
 	public fun register (Lspace/kscience/krig/core/hook/Hook;Ljava/lang/Object;)Lspace/kscience/krig/core/hook/HookRegistration;
 	public final fun registerCapability (Lspace/kscience/krig/core/capabilities/Capability;)V
 	public final fun registerCapability (Lspace/kscience/krig/core/capabilities/CapabilityKey;Lspace/kscience/krig/core/capabilities/Capability;)V
+	public final fun resourceArbitration-vMaDWvQ (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;)V
 	public final fun retry-vMaDWvQ (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;)V
 	public final fun suppressDescriptorQos (Z)V
 	public static synthetic fun suppressDescriptorQos$default (Lspace/kscience/krig/core/pipeline/PipelineBuilder;ZILjava/lang/Object;)V

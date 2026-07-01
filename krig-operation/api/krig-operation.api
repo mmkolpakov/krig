@@ -562,8 +562,8 @@ public abstract interface class space/kscience/krig/core/pipeline/OperationObser
 
 public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
 	public static final field Companion Lspace/kscience/krig/core/pipeline/OperationPipelineSpec$Companion;
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
 	public final fun component3-FghU774 ()Lkotlin/time/Duration;
@@ -571,8 +571,9 @@ public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
 	public final fun component5-FghU774 ()Lkotlin/time/Duration;
 	public final fun component6 ()Z
 	public final fun component7 ()Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
-	public final fun copy-pQyb5r8 (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
-	public static synthetic fun copy-pQyb5r8$default (Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public final fun component8 ()Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;
+	public final fun copy-2Fl6D7E (Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+	public static synthetic fun copy-2Fl6D7E$default (Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;Ljava/util/List;Ljava/util/List;Lkotlin/time/Duration;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;Lkotlin/time/Duration;ZLspace/kscience/krig/core/pipeline/BatchExecutionMode;Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBatchExecutionMode ()Lspace/kscience/krig/core/pipeline/BatchExecutionMode;
 	public final fun getDefaultLatencyBudget-FghU774 ()Lkotlin/time/Duration;
@@ -580,6 +581,7 @@ public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
 	public final fun getDefaultTimeout-FghU774 ()Lkotlin/time/Duration;
 	public final fun getGates ()Ljava/util/List;
 	public final fun getObservers ()Ljava/util/List;
+	public final fun getResourceArbitration ()Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;
 	public final fun getSuppressDescriptorQos ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -587,5 +589,77 @@ public final class space/kscience/krig/core/pipeline/OperationPipelineSpec {
 
 public final class space/kscience/krig/core/pipeline/OperationPipelineSpec$Companion {
 	public final fun getEmpty ()Lspace/kscience/krig/core/pipeline/OperationPipelineSpec;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/ResourceArbitrationDecision {
+}
+
+public final class space/kscience/krig/core/pipeline/ResourceArbitrationDecision$Acquire : space/kscience/krig/core/pipeline/ResourceArbitrationDecision {
+	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Acquire;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/ResourceArbitrationDecision$Preempt : space/kscience/krig/core/pipeline/ResourceArbitrationDecision {
+	public fun <init> (Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;)V
+	public final fun component1 ()Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;
+	public final fun copy (Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Preempt;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Preempt;Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Preempt;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPlan ()Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/ResourceArbitrationDecision$Reject : space/kscience/krig/core/pipeline/ResourceArbitrationDecision {
+	public fun <init> (Lspace/kscience/krig/api/faults/OperationFault;)V
+	public final fun component1 ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun copy (Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Reject;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Reject;Lspace/kscience/krig/api/faults/OperationFault;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision$Reject;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/ResourceArbitrationPolicies {
+	public static final field INSTANCE Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicies;
+	public final fun getNonPreemptive ()Lspace/kscience/krig/core/pipeline/ResourceArbitrationPolicy;
+}
+
+public abstract interface class space/kscience/krig/core/pipeline/ResourceArbitrationPolicy {
+	public abstract fun arbitrate (Lspace/kscience/krig/core/pipeline/ResourceArbitrationRequest;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationDecision;
+}
+
+public final class space/kscience/krig/core/pipeline/ResourceArbitrationRequest {
+	public fun <init> (Lspace/kscience/krig/core/pipeline/OperationContext;Ljava/util/List;Ljava/util/Set;)V
+	public final fun component1 ()Lspace/kscience/krig/core/pipeline/OperationContext;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/util/Set;
+	public final fun copy (Lspace/kscience/krig/core/pipeline/OperationContext;Ljava/util/List;Ljava/util/Set;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationRequest;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/pipeline/ResourceArbitrationRequest;Lspace/kscience/krig/core/pipeline/OperationContext;Ljava/util/List;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/ResourceArbitrationRequest;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContext ()Lspace/kscience/krig/core/pipeline/OperationContext;
+	public final fun getHeldLocks ()Ljava/util/Set;
+	public final fun getLocks ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/pipeline/ResourcePreemptionPlan {
+	public fun <init> (Ljava/util/Set;Ljava/lang/String;Z)V
+	public synthetic fun <init> (Ljava/util/Set;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Z
+	public final fun copy (Ljava/util/Set;Ljava/lang/String;Z)Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;Ljava/util/Set;Ljava/lang/String;ZILjava/lang/Object;)Lspace/kscience/krig/core/pipeline/ResourcePreemptionPlan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public final fun getRequiresSafeState ()Z
+	public final fun getResources ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 

@@ -45,6 +45,7 @@ public data class OperationPolicy(
     public val timeout: Duration? = null,
     public val retry: RetryPolicy? = null,
     public val locks: List<ResourceLock> = emptyList(),
+    public val resourceArbitration: ResourceArbitrationPolicy = ResourceArbitrationPolicies.NonPreemptive,
 )
 
 /**
@@ -106,6 +107,8 @@ public data class OperationPipelineSpec(
     public val suppressDescriptorQos: Boolean = false,
     /** Batch service mode for this kind; drives whole-batch timeout aggregation. */
     public val batchExecutionMode: BatchExecutionMode = BatchExecutionMode.Sequential,
+    /** Runtime resource arbitration. Default keeps ordinary non-preemptive lock acquisition. */
+    public val resourceArbitration: ResourceArbitrationPolicy = ResourceArbitrationPolicies.NonPreemptive,
 ) {
     public companion object {
         public val Empty: OperationPipelineSpec = OperationPipelineSpec()

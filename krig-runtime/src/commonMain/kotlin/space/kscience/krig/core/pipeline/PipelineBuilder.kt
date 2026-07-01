@@ -34,6 +34,7 @@ public class PipelineBuilder : HookRegistry {
         val retry: RetryPolicy? = null,
         val latencyBudget: Duration? = null,
         val batchExecutionMode: BatchExecutionMode = BatchExecutionMode.Sequential,
+        val resourceArbitration: ResourceArbitrationPolicy = ResourceArbitrationPolicies.NonPreemptive,
     )
 
     private val hookRegistry: HookRegistry = HookRegistry.buffered()
@@ -118,6 +119,11 @@ public class PipelineBuilder : HookRegistry {
         updatePolicy(kind) { it.copy(batchExecutionMode = mode) }
     }
 
+    /** Configures runtime resource arbitration for [kind]. Default is non-preemptive FIFO locking. */
+    public fun resourceArbitration(kind: OperationKind, policy: ResourceArbitrationPolicy) {
+        updatePolicy(kind) { it.copy(resourceArbitration = policy) }
+    }
+
     @InternalKrigApi
     public fun prependGates(kind: OperationKind, values: List<OperationGate>) {
         if (values.isNotEmpty()) gates.update { it.prepend(kind, values) }
@@ -169,6 +175,7 @@ public class PipelineBuilder : HookRegistry {
             defaultLatencyBudget = policy?.latencyBudget,
             suppressDescriptorQos = suppressDescriptorQosRef.load(),
             batchExecutionMode = policy?.batchExecutionMode ?: BatchExecutionMode.Sequential,
+            resourceArbitration = policy?.resourceArbitration ?: ResourceArbitrationPolicies.NonPreemptive,
         )
     }
 

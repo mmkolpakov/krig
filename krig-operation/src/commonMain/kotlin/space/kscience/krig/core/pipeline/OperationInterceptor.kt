@@ -2,6 +2,11 @@
 
 package space.kscience.krig.core.pipeline
 
+import kotlinx.coroutines.currentCoroutineContext
+import space.kscience.dataforge.meta.Meta
+import space.kscience.krig.api.faults.GenericOperationFault
+import space.kscience.krig.api.faults.OperationFaultDetails
+import space.kscience.krig.api.faults.OperationFaultTypes
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.operations.ResourceLockRegistry
@@ -95,8 +100,22 @@ public class LocksInterceptor(private val registry: ResourceLockRegistry) : Oper
         plan: OperationPlan,
         payload: Any?,
         proceed: OperationProceed,
-    ): OperationOutcome<Any?> =
-        acquireAllLocks(registry, plan.policy.locks) { proceed(payload) }
+    ): OperationOutcome<Any?> {
+        val heldLocks = currentCoroutineContext()[HeldResourceLocks]?.names.orEmpty()
+        val decision = plan.policy.resourceArbitration.arbitrate(
+            ResourceArbitrationRequest(plan.context, plan.policy.locks, heldLocks),
+        )
+        return when (decision) {
+            ResourceArbitrationDecision.Acquire ->
+                acquireAllLocks(registry, plan.policy.locks) { proceed(payload) }
+
+            is ResourceArbitrationDecision.Reject ->
+                OperationOutcome.Fail(decision.fault)
+
+            is ResourceArbitrationDecision.Preempt ->
+                OperationOutcome.Fail(preemptionUnsupportedFault(plan.context, decision.plan))
+        }
+    }
 }
 
 /**
@@ -127,3 +146,18 @@ public fun List<OperationInterceptor>.replace(
     replacement: OperationInterceptor,
 ): List<OperationInterceptor> =
     map { if (it.key == key) replacement else it }
+
+private fun preemptionUnsupportedFault(
+    context: OperationContext,
+    plan: ResourcePreemptionPlan,
+): GenericOperationFault =
+    GenericOperationFault(
+        faultType = OperationFaultTypes.InvalidState,
+        message = "Resource preemption is not active for operation '${context.name}'.",
+        details = Meta {
+            OperationFaultDetails.OPERATION put context.name.toString()
+            "resources" put plan.resources.joinToString(",") { it.toString() }
+            "reason" put plan.reason
+            "requiresSafeState" put plan.requiresSafeState.toString()
+        },
+    )

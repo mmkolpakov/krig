@@ -38,6 +38,10 @@ abstract fun interface space.kscience.krig.core.pipeline/OperationObserver { // 
     abstract suspend fun observe(space.kscience.krig.core.pipeline/OperationContext, kotlin/Long, space.kscience.krig.api.faults/OperationFault?) // space.kscience.krig.core.pipeline/OperationObserver.observe|observe(space.kscience.krig.core.pipeline.OperationContext;kotlin.Long;space.kscience.krig.api.faults.OperationFault?){}[0]
 }
 
+abstract fun interface space.kscience.krig.core.pipeline/ResourceArbitrationPolicy { // space.kscience.krig.core.pipeline/ResourceArbitrationPolicy|null[0]
+    abstract fun arbitrate(space.kscience.krig.core.pipeline/ResourceArbitrationRequest): space.kscience.krig.core.pipeline/ResourceArbitrationDecision // space.kscience.krig.core.pipeline/ResourceArbitrationPolicy.arbitrate|arbitrate(space.kscience.krig.core.pipeline.ResourceArbitrationRequest){}[0]
+}
+
 abstract interface space.kscience.krig.api.faults/OperationFault : space.kscience.dataforge.meta/MetaRepr { // space.kscience.krig.api.faults/OperationFault|null[0]
     abstract val faultType // space.kscience.krig.api.faults/OperationFault.faultType|{}faultType[0]
         abstract fun <get-faultType>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.faults/OperationFault.faultType.<get-faultType>|<get-faultType>(){}[0]
@@ -121,6 +125,40 @@ sealed interface <#A: out kotlin/Any?> space.kscience.krig.api.result/OperationO
 
         final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<space.kscience.krig.api.result/OperationOutcome<#A2>> // space.kscience.krig.api.result/OperationOutcome.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
         final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.api.result/OperationOutcome.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+sealed interface space.kscience.krig.core.pipeline/ResourceArbitrationDecision { // space.kscience.krig.core.pipeline/ResourceArbitrationDecision|null[0]
+    final class Preempt : space.kscience.krig.core.pipeline/ResourceArbitrationDecision { // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt|null[0]
+        constructor <init>(space.kscience.krig.core.pipeline/ResourcePreemptionPlan) // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.<init>|<init>(space.kscience.krig.core.pipeline.ResourcePreemptionPlan){}[0]
+
+        final val plan // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.plan|{}plan[0]
+            final fun <get-plan>(): space.kscience.krig.core.pipeline/ResourcePreemptionPlan // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.plan.<get-plan>|<get-plan>(){}[0]
+
+        final fun component1(): space.kscience.krig.core.pipeline/ResourcePreemptionPlan // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.component1|component1(){}[0]
+        final fun copy(space.kscience.krig.core.pipeline/ResourcePreemptionPlan = ...): space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.copy|copy(space.kscience.krig.core.pipeline.ResourcePreemptionPlan){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Preempt.toString|toString(){}[0]
+    }
+
+    final class Reject : space.kscience.krig.core.pipeline/ResourceArbitrationDecision { // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject|null[0]
+        constructor <init>(space.kscience.krig.api.faults/OperationFault) // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.<init>|<init>(space.kscience.krig.api.faults.OperationFault){}[0]
+
+        final val fault // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.fault|{}fault[0]
+            final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.fault.<get-fault>|<get-fault>(){}[0]
+
+        final fun component1(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.component1|component1(){}[0]
+        final fun copy(space.kscience.krig.api.faults/OperationFault = ...): space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.copy|copy(space.kscience.krig.api.faults.OperationFault){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Reject.toString|toString(){}[0]
+    }
+
+    final object Acquire : space.kscience.krig.core.pipeline/ResourceArbitrationDecision { // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Acquire|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Acquire.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Acquire.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/ResourceArbitrationDecision.Acquire.toString|toString(){}[0]
     }
 }
 
@@ -431,7 +469,7 @@ final class space.kscience.krig.core.pipeline/OperationInterceptorKey { // space
 }
 
 final class space.kscience.krig.core.pipeline/OperationPipelineSpec { // space.kscience.krig.core.pipeline/OperationPipelineSpec|null[0]
-    constructor <init>(kotlin.collections/List<space.kscience.krig.core.pipeline/OperationGate> = ..., kotlin.collections/List<space.kscience.krig.core.pipeline/OperationObserver> = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.descriptors.attributes/RetryPolicy? = ..., kotlin.time/Duration? = ..., kotlin/Boolean = ..., space.kscience.krig.core.pipeline/BatchExecutionMode = ...) // space.kscience.krig.core.pipeline/OperationPipelineSpec.<init>|<init>(kotlin.collections.List<space.kscience.krig.core.pipeline.OperationGate>;kotlin.collections.List<space.kscience.krig.core.pipeline.OperationObserver>;kotlin.time.Duration?;space.kscience.krig.api.descriptors.attributes.RetryPolicy?;kotlin.time.Duration?;kotlin.Boolean;space.kscience.krig.core.pipeline.BatchExecutionMode){}[0]
+    constructor <init>(kotlin.collections/List<space.kscience.krig.core.pipeline/OperationGate> = ..., kotlin.collections/List<space.kscience.krig.core.pipeline/OperationObserver> = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.descriptors.attributes/RetryPolicy? = ..., kotlin.time/Duration? = ..., kotlin/Boolean = ..., space.kscience.krig.core.pipeline/BatchExecutionMode = ..., space.kscience.krig.core.pipeline/ResourceArbitrationPolicy = ...) // space.kscience.krig.core.pipeline/OperationPipelineSpec.<init>|<init>(kotlin.collections.List<space.kscience.krig.core.pipeline.OperationGate>;kotlin.collections.List<space.kscience.krig.core.pipeline.OperationObserver>;kotlin.time.Duration?;space.kscience.krig.api.descriptors.attributes.RetryPolicy?;kotlin.time.Duration?;kotlin.Boolean;space.kscience.krig.core.pipeline.BatchExecutionMode;space.kscience.krig.core.pipeline.ResourceArbitrationPolicy){}[0]
 
     final val batchExecutionMode // space.kscience.krig.core.pipeline/OperationPipelineSpec.batchExecutionMode|{}batchExecutionMode[0]
         final fun <get-batchExecutionMode>(): space.kscience.krig.core.pipeline/BatchExecutionMode // space.kscience.krig.core.pipeline/OperationPipelineSpec.batchExecutionMode.<get-batchExecutionMode>|<get-batchExecutionMode>(){}[0]
@@ -445,6 +483,8 @@ final class space.kscience.krig.core.pipeline/OperationPipelineSpec { // space.k
         final fun <get-gates>(): kotlin.collections/List<space.kscience.krig.core.pipeline/OperationGate> // space.kscience.krig.core.pipeline/OperationPipelineSpec.gates.<get-gates>|<get-gates>(){}[0]
     final val observers // space.kscience.krig.core.pipeline/OperationPipelineSpec.observers|{}observers[0]
         final fun <get-observers>(): kotlin.collections/List<space.kscience.krig.core.pipeline/OperationObserver> // space.kscience.krig.core.pipeline/OperationPipelineSpec.observers.<get-observers>|<get-observers>(){}[0]
+    final val resourceArbitration // space.kscience.krig.core.pipeline/OperationPipelineSpec.resourceArbitration|{}resourceArbitration[0]
+        final fun <get-resourceArbitration>(): space.kscience.krig.core.pipeline/ResourceArbitrationPolicy // space.kscience.krig.core.pipeline/OperationPipelineSpec.resourceArbitration.<get-resourceArbitration>|<get-resourceArbitration>(){}[0]
     final val suppressDescriptorQos // space.kscience.krig.core.pipeline/OperationPipelineSpec.suppressDescriptorQos|{}suppressDescriptorQos[0]
         final fun <get-suppressDescriptorQos>(): kotlin/Boolean // space.kscience.krig.core.pipeline/OperationPipelineSpec.suppressDescriptorQos.<get-suppressDescriptorQos>|<get-suppressDescriptorQos>(){}[0]
 
@@ -455,7 +495,8 @@ final class space.kscience.krig.core.pipeline/OperationPipelineSpec { // space.k
     final fun component5(): kotlin.time/Duration? // space.kscience.krig.core.pipeline/OperationPipelineSpec.component5|component5(){}[0]
     final fun component6(): kotlin/Boolean // space.kscience.krig.core.pipeline/OperationPipelineSpec.component6|component6(){}[0]
     final fun component7(): space.kscience.krig.core.pipeline/BatchExecutionMode // space.kscience.krig.core.pipeline/OperationPipelineSpec.component7|component7(){}[0]
-    final fun copy(kotlin.collections/List<space.kscience.krig.core.pipeline/OperationGate> = ..., kotlin.collections/List<space.kscience.krig.core.pipeline/OperationObserver> = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.descriptors.attributes/RetryPolicy? = ..., kotlin.time/Duration? = ..., kotlin/Boolean = ..., space.kscience.krig.core.pipeline/BatchExecutionMode = ...): space.kscience.krig.core.pipeline/OperationPipelineSpec // space.kscience.krig.core.pipeline/OperationPipelineSpec.copy|copy(kotlin.collections.List<space.kscience.krig.core.pipeline.OperationGate>;kotlin.collections.List<space.kscience.krig.core.pipeline.OperationObserver>;kotlin.time.Duration?;space.kscience.krig.api.descriptors.attributes.RetryPolicy?;kotlin.time.Duration?;kotlin.Boolean;space.kscience.krig.core.pipeline.BatchExecutionMode){}[0]
+    final fun component8(): space.kscience.krig.core.pipeline/ResourceArbitrationPolicy // space.kscience.krig.core.pipeline/OperationPipelineSpec.component8|component8(){}[0]
+    final fun copy(kotlin.collections/List<space.kscience.krig.core.pipeline/OperationGate> = ..., kotlin.collections/List<space.kscience.krig.core.pipeline/OperationObserver> = ..., kotlin.time/Duration? = ..., space.kscience.krig.api.descriptors.attributes/RetryPolicy? = ..., kotlin.time/Duration? = ..., kotlin/Boolean = ..., space.kscience.krig.core.pipeline/BatchExecutionMode = ..., space.kscience.krig.core.pipeline/ResourceArbitrationPolicy = ...): space.kscience.krig.core.pipeline/OperationPipelineSpec // space.kscience.krig.core.pipeline/OperationPipelineSpec.copy|copy(kotlin.collections.List<space.kscience.krig.core.pipeline.OperationGate>;kotlin.collections.List<space.kscience.krig.core.pipeline.OperationObserver>;kotlin.time.Duration?;space.kscience.krig.api.descriptors.attributes.RetryPolicy?;kotlin.time.Duration?;kotlin.Boolean;space.kscience.krig.core.pipeline.BatchExecutionMode;space.kscience.krig.core.pipeline.ResourceArbitrationPolicy){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/OperationPipelineSpec.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/OperationPipelineSpec.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/OperationPipelineSpec.toString|toString(){}[0]
@@ -464,6 +505,44 @@ final class space.kscience.krig.core.pipeline/OperationPipelineSpec { // space.k
         final val Empty // space.kscience.krig.core.pipeline/OperationPipelineSpec.Companion.Empty|{}Empty[0]
             final fun <get-Empty>(): space.kscience.krig.core.pipeline/OperationPipelineSpec // space.kscience.krig.core.pipeline/OperationPipelineSpec.Companion.Empty.<get-Empty>|<get-Empty>(){}[0]
     }
+}
+
+final class space.kscience.krig.core.pipeline/ResourceArbitrationRequest { // space.kscience.krig.core.pipeline/ResourceArbitrationRequest|null[0]
+    constructor <init>(space.kscience.krig.core.pipeline/OperationContext, kotlin.collections/List<space.kscience.krig.api.descriptors.attributes/ResourceLock>, kotlin.collections/Set<space.kscience.dataforge.names/Name>) // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.<init>|<init>(space.kscience.krig.core.pipeline.OperationContext;kotlin.collections.List<space.kscience.krig.api.descriptors.attributes.ResourceLock>;kotlin.collections.Set<space.kscience.dataforge.names.Name>){}[0]
+
+    final val context // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.context|{}context[0]
+        final fun <get-context>(): space.kscience.krig.core.pipeline/OperationContext // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.context.<get-context>|<get-context>(){}[0]
+    final val heldLocks // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.heldLocks|{}heldLocks[0]
+        final fun <get-heldLocks>(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.heldLocks.<get-heldLocks>|<get-heldLocks>(){}[0]
+    final val locks // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.locks|{}locks[0]
+        final fun <get-locks>(): kotlin.collections/List<space.kscience.krig.api.descriptors.attributes/ResourceLock> // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.locks.<get-locks>|<get-locks>(){}[0]
+
+    final fun component1(): space.kscience.krig.core.pipeline/OperationContext // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.component1|component1(){}[0]
+    final fun component2(): kotlin.collections/List<space.kscience.krig.api.descriptors.attributes/ResourceLock> // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.component2|component2(){}[0]
+    final fun component3(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.component3|component3(){}[0]
+    final fun copy(space.kscience.krig.core.pipeline/OperationContext = ..., kotlin.collections/List<space.kscience.krig.api.descriptors.attributes/ResourceLock> = ..., kotlin.collections/Set<space.kscience.dataforge.names/Name> = ...): space.kscience.krig.core.pipeline/ResourceArbitrationRequest // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.copy|copy(space.kscience.krig.core.pipeline.OperationContext;kotlin.collections.List<space.kscience.krig.api.descriptors.attributes.ResourceLock>;kotlin.collections.Set<space.kscience.dataforge.names.Name>){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/ResourceArbitrationRequest.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.core.pipeline/ResourcePreemptionPlan { // space.kscience.krig.core.pipeline/ResourcePreemptionPlan|null[0]
+    constructor <init>(kotlin.collections/Set<space.kscience.dataforge.names/Name>, kotlin/String, kotlin/Boolean = ...) // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.<init>|<init>(kotlin.collections.Set<space.kscience.dataforge.names.Name>;kotlin.String;kotlin.Boolean){}[0]
+
+    final val reason // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.reason|{}reason[0]
+        final fun <get-reason>(): kotlin/String // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.reason.<get-reason>|<get-reason>(){}[0]
+    final val requiresSafeState // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.requiresSafeState|{}requiresSafeState[0]
+        final fun <get-requiresSafeState>(): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.requiresSafeState.<get-requiresSafeState>|<get-requiresSafeState>(){}[0]
+    final val resources // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.resources|{}resources[0]
+        final fun <get-resources>(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.resources.<get-resources>|<get-resources>(){}[0]
+
+    final fun component1(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.component1|component1(){}[0]
+    final fun component2(): kotlin/String // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.component2|component2(){}[0]
+    final fun component3(): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.component3|component3(){}[0]
+    final fun copy(kotlin.collections/Set<space.kscience.dataforge.names/Name> = ..., kotlin/String = ..., kotlin/Boolean = ...): space.kscience.krig.core.pipeline/ResourcePreemptionPlan // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.copy|copy(kotlin.collections.Set<space.kscience.dataforge.names.Name>;kotlin.String;kotlin.Boolean){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.core.pipeline/ResourcePreemptionPlan.toString|toString(){}[0]
 }
 
 final value class space.kscience.krig.api.data/QualityNamespace { // space.kscience.krig.api.data/QualityNamespace|null[0]
@@ -594,6 +673,11 @@ final object space.kscience.krig.core.pipeline/OperationNames { // space.kscienc
         final fun <get-BatchReadBinary>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.pipeline/OperationNames.BatchReadBinary.<get-BatchReadBinary>|<get-BatchReadBinary>(){}[0]
     final val BatchWrite // space.kscience.krig.core.pipeline/OperationNames.BatchWrite|{}BatchWrite[0]
         final fun <get-BatchWrite>(): space.kscience.dataforge.names/Name // space.kscience.krig.core.pipeline/OperationNames.BatchWrite.<get-BatchWrite>|<get-BatchWrite>(){}[0]
+}
+
+final object space.kscience.krig.core.pipeline/ResourceArbitrationPolicies { // space.kscience.krig.core.pipeline/ResourceArbitrationPolicies|null[0]
+    final val NonPreemptive // space.kscience.krig.core.pipeline/ResourceArbitrationPolicies.NonPreemptive|{}NonPreemptive[0]
+        final fun <get-NonPreemptive>(): space.kscience.krig.core.pipeline/ResourceArbitrationPolicy // space.kscience.krig.core.pipeline/ResourceArbitrationPolicies.NonPreemptive.<get-NonPreemptive>|<get-NonPreemptive>(){}[0]
 }
 
 final val space.kscience.krig.api.faults/displayType // space.kscience.krig.api.faults/displayType|@space.kscience.krig.api.faults.OperationFault{}displayType[0]
