@@ -9,7 +9,10 @@ import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
 import space.kscience.krig.storage.journal.EventJournal
 import space.kscience.krig.storage.journal.ReplayRecord
+import space.kscience.krig.storage.timeseries.DenseBooleanTimeSeriesChunk
 import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.DenseIntTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.DenseLongTimeSeriesChunk
 import space.kscience.krig.storage.timeseries.TimeSeries
 import space.kscience.krig.storage.timeseries.TimeSeriesChunk
 import space.kscience.krig.storage.timeseries.TimeSeriesSample
@@ -114,12 +117,33 @@ public inline fun <reified T> TimeSeriesChunk<T>.asChunkDataSource(
 public fun DenseDoubleTimeSeriesChunk.asChunkDataSource(
     name: Name,
     meta: Meta = Meta.EMPTY,
-): DataSource<DenseDoubleTimeSeriesChunk> {
-    val nodeName = name
-    return object : DataSource<DenseDoubleTimeSeriesChunk> {
-        override val dataType: KType = typeOf<DenseDoubleTimeSeriesChunk>()
+): DataSource<DenseDoubleTimeSeriesChunk> = chunkDataSource(this, name, meta)
 
-        override fun read(name: Name): Data<DenseDoubleTimeSeriesChunk>? =
-            if (name == Name.EMPTY || name == nodeName) Data(this@asChunkDataSource, meta) else null
+public fun DenseIntTimeSeriesChunk.asChunkDataSource(
+    name: Name,
+    meta: Meta = Meta.EMPTY,
+): DataSource<DenseIntTimeSeriesChunk> = chunkDataSource(this, name, meta)
+
+public fun DenseLongTimeSeriesChunk.asChunkDataSource(
+    name: Name,
+    meta: Meta = Meta.EMPTY,
+): DataSource<DenseLongTimeSeriesChunk> = chunkDataSource(this, name, meta)
+
+public fun DenseBooleanTimeSeriesChunk.asChunkDataSource(
+    name: Name,
+    meta: Meta = Meta.EMPTY,
+): DataSource<DenseBooleanTimeSeriesChunk> = chunkDataSource(this, name, meta)
+
+private inline fun <reified C : Any> chunkDataSource(
+    chunk: C,
+    name: Name,
+    meta: Meta,
+): DataSource<C> {
+    val nodeName = name
+    return object : DataSource<C> {
+        override val dataType: KType = typeOf<C>()
+
+        override fun read(name: Name): Data<C>? =
+            if (name == Name.EMPTY || name == nodeName) Data(chunk, meta) else null
     }
 }

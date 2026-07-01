@@ -106,8 +106,14 @@ public final class space/kscience/krig/core/dataforge/KotlinxJsonDeviceMessageFr
 }
 
 public final class space/kscience/krig/core/dataforge/KrigDataSourcesKt {
+	public static final fun asChunkDataSource (Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;
 	public static final fun asChunkDataSource (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;
+	public static final fun asChunkDataSource (Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;
+	public static final fun asChunkDataSource (Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;
+	public static synthetic fun asChunkDataSource$default (Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/dataforge/data/DataSource;
 	public static synthetic fun asChunkDataSource$default (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/dataforge/data/DataSource;
+	public static synthetic fun asChunkDataSource$default (Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/dataforge/data/DataSource;
+	public static synthetic fun asChunkDataSource$default (Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/dataforge/data/DataSource;
 	public static final fun asReplayWindowDataSource (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/dataforge/names/Name;Lkotlin/time/Instant;Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;
 	public static synthetic fun asReplayWindowDataSource$default (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/dataforge/names/Name;Lkotlin/time/Instant;Lkotlin/time/Instant;Lspace/kscience/dataforge/meta/Meta;ILjava/lang/Object;)Lspace/kscience/dataforge/data/DataSource;
 	public static final fun asSnapshotDataSource (Lspace/kscience/krig/storage/journal/EventJournal;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;)Lspace/kscience/dataforge/data/DataSource;

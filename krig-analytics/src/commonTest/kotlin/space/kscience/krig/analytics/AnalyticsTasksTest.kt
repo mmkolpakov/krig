@@ -1,5 +1,6 @@
 package space.kscience.krig.analytics
 
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import space.kscience.dataforge.data.await
 import space.kscience.dataforge.data.get
@@ -9,9 +10,17 @@ import space.kscience.dataforge.meta.get
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.dataforge.workspace.Workspace
+import space.kscience.krig.api.data.DataQuality
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.api.messages.PropertyChangedMessage
+import space.kscience.krig.api.tasks.DeviceTaskId
+import space.kscience.krig.api.tasks.DeviceTaskPhase
+import space.kscience.krig.api.tasks.DeviceTaskState
 import space.kscience.krig.core.ExperimentalKrigApi
+import space.kscience.krig.core.dataforge.asChunkDataSource
 import space.kscience.krig.storage.journal.InMemoryEventJournal
+import space.kscience.krig.storage.timeseries.DenseLongTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.DenseLongTimeSeriesRow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Instant
@@ -102,5 +111,51 @@ class AnalyticsTasksTest {
         val result = task.execute(workspace, "max".asName(), Meta.EMPTY)
 
         assertEquals(5.0, result[Name.EMPTY]?.await())
+    }
+
+    @Test
+    fun denseChunkMetricsTaskReadsPrimitiveChunkDataSource() = runTest {
+        val chunkName = "chunk".asName()
+        val metricsName = "metrics".asName()
+        val chunk = DenseLongTimeSeriesChunk(
+            series = listOf("rpm".asName(), "load".asName()),
+            rows = listOf(
+                DenseLongTimeSeriesRow(Instant.fromEpochMilliseconds(1), longArrayOf(10L, 20L)),
+                DenseLongTimeSeriesRow(
+                    Instant.fromEpochMilliseconds(2),
+                    longArrayOf(30L, 40L),
+                    qualityOverrides = mapOf(1 to DataQuality(QualitySeverity.BAD)),
+                ),
+            ),
+        )
+        val task = denseChunkMetricsTask(
+            source = chunk.asChunkDataSource(chunkName).asDataSelector(chunkName),
+            config = DenseChunkTaskConfig(input = chunkName, output = metricsName),
+        )
+
+        val result = task.execute(workspace, "dense-metrics".asName(), Meta.EMPTY)
+        val metrics = result[metricsName]?.await()
+
+        assertEquals(2, metrics?.seriesCount)
+        assertEquals(2, metrics?.rowCount)
+        assertEquals(1L, metrics?.firstTime?.toEpochMilliseconds())
+        assertEquals(2L, metrics?.lastTime?.toEpochMilliseconds())
+        assertEquals(QualitySeverity.BAD, metrics?.worstQuality?.severity)
+    }
+
+    @Test
+    fun terminalTaskAwaiterFiltersByTaskId() = runTest {
+        val wanted = DeviceTaskId("wanted")
+        val other = DeviceTaskId("other")
+        val flow = flowOf(
+            DeviceTaskState(other, "calibrate".asName(), DeviceTaskPhase.Succeeded),
+            DeviceTaskState(wanted, "calibrate".asName(), DeviceTaskPhase.Running),
+            DeviceTaskState(wanted, "calibrate".asName(), DeviceTaskPhase.Succeeded),
+        )
+
+        val terminal = flow.awaitTerminalDeviceTaskState(wanted)
+
+        assertEquals(wanted, terminal.taskId)
+        assertEquals(DeviceTaskPhase.Succeeded, terminal.phase)
     }
 }

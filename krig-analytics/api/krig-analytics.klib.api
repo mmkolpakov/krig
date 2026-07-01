@@ -6,6 +6,47 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-analytics>
+final class space.kscience.krig.analytics/DenseChunkMetrics { // space.kscience.krig.analytics/DenseChunkMetrics|null[0]
+    constructor <init>(kotlin/Int, kotlin/Int, kotlin.time/Instant?, kotlin.time/Instant?, space.kscience.krig.api.data/DataQuality) // space.kscience.krig.analytics/DenseChunkMetrics.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.time.Instant?;kotlin.time.Instant?;space.kscience.krig.api.data.DataQuality){}[0]
+
+    final val firstTime // space.kscience.krig.analytics/DenseChunkMetrics.firstTime|{}firstTime[0]
+        final fun <get-firstTime>(): kotlin.time/Instant? // space.kscience.krig.analytics/DenseChunkMetrics.firstTime.<get-firstTime>|<get-firstTime>(){}[0]
+    final val lastTime // space.kscience.krig.analytics/DenseChunkMetrics.lastTime|{}lastTime[0]
+        final fun <get-lastTime>(): kotlin.time/Instant? // space.kscience.krig.analytics/DenseChunkMetrics.lastTime.<get-lastTime>|<get-lastTime>(){}[0]
+    final val rowCount // space.kscience.krig.analytics/DenseChunkMetrics.rowCount|{}rowCount[0]
+        final fun <get-rowCount>(): kotlin/Int // space.kscience.krig.analytics/DenseChunkMetrics.rowCount.<get-rowCount>|<get-rowCount>(){}[0]
+    final val seriesCount // space.kscience.krig.analytics/DenseChunkMetrics.seriesCount|{}seriesCount[0]
+        final fun <get-seriesCount>(): kotlin/Int // space.kscience.krig.analytics/DenseChunkMetrics.seriesCount.<get-seriesCount>|<get-seriesCount>(){}[0]
+    final val worstQuality // space.kscience.krig.analytics/DenseChunkMetrics.worstQuality|{}worstQuality[0]
+        final fun <get-worstQuality>(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.analytics/DenseChunkMetrics.worstQuality.<get-worstQuality>|<get-worstQuality>(){}[0]
+
+    final fun component1(): kotlin/Int // space.kscience.krig.analytics/DenseChunkMetrics.component1|component1(){}[0]
+    final fun component2(): kotlin/Int // space.kscience.krig.analytics/DenseChunkMetrics.component2|component2(){}[0]
+    final fun component3(): kotlin.time/Instant? // space.kscience.krig.analytics/DenseChunkMetrics.component3|component3(){}[0]
+    final fun component4(): kotlin.time/Instant? // space.kscience.krig.analytics/DenseChunkMetrics.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.api.data/DataQuality // space.kscience.krig.analytics/DenseChunkMetrics.component5|component5(){}[0]
+    final fun copy(kotlin/Int = ..., kotlin/Int = ..., kotlin.time/Instant? = ..., kotlin.time/Instant? = ..., space.kscience.krig.api.data/DataQuality = ...): space.kscience.krig.analytics/DenseChunkMetrics // space.kscience.krig.analytics/DenseChunkMetrics.copy|copy(kotlin.Int;kotlin.Int;kotlin.time.Instant?;kotlin.time.Instant?;space.kscience.krig.api.data.DataQuality){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.analytics/DenseChunkMetrics.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.analytics/DenseChunkMetrics.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.analytics/DenseChunkMetrics.toString|toString(){}[0]
+}
+
+final class space.kscience.krig.analytics/DenseChunkTaskConfig { // space.kscience.krig.analytics/DenseChunkTaskConfig|null[0]
+    constructor <init>(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...) // space.kscience.krig.analytics/DenseChunkTaskConfig.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+
+    final val input // space.kscience.krig.analytics/DenseChunkTaskConfig.input|{}input[0]
+        final fun <get-input>(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskConfig.input.<get-input>|<get-input>(){}[0]
+    final val output // space.kscience.krig.analytics/DenseChunkTaskConfig.output|{}output[0]
+        final fun <get-output>(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskConfig.output.<get-output>|<get-output>(){}[0]
+
+    final fun component1(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskConfig.component1|component1(){}[0]
+    final fun component2(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskConfig.component2|component2(){}[0]
+    final fun copy(space.kscience.dataforge.names/Name = ..., space.kscience.dataforge.names/Name = ...): space.kscience.krig.analytics/DenseChunkTaskConfig // space.kscience.krig.analytics/DenseChunkTaskConfig.copy|copy(space.kscience.dataforge.names.Name;space.kscience.dataforge.names.Name){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.analytics/DenseChunkTaskConfig.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.analytics/DenseChunkTaskConfig.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.analytics/DenseChunkTaskConfig.toString|toString(){}[0]
+}
+
 final class space.kscience.krig.analytics/EventJournalReplayWindowDataSelector : space.kscience.dataforge.workspace/DataSelector<kotlin/Double> { // space.kscience.krig.analytics/EventJournalReplayWindowDataSelector|null[0]
     constructor <init>(space.kscience.krig.storage.journal/EventJournal, kotlin.time/Instant, kotlin.time/Instant, kotlin/Function1<space.kscience.krig.api.messages/DeviceMessage, kotlin/Double?>) // space.kscience.krig.analytics/EventJournalReplayWindowDataSelector.<init>|<init>(space.kscience.krig.storage.journal.EventJournal;kotlin.time.Instant;kotlin.time.Instant;kotlin.Function1<space.kscience.krig.api.messages.DeviceMessage,kotlin.Double?>){}[0]
 
@@ -74,6 +115,13 @@ final class space.kscience.krig.analytics/ReplayWindowMetrics { // space.kscienc
     final fun toString(): kotlin/String // space.kscience.krig.analytics/ReplayWindowMetrics.toString|toString(){}[0]
 }
 
+final object space.kscience.krig.analytics/DenseChunkTaskMetaKeys { // space.kscience.krig.analytics/DenseChunkTaskMetaKeys|null[0]
+    final val INPUT // space.kscience.krig.analytics/DenseChunkTaskMetaKeys.INPUT|{}INPUT[0]
+        final fun <get-INPUT>(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskMetaKeys.INPUT.<get-INPUT>|<get-INPUT>(){}[0]
+    final val OUTPUT // space.kscience.krig.analytics/DenseChunkTaskMetaKeys.OUTPUT|{}OUTPUT[0]
+        final fun <get-OUTPUT>(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/DenseChunkTaskMetaKeys.OUTPUT.<get-OUTPUT>|<get-OUTPUT>(){}[0]
+}
+
 final object space.kscience.krig.analytics/ReplayActionMetaKeys { // space.kscience.krig.analytics/ReplayActionMetaKeys|null[0]
     final val AT_MS // space.kscience.krig.analytics/ReplayActionMetaKeys.AT_MS|{}AT_MS[0]
         final fun <get-AT_MS>(): space.kscience.dataforge.names/Name // space.kscience.krig.analytics/ReplayActionMetaKeys.AT_MS.<get-AT_MS>|<get-AT_MS>(){}[0]
@@ -94,6 +142,8 @@ final object space.kscience.krig.analytics/ReplayActionMetaKeys { // space.kscie
 final fun <#A: kotlin/Any> space.kscience.krig.analytics/foldTask(space.kscience.dataforge.workspace/DataSelector<kotlin/Double>, #A, space.kscience.dataforge.meta.descriptors/MetaDescriptor? = ..., kotlin/Function1<#A, kotlin/Double> = ..., kotlin/Function2<#A, kotlin/Double, #A>): space.kscience.dataforge.workspace/Task<kotlin/Double> // space.kscience.krig.analytics/foldTask|foldTask(space.kscience.dataforge.workspace.DataSelector<kotlin.Double>;0:0;space.kscience.dataforge.meta.descriptors.MetaDescriptor?;kotlin.Function1<0:0,kotlin.Double>;kotlin.Function2<0:0,kotlin.Double,0:0>){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.dataforge.data/DataSource<#A>).space.kscience.krig.analytics/asDataSelector(space.kscience.dataforge.names/Name = ...): space.kscience.dataforge.workspace/DataSelector<#A> // space.kscience.krig.analytics/asDataSelector|asDataSelector@space.kscience.dataforge.data.DataSource<0:0>(space.kscience.dataforge.names.Name){0§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.dataforge.data/DataSource<#A>).space.kscience.krig.analytics/asSingleNodeDataTree(space.kscience.dataforge.names/Name = ...): space.kscience.dataforge.data/DataTree<#A> // space.kscience.krig.analytics/asSingleNodeDataTree|asSingleNodeDataTree@space.kscience.dataforge.data.DataSource<0:0>(space.kscience.dataforge.names.Name){0§<kotlin.Any?>}[0]
+final fun <#A: space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk> space.kscience.krig.analytics/denseChunkMetricsAction(space.kscience.krig.analytics/DenseChunkTaskConfig = ...): space.kscience.dataforge.actions/Action<#A, space.kscience.krig.analytics/DenseChunkMetrics> // space.kscience.krig.analytics/denseChunkMetricsAction|denseChunkMetricsAction(space.kscience.krig.analytics.DenseChunkTaskConfig){0§<space.kscience.krig.storage.timeseries.ColumnarTimeSeriesChunk>}[0]
+final fun <#A: space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk> space.kscience.krig.analytics/denseChunkMetricsTask(space.kscience.dataforge.workspace/DataSelector<#A>, space.kscience.krig.analytics/DenseChunkTaskConfig = ...): space.kscience.dataforge.workspace/Task<space.kscience.krig.analytics/DenseChunkMetrics> // space.kscience.krig.analytics/denseChunkMetricsTask|denseChunkMetricsTask(space.kscience.dataforge.workspace.DataSelector<0:0>;space.kscience.krig.analytics.DenseChunkTaskConfig){0§<space.kscience.krig.storage.timeseries.ColumnarTimeSeriesChunk>}[0]
 final fun space.kscience.krig.analytics/counterfactualStateAction(kotlin/Function0<space.kscience.krig.core.timetravel/Reconstructible>, kotlin/String, kotlin/Function1<space.kscience.krig.api.messages/DeviceMessage, space.kscience.krig.api.messages/DeviceMessage>, space.kscience.krig.analytics/ReplayActionConfig = ..., space.kscience.krig.api.data/DeviceSnapshot? = ...): space.kscience.dataforge.actions/Action<kotlin.collections/List<space.kscience.krig.storage.journal/ReplayRecord>, space.kscience.krig.api.data/DeviceSnapshot> // space.kscience.krig.analytics/counterfactualStateAction|counterfactualStateAction(kotlin.Function0<space.kscience.krig.core.timetravel.Reconstructible>;kotlin.String;kotlin.Function1<space.kscience.krig.api.messages.DeviceMessage,space.kscience.krig.api.messages.DeviceMessage>;space.kscience.krig.analytics.ReplayActionConfig;space.kscience.krig.api.data.DeviceSnapshot?){}[0]
 final fun space.kscience.krig.analytics/counterfactualStateTask(space.kscience.dataforge.workspace/DataSelector<kotlin.collections/List<space.kscience.krig.storage.journal/ReplayRecord>>, kotlin/Function0<space.kscience.krig.core.timetravel/Reconstructible>, kotlin/String, kotlin/Function1<space.kscience.krig.api.messages/DeviceMessage, space.kscience.krig.api.messages/DeviceMessage>, space.kscience.krig.analytics/ReplayActionConfig = ..., space.kscience.krig.api.data/DeviceSnapshot? = ...): space.kscience.dataforge.workspace/Task<space.kscience.krig.api.data/DeviceSnapshot> // space.kscience.krig.analytics/counterfactualStateTask|counterfactualStateTask(space.kscience.dataforge.workspace.DataSelector<kotlin.collections.List<space.kscience.krig.storage.journal.ReplayRecord>>;kotlin.Function0<space.kscience.krig.core.timetravel.Reconstructible>;kotlin.String;kotlin.Function1<space.kscience.krig.api.messages.DeviceMessage,space.kscience.krig.api.messages.DeviceMessage>;space.kscience.krig.analytics.ReplayActionConfig;space.kscience.krig.api.data.DeviceSnapshot?){}[0]
 final fun space.kscience.krig.analytics/meanTask(space.kscience.dataforge.workspace/DataSelector<kotlin/Double>): space.kscience.dataforge.workspace/Task<kotlin/Double> // space.kscience.krig.analytics/meanTask|meanTask(space.kscience.dataforge.workspace.DataSelector<kotlin.Double>){}[0]
@@ -103,3 +153,5 @@ final fun space.kscience.krig.analytics/replayWindowMetricsAction(space.kscience
 final fun space.kscience.krig.analytics/replayWindowMetricsTask(space.kscience.dataforge.workspace/DataSelector<kotlin.collections/List<space.kscience.krig.storage.journal/ReplayRecord>>, space.kscience.krig.analytics/ReplayActionConfig = ...): space.kscience.dataforge.workspace/Task<space.kscience.krig.analytics/ReplayWindowMetrics> // space.kscience.krig.analytics/replayWindowMetricsTask|replayWindowMetricsTask(space.kscience.dataforge.workspace.DataSelector<kotlin.collections.List<space.kscience.krig.storage.journal.ReplayRecord>>;space.kscience.krig.analytics.ReplayActionConfig){}[0]
 final fun space.kscience.krig.analytics/snapshotReductionTask(space.kscience.dataforge.workspace/DataSelector<kotlin/Double>, space.kscience.dataforge.meta.descriptors/MetaDescriptor? = ..., kotlin/Function1<kotlin.collections/List<kotlin/Double>, kotlin/Double>): space.kscience.dataforge.workspace/Task<kotlin/Double> // space.kscience.krig.analytics/snapshotReductionTask|snapshotReductionTask(space.kscience.dataforge.workspace.DataSelector<kotlin.Double>;space.kscience.dataforge.meta.descriptors.MetaDescriptor?;kotlin.Function1<kotlin.collections.List<kotlin.Double>,kotlin.Double>){}[0]
 final fun space.kscience.krig.analytics/sumTask(space.kscience.dataforge.workspace/DataSelector<kotlin/Double>): space.kscience.dataforge.workspace/Task<kotlin/Double> // space.kscience.krig.analytics/sumTask|sumTask(space.kscience.dataforge.workspace.DataSelector<kotlin.Double>){}[0]
+final suspend fun (kotlinx.coroutines.flow/Flow<space.kscience.krig.api.tasks/DeviceTaskState>).space.kscience.krig.analytics/awaitTerminalDeviceTaskState(): space.kscience.krig.api.tasks/DeviceTaskState // space.kscience.krig.analytics/awaitTerminalDeviceTaskState|awaitTerminalDeviceTaskState@kotlinx.coroutines.flow.Flow<space.kscience.krig.api.tasks.DeviceTaskState>(){}[0]
+final suspend fun (kotlinx.coroutines.flow/Flow<space.kscience.krig.api.tasks/DeviceTaskState>).space.kscience.krig.analytics/awaitTerminalDeviceTaskState(space.kscience.krig.api.tasks/DeviceTaskId): space.kscience.krig.api.tasks/DeviceTaskState // space.kscience.krig.analytics/awaitTerminalDeviceTaskState|awaitTerminalDeviceTaskState@kotlinx.coroutines.flow.Flow<space.kscience.krig.api.tasks.DeviceTaskState>(space.kscience.krig.api.tasks.DeviceTaskId){}[0]

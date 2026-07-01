@@ -7,6 +7,58 @@ public final class space/kscience/krig/analytics/AnalyticsTasksKt {
 	public static final fun sumTask (Lspace/kscience/dataforge/workspace/DataSelector;)Lspace/kscience/dataforge/workspace/Task;
 }
 
+public final class space/kscience/krig/analytics/DenseChunkMetrics {
+	public fun <init> (IILkotlin/time/Instant;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()Lkotlin/time/Instant;
+	public final fun component4 ()Lkotlin/time/Instant;
+	public final fun component5 ()Lspace/kscience/krig/api/data/DataQuality;
+	public final fun copy (IILkotlin/time/Instant;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/analytics/DenseChunkMetrics;
+	public static synthetic fun copy$default (Lspace/kscience/krig/analytics/DenseChunkMetrics;IILkotlin/time/Instant;Lkotlin/time/Instant;Lspace/kscience/krig/api/data/DataQuality;ILjava/lang/Object;)Lspace/kscience/krig/analytics/DenseChunkMetrics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFirstTime ()Lkotlin/time/Instant;
+	public final fun getLastTime ()Lkotlin/time/Instant;
+	public final fun getRowCount ()I
+	public final fun getSeriesCount ()I
+	public final fun getWorstQuality ()Lspace/kscience/krig/api/data/DataQuality;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/analytics/DenseChunkTaskConfig {
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/analytics/DenseChunkTaskConfig;
+	public static synthetic fun copy$default (Lspace/kscience/krig/analytics/DenseChunkTaskConfig;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/analytics/DenseChunkTaskConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInput ()Lspace/kscience/dataforge/names/Name;
+	public final fun getOutput ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/analytics/DenseChunkTaskMetaKeys {
+	public static final field INSTANCE Lspace/kscience/krig/analytics/DenseChunkTaskMetaKeys;
+	public final fun getINPUT ()Lspace/kscience/dataforge/names/Name;
+	public final fun getOUTPUT ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/analytics/DenseChunkWorkspaceTasksKt {
+	public static final fun denseChunkMetricsAction (Lspace/kscience/krig/analytics/DenseChunkTaskConfig;)Lspace/kscience/dataforge/actions/Action;
+	public static synthetic fun denseChunkMetricsAction$default (Lspace/kscience/krig/analytics/DenseChunkTaskConfig;ILjava/lang/Object;)Lspace/kscience/dataforge/actions/Action;
+	public static final fun denseChunkMetricsTask (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/krig/analytics/DenseChunkTaskConfig;)Lspace/kscience/dataforge/workspace/Task;
+	public static synthetic fun denseChunkMetricsTask$default (Lspace/kscience/dataforge/workspace/DataSelector;Lspace/kscience/krig/analytics/DenseChunkTaskConfig;ILjava/lang/Object;)Lspace/kscience/dataforge/workspace/Task;
+}
+
+public final class space/kscience/krig/analytics/DeviceTaskAdaptersKt {
+	public static final fun awaitTerminalDeviceTaskState (Lkotlinx/coroutines/flow/Flow;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun awaitTerminalDeviceTaskState-DoaEz3I (Lkotlinx/coroutines/flow/Flow;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public final class space/kscience/krig/analytics/EventJournalReplayWindowDataSelector : space/kscience/dataforge/workspace/DataSelector {
 	public fun <init> (Lspace/kscience/krig/storage/journal/EventJournal;Lkotlin/time/Instant;Lkotlin/time/Instant;Lkotlin/jvm/functions/Function1;)V
 	public fun select (Lspace/kscience/dataforge/workspace/Workspace;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
