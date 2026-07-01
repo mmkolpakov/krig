@@ -266,6 +266,15 @@ public final class space/kscience/krig/api/services/AllowAllAuthorizationService
 	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;
 }
 
+public final class space/kscience/krig/api/services/AuditDetailKeys {
+	public static final field INSTANCE Lspace/kscience/krig/api/services/AuditDetailKeys;
+	public final fun getCALLER_IDENTITY ()Lspace/kscience/dataforge/names/Name;
+	public final fun getCORRELATION_ID ()Lspace/kscience/dataforge/names/Name;
+	public final fun getEXECUTING_PRINCIPAL ()Lspace/kscience/dataforge/names/Name;
+	public final fun getON_BEHALF_OF ()Lspace/kscience/dataforge/names/Name;
+	public final fun getORIGIN_DEVICE ()Lspace/kscience/dataforge/names/Name;
+}
+
 public abstract interface class space/kscience/krig/api/services/AuditService : space/kscience/dataforge/context/Plugin {
 	public static final field Companion Lspace/kscience/krig/api/services/AuditService$Companion;
 	public fun getTag ()Lspace/kscience/dataforge/context/PluginTag;

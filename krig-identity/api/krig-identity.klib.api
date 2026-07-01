@@ -368,6 +368,19 @@ final object space.kscience.krig.api.context/AnonymousPrincipal : kotlinx.serial
     final fun toString(): kotlin/String // space.kscience.krig.api.context/AnonymousPrincipal.toString|toString(){}[0]
 }
 
+final object space.kscience.krig.api.services/AuditDetailKeys { // space.kscience.krig.api.services/AuditDetailKeys|null[0]
+    final val CALLER_IDENTITY // space.kscience.krig.api.services/AuditDetailKeys.CALLER_IDENTITY|{}CALLER_IDENTITY[0]
+        final fun <get-CALLER_IDENTITY>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.services/AuditDetailKeys.CALLER_IDENTITY.<get-CALLER_IDENTITY>|<get-CALLER_IDENTITY>(){}[0]
+    final val CORRELATION_ID // space.kscience.krig.api.services/AuditDetailKeys.CORRELATION_ID|{}CORRELATION_ID[0]
+        final fun <get-CORRELATION_ID>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.services/AuditDetailKeys.CORRELATION_ID.<get-CORRELATION_ID>|<get-CORRELATION_ID>(){}[0]
+    final val EXECUTING_PRINCIPAL // space.kscience.krig.api.services/AuditDetailKeys.EXECUTING_PRINCIPAL|{}EXECUTING_PRINCIPAL[0]
+        final fun <get-EXECUTING_PRINCIPAL>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.services/AuditDetailKeys.EXECUTING_PRINCIPAL.<get-EXECUTING_PRINCIPAL>|<get-EXECUTING_PRINCIPAL>(){}[0]
+    final val ON_BEHALF_OF // space.kscience.krig.api.services/AuditDetailKeys.ON_BEHALF_OF|{}ON_BEHALF_OF[0]
+        final fun <get-ON_BEHALF_OF>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.services/AuditDetailKeys.ON_BEHALF_OF.<get-ON_BEHALF_OF>|<get-ON_BEHALF_OF>(){}[0]
+    final val ORIGIN_DEVICE // space.kscience.krig.api.services/AuditDetailKeys.ORIGIN_DEVICE|{}ORIGIN_DEVICE[0]
+        final fun <get-ORIGIN_DEVICE>(): space.kscience.dataforge.names/Name // space.kscience.krig.api.services/AuditDetailKeys.ORIGIN_DEVICE.<get-ORIGIN_DEVICE>|<get-ORIGIN_DEVICE>(){}[0]
+}
+
 final val space.kscience.krig.api.context/executionContext // space.kscience.krig.api.context/executionContext|@kotlin.coroutines.CoroutineContext{}executionContext[0]
     final fun (kotlin.coroutines/CoroutineContext).<get-executionContext>(): space.kscience.krig.api.context/ExecutionContext? // space.kscience.krig.api.context/executionContext.<get-executionContext>|<get-executionContext>@kotlin.coroutines.CoroutineContext(){}[0]
 final val space.kscience.krig.api.identifiers/isSpecified // space.kscience.krig.api.identifiers/isSpecified|@space.kscience.krig.api.identifiers.CorrelationId{}isSpecified[0]

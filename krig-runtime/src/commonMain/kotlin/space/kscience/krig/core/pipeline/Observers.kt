@@ -4,18 +4,23 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 import space.kscience.dataforge.meta.Meta
+import space.kscience.krig.api.context.ExecutionContext
 import space.kscience.krig.api.context.Principal
+import space.kscience.krig.api.context.executionContext
 import space.kscience.krig.api.descriptors.attributes.latencyBudget
 import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.faults.OperationFaultDetails
 import space.kscience.krig.api.faults.displayType
 import space.kscience.krig.api.services.AuditService
+import space.kscience.krig.api.services.AuditDetailKeys
 import space.kscience.krig.api.services.IdentityProvider
+import space.kscience.krig.api.identifiers.isSpecified
 
 /**
  * Reports a violation when an operation exceeds its descriptor/default latency budget.
@@ -97,7 +102,12 @@ public class AuditObserver(
     ) {
         if (!auditService.isActive) return
         val principal = currentPipelinePrincipal(identityProvider)
-        auditService.record(principal, context.auditAction() ?: return, context.auditDetails(hostName, fault))
+        val executionContext = currentCoroutineContext().executionContext
+        auditService.record(
+            principal,
+            context.auditAction() ?: return,
+            context.auditDetails(hostName, fault, principal, executionContext),
+        )
     }
 }
 
@@ -113,7 +123,12 @@ public class BufferedAuditObserver(
         fault: OperationFault?,
     ) {
         val principal = currentPipelinePrincipal(identityProvider)
-        sink.record(principal, context.auditAction() ?: return, context.auditDetails(hostName, fault))
+        val executionContext = currentCoroutineContext().executionContext
+        sink.record(
+            principal,
+            context.auditAction() ?: return,
+            context.auditDetails(hostName, fault, principal, executionContext),
+        )
     }
 }
 
@@ -123,10 +138,28 @@ private fun OperationContext.auditAction(): String? =
         else -> null
     }
 
-private fun OperationContext.auditDetails(hostName: String, fault: OperationFault?): Meta =
+private fun OperationContext.auditDetails(
+    hostName: String,
+    fault: OperationFault?,
+    principal: Principal,
+    executionContext: ExecutionContext?,
+): Meta =
     Meta {
         OperationFaultDetails.DEVICE put hostName
         val key = if (kind == OperationKinds.Action) OperationFaultDetails.ACTION else OperationFaultDetails.PROPERTY
         key put name.toString()
+        AuditDetailKeys.EXECUTING_PRINCIPAL put principal.name
+        executionContext?.callerIdentity?.takeIf { it.isNotBlank() }?.let { identity ->
+            AuditDetailKeys.CALLER_IDENTITY put identity
+        }
+        executionContext?.onBehalfOf?.let { delegatedPrincipal ->
+            AuditDetailKeys.ON_BEHALF_OF put delegatedPrincipal.name
+        }
+        executionContext?.correlationId?.takeIf { it.isSpecified }?.let { correlationId ->
+            AuditDetailKeys.CORRELATION_ID put correlationId.id
+        }
+        executionContext?.originDevice?.let { originDevice ->
+            AuditDetailKeys.ORIGIN_DEVICE put originDevice.toString()
+        }
         if (fault != null) OperationFaultDetails.FAULT put fault.displayType
     }
