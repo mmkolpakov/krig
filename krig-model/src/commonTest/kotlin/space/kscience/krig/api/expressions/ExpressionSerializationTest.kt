@@ -25,4 +25,31 @@ class ExpressionSerializationTest {
 
         assertEquals(expression, decoded)
     }
+
+    @Test
+    fun expressionBindingsReturnUniqueExternalDependencies() {
+        val rpm = Binding("pump".asName(), "rpm".asName())
+        val pressure = Binding("pump".asName(), "pressure".asName())
+        val expression: NumericExpression = Binary(
+            operation = "add",
+            left = NAry("sum", listOf(rpm, pressure, rpm)),
+            right = Constant(1.0),
+        )
+
+        assertEquals(setOf(rpm, pressure), expression.bindings())
+    }
+
+    @Test
+    fun expressionTreeRoundTripsThroughMetaConverter() {
+        val expression: NumericExpression = Binary(
+            operation = "mul",
+            left = Binding("pump".asName(), "rpm".asName()),
+            right = Constant(0.5),
+        )
+
+        val meta = numericExpressionMetaConverter.convert(expression)
+        val decoded = numericExpressionMetaConverter.read(meta)
+
+        assertEquals(expression, decoded)
+    }
 }

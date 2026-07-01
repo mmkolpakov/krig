@@ -70,3 +70,12 @@ public data class NAry(
     public val operation: String,
     public val operands: List<NumericExpression>,
 ) : NumericExpression
+
+/** Returns every external device/property dependency referenced by this expression. */
+public fun NumericExpression.bindings(): Set<Binding> = when (this) {
+    is Binding -> setOf(this)
+    is Constant -> emptySet()
+    is Unary -> argument.bindings()
+    is Binary -> left.bindings() + right.bindings()
+    is NAry -> operands.flatMapTo(mutableSetOf()) { it.bindings() }
+}

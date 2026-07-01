@@ -576,6 +576,34 @@ final class space.kscience.krig.api.descriptors.attributes/TaskAttribute { // sp
     }
 }
 
+final class space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute { // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute|null[0]
+    constructor <init>(space.kscience.krig.api.expressions/NumericExpression) // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.<init>|<init>(space.kscience.krig.api.expressions.NumericExpression){}[0]
+
+    final val expression // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.expression|{}expression[0]
+        final fun <get-expression>(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.expression.<get-expression>|<get-expression>(){}[0]
+
+    final fun component1(): space.kscience.krig.api.expressions/NumericExpression // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.component1|component1(){}[0]
+    final fun copy(space.kscience.krig.api.expressions/NumericExpression = ...): space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.copy|copy(space.kscience.krig.api.expressions.NumericExpression){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute> { // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer|null[0]
+        final val descriptor // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute) // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute> // space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute.Companion.serializer|serializer(){}[0]
+    }
+}
+
 final class space.kscience.krig.api.descriptors/ActionDescriptor : space.kscience.krig.api.descriptors/OperationDescriptor { // space.kscience.krig.api.descriptors/ActionDescriptor|null[0]
     constructor <init>(space.kscience.dataforge.names/Name, space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.dataforge.meta.descriptors/MetaDescriptor = ..., space.kscience.attributes/Attributes = ...) // space.kscience.krig.api.descriptors/ActionDescriptor.<init>|<init>(space.kscience.dataforge.names.Name;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.attributes.Attributes){}[0]
 
@@ -1164,6 +1192,8 @@ final object space.kscience.krig.api.descriptors.attributes/OperationAttributeKe
     }
 
     final object Task : space.kscience.krig.api.descriptors/OperationAttributeKey<space.kscience.krig.api.descriptors.attributes/TaskAttribute> // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.Task|null[0]
+
+    final object VirtualProperty : space.kscience.krig.api.descriptors/OperationAttributeKey<space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute> // space.kscience.krig.api.descriptors.attributes/OperationAttributeKeys.VirtualProperty|null[0]
 }
 
 final object space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces { // space.kscience.krig.api.descriptors/KrigMetaDescriptorAttributeNamespaces|null[0]
@@ -1216,6 +1246,8 @@ final val space.kscience.krig.api.descriptors.attributes/defaultMaxRateHz // spa
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-defaultMaxRateHz>(): kotlin/Double? // space.kscience.krig.api.descriptors.attributes/defaultMaxRateHz.<get-defaultMaxRateHz>|<get-defaultMaxRateHz>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
 final val space.kscience.krig.api.descriptors.attributes/deliveryClass // space.kscience.krig.api.descriptors.attributes/deliveryClass|@space.kscience.krig.api.descriptors.OperationDescriptor{}deliveryClass[0]
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-deliveryClass>(): space.kscience.krig.api.descriptors.attributes/DeliveryClassAttribute? // space.kscience.krig.api.descriptors.attributes/deliveryClass.<get-deliveryClass>|<get-deliveryClass>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
+final val space.kscience.krig.api.descriptors.attributes/dependencyBindings // space.kscience.krig.api.descriptors.attributes/dependencyBindings|@space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute{}dependencyBindings[0]
+    final fun (space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute).<get-dependencyBindings>(): kotlin.collections/Set<space.kscience.krig.api.expressions/Binding> // space.kscience.krig.api.descriptors.attributes/dependencyBindings.<get-dependencyBindings>|<get-dependencyBindings>@space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute(){}[0]
 final val space.kscience.krig.api.descriptors.attributes/description // space.kscience.krig.api.descriptors.attributes/description|@space.kscience.krig.api.descriptors.OperationDescriptor{}description[0]
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-description>(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/description.<get-description>|<get-description>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
 final val space.kscience.krig.api.descriptors.attributes/displayMax // space.kscience.krig.api.descriptors.attributes/displayMax|@space.kscience.krig.api.descriptors.OperationDescriptor{}displayMax[0]
@@ -1254,12 +1286,17 @@ final val space.kscience.krig.api.descriptors.attributes/timeout // space.kscien
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-timeout>(): kotlin.time/Duration? // space.kscience.krig.api.descriptors.attributes/timeout.<get-timeout>|<get-timeout>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
 final val space.kscience.krig.api.descriptors.attributes/unit // space.kscience.krig.api.descriptors.attributes/unit|@space.kscience.krig.api.descriptors.OperationDescriptor{}unit[0]
     final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-unit>(): kotlin/String? // space.kscience.krig.api.descriptors.attributes/unit.<get-unit>|<get-unit>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
+final val space.kscience.krig.api.descriptors.attributes/virtualProperty // space.kscience.krig.api.descriptors.attributes/virtualProperty|@space.kscience.krig.api.descriptors.OperationDescriptor{}virtualProperty[0]
+    final fun (space.kscience.krig.api.descriptors/OperationDescriptor).<get-virtualProperty>(): space.kscience.krig.api.descriptors.attributes/VirtualPropertyAttribute? // space.kscience.krig.api.descriptors.attributes/virtualProperty.<get-virtualProperty>|<get-virtualProperty>@space.kscience.krig.api.descriptors.OperationDescriptor(){}[0]
+final val space.kscience.krig.api.expressions/numericExpressionMetaConverter // space.kscience.krig.api.expressions/numericExpressionMetaConverter|{}numericExpressionMetaConverter[0]
+    final fun <get-numericExpressionMetaConverter>(): space.kscience.dataforge.meta/MetaConverter<space.kscience.krig.api.expressions/NumericExpression> // space.kscience.krig.api.expressions/numericExpressionMetaConverter.<get-numericExpressionMetaConverter>|<get-numericExpressionMetaConverter>(){}[0]
 final val space.kscience.krig.generated.space.kscience.model/generatedKrigSerializersModule // space.kscience.krig.generated.space.kscience.model/generatedKrigSerializersModule|{}generatedKrigSerializersModule[0]
     final fun <get-generatedKrigSerializersModule>(): kotlinx.serialization.modules/SerializersModule // space.kscience.krig.generated.space.kscience.model/generatedKrigSerializersModule.<get-generatedKrigSerializersModule>|<get-generatedKrigSerializersModule>(){}[0]
 
 final fun (kotlinx.serialization.descriptors/SerialDescriptor).space.kscience.krig.api.descriptors/toMetaDescriptor(): space.kscience.dataforge.meta.descriptors/MetaDescriptor // space.kscience.krig.api.descriptors/toMetaDescriptor|toMetaDescriptor@kotlinx.serialization.descriptors.SerialDescriptor(){}[0]
 final fun (space.kscience.krig.api.descriptors/OperationDescriptor).space.kscience.krig.api.descriptors.attributes/binding(kotlin/String): space.kscience.dataforge.meta/Meta? // space.kscience.krig.api.descriptors.attributes/binding|binding@space.kscience.krig.api.descriptors.OperationDescriptor(kotlin.String){}[0]
 final fun (space.kscience.krig.api.descriptors/TypeId).space.kscience.krig.api.descriptors/toScalarValueTypeOrNull(): space.kscience.dataforge.meta/ValueType? // space.kscience.krig.api.descriptors/toScalarValueTypeOrNull|toScalarValueTypeOrNull@space.kscience.krig.api.descriptors.TypeId(){}[0]
+final fun (space.kscience.krig.api.expressions/NumericExpression).space.kscience.krig.api.expressions/bindings(): kotlin.collections/Set<space.kscience.krig.api.expressions/Binding> // space.kscience.krig.api.expressions/bindings|bindings@space.kscience.krig.api.expressions.NumericExpression(){}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.api.descriptors/attr(space.kscience.attributes/Attribute<#A>, #B, kotlin/Function1<#A, #B>): kotlin.properties/ReadOnlyProperty<space.kscience.krig.api.descriptors/OperationDescriptor, #B> // space.kscience.krig.api.descriptors/attr|attr(space.kscience.attributes.Attribute<0:0>;0:1;kotlin.Function1<0:0,0:1>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?, #B: kotlin/Any?> space.kscience.krig.api.descriptors/attr(space.kscience.attributes/Attribute<#A>, kotlin/Function1<#A, #B?>): kotlin.properties/ReadOnlyProperty<space.kscience.krig.api.descriptors/OperationDescriptor, #B?> // space.kscience.krig.api.descriptors/attr|attr(space.kscience.attributes.Attribute<0:0>;kotlin.Function1<0:0,0:1?>){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> (space.kscience.attributes/Attribute<#A>).space.kscience.krig.api.descriptors/of(#A): space.kscience.krig.api.descriptors/OperationAttributeEntry<#A> // space.kscience.krig.api.descriptors/of|of@space.kscience.attributes.Attribute<0:0>(0:0){0§<kotlin.Any?>}[0]

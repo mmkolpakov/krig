@@ -10,13 +10,22 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.yield
 import space.kscience.krig.api.context.AnonymousPrincipal
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute
+import space.kscience.krig.api.descriptors.operationAttributesOf
+import space.kscience.krig.api.descriptors.of
 import space.kscience.krig.api.expressions.NumericExpression
+import space.kscience.krig.api.expressions.numericExpressionMetaConverter
 import space.kscience.krig.core.KrigPerformancePitfall
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.expressions.ExpressionContext
 import space.kscience.krig.core.expressions.compile
+import space.kscience.krig.core.expressions.virtualPropertyPlan
 import space.kscience.krig.core.state.DeviceState
 import space.kscience.krig.dsl.device
 import space.kscience.krig.dsl.plus
@@ -43,6 +52,17 @@ suspend fun expressionDemo() {
     val b: NumericExpression = ref("sensorB", "value")
     val formula: NumericExpression = a * 2.0 + b + 1.0
     println("  tree: $formula")
+    val formulaMeta = numericExpressionMetaConverter.convert(formula)
+    val configuredFormula = numericExpressionMetaConverter.read(formulaMeta)
+    val virtualDescriptor = PropertyDescriptor(
+        name = "computed".asName(),
+        kind = PropertyKind.LOGICAL,
+        valueTypeId = TypeIds.DOUBLE,
+        attributes = operationAttributesOf(
+            OperationAttributeKeys.VirtualProperty of VirtualPropertyAttribute(configuredFormula),
+        ),
+    )
+    println("  config meta: $formulaMeta")
 
     val devices: Map<Name, Device> = mapOf(
         "sensorA".asName() to sensorA,
@@ -51,7 +71,9 @@ suspend fun expressionDemo() {
     val expressionScope = CoroutineScope(currentCoroutineContext() + SupervisorJob())
     try {
         val exprCtx = ExpressionContext.from(expressionScope, devices, AnonymousPrincipal)
-        val computed: DeviceState<Double> = formula.compile(exprCtx)
+        val virtualPlan = virtualDescriptor.virtualPropertyPlan() ?: error("Virtual descriptor is missing expression")
+        println("  virtual bindings: ${virtualPlan.bindings}")
+        val computed: DeviceState<Double> = virtualPlan.compile(exprCtx)
         val init = computed.stateFlow.first()
         println("  compiled = 10*2 + 20 + 1 = ${init.value}")
         val updated = expressionScope.async(start = CoroutineStart.UNDISPATCHED) {

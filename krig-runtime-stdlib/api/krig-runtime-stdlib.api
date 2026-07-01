@@ -142,6 +142,29 @@ public final class space/kscience/krig/core/expressions/ExpressionEvaluatorKt {
 	public static final fun compile (Lspace/kscience/krig/api/expressions/NumericExpression;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class space/kscience/krig/core/expressions/VirtualPropertyPlan {
+	public fun <init> (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/api/expressions/NumericExpression;Ljava/util/Set;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/api/expressions/NumericExpression;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public final fun component2 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun component3 ()Ljava/util/Set;
+	public final fun copy (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/api/expressions/NumericExpression;Ljava/util/Set;)Lspace/kscience/krig/core/expressions/VirtualPropertyPlan;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/expressions/VirtualPropertyPlan;Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/api/expressions/NumericExpression;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/core/expressions/VirtualPropertyPlan;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBindings ()Ljava/util/Set;
+	public final fun getDescriptor ()Lspace/kscience/krig/api/descriptors/PropertyDescriptor;
+	public final fun getExpression ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/core/expressions/VirtualPropertyPlanKt {
+	public static final fun compile (Lspace/kscience/krig/core/expressions/VirtualPropertyPlan;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun compileVirtualProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun virtualPropertyPlan (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)Lspace/kscience/krig/core/expressions/VirtualPropertyPlan;
+	public static final fun virtualPropertyState (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/expressions/ExpressionContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
 public abstract interface class space/kscience/krig/core/operations/CapabilitySnapshotCodec {
 	public abstract fun encode (Lspace/kscience/krig/api/data/Snapshotting;)Lspace/kscience/dataforge/meta/Meta;
 	public abstract fun restore (Lspace/kscience/krig/api/data/Snapshotting;Lspace/kscience/dataforge/meta/Meta;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;

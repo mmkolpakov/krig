@@ -15,8 +15,10 @@ import space.kscience.krig.api.descriptors.attributes.PhysicalQuantityAttribute
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.descriptors.attributes.TaskAttribute
+import space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute
 import space.kscience.krig.api.descriptors.attributes.acquisitionPolicy
 import space.kscience.krig.api.descriptors.attributes.deadbandPolicy
+import space.kscience.krig.api.descriptors.attributes.dependencyBindings
 import space.kscience.krig.api.descriptors.attributes.isLongRunningTask
 import space.kscience.krig.api.descriptors.attributes.description
 import space.kscience.krig.api.descriptors.attributes.displayMax
@@ -29,6 +31,11 @@ import space.kscience.krig.api.descriptors.attributes.requiredLocks
 import space.kscience.krig.api.descriptors.attributes.retryPolicy
 import space.kscience.krig.api.descriptors.attributes.taskStateProperty
 import space.kscience.krig.api.descriptors.attributes.timeout
+import space.kscience.krig.api.descriptors.attributes.virtualProperty
+import space.kscience.krig.api.expressions.Binary
+import space.kscience.krig.api.expressions.Binding
+import space.kscience.krig.api.expressions.Constant
+import space.kscience.krig.api.expressions.NumericExpression
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -197,5 +204,28 @@ class OperationDescriptorSerializationTest {
         assertEquals(140.0, overridden.displayMax)
         assertEquals(DeadbandPolicy.Absolute(0.5), overridden.deadbandPolicy)
         assertEquals(MessageDeliveryClass.Safety, overridden.messageDeliveryClass)
+    }
+
+    @Test
+    fun propertyDescriptorRoundTripsWithVirtualPropertyAttribute() {
+        val rpm = Binding("drive".asName(), "rpm".asName())
+        val expression: NumericExpression = Binary(
+            operation = "mul",
+            left = rpm,
+            right = Constant(2.0),
+        )
+        val descriptor = PropertyDescriptor(
+            name = "drive.rpm_x2".asName(),
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = TypeIds.DOUBLE,
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.VirtualProperty of VirtualPropertyAttribute(expression),
+            ),
+        )
+
+        val decoded = json.decodeFromString<PropertyDescriptor>(json.encodeToString(descriptor))
+
+        assertEquals(expression, decoded.virtualProperty?.expression)
+        assertEquals(setOf(rpm), decoded.virtualProperty?.dependencyBindings)
     }
 }

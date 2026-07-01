@@ -589,6 +589,10 @@ public final class space/kscience/krig/api/descriptors/attributes/OperationAttri
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Task;
 }
 
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$VirtualProperty : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$VirtualProperty;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute$Companion;
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;)V
@@ -692,11 +696,13 @@ public final class space/kscience/krig/api/descriptors/attributes/SemanticAttrib
 	public static final fun getDeadbandPolicy (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
 	public static final fun getDefaultMaxRateHz (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
 	public static final fun getDeliveryClass (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public static final fun getDependencyBindings (Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;)Ljava/util/Set;
 	public static final fun getDisplayMax (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
 	public static final fun getDisplayMin (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
 	public static final fun getEngineeringRange (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
 	public static final fun getMessageDeliveryClass (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
 	public static final fun getPhysicalQuantity (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public static final fun getVirtualProperty (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/TaskAttribute {
@@ -731,6 +737,33 @@ public final synthetic class space/kscience/krig/api/descriptors/attributes/Task
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/TaskAttribute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute$Companion;
+	public fun <init> (Lspace/kscience/krig/api/expressions/NumericExpression;)V
+	public final fun component1 ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public final fun copy (Lspace/kscience/krig/api/expressions/NumericExpression;)Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;Lspace/kscience/krig/api/expressions/NumericExpression;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpression ()Lspace/kscience/krig/api/expressions/NumericExpression;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -931,6 +964,10 @@ public final class space/kscience/krig/api/expressions/Constant$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/api/expressions/ExpressionMetaConvertersKt {
+	public static final fun getNumericExpressionMetaConverter ()Lspace/kscience/dataforge/meta/MetaConverter;
+}
+
 public final class space/kscience/krig/api/expressions/NAry : space/kscience/krig/api/expressions/NumericExpression {
 	public static final field Companion Lspace/kscience/krig/api/expressions/NAry$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
@@ -993,6 +1030,10 @@ public abstract interface class space/kscience/krig/api/expressions/NumericExpre
 
 public final class space/kscience/krig/api/expressions/NumericExpression$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/expressions/NumericExpressionKt {
+	public static final fun bindings (Lspace/kscience/krig/api/expressions/NumericExpression;)Ljava/util/Set;
 }
 
 public final class space/kscience/krig/api/expressions/Or : space/kscience/krig/api/expressions/Condition {

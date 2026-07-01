@@ -10,6 +10,9 @@ import space.kscience.krig.api.descriptors.attr
 import space.kscience.krig.api.descriptors.attribute
 import space.kscience.krig.api.descriptors.operationAttributesOf
 import space.kscience.krig.api.descriptors.of
+import space.kscience.krig.api.expressions.Binding
+import space.kscience.krig.api.expressions.NumericExpression
+import space.kscience.krig.api.expressions.bindings
 
 /**
  * Numeric deadband requested by a descriptor, subscription, or storage policy.
@@ -110,6 +113,18 @@ public data class PhysicalQuantityAttribute(
     public val defaultDelivery: DeliveryClassAttribute? = null,
 )
 
+/**
+ * Marks a property as derived from a numeric expression instead of a native backend tag.
+ */
+@Serializable
+@SerialName("attr.virtual-property")
+public data class VirtualPropertyAttribute(
+    public val expression: NumericExpression,
+)
+
+public val VirtualPropertyAttribute.dependencyBindings: Set<Binding>
+    get() = expression.bindings()
+
 internal fun physicalQuantityImplications(value: PhysicalQuantityAttribute): Attributes? {
     val entries = buildList<OperationAttributeEntry<*>> {
         value.defaultRange?.let { add(OperationAttributeKeys.EngineeringRange of it) }
@@ -151,6 +166,9 @@ public val OperationDescriptor.deliveryClass: DeliveryClassAttribute?
 
 public val OperationDescriptor.messageDeliveryClass: MessageDeliveryClass
     get() = deliveryClass?.messageClass ?: MessageDeliveryClass.Telemetry
+
+public val OperationDescriptor.virtualProperty: VirtualPropertyAttribute?
+    get() = attribute(OperationAttributeKeys.VirtualProperty)
 
 private fun requireOrdered(label: String, min: Double?, max: Double?) {
     require(min == null || !min.isNaN()) { "$label min must not be NaN" }

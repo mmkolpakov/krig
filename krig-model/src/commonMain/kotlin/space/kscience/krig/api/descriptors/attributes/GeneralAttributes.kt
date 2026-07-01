@@ -78,6 +78,11 @@ public object OperationAttributeKeys {
         DeliveryClassAttribute.serializer(),
     )
 
+    public object VirtualProperty : OperationAttributeKey<VirtualPropertyAttribute>(
+        "attr.virtual-property",
+        VirtualPropertyAttribute.serializer(),
+    )
+
     public val standard: Set<SerializableAttribute<*>> = setOf(
         Metadata,
         Behavior,
@@ -88,6 +93,7 @@ public object OperationAttributeKeys {
         EngineeringRange,
         AcquisitionPolicy,
         DeliveryClass,
+        VirtualProperty,
     )
 }
 

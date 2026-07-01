@@ -28,7 +28,16 @@ import space.kscience.krig.api.context.Principal
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.data.QualitySeverity
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.PropertyKind
+import space.kscience.krig.api.descriptors.TypeIds
+import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.attributes.VirtualPropertyAttribute
+import space.kscience.krig.api.descriptors.operationAttributesOf
+import space.kscience.krig.api.descriptors.of
+import space.kscience.krig.api.expressions.Binary
 import space.kscience.krig.api.expressions.Binding
+import space.kscience.krig.api.expressions.Constant
 import space.kscience.krig.api.expressions.NAry
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
@@ -63,9 +72,11 @@ class ExpressionEvaluatorTest {
             OperationOutcome.Ok(null)
     }
 
-    private class QualityMessageDevice : AbstractDevice(
+    private class QualityMessageDevice(
+        contextName: String = "expression-quality",
+    ) : AbstractDevice(
         name = "source".asName(),
-        runtime = DeviceRuntime(Context("expression-quality")),
+        runtime = DeviceRuntime(Context(contextName)),
     ) {
         private val messages = MutableSharedFlow<DeviceMessageFrame<DeviceMessage>>(replay = 1)
 
@@ -117,6 +128,24 @@ class ExpressionEvaluatorTest {
         override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = emptyFlow()
     }
 
+    private class VirtualDescriptorDevice(
+        descriptor: PropertyDescriptor,
+    ) : AbstractDevice(
+        name = "virtual".asName(),
+        runtime = DeviceRuntime(Context("expression-virtual")),
+    ) {
+        override val propertyDescriptors: Map<Name, PropertyDescriptor> = mapOf(descriptor.name to descriptor)
+
+        override suspend fun doReadPropertyOutcome(propertyName: Name): OperationOutcome<Meta> =
+            OperationOutcome.Ok(Meta.EMPTY)
+
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(null)
+    }
+
     @Test
     fun bindingSubscriptionFailureInvalidatesOnlyThatBinding() = runTest {
         val device = DeniedSubscriptionDevice()
@@ -166,5 +195,32 @@ class ExpressionEvaluatorTest {
 
         assertNull(state.stateValue.value)
         assertEquals(QualitySeverity.BAD, state.stateValue.quality.severity)
+    }
+
+    @Test
+    fun descriptorVirtualPropertyPlanCompilesToState() = runTest {
+        val source = QualityMessageDevice("expression-virtual-source")
+        val binding = Binding(source.name, "value".asName())
+        val expression = Binary("add", binding, Constant(2.0))
+        val descriptor = PropertyDescriptor(
+            name = "derived".asName(),
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = TypeIds.DOUBLE,
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.VirtualProperty of VirtualPropertyAttribute(expression),
+            ),
+        )
+        val virtual = VirtualDescriptorDevice(descriptor)
+        val ctx = ExpressionContext.from(
+            scope = backgroundScope,
+            devices = mapOf(source.name to source),
+            principal = AnonymousPrincipal,
+        )
+
+        val plan = descriptor.virtualPropertyPlan()
+        val state = virtual.virtualPropertyState(descriptor.name, ctx)
+
+        assertEquals(setOf(binding), plan?.bindings)
+        assertEquals(3.0, state?.stateValue?.value)
     }
 }
