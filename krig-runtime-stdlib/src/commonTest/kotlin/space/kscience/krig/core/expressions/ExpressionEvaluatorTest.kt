@@ -128,6 +128,57 @@ class ExpressionEvaluatorTest {
         override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = emptyFlow()
     }
 
+    private class BatchInitialDevice : AbstractDevice(
+        name = "batch-source".asName(),
+        runtime = DeviceRuntime(Context("expression-batch-initial")),
+    ) {
+        var batchReads: Int = 0
+            private set
+
+        var singleObservedReads: Int = 0
+            private set
+
+        override suspend fun doReadBatchOutcome(
+            properties: Collection<Name>,
+        ): Map<Name, OperationOutcome<ObservedValue<Meta?>>> {
+            batchReads += 1
+            return properties.associateWith { propertyName ->
+                OperationOutcome.Ok(
+                    ObservedValue(
+                        value = MetaConverter.double.convert(
+                            when (propertyName) {
+                                "a".asName() -> 2.0
+                                "b".asName() -> 3.0
+                                else -> error("Unexpected property '$propertyName'")
+                            }
+                        ),
+                        time = clock.now(),
+                        quality = DataQuality.GOOD,
+                    ),
+                )
+            }
+        }
+
+        override suspend fun doReadObservedOutcome(propertyName: Name): OperationOutcome<ObservedValue<Meta?>> {
+            singleObservedReads += 1
+            return OperationOutcome.Ok(
+                ObservedValue(
+                    value = MetaConverter.double.convert(1.0),
+                    time = clock.now(),
+                    quality = DataQuality.GOOD,
+                ),
+            )
+        }
+
+        override suspend fun doWritePropertyOutcome(propertyName: Name, value: Meta): OperationOutcome<Unit> =
+            OperationOutcome.OkUnit
+
+        override suspend fun doExecuteOutcome(actionName: Name, argument: Meta?): OperationOutcome<Meta?> =
+            OperationOutcome.Ok(null)
+
+        override suspend fun subscribe(principal: Principal): Flow<DeviceMessageFrame<DeviceMessage>> = emptyFlow()
+    }
+
     private class VirtualDescriptorDevice(
         descriptor: PropertyDescriptor,
     ) : AbstractDevice(
@@ -195,6 +246,27 @@ class ExpressionEvaluatorTest {
 
         assertNull(state.stateValue.value)
         assertEquals(QualitySeverity.BAD, state.stateValue.quality.severity)
+    }
+
+    @Test
+    fun expressionInitialSnapshotUsesDeviceBatchRead() = runTest {
+        val device = BatchInitialDevice()
+        val expression = Binary(
+            "add",
+            Binding(device.name, "a".asName()),
+            Binding(device.name, "b".asName()),
+        )
+        val ctx = ExpressionContext.from(
+            scope = backgroundScope,
+            devices = mapOf(device.name to device),
+            principal = AnonymousPrincipal,
+        )
+
+        val state = expression.compile(ctx)
+
+        assertEquals(5.0, state.stateValue.value)
+        assertEquals(1, device.batchReads)
+        assertEquals(0, device.singleObservedReads)
     }
 
     @Test

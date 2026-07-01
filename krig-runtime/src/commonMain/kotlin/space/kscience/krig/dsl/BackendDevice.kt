@@ -105,8 +105,7 @@ public interface DescriptorSource {
  * [device] factory; direct construction bypasses pipeline assembly.
  *
  * [descriptorSource] supplies declared descriptors so their attributes reach protocol adapters.
- * Undeclared Meta calls are rejected unless [allowAdHocProperties] explicitly enables schema-less
- * access for notebooks, REPL probes, or runtime-discovered adapter schemas.
+ * Undeclared Meta calls are resolved according to [dynamicDiscoveryPolicy].
  */
 @OptIn(space.kscience.krig.core.UnstableKrigForSubclassing::class)
 public class BackendDevice @InternalKrigApi constructor(
@@ -114,9 +113,7 @@ public class BackendDevice @InternalKrigApi constructor(
     name: Name,
     runtime: DeviceRuntime,
     private val descriptorSource: DescriptorSource = DescriptorSource.Empty,
-    allowAdHocProperties: Boolean = false,
-    override val dynamicDiscoveryPolicy: DynamicDiscoveryPolicy =
-        if (allowAdHocProperties) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict,
+    override val dynamicDiscoveryPolicy: DynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Strict,
     initialDiscoveredProperties: Map<Name, PropertyDescriptor> = emptyMap(),
 ) : AbstractDevice(name, runtime), DynamicDescriptorOverlay {
     @InternalKrigApi
@@ -125,16 +122,13 @@ public class BackendDevice @InternalKrigApi constructor(
         name: Name,
         context: Context,
         descriptorSource: DescriptorSource = DescriptorSource.Empty,
-        allowAdHocProperties: Boolean = false,
-        dynamicDiscoveryPolicy: DynamicDiscoveryPolicy =
-            if (allowAdHocProperties) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict,
+        dynamicDiscoveryPolicy: DynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Strict,
         initialDiscoveredProperties: Map<Name, PropertyDescriptor> = emptyMap(),
     ) : this(
         backend,
         name,
         DeviceRuntime.from(context),
         descriptorSource,
-        allowAdHocProperties,
         dynamicDiscoveryPolicy,
         initialDiscoveredProperties,
     )

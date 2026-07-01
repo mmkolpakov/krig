@@ -336,7 +336,6 @@ public final class space/kscience/krig/dsl/DeclarativeDeviceBuilder : space/ksci
 	public fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
 	public final fun getActionDescriptors ()Ljava/util/Map;
 	public final fun getActions ()Ljava/util/Map;
-	public fun getAllowAdHocProperties ()Z
 	public final fun getCloseBody ()Lkotlin/jvm/functions/Function0;
 	public final fun getCore ()Lspace/kscience/krig/dsl/DeviceBuilderCore;
 	public fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
@@ -374,7 +373,6 @@ public final class space/kscience/krig/dsl/DeclarativeDeviceBuilder : space/ksci
 	public final fun readDouble (Lspace/kscience/krig/dsl/DeviceReadBlock;)Lkotlin/properties/PropertyDelegateProvider;
 	public final fun readInt (Lspace/kscience/krig/dsl/DeviceReadBlock;)Lkotlin/properties/PropertyDelegateProvider;
 	public final fun readString (Lspace/kscience/krig/dsl/DeviceReadBlock;)Lkotlin/properties/PropertyDelegateProvider;
-	public fun setAllowAdHocProperties (Z)V
 	public final fun setCloseBody (Lkotlin/jvm/functions/Function0;)V
 	public fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 	public final fun setStepBody (Lkotlin/jvm/functions/Function1;)V
@@ -432,7 +430,6 @@ public final class space/kscience/krig/dsl/DeviceActionScope$DefaultImpls {
 
 public abstract interface class space/kscience/krig/dsl/DeviceBuilder {
 	public abstract fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
-	public abstract fun getAllowAdHocProperties ()Z
 	public abstract fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
 	public abstract fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
 	public abstract fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
@@ -440,7 +437,6 @@ public abstract interface class space/kscience/krig/dsl/DeviceBuilder {
 	public static synthetic fun install$default (Lspace/kscience/krig/dsl/DeviceBuilder;Lspace/kscience/krig/core/features/PipelineFeature;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public abstract fun manifest (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
 	public abstract fun pipeline (Lkotlin/jvm/functions/Function1;)V
-	public abstract fun setAllowAdHocProperties (Z)V
 	public abstract fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 }
 
@@ -548,7 +544,6 @@ public final class space/kscience/krig/dsl/ExplicitDeviceBuilder : space/kscienc
 	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/core/contracts/DeviceRuntime;Lspace/kscience/krig/core/contracts/DeviceBackend;)V
 	public fun <init> (Lspace/kscience/krig/dsl/DeviceBuilderCore;Lspace/kscience/krig/core/contracts/DeviceBackend;)V
 	public fun discoveredProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;)V
-	public fun getAllowAdHocProperties ()Z
 	public final fun getCore ()Lspace/kscience/krig/dsl/DeviceBuilderCore;
 	public fun getDeviceContext ()Lspace/kscience/dataforge/context/Context;
 	public fun getDeviceName ()Lspace/kscience/dataforge/names/Name;
@@ -556,7 +551,6 @@ public final class space/kscience/krig/dsl/ExplicitDeviceBuilder : space/kscienc
 	public fun install (Lspace/kscience/krig/core/features/PipelineFeature;Lkotlin/jvm/functions/Function1;)V
 	public fun manifest (Lspace/kscience/krig/core/contracts/DeviceManifest;)V
 	public fun pipeline (Lkotlin/jvm/functions/Function1;)V
-	public fun setAllowAdHocProperties (Z)V
 	public fun setDynamicDiscoveryPolicy (Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)V
 }
 

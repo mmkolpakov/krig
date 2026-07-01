@@ -265,11 +265,11 @@ class BackendDeviceTypedBackendTest {
     }
 
     @Test
-    fun deviceBuilderAllowsAdHocPropertiesOnlyWhenEnabled() = runTest {
+    fun deviceBuilderAllowsSchemaLessPropertiesThroughDynamicPolicy() = runTest {
         val backend = LooseMetaBackend()
         val ctx = permissiveContext("loose-meta-test")
         val device = device("loose-meta", backend, ctx) {
-            allowAdHocProperties = true
+            dynamicDiscoveryPolicy = DynamicDiscoveryPolicy.AdHoc
         }
 
         assertEquals(7.0, device.readProperty("loose".asName()).doubleValue)

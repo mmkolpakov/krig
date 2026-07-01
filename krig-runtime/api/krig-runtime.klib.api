@@ -150,9 +150,6 @@ sealed interface space.kscience.krig.dsl/DeviceBuilder { // space.kscience.krig.
     abstract val deviceName // space.kscience.krig.dsl/DeviceBuilder.deviceName|{}deviceName[0]
         abstract fun <get-deviceName>(): space.kscience.dataforge.names/Name // space.kscience.krig.dsl/DeviceBuilder.deviceName.<get-deviceName>|<get-deviceName>(){}[0]
 
-    abstract var allowAdHocProperties // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties|{}allowAdHocProperties[0]
-        abstract fun <get-allowAdHocProperties>(): kotlin/Boolean // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties.<get-allowAdHocProperties>|<get-allowAdHocProperties>(){}[0]
-        abstract fun <set-allowAdHocProperties>(kotlin/Boolean) // space.kscience.krig.dsl/DeviceBuilder.allowAdHocProperties.<set-allowAdHocProperties>|<set-allowAdHocProperties>(kotlin.Boolean){}[0]
     abstract var dynamicDiscoveryPolicy // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
         abstract fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
         abstract fun <set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts/DynamicDiscoveryPolicy) // space.kscience.krig.dsl/DeviceBuilder.dynamicDiscoveryPolicy.<set-dynamicDiscoveryPolicy>|<set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts.DynamicDiscoveryPolicy){}[0]
@@ -458,9 +455,6 @@ final class space.kscience.krig.dsl/DeclarativeDeviceBuilder : space.kscience.kr
     final val writers // space.kscience.krig.dsl/DeclarativeDeviceBuilder.writers|{}writers[0]
         final fun <get-writers>(): kotlin.collections/MutableMap<space.kscience.dataforge.names/Name, space.kscience.krig.dsl/DeviceWriteBlock> // space.kscience.krig.dsl/DeclarativeDeviceBuilder.writers.<get-writers>|<get-writers>(){}[0]
 
-    final var allowAdHocProperties // space.kscience.krig.dsl/DeclarativeDeviceBuilder.allowAdHocProperties|{}allowAdHocProperties[0]
-        final fun <get-allowAdHocProperties>(): kotlin/Boolean // space.kscience.krig.dsl/DeclarativeDeviceBuilder.allowAdHocProperties.<get-allowAdHocProperties>|<get-allowAdHocProperties>(){}[0]
-        final fun <set-allowAdHocProperties>(kotlin/Boolean) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.allowAdHocProperties.<set-allowAdHocProperties>|<set-allowAdHocProperties>(kotlin.Boolean){}[0]
     final var closeBody // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody|{}closeBody[0]
         final fun <get-closeBody>(): kotlin/Function0<kotlin/Unit>? // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody.<get-closeBody>|<get-closeBody>(){}[0]
         final fun <set-closeBody>(kotlin/Function0<kotlin/Unit>?) // space.kscience.krig.dsl/DeclarativeDeviceBuilder.closeBody.<set-closeBody>|<set-closeBody>(kotlin.Function0<kotlin.Unit>?){}[0]
@@ -514,9 +508,6 @@ final class space.kscience.krig.dsl/ExplicitDeviceBuilder : space.kscience.krig.
     final val deviceName // space.kscience.krig.dsl/ExplicitDeviceBuilder.deviceName|{}deviceName[0]
         final fun <get-deviceName>(): space.kscience.dataforge.names/Name // space.kscience.krig.dsl/ExplicitDeviceBuilder.deviceName.<get-deviceName>|<get-deviceName>(){}[0]
 
-    final var allowAdHocProperties // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties|{}allowAdHocProperties[0]
-        final fun <get-allowAdHocProperties>(): kotlin/Boolean // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties.<get-allowAdHocProperties>|<get-allowAdHocProperties>(){}[0]
-        final fun <set-allowAdHocProperties>(kotlin/Boolean) // space.kscience.krig.dsl/ExplicitDeviceBuilder.allowAdHocProperties.<set-allowAdHocProperties>|<set-allowAdHocProperties>(kotlin.Boolean){}[0]
     final var dynamicDiscoveryPolicy // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy|{}dynamicDiscoveryPolicy[0]
         final fun <get-dynamicDiscoveryPolicy>(): space.kscience.krig.core.contracts/DynamicDiscoveryPolicy // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy.<get-dynamicDiscoveryPolicy>|<get-dynamicDiscoveryPolicy>(){}[0]
         final fun <set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts/DynamicDiscoveryPolicy) // space.kscience.krig.dsl/ExplicitDeviceBuilder.dynamicDiscoveryPolicy.<set-dynamicDiscoveryPolicy>|<set-dynamicDiscoveryPolicy>(space.kscience.krig.core.contracts.DynamicDiscoveryPolicy){}[0]

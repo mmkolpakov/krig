@@ -45,9 +45,7 @@ internal suspend fun labDiscoverySnapshot(): LabDiscoverySnapshot {
     val backend = AdHocMetaBackend()
     val gainName = "calibration.gain".asName()
 
-    val strict = device("strictProbe", backend, ctx) {
-        allowAdHocProperties = false
-    }
+    val strict = device("strictProbe", backend, ctx)
     val strictWrite = strict.writePropertyOutcome(gainName, metaOf(2.5))
 
     val discovery = device("discoveryProbe", backend, ctx) {

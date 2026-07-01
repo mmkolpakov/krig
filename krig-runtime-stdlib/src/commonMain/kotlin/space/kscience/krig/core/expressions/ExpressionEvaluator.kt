@@ -47,51 +47,84 @@ public class ExpressionContext internal constructor(
 }
 
 /** Compiles a [NumericExpression] tree into a reactive [DeviceState<Double>]. */
-public suspend fun NumericExpression.compile(ctx: ExpressionContext): DeviceState<Double> =
+public suspend fun NumericExpression.compile(ctx: ExpressionContext): DeviceState<Double> {
+    val initialBindings = VirtualExpressionPlanner.initialSnapshot(this, ctx)
+    return compile(ctx, initialBindings)
+}
+
+private suspend fun NumericExpression.compile(
+    ctx: ExpressionContext,
+    initialBindings: Map<Binding, ObservedValue<Double?>>,
+): DeviceState<Double> =
     when (this) {
-        is Binding -> bindingState(deviceName, propertyName, ctx)
+        is Binding -> bindingState(this, ctx, initialBindings.getValue(this))
         is Constant -> constantState(value)
         is Unary -> {
             val op = Float64Operations.unary(operation)
-            argument.compile(ctx).map { op(it ?: Double.NaN) }
+            argument.compile(ctx, initialBindings).map { op(it ?: Double.NaN) }
         }
         is Binary -> {
-            val l = left.compile(ctx); val r = right.compile(ctx)
+            val l = left.compile(ctx, initialBindings)
+            val r = right.compile(ctx, initialBindings)
             val op = Float64Operations.binary(operation)
             l.combine(r) { lv, rv -> op(lv ?: Double.NaN, rv ?: Double.NaN) }
         }
         is NAry -> {
-            val states = operands.map { it.compile(ctx) }
+            val states = operands.map { it.compile(ctx, initialBindings) }
             val op = Float64Operations.nary(operation)
             combineAll(states, op)
         }
     }
 
-private suspend fun bindingState(
-    deviceName: Name, propertyName: Name, ctx: ExpressionContext,
-): DeviceState<Double> {
-    val device = ctx.device(deviceName)
-    val unavailableQuality = expressionQuality(
-        StandardQualityCodes.ExpressionUnavailable,
-        "Binding '$deviceName.$propertyName' is unavailable",
-    )
-    // Eager initial read
-    val initial = try {
-        when (val outcome = device.readObservedOutcome(propertyName)) {
-            is OperationOutcome.Ok -> outcome.value.map { meta -> meta?.double }
-            is OperationOutcome.Fail -> ObservedValue(
-                null,
-                device.clock.now(),
-                outcome.fault.toDataQuality(QualityNamespaces.Expression, DefaultQualityPolicy),
-            )
+internal object VirtualExpressionPlanner {
+    suspend fun initialSnapshot(
+        expression: NumericExpression,
+        ctx: ExpressionContext,
+    ): Map<Binding, ObservedValue<Double?>> {
+        val bindings = expression.bindings()
+        if (bindings.isEmpty()) return emptyMap()
+
+        val result = LinkedHashMap<Binding, ObservedValue<Double?>>(bindings.size)
+        for ((deviceName, deviceBindings) in bindings.groupBy { it.deviceName }) {
+            val device = ctx.device(deviceName)
+            val batch = try {
+                device.readBatchOutcome(deviceBindings.map { it.propertyName }.toSet())
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: OperationFaultException) {
+                deviceBindings.forEach { binding ->
+                    result[binding] = unavailableBindingValue(device, binding)
+                }
+                continue
+            } catch (_: AuthorizationException) {
+                deviceBindings.forEach { binding ->
+                    result[binding] = unavailableBindingValue(device, binding)
+                }
+                continue
+            }
+            for (binding in deviceBindings) {
+                result[binding] = when (val outcome = batch[binding.propertyName]) {
+                    is OperationOutcome.Ok -> outcome.value.map { meta -> meta?.double }
+                    is OperationOutcome.Fail -> ObservedValue(
+                        null,
+                        device.clock.now(),
+                        outcome.fault.toDataQuality(QualityNamespaces.Expression, DefaultQualityPolicy),
+                    )
+                    null -> unavailableBindingValue(device, binding)
+                }
+            }
         }
-    } catch (e: CancellationException) {
-        throw e
-    } catch (_: OperationFaultException) {
-        ObservedValue<Double?>(null, device.clock.now(), unavailableQuality)
-    } catch (_: AuthorizationException) {
-        ObservedValue<Double?>(null, device.clock.now(), unavailableQuality)
+        return result
     }
+}
+
+private suspend fun bindingState(
+    binding: Binding,
+    ctx: ExpressionContext,
+    initial: ObservedValue<Double?>,
+): DeviceState<Double> {
+    val device = ctx.device(binding.deviceName)
+    val unavailableQuality = bindingUnavailableQuality(binding)
 
     val messages = try {
         device.subscribe(ctx.auth())
@@ -106,7 +139,7 @@ private suspend fun bindingState(
     val state = messages
         .map { it.payload }
         .filterIsInstance<PropertyChangedMessage>()
-        .filter { it.property == propertyName }
+        .filter { it.property == binding.propertyName }
         .mapNotNull { msg ->
             val d = msg.value.double ?: return@mapNotNull null
             ObservedValue<Double?>(d, msg.time, msg.quality)
@@ -130,6 +163,15 @@ private suspend fun bindingState(
         override val stateFlow get() = state
     }
 }
+
+private fun unavailableBindingValue(device: Device, binding: Binding): ObservedValue<Double?> =
+    ObservedValue(null, device.clock.now(), bindingUnavailableQuality(binding))
+
+private fun bindingUnavailableQuality(binding: Binding): DataQuality =
+    expressionQuality(
+        StandardQualityCodes.ExpressionUnavailable,
+        "Binding '${binding.deviceName}.${binding.propertyName}' is unavailable",
+    )
 
 private fun unavailableBindingState(device: Device, quality: DataQuality): DeviceState<Double> =
     object : DeviceState<Double> {

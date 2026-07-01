@@ -49,17 +49,6 @@ public sealed interface DeviceBuilder {
     public val deviceContext: Context
 
     /**
-     * Enables schema-less access to properties that are not declared by a manifest or DSL property.
-     *
-     * The default `false` keeps the device in strict contract mode: unknown Meta calls fail with
-     * `UnknownProperty`, which is the right default for production and edge deployments. Setting this
-     * to `true` serves unknown properties through synthetic `Meta` descriptors, preserving the
-     * dynamic surface needed by notebooks, REPL exploration, probes, and protocol adapters whose
-     * schema is discovered at runtime.
-     */
-    public var allowAdHocProperties: Boolean
-
-    /**
      * Explicit policy for properties absent from the static manifest/DSL contract.
      *
      * [DynamicDiscoveryPolicy.Strict] is the production default. [DynamicDiscoveryPolicy.AdHoc] is the
@@ -180,12 +169,6 @@ internal class DeviceBuilderCore internal constructor(
     private var pipelineProfile: PipelineProfile = PipelineProfile.Production
 
     override var dynamicDiscoveryPolicy: DynamicDiscoveryPolicy = DynamicDiscoveryPolicy.Strict
-
-    override var allowAdHocProperties: Boolean
-        get() = dynamicDiscoveryPolicy != DynamicDiscoveryPolicy.Strict
-        set(value) {
-            dynamicDiscoveryPolicy = if (value) DynamicDiscoveryPolicy.AdHoc else DynamicDiscoveryPolicy.Strict
-        }
 
     @PublishedApi
     internal var descriptorSource: DescriptorSource = DescriptorSource.Empty
