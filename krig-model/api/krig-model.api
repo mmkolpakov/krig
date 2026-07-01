@@ -248,6 +248,37 @@ public final class space/kscience/krig/api/descriptors/attributes/AccessAttribut
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Double;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;)V
+	public synthetic fun <init> (Ljava/lang/Double;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Double;
+	public final fun component2 ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
+	public final fun copy (Ljava/lang/Double;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;)Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Ljava/lang/Double;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeadband ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
+	public final fun getDefaultMaxRateHz ()Ljava/lang/Double;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/BehaviorAttribute {
 	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute$Companion;
 	public synthetic fun <init> (Lkotlin/time/Duration;Lkotlin/time/Duration;Ljava/util/List;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -313,6 +344,140 @@ public final class space/kscience/krig/api/descriptors/attributes/BindingsAttrib
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public abstract interface class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Companion;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute : space/kscience/krig/api/descriptors/attributes/DeadbandPolicy {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute$Companion;
+	public fun <init> (D)V
+	public final fun component1 ()D
+	public final fun copy (D)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute;DILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDelta ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Absolute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$None : space/kscience/krig/api/descriptors/attributes/DeadbandPolicy {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$None;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative : space/kscience/krig/api/descriptors/attributes/DeadbandPolicy {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative$Companion;
+	public fun <init> (D)V
+	public final fun component1 ()D
+	public final fun copy (D)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative;DILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFraction ()D
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeadbandPolicy$Relative$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute$Companion;
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public final fun copy (Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;)Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessageClass ()Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Double;
+	public final fun component2 ()Ljava/lang/Double;
+	public final fun component3 ()Ljava/lang/Double;
+	public final fun component4 ()Ljava/lang/Double;
+	public final fun copy (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;)Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Double;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAlarmHigh ()Ljava/lang/Double;
+	public final fun getAlarmLow ()Ljava/lang/Double;
+	public final fun getDisplayMax ()Ljava/lang/Double;
+	public final fun getDisplayMin ()Ljava/lang/Double;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/GeneralAttributesKt {
 	public static final fun binding (Lspace/kscience/krig/api/descriptors/OperationDescriptor;Ljava/lang/String;)Lspace/kscience/dataforge/meta/Meta;
 	public static final fun getAccess (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/AccessAttribute;
@@ -333,6 +498,21 @@ public final class space/kscience/krig/api/descriptors/attributes/GeneralAttribu
 	public static final fun getTimeout (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lkotlin/time/Duration;
 	public static final fun getUnit (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/String;
 	public static final fun isLongRunningTask (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Z
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/MessageDeliveryClass : java/lang/Enum {
+	public static final field Audit Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass$Companion;
+	public static final field CriticalTelemetry Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static final field Safety Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static final field Telemetry Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static fun values ()[Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/MessageDeliveryClass$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/MetadataAttribute {
@@ -375,6 +555,10 @@ public final class space/kscience/krig/api/descriptors/attributes/OperationAttri
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Access;
 }
 
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$AcquisitionPolicy : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$AcquisitionPolicy;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Behavior : space/kscience/krig/api/descriptors/OperationAttributeKey {
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Behavior;
 }
@@ -383,12 +567,62 @@ public final class space/kscience/krig/api/descriptors/attributes/OperationAttri
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Bindings;
 }
 
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$DeliveryClass : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$DeliveryClass;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$EngineeringRange : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$EngineeringRange;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Metadata : space/kscience/krig/api/descriptors/OperationAttributeKey {
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Metadata;
 }
 
+public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$PhysicalQuantity : space/kscience/krig/api/descriptors/OperationAttributeKey {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$PhysicalQuantity;
+	public synthetic fun implies (Ljava/lang/Object;)Lspace/kscience/attributes/Attributes;
+	public fun implies (Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;)Lspace/kscience/attributes/Attributes;
+}
+
 public final class space/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Task : space/kscience/krig/api/descriptors/OperationAttributeKey {
 	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/OperationAttributeKeys$Task;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute {
+	public static final field Companion Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute$Companion;
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public final fun component4 ()Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public final fun component5 ()Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;)Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public static synthetic fun copy$default (Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;ILjava/lang/Object;)Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDefaultAcquisition ()Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public final fun getDefaultDelivery ()Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public final fun getDefaultRange ()Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public final fun getDimension ()Lspace/kscience/dataforge/names/Name;
+	public final fun getQuantity ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/ResourceLock {
@@ -451,6 +685,18 @@ public final synthetic class space/kscience/krig/api/descriptors/attributes/Retr
 public final class space/kscience/krig/api/descriptors/attributes/RetryPolicy$Companion {
 	public final fun getNone ()Lspace/kscience/krig/api/descriptors/attributes/RetryPolicy;
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/api/descriptors/attributes/SemanticAttributesKt {
+	public static final fun getAcquisitionPolicy (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public static final fun getDeadbandPolicy (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
+	public static final fun getDefaultMaxRateHz (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
+	public static final fun getDeliveryClass (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public static final fun getDisplayMax (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
+	public static final fun getDisplayMin (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Ljava/lang/Double;
+	public static final fun getEngineeringRange (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public static final fun getMessageDeliveryClass (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/MessageDeliveryClass;
+	public static final fun getPhysicalQuantity (Lspace/kscience/krig/api/descriptors/OperationDescriptor;)Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
 }
 
 public final class space/kscience/krig/api/descriptors/attributes/TaskAttribute {

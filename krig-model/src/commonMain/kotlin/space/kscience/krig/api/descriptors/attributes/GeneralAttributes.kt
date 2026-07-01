@@ -2,6 +2,7 @@ package space.kscience.krig.api.descriptors.attributes
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import space.kscience.attributes.Attributes
 import space.kscience.attributes.serialization.SerializableAttribute
 import space.kscience.krig.api.descriptors.OperationAttributeKey
 import space.kscience.krig.api.descriptors.OperationDescriptor
@@ -54,7 +55,40 @@ public object OperationAttributeKeys {
         TaskAttribute.serializer(),
     )
 
-    public val standard: Set<SerializableAttribute<*>> = setOf(Metadata, Behavior, Access, Bindings, Task)
+    public object PhysicalQuantity : OperationAttributeKey<PhysicalQuantityAttribute>(
+        "attr.physical-quantity",
+        PhysicalQuantityAttribute.serializer(),
+    ) {
+        override fun implies(value: PhysicalQuantityAttribute): Attributes? =
+            physicalQuantityImplications(value)
+    }
+
+    public object EngineeringRange : OperationAttributeKey<EngineeringRangeAttribute>(
+        "attr.engineering-range",
+        EngineeringRangeAttribute.serializer(),
+    )
+
+    public object AcquisitionPolicy : OperationAttributeKey<AcquisitionPolicyAttribute>(
+        "attr.acquisition",
+        AcquisitionPolicyAttribute.serializer(),
+    )
+
+    public object DeliveryClass : OperationAttributeKey<DeliveryClassAttribute>(
+        "attr.delivery-class",
+        DeliveryClassAttribute.serializer(),
+    )
+
+    public val standard: Set<SerializableAttribute<*>> = setOf(
+        Metadata,
+        Behavior,
+        Access,
+        Bindings,
+        Task,
+        PhysicalQuantity,
+        EngineeringRange,
+        AcquisitionPolicy,
+        DeliveryClass,
+    )
 }
 
 /**

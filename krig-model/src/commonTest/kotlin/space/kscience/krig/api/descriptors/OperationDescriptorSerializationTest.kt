@@ -3,16 +3,27 @@ package space.kscience.krig.api.descriptors
 import kotlinx.serialization.json.Json
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.attributes.AccessAttribute
+import space.kscience.krig.api.descriptors.attributes.AcquisitionPolicyAttribute
 import space.kscience.krig.api.descriptors.attributes.BehaviorAttribute
+import space.kscience.krig.api.descriptors.attributes.DeadbandPolicy
+import space.kscience.krig.api.descriptors.attributes.DeliveryClassAttribute
+import space.kscience.krig.api.descriptors.attributes.EngineeringRangeAttribute
+import space.kscience.krig.api.descriptors.attributes.MessageDeliveryClass
 import space.kscience.krig.api.descriptors.attributes.MetadataAttribute
 import space.kscience.krig.api.descriptors.attributes.OperationAttributeKeys
+import space.kscience.krig.api.descriptors.attributes.PhysicalQuantityAttribute
 import space.kscience.krig.api.descriptors.attributes.ResourceLock
 import space.kscience.krig.api.descriptors.attributes.RetryPolicy
 import space.kscience.krig.api.descriptors.attributes.TaskAttribute
+import space.kscience.krig.api.descriptors.attributes.acquisitionPolicy
+import space.kscience.krig.api.descriptors.attributes.deadbandPolicy
 import space.kscience.krig.api.descriptors.attributes.isLongRunningTask
 import space.kscience.krig.api.descriptors.attributes.description
+import space.kscience.krig.api.descriptors.attributes.displayMax
 import space.kscience.krig.api.descriptors.attributes.metadata
+import space.kscience.krig.api.descriptors.attributes.messageDeliveryClass
 import space.kscience.krig.api.descriptors.attributes.mutable
+import space.kscience.krig.api.descriptors.attributes.physicalQuantity
 import space.kscience.krig.api.descriptors.attributes.readable
 import space.kscience.krig.api.descriptors.attributes.requiredLocks
 import space.kscience.krig.api.descriptors.attributes.retryPolicy
@@ -109,5 +120,82 @@ class OperationDescriptorSerializationTest {
 
         assertTrue(decoded.isLongRunningTask)
         assertEquals(stateProperty, decoded.taskStateProperty)
+    }
+
+    @Test
+    fun propertyDescriptorRoundTripsWithSemanticAttributes() {
+        val descriptor = PropertyDescriptor(
+            name = "process.pressure".asName(),
+            kind = PropertyKind.MEASURED,
+            valueTypeId = TypeIds.DOUBLE,
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.PhysicalQuantity of PhysicalQuantityAttribute(
+                    quantity = "pressure".asName(),
+                    dimension = "pressure".asName(),
+                ),
+                OperationAttributeKeys.EngineeringRange of EngineeringRangeAttribute(
+                    displayMin = 0.0,
+                    displayMax = 10.0,
+                    alarmHigh = 8.5,
+                ),
+                OperationAttributeKeys.AcquisitionPolicy of AcquisitionPolicyAttribute(
+                    defaultMaxRateHz = 2.0,
+                    deadband = DeadbandPolicy.Absolute(0.05),
+                ),
+                OperationAttributeKeys.DeliveryClass of DeliveryClassAttribute(
+                    messageClass = MessageDeliveryClass.CriticalTelemetry,
+                ),
+            ),
+        )
+
+        val decoded = json.decodeFromString<PropertyDescriptor>(json.encodeToString(descriptor))
+
+        assertEquals("pressure".asName(), decoded.physicalQuantity?.quantity)
+        assertEquals(10.0, decoded.displayMax)
+        assertEquals(2.0, decoded.acquisitionPolicy?.defaultMaxRateHz)
+        assertEquals(DeadbandPolicy.Absolute(0.05), decoded.deadbandPolicy)
+        assertEquals(MessageDeliveryClass.CriticalTelemetry, decoded.messageDeliveryClass)
+    }
+
+    @Test
+    fun physicalQuantityImpliesDefaultsAndExplicitAttributesWin() {
+        val descriptor = PropertyDescriptor(
+            name = "process.temperature".asName(),
+            kind = PropertyKind.MEASURED,
+            valueTypeId = TypeIds.DOUBLE,
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.PhysicalQuantity of PhysicalQuantityAttribute(
+                    quantity = "temperature".asName(),
+                    defaultRange = EngineeringRangeAttribute(displayMin = 0.0, displayMax = 100.0),
+                    defaultAcquisition = AcquisitionPolicyAttribute(deadband = DeadbandPolicy.Absolute(0.1)),
+                    defaultDelivery = DeliveryClassAttribute(MessageDeliveryClass.CriticalTelemetry),
+                ),
+            ),
+        )
+
+        assertEquals(100.0, descriptor.displayMax)
+        assertEquals(DeadbandPolicy.Absolute(0.1), descriptor.deadbandPolicy)
+        assertEquals(MessageDeliveryClass.CriticalTelemetry, descriptor.messageDeliveryClass)
+
+        val overridden = PropertyDescriptor(
+            name = "process.temperature".asName(),
+            kind = PropertyKind.MEASURED,
+            valueTypeId = TypeIds.DOUBLE,
+            attributes = operationAttributesOf(
+                OperationAttributeKeys.PhysicalQuantity of PhysicalQuantityAttribute(
+                    quantity = "temperature".asName(),
+                    defaultRange = EngineeringRangeAttribute(displayMin = 0.0, displayMax = 100.0),
+                    defaultAcquisition = AcquisitionPolicyAttribute(deadband = DeadbandPolicy.Absolute(0.1)),
+                    defaultDelivery = DeliveryClassAttribute(MessageDeliveryClass.CriticalTelemetry),
+                ),
+                OperationAttributeKeys.EngineeringRange of EngineeringRangeAttribute(displayMin = -20.0, displayMax = 140.0),
+                OperationAttributeKeys.AcquisitionPolicy of AcquisitionPolicyAttribute(deadband = DeadbandPolicy.Absolute(0.5)),
+                OperationAttributeKeys.DeliveryClass of DeliveryClassAttribute(MessageDeliveryClass.Safety),
+            ),
+        )
+
+        assertEquals(140.0, overridden.displayMax)
+        assertEquals(DeadbandPolicy.Absolute(0.5), overridden.deadbandPolicy)
+        assertEquals(MessageDeliveryClass.Safety, overridden.messageDeliveryClass)
     }
 }
