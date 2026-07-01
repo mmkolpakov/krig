@@ -294,15 +294,17 @@ public abstract class space/kscience/krig/core/contracts/AbstractDevice : space/
 public final class space/kscience/krig/core/contracts/AppliedSubscribeOptions {
 	public static final field Companion Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
-	public synthetic fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Double;
 	public final fun component2 ()Ljava/lang/Integer;
-	public final fun component3 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
-	public final fun copy (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
+	public final fun component4 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun copy (Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;Ljava/lang/Double;Ljava/lang/Integer;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/AppliedSubscribeOptions;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getDiscardPolicy ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun getRevisedDeadband ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
 	public final fun getRevisedMaxRateHz ()Ljava/lang/Double;
 	public final fun getRevisedQueueSize ()Ljava/lang/Integer;
 	public fun hashCode ()I
@@ -969,15 +971,17 @@ public final class space/kscience/krig/core/contracts/SteppedBackend$DefaultImpl
 public final class space/kscience/krig/core/contracts/SubscribeOptions {
 	public static final field Companion Lspace/kscience/krig/core/contracts/SubscribeOptions$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
-	public synthetic fun <init> (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Double;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/Double;
 	public final fun component2 ()Ljava/util/Set;
-	public final fun component3 ()Ljava/lang/Integer;
-	public final fun component4 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
-	public final fun copy (Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
-	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/SubscribeOptions;Ljava/lang/Double;Ljava/util/Set;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun component5 ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
+	public final fun copy (Ljava/lang/Double;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/core/contracts/SubscribeOptions;Ljava/lang/Double;Ljava/util/Set;Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;Ljava/lang/Integer;Lspace/kscience/krig/core/contracts/DiscardPolicy;ILjava/lang/Object;)Lspace/kscience/krig/core/contracts/SubscribeOptions;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeadband ()Lspace/kscience/krig/api/descriptors/attributes/DeadbandPolicy;
 	public final fun getDiscardPolicy ()Lspace/kscience/krig/core/contracts/DiscardPolicy;
 	public final fun getMaxRateHz ()Ljava/lang/Double;
 	public final fun getQueueSize ()Ljava/lang/Integer;

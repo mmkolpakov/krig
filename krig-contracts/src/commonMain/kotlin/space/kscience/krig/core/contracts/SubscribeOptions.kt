@@ -5,11 +5,17 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.sample
 import space.kscience.dataforge.names.Name
 import space.kscience.krig.api.context.Principal
+import space.kscience.krig.api.descriptors.PropertyDescriptor
+import space.kscience.krig.api.descriptors.attributes.DeadbandPolicy
+import space.kscience.krig.api.descriptors.attributes.engineeringRange
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.DeviceMessageFrame
+import space.kscience.krig.api.messages.PropertyChangedMessage
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -32,12 +38,16 @@ public enum class DiscardPolicy {
  *                    [kotlinx.coroutines.flow.sample]). `null` leaves the stream unsampled.
  * @property typeFilter Optional whitelist of wire message types ([DeviceMessage.messageType]).
  *                    Empty = pass everything.
+ * @property deadband Numeric property-change suppression. Absolute deadband is always enforceable
+ *                    client-side; relative deadband needs an engineering span from a descriptor or
+ *                    a source-side backend implementation.
  * @property queueSize Optional bounded queue depth. `null` leaves buffering to the consumer.
  * @property discardPolicy Overflow behaviour for [queueSize] (DDS-style KEEP_LAST/KEEP_ALL-ish).
  */
 public data class SubscribeOptions(
     public val maxRateHz: Double? = null,
     public val typeFilter: Set<String> = emptySet(),
+    public val deadband: DeadbandPolicy = DeadbandPolicy.None,
     public val queueSize: Int? = null,
     public val discardPolicy: DiscardPolicy = DiscardPolicy.KeepLatest,
 ) {
@@ -58,6 +68,7 @@ public data class SubscribeOptions(
 public data class AppliedSubscribeOptions(
     public val revisedMaxRateHz: Double? = null,
     public val revisedQueueSize: Int? = null,
+    public val revisedDeadband: DeadbandPolicy? = null,
     public val discardPolicy: DiscardPolicy = DiscardPolicy.KeepLatest,
 ) {
     public companion object {
@@ -74,7 +85,8 @@ public data class AppliedSubscribeOptions(
 public suspend fun Device.subscribe(
     principal: Principal,
     options: SubscribeOptions,
-): Flow<DeviceMessageFrame<DeviceMessage>> = subscribe(principal).shapedBy(options)
+): Flow<DeviceMessageFrame<DeviceMessage>> =
+    subscribe(principal).shapedBy(options, propertyDescriptors.engineeringSpans())
 
 /**
  * Property-granular subscription with [SubscribeOptions]. Authorizes [principal] for [property]
@@ -84,11 +96,19 @@ public suspend fun Device.subscribe(
     principal: Principal,
     property: Name,
     options: SubscribeOptions,
-): Flow<DeviceMessageFrame<DeviceMessage>> = subscribe(principal, property).shapedBy(options)
+): Flow<DeviceMessageFrame<DeviceMessage>> =
+    subscribe(principal, property).shapedBy(
+        options = options,
+        engineeringSpans = propertyDescriptors[property]
+            ?.engineeringSpan()
+            ?.let { mapOf(property to it) }
+            .orEmpty(),
+    )
 
 @OptIn(FlowPreview::class)
 private fun Flow<DeviceMessageFrame<DeviceMessage>>.shapedBy(
     options: SubscribeOptions,
+    engineeringSpans: Map<Name, Double>,
 ): Flow<DeviceMessageFrame<DeviceMessage>> {
     if (options === SubscribeOptions.Unthrottled) return this
 
@@ -102,6 +122,9 @@ private fun Flow<DeviceMessageFrame<DeviceMessage>>.shapedBy(
         val allowed = options.typeFilter
         shaped = shaped.filter { it.payload.messageType in allowed }
     }
+    if (options.deadband != DeadbandPolicy.None) {
+        shaped = shaped.filterByDeadband(options.deadband, engineeringSpans)
+    }
     options.queueSize?.let { capacity ->
         require(capacity > 0) { "queueSize must be positive, got $capacity" }
         val overflow = when (options.discardPolicy) {
@@ -111,4 +134,45 @@ private fun Flow<DeviceMessageFrame<DeviceMessage>>.shapedBy(
         shaped = shaped.buffer(capacity, onBufferOverflow = overflow)
     }
     return shaped
+}
+
+private fun Flow<DeviceMessageFrame<DeviceMessage>>.filterByDeadband(
+    deadband: DeadbandPolicy,
+    engineeringSpans: Map<Name, Double>,
+): Flow<DeviceMessageFrame<DeviceMessage>> = flow {
+    val previousValues = mutableMapOf<Name, Double>()
+    collect { frame ->
+        val message = frame.payload as? PropertyChangedMessage
+        val next = message?.value?.doubleValue
+        if (message == null || next == null || next.isNaN()) {
+            emit(frame)
+            return@collect
+        }
+
+        val previous = previousValues[message.property]
+        val threshold = deadband.thresholdFor(message.property, engineeringSpans)
+        val changedEnough = previous == null || threshold == null || abs(next - previous) > threshold
+        if (changedEnough) {
+            previousValues[message.property] = next
+            emit(frame)
+        }
+    }
+}
+
+private fun DeadbandPolicy.thresholdFor(property: Name, engineeringSpans: Map<Name, Double>): Double? =
+    when (this) {
+        is DeadbandPolicy.Absolute -> delta
+        is DeadbandPolicy.Relative -> engineeringSpans[property]?.let { span -> span * fraction }
+        DeadbandPolicy.None -> null
+    }
+
+private fun Map<Name, PropertyDescriptor>.engineeringSpans(): Map<Name, Double> = mapNotNull { (name, descriptor) ->
+    descriptor.engineeringSpan()?.let { name to it }
+}.toMap()
+
+private fun PropertyDescriptor.engineeringSpan(): Double? {
+    val range = engineeringRange ?: return null
+    val min = range.displayMin ?: return null
+    val max = range.displayMax ?: return null
+    return (max - min).takeIf { it > 0.0 && !it.isNaN() }
 }

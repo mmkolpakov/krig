@@ -650,10 +650,12 @@ final class space.kscience.krig.core.contracts.sampling/RingLongSampler : space.
 }
 
 final class space.kscience.krig.core.contracts/AppliedSubscribeOptions { // space.kscience.krig.core.contracts/AppliedSubscribeOptions|null[0]
-    constructor <init>(kotlin/Double? = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...) // space.kscience.krig.core.contracts/AppliedSubscribeOptions.<init>|<init>(kotlin.Double?;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
+    constructor <init>(kotlin/Double? = ..., kotlin/Int? = ..., space.kscience.krig.api.descriptors.attributes/DeadbandPolicy? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...) // space.kscience.krig.core.contracts/AppliedSubscribeOptions.<init>|<init>(kotlin.Double?;kotlin.Int?;space.kscience.krig.api.descriptors.attributes.DeadbandPolicy?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
 
     final val discardPolicy // space.kscience.krig.core.contracts/AppliedSubscribeOptions.discardPolicy|{}discardPolicy[0]
         final fun <get-discardPolicy>(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/AppliedSubscribeOptions.discardPolicy.<get-discardPolicy>|<get-discardPolicy>(){}[0]
+    final val revisedDeadband // space.kscience.krig.core.contracts/AppliedSubscribeOptions.revisedDeadband|{}revisedDeadband[0]
+        final fun <get-revisedDeadband>(): space.kscience.krig.api.descriptors.attributes/DeadbandPolicy? // space.kscience.krig.core.contracts/AppliedSubscribeOptions.revisedDeadband.<get-revisedDeadband>|<get-revisedDeadband>(){}[0]
     final val revisedMaxRateHz // space.kscience.krig.core.contracts/AppliedSubscribeOptions.revisedMaxRateHz|{}revisedMaxRateHz[0]
         final fun <get-revisedMaxRateHz>(): kotlin/Double? // space.kscience.krig.core.contracts/AppliedSubscribeOptions.revisedMaxRateHz.<get-revisedMaxRateHz>|<get-revisedMaxRateHz>(){}[0]
     final val revisedQueueSize // space.kscience.krig.core.contracts/AppliedSubscribeOptions.revisedQueueSize|{}revisedQueueSize[0]
@@ -661,8 +663,9 @@ final class space.kscience.krig.core.contracts/AppliedSubscribeOptions { // spac
 
     final fun component1(): kotlin/Double? // space.kscience.krig.core.contracts/AppliedSubscribeOptions.component1|component1(){}[0]
     final fun component2(): kotlin/Int? // space.kscience.krig.core.contracts/AppliedSubscribeOptions.component2|component2(){}[0]
-    final fun component3(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/AppliedSubscribeOptions.component3|component3(){}[0]
-    final fun copy(kotlin/Double? = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...): space.kscience.krig.core.contracts/AppliedSubscribeOptions // space.kscience.krig.core.contracts/AppliedSubscribeOptions.copy|copy(kotlin.Double?;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
+    final fun component3(): space.kscience.krig.api.descriptors.attributes/DeadbandPolicy? // space.kscience.krig.core.contracts/AppliedSubscribeOptions.component3|component3(){}[0]
+    final fun component4(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/AppliedSubscribeOptions.component4|component4(){}[0]
+    final fun copy(kotlin/Double? = ..., kotlin/Int? = ..., space.kscience.krig.api.descriptors.attributes/DeadbandPolicy? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...): space.kscience.krig.core.contracts/AppliedSubscribeOptions // space.kscience.krig.core.contracts/AppliedSubscribeOptions.copy|copy(kotlin.Double?;kotlin.Int?;space.kscience.krig.api.descriptors.attributes.DeadbandPolicy?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.contracts/AppliedSubscribeOptions.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.core.contracts/AppliedSubscribeOptions.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.contracts/AppliedSubscribeOptions.toString|toString(){}[0]
@@ -980,8 +983,10 @@ final class space.kscience.krig.core.contracts/RemoteTypedCompatibilityReport { 
 }
 
 final class space.kscience.krig.core.contracts/SubscribeOptions { // space.kscience.krig.core.contracts/SubscribeOptions|null[0]
-    constructor <init>(kotlin/Double? = ..., kotlin.collections/Set<kotlin/String> = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...) // space.kscience.krig.core.contracts/SubscribeOptions.<init>|<init>(kotlin.Double?;kotlin.collections.Set<kotlin.String>;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
+    constructor <init>(kotlin/Double? = ..., kotlin.collections/Set<kotlin/String> = ..., space.kscience.krig.api.descriptors.attributes/DeadbandPolicy = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...) // space.kscience.krig.core.contracts/SubscribeOptions.<init>|<init>(kotlin.Double?;kotlin.collections.Set<kotlin.String>;space.kscience.krig.api.descriptors.attributes.DeadbandPolicy;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
 
+    final val deadband // space.kscience.krig.core.contracts/SubscribeOptions.deadband|{}deadband[0]
+        final fun <get-deadband>(): space.kscience.krig.api.descriptors.attributes/DeadbandPolicy // space.kscience.krig.core.contracts/SubscribeOptions.deadband.<get-deadband>|<get-deadband>(){}[0]
     final val discardPolicy // space.kscience.krig.core.contracts/SubscribeOptions.discardPolicy|{}discardPolicy[0]
         final fun <get-discardPolicy>(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/SubscribeOptions.discardPolicy.<get-discardPolicy>|<get-discardPolicy>(){}[0]
     final val maxRateHz // space.kscience.krig.core.contracts/SubscribeOptions.maxRateHz|{}maxRateHz[0]
@@ -993,9 +998,10 @@ final class space.kscience.krig.core.contracts/SubscribeOptions { // space.kscie
 
     final fun component1(): kotlin/Double? // space.kscience.krig.core.contracts/SubscribeOptions.component1|component1(){}[0]
     final fun component2(): kotlin.collections/Set<kotlin/String> // space.kscience.krig.core.contracts/SubscribeOptions.component2|component2(){}[0]
-    final fun component3(): kotlin/Int? // space.kscience.krig.core.contracts/SubscribeOptions.component3|component3(){}[0]
-    final fun component4(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/SubscribeOptions.component4|component4(){}[0]
-    final fun copy(kotlin/Double? = ..., kotlin.collections/Set<kotlin/String> = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...): space.kscience.krig.core.contracts/SubscribeOptions // space.kscience.krig.core.contracts/SubscribeOptions.copy|copy(kotlin.Double?;kotlin.collections.Set<kotlin.String>;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
+    final fun component3(): space.kscience.krig.api.descriptors.attributes/DeadbandPolicy // space.kscience.krig.core.contracts/SubscribeOptions.component3|component3(){}[0]
+    final fun component4(): kotlin/Int? // space.kscience.krig.core.contracts/SubscribeOptions.component4|component4(){}[0]
+    final fun component5(): space.kscience.krig.core.contracts/DiscardPolicy // space.kscience.krig.core.contracts/SubscribeOptions.component5|component5(){}[0]
+    final fun copy(kotlin/Double? = ..., kotlin.collections/Set<kotlin/String> = ..., space.kscience.krig.api.descriptors.attributes/DeadbandPolicy = ..., kotlin/Int? = ..., space.kscience.krig.core.contracts/DiscardPolicy = ...): space.kscience.krig.core.contracts/SubscribeOptions // space.kscience.krig.core.contracts/SubscribeOptions.copy|copy(kotlin.Double?;kotlin.collections.Set<kotlin.String>;space.kscience.krig.api.descriptors.attributes.DeadbandPolicy;kotlin.Int?;space.kscience.krig.core.contracts.DiscardPolicy){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.core.contracts/SubscribeOptions.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // space.kscience.krig.core.contracts/SubscribeOptions.hashCode|hashCode(){}[0]
     final fun toString(): kotlin/String // space.kscience.krig.core.contracts/SubscribeOptions.toString|toString(){}[0]
