@@ -6,6 +6,21 @@
 // - Show declarations: true
 
 // Library unique name: <space.kscience:krig-storage>
+final enum class space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType : kotlin/Enum<space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType> { // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType|null[0]
+    enum entry Boolean // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.Boolean|null[0]
+    enum entry Float64 // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.Float64|null[0]
+    enum entry Int32 // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.Int32|null[0]
+    enum entry Int64 // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.Int64|null[0]
+
+    final val entries // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType> // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.entries.<get-entries>|<get-entries>#static(){}[0]
+    final val id // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.id|{}id[0]
+        final fun <get-id>(): kotlin/String // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.id.<get-id>|<get-id>(){}[0]
+
+    final fun valueOf(kotlin/String): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType> // space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType.values|values#static(){}[0]
+}
+
 abstract fun interface space.kscience.krig.storage.journal/JournalCompactionPolicy { // space.kscience.krig.storage.journal/JournalCompactionPolicy|null[0]
     abstract suspend fun compact(space.kscience.krig.storage.journal/EventJournal, space.kscience.krig.storage.journal/CheckpointAnchor?) // space.kscience.krig.storage.journal/JournalCompactionPolicy.compact|compact(space.kscience.krig.storage.journal.EventJournal;space.kscience.krig.storage.journal.CheckpointAnchor?){}[0]
 
@@ -40,6 +55,14 @@ abstract interface <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/Time
 
 abstract interface <#A: kotlin/Any?> space.kscience.krig.storage.timeseries/TimeSeriesChunkSink { // space.kscience.krig.storage.timeseries/TimeSeriesChunkSink|null[0]
     abstract suspend fun append(space.kscience.krig.storage.timeseries/TimeSeriesChunk<#A>) // space.kscience.krig.storage.timeseries/TimeSeriesChunkSink.append|append(space.kscience.krig.storage.timeseries.TimeSeriesChunk<1:0>){}[0]
+}
+
+abstract interface <#A: space.kscience.krig.storage.timeseries/ColumnarTimeSeriesChunk> space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec { // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec|null[0]
+    abstract val valueType // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec.valueType|{}valueType[0]
+        abstract fun <get-valueType>(): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec.valueType.<get-valueType>|<get-valueType>(){}[0]
+
+    abstract fun decode(space.kscience.dataforge.io/Envelope): #A // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec.decode|decode(space.kscience.dataforge.io.Envelope){}[0]
+    abstract fun encode(#A): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec.encode|encode(1:0){}[0]
 }
 
 abstract interface space.kscience.krig.storage.journal/CursorReplayLog : space.kscience.krig.storage.journal/ReplayLog { // space.kscience.krig.storage.journal/CursorReplayLog|null[0]
@@ -504,13 +527,87 @@ final object space.kscience.krig.storage.profile/StorageProfiles { // space.ksci
         final fun <get-TimeSeriesRows>(): space.kscience.krig.storage.profile/StorageProfile // space.kscience.krig.storage.profile/StorageProfiles.TimeSeriesRows.<get-TimeSeriesRows>|<get-TimeSeriesRows>(){}[0]
 }
 
+final object space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec : space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec<space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk> { // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec|null[0]
+    final val valueType // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec.valueType|{}valueType[0]
+        final fun <get-valueType>(): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec.valueType.<get-valueType>|<get-valueType>(){}[0]
+
+    final fun decode(space.kscience.dataforge.io/Envelope): space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec.decode|decode(space.kscience.dataforge.io.Envelope){}[0]
+    final fun encode(space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec.encode|encode(space.kscience.krig.storage.timeseries.DenseBooleanTimeSeriesChunk){}[0]
+}
+
+final object space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec : space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk> { // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec|null[0]
+    final val valueType // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec.valueType|{}valueType[0]
+        final fun <get-valueType>(): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec.valueType.<get-valueType>|<get-valueType>(){}[0]
+
+    final fun decode(space.kscience.dataforge.io/Envelope): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec.decode|decode(space.kscience.dataforge.io.Envelope){}[0]
+    final fun encode(space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec.encode|encode(space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk){}[0]
+}
+
+final object space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec : space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec<space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk> { // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec|null[0]
+    final val valueType // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec.valueType|{}valueType[0]
+        final fun <get-valueType>(): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec.valueType.<get-valueType>|<get-valueType>(){}[0]
+
+    final fun decode(space.kscience.dataforge.io/Envelope): space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec.decode|decode(space.kscience.dataforge.io.Envelope){}[0]
+    final fun encode(space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunkEnvelopeCodec.encode|encode(space.kscience.krig.storage.timeseries.DenseIntTimeSeriesChunk){}[0]
+}
+
+final object space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec : space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeCodec<space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk> { // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec|null[0]
+    final val valueType // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec.valueType|{}valueType[0]
+        final fun <get-valueType>(): space.kscience.krig.storage.timeseries/DenseTimeSeriesValueType // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec.valueType.<get-valueType>|<get-valueType>(){}[0]
+
+    final fun decode(space.kscience.dataforge.io/Envelope): space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec.decode|decode(space.kscience.dataforge.io.Envelope){}[0]
+    final fun encode(space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunkEnvelopeCodec.encode|encode(space.kscience.krig.storage.timeseries.DenseLongTimeSeriesChunk){}[0]
+}
+
+final object space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema { // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema|null[0]
+    final const val ENVELOPE_TYPE // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.ENVELOPE_TYPE|{}ENVELOPE_TYPE[0]
+        final fun <get-ENVELOPE_TYPE>(): kotlin/String // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.ENVELOPE_TYPE.<get-ENVELOPE_TYPE>|<get-ENVELOPE_TYPE>(){}[0]
+    final const val FORMAT_VERSION // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.FORMAT_VERSION|{}FORMAT_VERSION[0]
+        final fun <get-FORMAT_VERSION>(): kotlin/Int // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.FORMAT_VERSION.<get-FORMAT_VERSION>|<get-FORMAT_VERSION>(){}[0]
+    final const val QUALITY_LAYOUT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_LAYOUT|{}QUALITY_LAYOUT[0]
+        final fun <get-QUALITY_LAYOUT>(): kotlin/String // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_LAYOUT.<get-QUALITY_LAYOUT>|<get-QUALITY_LAYOUT>(){}[0]
+    final const val TIME_LAYOUT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.TIME_LAYOUT|{}TIME_LAYOUT[0]
+        final fun <get-TIME_LAYOUT>(): kotlin/String // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.TIME_LAYOUT.<get-TIME_LAYOUT>|<get-TIME_LAYOUT>(){}[0]
+    final const val VALUE_LAYOUT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_LAYOUT|{}VALUE_LAYOUT[0]
+        final fun <get-VALUE_LAYOUT>(): kotlin/String // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_LAYOUT.<get-VALUE_LAYOUT>|<get-VALUE_LAYOUT>(){}[0]
+
+    final val QUALITY_DETAILS // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_DETAILS|{}QUALITY_DETAILS[0]
+        final fun <get-QUALITY_DETAILS>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_DETAILS.<get-QUALITY_DETAILS>|<get-QUALITY_DETAILS>(){}[0]
+    final val QUALITY_DETAIL_COUNT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_DETAIL_COUNT|{}QUALITY_DETAIL_COUNT[0]
+        final fun <get-QUALITY_DETAIL_COUNT>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_DETAIL_COUNT.<get-QUALITY_DETAIL_COUNT>|<get-QUALITY_DETAIL_COUNT>(){}[0]
+    final val QUALITY_ENCODING // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_ENCODING|{}QUALITY_ENCODING[0]
+        final fun <get-QUALITY_ENCODING>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.QUALITY_ENCODING.<get-QUALITY_ENCODING>|<get-QUALITY_ENCODING>(){}[0]
+    final val ROW_COUNT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.ROW_COUNT|{}ROW_COUNT[0]
+        final fun <get-ROW_COUNT>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.ROW_COUNT.<get-ROW_COUNT>|<get-ROW_COUNT>(){}[0]
+    final val SERIES // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.SERIES|{}SERIES[0]
+        final fun <get-SERIES>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.SERIES.<get-SERIES>|<get-SERIES>(){}[0]
+    final val SERIES_COUNT // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.SERIES_COUNT|{}SERIES_COUNT[0]
+        final fun <get-SERIES_COUNT>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.SERIES_COUNT.<get-SERIES_COUNT>|<get-SERIES_COUNT>(){}[0]
+    final val TIME_ENCODING // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.TIME_ENCODING|{}TIME_ENCODING[0]
+        final fun <get-TIME_ENCODING>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.TIME_ENCODING.<get-TIME_ENCODING>|<get-TIME_ENCODING>(){}[0]
+    final val VALUE_ENCODING // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_ENCODING|{}VALUE_ENCODING[0]
+        final fun <get-VALUE_ENCODING>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_ENCODING.<get-VALUE_ENCODING>|<get-VALUE_ENCODING>(){}[0]
+    final val VALUE_TYPE // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_TYPE|{}VALUE_TYPE[0]
+        final fun <get-VALUE_TYPE>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VALUE_TYPE.<get-VALUE_TYPE>|<get-VALUE_TYPE>(){}[0]
+    final val VERSION // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VERSION|{}VERSION[0]
+        final fun <get-VERSION>(): space.kscience.dataforge.names/Name // space.kscience.krig.storage.timeseries/DenseTimeSeriesChunkEnvelopeSchema.VERSION.<get-VERSION>|<get-VERSION>(){}[0]
+}
+
 final fun (kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk>).space.kscience.krig.storage.timeseries/compressDenseRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): kotlinx.coroutines.flow/Flow<space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk> // space.kscience.krig.storage.timeseries/compressDenseRows|compressDenseRows@kotlinx.coroutines.flow.Flow<space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk>(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
+final fun (space.kscience.dataforge.io/Envelope).space.kscience.krig.storage.timeseries/decodeDenseBooleanTimeSeriesChunk(): space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk // space.kscience.krig.storage.timeseries/decodeDenseBooleanTimeSeriesChunk|decodeDenseBooleanTimeSeriesChunk@space.kscience.dataforge.io.Envelope(){}[0]
+final fun (space.kscience.dataforge.io/Envelope).space.kscience.krig.storage.timeseries/decodeDenseDoubleTimeSeriesChunk(): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/decodeDenseDoubleTimeSeriesChunk|decodeDenseDoubleTimeSeriesChunk@space.kscience.dataforge.io.Envelope(){}[0]
+final fun (space.kscience.dataforge.io/Envelope).space.kscience.krig.storage.timeseries/decodeDenseIntTimeSeriesChunk(): space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk // space.kscience.krig.storage.timeseries/decodeDenseIntTimeSeriesChunk|decodeDenseIntTimeSeriesChunk@space.kscience.dataforge.io.Envelope(){}[0]
+final fun (space.kscience.dataforge.io/Envelope).space.kscience.krig.storage.timeseries/decodeDenseLongTimeSeriesChunk(): space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk // space.kscience.krig.storage.timeseries/decodeDenseLongTimeSeriesChunk|decodeDenseLongTimeSeriesChunk@space.kscience.dataforge.io.Envelope(){}[0]
 final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/lastOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/lastOrNaN|lastOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
 final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/maxOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/maxOrNaN|maxOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
 final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/mean(): kotlin/Double // space.kscience.krig.storage.timeseries/mean|mean@space.kscience.kmath.structures.Float64Buffer(){}[0]
 final fun (space.kscience.kmath.structures/Float64Buffer).space.kscience.krig.storage.timeseries/minOrNaN(): kotlin/Double // space.kscience.krig.storage.timeseries/minOrNaN|minOrNaN@space.kscience.kmath.structures.Float64Buffer(){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk).space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope(): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope|toDenseTimeSeriesEnvelope@space.kscience.krig.storage.timeseries.DenseBooleanTimeSeriesChunk(){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.storage.timeseries/compressRows(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/compressRows|compressRows@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk).space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope(): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope|toDenseTimeSeriesEnvelope@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk(){}[0]
 final fun (space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink).space.kscience.krig.storage.timeseries/compressing(space.kscience.krig.storage.timeseries/RowsCompression = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunkSink // space.kscience.krig.storage.timeseries/compressing|compressing@space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunkSink(space.kscience.krig.storage.timeseries.RowsCompression){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk).space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope(): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope|toDenseTimeSeriesEnvelope@space.kscience.krig.storage.timeseries.DenseIntTimeSeriesChunk(){}[0]
+final fun (space.kscience.krig.storage.timeseries/DenseLongTimeSeriesChunk).space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope(): space.kscience.dataforge.io/Envelope // space.kscience.krig.storage.timeseries/toDenseTimeSeriesEnvelope|toDenseTimeSeriesEnvelope@space.kscience.krig.storage.timeseries.DenseLongTimeSeriesChunk(){}[0]
 final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Boolean>).space.kscience.krig.storage.timeseries/toDenseBooleanChunk(kotlin/Boolean = ...): space.kscience.krig.storage.timeseries/DenseBooleanTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseBooleanChunk|toDenseBooleanChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Boolean>(kotlin.Boolean){}[0]
 final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Double>).space.kscience.krig.storage.timeseries/toDenseDoubleChunk(kotlin/Double = ...): space.kscience.krig.storage.timeseries/DenseDoubleTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseDoubleChunk|toDenseDoubleChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Double>(kotlin.Double){}[0]
 final fun (space.kscience.krig.storage.timeseries/TimeSeriesChunk<kotlin/Int>).space.kscience.krig.storage.timeseries/toDenseIntChunk(kotlin/Int = ...): space.kscience.krig.storage.timeseries/DenseIntTimeSeriesChunk // space.kscience.krig.storage.timeseries/toDenseIntChunk|toDenseIntChunk@space.kscience.krig.storage.timeseries.TimeSeriesChunk<kotlin.Int>(kotlin.Int){}[0]

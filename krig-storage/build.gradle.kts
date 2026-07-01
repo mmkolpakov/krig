@@ -11,6 +11,7 @@ kotlin {
             dependencies {
                 api(project(":krig-state"))
                 api(project(":krig-messaging"))
+                api(libs.dataforge.io)
                 api(libs.dataforge.meta)
                 api(libs.kmath.core)
                 api(libs.kotlinx.coroutines.core)

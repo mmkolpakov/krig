@@ -274,6 +274,15 @@ public final class space/kscience/krig/storage/timeseries/DenseBooleanTimeSeries
 	public final fun value (II)Z
 }
 
+public final class space/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec : space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodec {
+	public static final field INSTANCE Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunkEnvelopeCodec;
+	public synthetic fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;
+	public fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;
+	public synthetic fun encode (Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun encode (Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun getValueType ()Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+}
+
 public final class space/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesRow {
 	public fun <init> (Lkotlin/time/Instant;[ZLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
 	public synthetic fun <init> (Lkotlin/time/Instant;[ZLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -298,6 +307,15 @@ public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesC
 	public final fun row (I)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesRow;
 	public fun severityColumn (I)[I
 	public final fun value (II)D
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec : space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodec {
+	public static final field INSTANCE Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunkEnvelopeCodec;
+	public synthetic fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;
+	public fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
+	public synthetic fun encode (Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun encode (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun getValueType ()Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
 }
 
 public abstract interface class space/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunkSink {
@@ -331,6 +349,15 @@ public final class space/kscience/krig/storage/timeseries/DenseIntTimeSeriesChun
 	public final fun value (II)I
 }
 
+public final class space/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunkEnvelopeCodec : space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodec {
+	public static final field INSTANCE Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunkEnvelopeCodec;
+	public synthetic fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;
+	public fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;
+	public synthetic fun encode (Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun encode (Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun getValueType ()Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+}
+
 public final class space/kscience/krig/storage/timeseries/DenseIntTimeSeriesRow {
 	public fun <init> (Lkotlin/time/Instant;[ILspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
 	public synthetic fun <init> (Lkotlin/time/Instant;[ILspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -357,6 +384,15 @@ public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesChu
 	public final fun value (II)J
 }
 
+public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunkEnvelopeCodec : space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodec {
+	public static final field INSTANCE Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunkEnvelopeCodec;
+	public synthetic fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;
+	public fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;
+	public synthetic fun encode (Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun encode (Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public fun getValueType ()Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+}
+
 public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesRow {
 	public fun <init> (Lkotlin/time/Instant;[JLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;)V
 	public synthetic fun <init> (Lkotlin/time/Instant;[JLspace/kscience/krig/api/data/DataQuality;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -367,6 +403,53 @@ public final class space/kscience/krig/storage/timeseries/DenseLongTimeSeriesRow
 	public final fun getTime ()Lkotlin/time/Instant;
 	public final fun getValues ()[J
 	public final fun qualityAt (I)Lspace/kscience/krig/api/data/DataQuality;
+}
+
+public abstract interface class space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodec {
+	public abstract fun decode (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;
+	public abstract fun encode (Lspace/kscience/krig/storage/timeseries/ColumnarTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public abstract fun getValueType ()Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeCodecKt {
+	public static final fun decodeDenseBooleanTimeSeriesChunk (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;
+	public static final fun decodeDenseDoubleTimeSeriesChunk (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;
+	public static final fun decodeDenseIntTimeSeriesChunk (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;
+	public static final fun decodeDenseLongTimeSeriesChunk (Lspace/kscience/dataforge/io/Envelope;)Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;
+	public static final fun toDenseTimeSeriesEnvelope (Lspace/kscience/krig/storage/timeseries/DenseBooleanTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public static final fun toDenseTimeSeriesEnvelope (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public static final fun toDenseTimeSeriesEnvelope (Lspace/kscience/krig/storage/timeseries/DenseIntTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+	public static final fun toDenseTimeSeriesEnvelope (Lspace/kscience/krig/storage/timeseries/DenseLongTimeSeriesChunk;)Lspace/kscience/dataforge/io/Envelope;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeSchema {
+	public static final field ENVELOPE_TYPE Ljava/lang/String;
+	public static final field FORMAT_VERSION I
+	public static final field INSTANCE Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesChunkEnvelopeSchema;
+	public static final field QUALITY_LAYOUT Ljava/lang/String;
+	public static final field TIME_LAYOUT Ljava/lang/String;
+	public static final field VALUE_LAYOUT Ljava/lang/String;
+	public final fun getQUALITY_DETAILS ()Lspace/kscience/dataforge/names/Name;
+	public final fun getQUALITY_DETAIL_COUNT ()Lspace/kscience/dataforge/names/Name;
+	public final fun getQUALITY_ENCODING ()Lspace/kscience/dataforge/names/Name;
+	public final fun getROW_COUNT ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSERIES ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSERIES_COUNT ()Lspace/kscience/dataforge/names/Name;
+	public final fun getTIME_ENCODING ()Lspace/kscience/dataforge/names/Name;
+	public final fun getVALUE_ENCODING ()Lspace/kscience/dataforge/names/Name;
+	public final fun getVALUE_TYPE ()Lspace/kscience/dataforge/names/Name;
+	public final fun getVERSION ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final class space/kscience/krig/storage/timeseries/DenseTimeSeriesValueType : java/lang/Enum {
+	public static final field Boolean Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+	public static final field Float64 Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+	public static final field Int32 Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+	public static final field Int64 Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getId ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
+	public static fun values ()[Lspace/kscience/krig/storage/timeseries/DenseTimeSeriesValueType;
 }
 
 public final class space/kscience/krig/storage/timeseries/Float64ReductionsKt {

@@ -1,6 +1,7 @@
 package space.kscience.krig.demo
 
 import space.kscience.dataforge.names.asName
+import space.kscience.dataforge.io.toByteArray
 import space.kscience.krig.api.data.DataQuality
 import space.kscience.krig.api.data.QualityCode
 import space.kscience.krig.api.data.QualitySeverity
@@ -10,6 +11,8 @@ import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesChunk
 import space.kscience.krig.storage.timeseries.DenseDoubleTimeSeriesRow
 import space.kscience.krig.storage.timeseries.DenseIntTimeSeriesChunk
 import space.kscience.krig.storage.timeseries.DenseIntTimeSeriesRow
+import space.kscience.krig.storage.timeseries.decodeDenseDoubleTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.toDenseTimeSeriesEnvelope
 import kotlin.time.Instant
 
 private const val DEFAULT_EDGE_SAMPLE_COUNT: Int = 1_000
@@ -28,11 +31,13 @@ internal data class EdgeTelemetryWirePayload(
 /** Common edge payload: dense telemetry stays KMP; JVM-only code decides whether to export to Arrow. */
 suspend fun edgeTelemetryWireDemo() {
     val payload = edgeTelemetryWirePayload(sampleCount = 64)
-    val chunk = payload.analog
+    val envelope = payload.analog.toDenseTimeSeriesEnvelope()
+    val chunk = envelope.decodeDenseDoubleTimeSeriesChunk()
     val firstQuality = chunk.qualityAt(row = 0, seriesIndex = 0)
 
     println("=== Edge telemetry wire payload ===")
     println("  rows: ${chunk.rowCount}, series: ${chunk.series}")
+    println("  analog envelope bytes: ${envelope.data?.toByteArray()?.size ?: 0}")
     println("  register rows: ${payload.registers.rowCount}, coil rows: ${payload.coils.rowCount}")
     println("  first row aggregate quality: ${chunk.aggregateQualityAt(0).severity.label}")
     println("  first temperature quality code: ${firstQuality.code?.id}")

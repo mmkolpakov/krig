@@ -1,6 +1,8 @@
 package space.kscience.krig.demo
 
 import space.kscience.krig.arrow.writeArrowIpcFile
+import space.kscience.krig.storage.timeseries.decodeDenseDoubleTimeSeriesChunk
+import space.kscience.krig.storage.timeseries.toDenseTimeSeriesEnvelope
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -25,6 +27,8 @@ internal fun writeTelemetryArrowExport(
     sampleCount: Int = SAMPLE_COUNT,
 ): Long {
     val chunk = edgeTelemetryWireChunk(sampleCount)
+        .toDenseTimeSeriesEnvelope()
+        .decodeDenseDoubleTimeSeriesChunk()
     chunk.writeArrowIpcFile(
         path,
         schemaMetadata = mapOf(
