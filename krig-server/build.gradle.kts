@@ -16,11 +16,13 @@ dependencies {
     api(libs.ktor.server.content.negotiation)
     api(libs.ktor.server.routing.openapi)
     api(libs.ktor.server.sse)
+    api(libs.ktor.server.websockets)
     api(libs.ktor.serialization.kotlinx.json)
 
     implementation(project(":krig-messaging"))
 
     testImplementation(kotlin("test-junit5"))
+    testImplementation(libs.ktor.client.websockets)
     testImplementation(libs.ktor.server.test.host)
 }
 

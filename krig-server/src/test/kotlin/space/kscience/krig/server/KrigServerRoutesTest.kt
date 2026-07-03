@@ -3,6 +3,9 @@
 package space.kscience.krig.server
 
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.plugins.websocket.WebSockets as ClientWebSockets
+import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -11,6 +14,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -23,6 +29,7 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.descriptors.TypeIds
 import space.kscience.krig.api.faults.GenericOperationFault
 import space.kscience.krig.api.faults.OperationFaultTypes
+import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.serialization.krigJson
 import space.kscience.krig.core.contracts.AbstractDevice
@@ -36,6 +43,9 @@ import space.kscience.krig.ui.schema.DeviceFormCommandEnvelope
 import space.kscience.krig.ui.schema.DeviceFormCommandKind
 import space.kscience.krig.ui.schema.DeviceFormNodeId
 import space.kscience.krig.ui.schema.DeviceFormSchema
+import space.kscience.krig.ui.schema.DeviceFormStreamClientMessage
+import space.kscience.krig.ui.schema.DeviceFormStreamOptions
+import space.kscience.krig.ui.schema.DeviceFormStreamServerMessage
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -184,6 +194,7 @@ class KrigServerRoutesTest {
         assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/form-state"))
         assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/commands"))
         assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/form-events"))
+        assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/streams"))
     }
 
     @Test
@@ -266,6 +277,81 @@ class KrigServerRoutesTest {
         assertTrue("event: form.patch" in body)
         assertTrue("\"rpm\"" in body)
         assertTrue("Read failed for property 'rpm'." in body)
+    }
+
+    @Test
+    fun streamRouteSendsBoundedOutcomeAwarePatches() = testApplication {
+        application {
+            installKrigServerDefaults()
+            krigDeviceServer(testRegistry())
+        }
+        val wsClient = createClient { install(ClientWebSockets) }
+
+        wsClient.webSocket("/devices/sensor/streams") {
+            sendClient(
+                DeviceFormStreamClientMessage.Subscribe(
+                    requestId = "stream-1",
+                    options = DeviceFormStreamOptions(maxRateHz = 100.0, maxFrames = 1),
+                ),
+            )
+
+            val subscribed = receiveServer()
+            assertTrue(subscribed is DeviceFormStreamServerMessage.Subscribed)
+            assertEquals("stream-1", subscribed.requestId)
+
+            val patch = receiveServer()
+            assertTrue(patch is DeviceFormStreamServerMessage.Patch)
+            val rpm = patch.patch.updates[SensorContract.rpm.name]
+            assertTrue(rpm is OperationOutcome.Ok)
+            assertEquals(42.0, rpm.value.value?.doubleValue)
+
+            val completed = receiveServer()
+            assertTrue(completed is DeviceFormStreamServerMessage.Completed)
+            assertEquals("stream-1", completed.requestId)
+        }
+    }
+
+    @Test
+    fun streamRouteHandlesPingFaultAndUnsubscribeFrames() = testApplication {
+        application {
+            installKrigServerDefaults()
+            krigDeviceServer(testRegistry())
+        }
+        val wsClient = createClient { install(ClientWebSockets) }
+
+        wsClient.webSocket("/devices/sensor/streams") {
+            sendClient(DeviceFormStreamClientMessage.Ping(requestId = "ping-1"))
+            val pong = receiveServer()
+            assertTrue(pong is DeviceFormStreamServerMessage.Pong)
+            assertEquals("ping-1", pong.requestId)
+
+            sendClient(
+                DeviceFormStreamClientMessage.Subscribe(
+                    requestId = "bad-1",
+                    options = DeviceFormStreamOptions(properties = setOf("missing".asName()), maxFrames = 1),
+                ),
+            )
+            val fault = receiveServer()
+            assertTrue(fault is DeviceFormStreamServerMessage.Fault)
+            assertEquals("bad-1", fault.requestId)
+            assertEquals(OperationFaultTypes.Validation, fault.fault.faultType)
+            val validation = fault.fault
+            assertTrue(validation is ValidationFault)
+            assertTrue("missing" in validation.details.toString())
+
+            sendClient(
+                DeviceFormStreamClientMessage.Subscribe(
+                    requestId = "stream-2",
+                    options = DeviceFormStreamOptions(maxRateHz = 1.0),
+                ),
+            )
+            assertTrue(receiveServer() is DeviceFormStreamServerMessage.Subscribed)
+            assertTrue(receiveServer() is DeviceFormStreamServerMessage.Patch)
+            sendClient(DeviceFormStreamClientMessage.Unsubscribe(requestId = "stream-2"))
+            val completed = receiveServer()
+            assertTrue(completed is DeviceFormStreamServerMessage.Completed)
+            assertEquals("unsubscribed", completed.reason)
+        }
     }
 
     private object SensorContract : DeviceContractBuilder() {
@@ -359,6 +445,17 @@ class KrigServerRoutesTest {
         post("/devices/sensor/commands") {
             contentType(ContentType.Application.Json)
             setBody(wireJson.encodeToString(DeviceFormCommandEnvelope.serializer(), envelope))
+        }
+
+    private suspend fun DefaultClientWebSocketSession.sendClient(message: DeviceFormStreamClientMessage) {
+        val text = wireJson.encodeToString(DeviceFormStreamClientMessage.serializer(), message)
+        send(Frame.Text(text))
+    }
+
+    private suspend fun DefaultClientWebSocketSession.receiveServer(): DeviceFormStreamServerMessage =
+        withTimeout(5_000) {
+            val text = (incoming.receive() as Frame.Text).readText()
+            wireJson.decodeFromString(DeviceFormStreamServerMessage.serializer(), text)
         }
 
     private companion object {

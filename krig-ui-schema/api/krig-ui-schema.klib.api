@@ -228,6 +228,283 @@ sealed interface space.kscience.krig.ui.schema/DeviceFormCommandOutput { // spac
     }
 }
 
+sealed interface space.kscience.krig.ui.schema/DeviceFormStreamClientMessage { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage|null[0]
+    abstract val requestId // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.requestId|{}requestId[0]
+        abstract fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+    final class Ping : space.kscience.krig.ui.schema/DeviceFormStreamClientMessage { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping|null[0]
+        constructor <init>(kotlin/String? = ...) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.<init>|<init>(kotlin.String?){}[0]
+
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.component1|component1(){}[0]
+        final fun copy(kotlin/String? = ...): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.copy|copy(kotlin.String?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping> { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamClientMessage.Ping){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Ping.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Subscribe : space.kscience.krig.ui.schema/DeviceFormStreamClientMessage { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe|null[0]
+        constructor <init>(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStreamOptions = ...) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.<init>|<init>(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+
+        final val options // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.options|{}options[0]
+            final fun <get-options>(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.options.<get-options>|<get-options>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.component1|component1(){}[0]
+        final fun component2(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.component2|component2(){}[0]
+        final fun copy(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStreamOptions = ...): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.copy|copy(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe> { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamClientMessage.Subscribe){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Subscribe.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Unsubscribe : space.kscience.krig.ui.schema/DeviceFormStreamClientMessage { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe|null[0]
+        constructor <init>(kotlin/String? = ...) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.<init>|<init>(kotlin.String?){}[0]
+
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.component1|component1(){}[0]
+        final fun copy(kotlin/String? = ...): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.copy|copy(kotlin.String?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe> { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamClientMessage.Unsubscribe){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Unsubscribe.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class UpdateOptions : space.kscience.krig.ui.schema/DeviceFormStreamClientMessage { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions|null[0]
+        constructor <init>(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStreamOptions = ...) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.<init>|<init>(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+
+        final val options // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.options|{}options[0]
+            final fun <get-options>(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.options.<get-options>|<get-options>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.component1|component1(){}[0]
+        final fun component2(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.component2|component2(){}[0]
+        final fun copy(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStreamOptions = ...): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.copy|copy(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions> { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions) // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamClientMessage.UpdateOptions){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.UpdateOptions.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamClientMessage> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.ui.schema/DeviceFormStreamClientMessage.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+sealed interface space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage|null[0]
+    abstract val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.requestId|{}requestId[0]
+        abstract fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+    final class Completed : space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed|null[0]
+        constructor <init>(kotlin/String? = ..., kotlin/String) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.<init>|<init>(kotlin.String?;kotlin.String){}[0]
+
+        final val reason // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.reason|{}reason[0]
+            final fun <get-reason>(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.reason.<get-reason>|<get-reason>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.component1|component1(){}[0]
+        final fun component2(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.component2|component2(){}[0]
+        final fun copy(kotlin/String? = ..., kotlin/String = ...): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.copy|copy(kotlin.String?;kotlin.String){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed> { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamServerMessage.Completed){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Completed.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Fault : space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault|null[0]
+        constructor <init>(kotlin/String? = ..., space.kscience.krig.api.faults/OperationFault) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.<init>|<init>(kotlin.String?;space.kscience.krig.api.faults.OperationFault){}[0]
+
+        final val fault // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.fault|{}fault[0]
+            final fun <get-fault>(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.fault.<get-fault>|<get-fault>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.component1|component1(){}[0]
+        final fun component2(): space.kscience.krig.api.faults/OperationFault // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.component2|component2(){}[0]
+        final fun copy(kotlin/String? = ..., space.kscience.krig.api.faults/OperationFault = ...): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.copy|copy(kotlin.String?;space.kscience.krig.api.faults.OperationFault){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault> { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamServerMessage.Fault){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.Companion|null[0]
+            final val $childSerializers // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.Companion.$childSerializers|{}$childSerializers[0]
+
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Fault.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Patch : space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch|null[0]
+        constructor <init>(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStatePatch) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.<init>|<init>(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStatePatch){}[0]
+
+        final val patch // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.patch|{}patch[0]
+            final fun <get-patch>(): space.kscience.krig.ui.schema/DeviceFormStatePatch // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.patch.<get-patch>|<get-patch>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.component1|component1(){}[0]
+        final fun component2(): space.kscience.krig.ui.schema/DeviceFormStatePatch // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.component2|component2(){}[0]
+        final fun copy(kotlin/String? = ..., space.kscience.krig.ui.schema/DeviceFormStatePatch = ...): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.copy|copy(kotlin.String?;space.kscience.krig.ui.schema.DeviceFormStatePatch){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch> { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamServerMessage.Patch){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Patch.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Pong : space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong|null[0]
+        constructor <init>(kotlin/String? = ...) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.<init>|<init>(kotlin.String?){}[0]
+
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.requestId.<get-requestId>|<get-requestId>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.component1|component1(){}[0]
+        final fun copy(kotlin/String? = ...): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.copy|copy(kotlin.String?){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong> { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamServerMessage.Pong){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Pong.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final class Subscribed : space.kscience.krig.ui.schema/DeviceFormStreamServerMessage { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed|null[0]
+        constructor <init>(kotlin/String? = ..., kotlin/String, space.kscience.krig.ui.schema/DeviceFormStreamOptions) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.<init>|<init>(kotlin.String?;kotlin.String;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+
+        final val options // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.options|{}options[0]
+            final fun <get-options>(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.options.<get-options>|<get-options>(){}[0]
+        final val requestId // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.requestId|{}requestId[0]
+            final fun <get-requestId>(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.requestId.<get-requestId>|<get-requestId>(){}[0]
+        final val schemaHash // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.schemaHash|{}schemaHash[0]
+            final fun <get-schemaHash>(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.schemaHash.<get-schemaHash>|<get-schemaHash>(){}[0]
+
+        final fun component1(): kotlin/String? // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.component1|component1(){}[0]
+        final fun component2(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.component2|component2(){}[0]
+        final fun component3(): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.component3|component3(){}[0]
+        final fun copy(kotlin/String? = ..., kotlin/String = ..., space.kscience.krig.ui.schema/DeviceFormStreamOptions = ...): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.copy|copy(kotlin.String?;kotlin.String;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.toString|toString(){}[0]
+
+        final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed> { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer|null[0]
+            final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer.descriptor|{}descriptor[0]
+                final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+            final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer.childSerializers|childSerializers(){}[0]
+            final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+            final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed) // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamServerMessage.Subscribed){}[0]
+        }
+
+        final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.Companion|null[0]
+            final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Subscribed.Companion.serializer|serializer(){}[0]
+        }
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamServerMessage> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // space.kscience.krig.ui.schema/DeviceFormStreamServerMessage.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
 final class space.kscience.krig.ui.schema/DeviceFormAction { // space.kscience.krig.ui.schema/DeviceFormAction|null[0]
     constructor <init>(space.kscience.krig.ui.schema/DeviceFormNodeId, space.kscience.dataforge.names/Name, kotlin/String? = ..., space.kscience.dataforge.meta.descriptors/MetaDescriptor, space.kscience.dataforge.meta.descriptors/MetaDescriptor, space.kscience.krig.ui.schema/DeviceFormSourceReference, space.kscience.krig.ui.schema/DeviceFormCommand, space.kscience.krig.ui.schema/DeviceFormTaskReference? = ..., space.kscience.krig.ui.schema/DeviceFormControlKind = ..., space.kscience.krig.ui.schema/DeviceFormValidationMode = ..., space.kscience.krig.ui.schema/DeviceFormDescriptorSemantics = ..., kotlin.collections/List<space.kscience.krig.ui.schema/DeviceFormRenderHint> = ...) // space.kscience.krig.ui.schema/DeviceFormAction.<init>|<init>(space.kscience.krig.ui.schema.DeviceFormNodeId;space.kscience.dataforge.names.Name;kotlin.String?;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.dataforge.meta.descriptors.MetaDescriptor;space.kscience.krig.ui.schema.DeviceFormSourceReference;space.kscience.krig.ui.schema.DeviceFormCommand;space.kscience.krig.ui.schema.DeviceFormTaskReference?;space.kscience.krig.ui.schema.DeviceFormControlKind;space.kscience.krig.ui.schema.DeviceFormValidationMode;space.kscience.krig.ui.schema.DeviceFormDescriptorSemantics;kotlin.collections.List<space.kscience.krig.ui.schema.DeviceFormRenderHint>){}[0]
 
@@ -877,6 +1154,40 @@ final class space.kscience.krig.ui.schema/DeviceFormStateSnapshot { // space.ksc
         final val $childSerializers // space.kscience.krig.ui.schema/DeviceFormStateSnapshot.Companion.$childSerializers|{}$childSerializers[0]
 
         final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStateSnapshot> // space.kscience.krig.ui.schema/DeviceFormStateSnapshot.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final class space.kscience.krig.ui.schema/DeviceFormStreamOptions { // space.kscience.krig.ui.schema/DeviceFormStreamOptions|null[0]
+    constructor <init>(kotlin.collections/Set<space.kscience.dataforge.names/Name> = ..., kotlin/Double? = ..., kotlin/Int? = ...) // space.kscience.krig.ui.schema/DeviceFormStreamOptions.<init>|<init>(kotlin.collections.Set<space.kscience.dataforge.names.Name>;kotlin.Double?;kotlin.Int?){}[0]
+
+    final val maxFrames // space.kscience.krig.ui.schema/DeviceFormStreamOptions.maxFrames|{}maxFrames[0]
+        final fun <get-maxFrames>(): kotlin/Int? // space.kscience.krig.ui.schema/DeviceFormStreamOptions.maxFrames.<get-maxFrames>|<get-maxFrames>(){}[0]
+    final val maxRateHz // space.kscience.krig.ui.schema/DeviceFormStreamOptions.maxRateHz|{}maxRateHz[0]
+        final fun <get-maxRateHz>(): kotlin/Double? // space.kscience.krig.ui.schema/DeviceFormStreamOptions.maxRateHz.<get-maxRateHz>|<get-maxRateHz>(){}[0]
+    final val properties // space.kscience.krig.ui.schema/DeviceFormStreamOptions.properties|{}properties[0]
+        final fun <get-properties>(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.ui.schema/DeviceFormStreamOptions.properties.<get-properties>|<get-properties>(){}[0]
+
+    final fun component1(): kotlin.collections/Set<space.kscience.dataforge.names/Name> // space.kscience.krig.ui.schema/DeviceFormStreamOptions.component1|component1(){}[0]
+    final fun component2(): kotlin/Double? // space.kscience.krig.ui.schema/DeviceFormStreamOptions.component2|component2(){}[0]
+    final fun component3(): kotlin/Int? // space.kscience.krig.ui.schema/DeviceFormStreamOptions.component3|component3(){}[0]
+    final fun copy(kotlin.collections/Set<space.kscience.dataforge.names/Name> = ..., kotlin/Double? = ..., kotlin/Int? = ...): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamOptions.copy|copy(kotlin.collections.Set<space.kscience.dataforge.names.Name>;kotlin.Double?;kotlin.Int?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.ui.schema/DeviceFormStreamOptions.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.ui.schema/DeviceFormStreamOptions.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.ui.schema/DeviceFormStreamOptions.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.ui.schema/DeviceFormStreamOptions> { // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer|null[0]
+        final val descriptor // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.ui.schema/DeviceFormStreamOptions // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.ui.schema/DeviceFormStreamOptions) // space.kscience.krig.ui.schema/DeviceFormStreamOptions.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.ui.schema.DeviceFormStreamOptions){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.ui.schema/DeviceFormStreamOptions.Companion|null[0]
+        final val $childSerializers // space.kscience.krig.ui.schema/DeviceFormStreamOptions.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.ui.schema/DeviceFormStreamOptions> // space.kscience.krig.ui.schema/DeviceFormStreamOptions.Companion.serializer|serializer(){}[0]
     }
 }
 

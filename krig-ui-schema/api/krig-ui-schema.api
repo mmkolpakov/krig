@@ -819,6 +819,328 @@ public final class space/kscience/krig/ui/schema/DeviceFormStateSnapshot$Compani
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public abstract interface class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Companion;
+	public abstract fun getRequestId ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping : space/kscience/krig/ui/schema/DeviceFormStreamClientMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Ping$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe : space/kscience/krig/ui/schema/DeviceFormStreamClientMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)V
+	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOptions ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Subscribe$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe : space/kscience/krig/ui/schema/DeviceFormStreamClientMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$Unsubscribe$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions : space/kscience/krig/ui/schema/DeviceFormStreamClientMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)V
+	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOptions ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamClientMessage$UpdateOptions$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamOptions {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Set;Ljava/lang/Double;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/util/Set;Ljava/lang/Double;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Set;
+	public final fun component2 ()Ljava/lang/Double;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/util/Set;Ljava/lang/Double;Ljava/lang/Integer;)Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;Ljava/util/Set;Ljava/lang/Double;Ljava/lang/Integer;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMaxFrames ()Ljava/lang/Integer;
+	public final fun getMaxRateHz ()Ljava/lang/Double;
+	public final fun getProperties ()Ljava/util/Set;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamOptions$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamOptions$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Companion;
+	public abstract fun getRequestId ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed : space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getReason ()Ljava/lang/String;
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Completed$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault : space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault$Companion;
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;)V
+	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/api/faults/OperationFault;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault;Ljava/lang/String;Lspace/kscience/krig/api/faults/OperationFault;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getFault ()Lspace/kscience/krig/api/faults/OperationFault;
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Fault$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch : space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch$Companion;
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)V
+	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getPatch ()Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Patch$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong : space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getRequestId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Pong$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed : space/kscience/krig/ui/schema/DeviceFormStreamServerMessage {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getOptions ()Lspace/kscience/krig/ui/schema/DeviceFormStreamOptions;
+	public fun getRequestId ()Ljava/lang/String;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStreamServerMessage$Subscribed$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/ui/schema/DeviceFormTaskReference {
 	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormTaskReference$Companion;
 	public fun <init> ()V

@@ -36,6 +36,7 @@ import space.kscience.krig.api.descriptors.attributes.readable
 import space.kscience.krig.api.descriptors.attributes.task
 import space.kscience.krig.api.descriptors.attributes.unit
 import space.kscience.krig.api.descriptors.attributes.virtualProperty
+import space.kscience.krig.api.faults.OperationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceManifest
@@ -314,6 +315,79 @@ public data class DeviceFormStatePatch(
     public val updates: Map<Name, OperationOutcome<DeviceFormObservedMeta>> = emptyMap(),
     public val removed: Set<Name> = emptySet(),
 )
+
+@Serializable
+@SerialName("schema.device.form.stream.options")
+public data class DeviceFormStreamOptions(
+    public val properties: Set<Name> = emptySet(),
+    public val maxRateHz: Double? = null,
+    public val maxFrames: Int? = null,
+)
+
+@Serializable
+public sealed interface DeviceFormStreamClientMessage {
+    public val requestId: String?
+
+    @Serializable
+    @SerialName("schema.device.form.stream.client.subscribe")
+    public data class Subscribe(
+        override val requestId: String? = null,
+        public val options: DeviceFormStreamOptions = DeviceFormStreamOptions(),
+    ) : DeviceFormStreamClientMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.client.update-options")
+    public data class UpdateOptions(
+        override val requestId: String? = null,
+        public val options: DeviceFormStreamOptions = DeviceFormStreamOptions(),
+    ) : DeviceFormStreamClientMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.client.unsubscribe")
+    public data class Unsubscribe(override val requestId: String? = null) : DeviceFormStreamClientMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.client.ping")
+    public data class Ping(override val requestId: String? = null) : DeviceFormStreamClientMessage
+}
+
+@Serializable
+public sealed interface DeviceFormStreamServerMessage {
+    public val requestId: String?
+
+    @Serializable
+    @SerialName("schema.device.form.stream.server.subscribed")
+    public data class Subscribed(
+        override val requestId: String? = null,
+        public val schemaHash: String,
+        public val options: DeviceFormStreamOptions,
+    ) : DeviceFormStreamServerMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.server.patch")
+    public data class Patch(
+        override val requestId: String? = null,
+        public val patch: DeviceFormStatePatch,
+    ) : DeviceFormStreamServerMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.server.fault")
+    public data class Fault(
+        override val requestId: String? = null,
+        public val fault: OperationFault,
+    ) : DeviceFormStreamServerMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.server.pong")
+    public data class Pong(override val requestId: String? = null) : DeviceFormStreamServerMessage
+
+    @Serializable
+    @SerialName("schema.device.form.stream.server.completed")
+    public data class Completed(
+        override val requestId: String? = null,
+        public val reason: String,
+    ) : DeviceFormStreamServerMessage
+}
 
 @Serializable
 @SerialName("schema.device.form.debug-trace")

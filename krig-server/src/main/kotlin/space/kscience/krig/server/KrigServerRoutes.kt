@@ -21,11 +21,24 @@ import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.openapi.hide
 import io.ktor.server.sse.SSE
 import io.ktor.server.sse.sse
+import io.ktor.server.websocket.DefaultWebSocketServerSession
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.webSocket
 import io.ktor.utils.io.ExperimentalKtorApi
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.Frame
 import io.ktor.sse.ServerSentEvent
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import space.kscience.dataforge.meta.Meta
@@ -52,6 +65,9 @@ import space.kscience.krig.ui.schema.DeviceFormCommandResult
 import space.kscience.krig.ui.schema.DeviceFormObservedMeta
 import space.kscience.krig.ui.schema.DeviceFormSchema
 import space.kscience.krig.ui.schema.DeviceFormStatePatch
+import space.kscience.krig.ui.schema.DeviceFormStreamClientMessage
+import space.kscience.krig.ui.schema.DeviceFormStreamOptions
+import space.kscience.krig.ui.schema.DeviceFormStreamServerMessage
 import space.kscience.krig.ui.schema.toDeviceFormObservedMeta
 import space.kscience.krig.ui.schema.toDeviceFormSchema
 import kotlin.math.roundToLong
@@ -66,6 +82,7 @@ public fun Application.installKrigServerDefaults(wireJson: Json = krigJson()) {
         json(wireJson)
     }
     install(SSE)
+    install(WebSockets)
 }
 
 /** Installs the default KRig device HTTP routes into this [Application]. */
@@ -227,6 +244,15 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry, settings: Kr
             delay(delayMillis.milliseconds)
         } while (currentCoroutineContext().isActive)
     }.describeSseRoute()
+
+    webSocket("/devices/{deviceId}/streams") {
+        val (_, device, manifest) = resolveDeviceManifestForStream(registry) ?: return@webSocket
+        handleFormStream(
+            device = device,
+            schema = manifest.deviceFormSchema(device),
+            settings = settings,
+        )
+    }.describeStreamRoute()
 }
 
 @OptIn(ExperimentalKtorApi::class)
@@ -343,15 +369,122 @@ private suspend fun ApplicationCall.pathName(parameter: String): Name? {
 
 private suspend fun Device.readFormState(
     schema: DeviceFormSchema,
+    properties: Set<Name> = emptySet(),
 ): Map<Name, OperationOutcome<DeviceFormObservedMeta>> =
     (schema.properties + schema.discoveredProperties)
         .filter { it.readable }
+        .filter { property -> properties.isEmpty() || property.name in properties }
         .associate { property ->
             property.name to readObservedOutcome(property.name).map { observed -> observed.toDeviceFormObservedMeta() }
         }
 
-private suspend fun Device.readFormPatch(schema: DeviceFormSchema): DeviceFormStatePatch =
-    DeviceFormStatePatch(updates = readFormState(schema))
+private suspend fun Device.readFormPatch(
+    schema: DeviceFormSchema,
+    properties: Set<Name> = emptySet(),
+): DeviceFormStatePatch = DeviceFormStatePatch(updates = readFormState(schema, properties))
+
+private suspend fun DefaultWebSocketServerSession.resolveDeviceManifestForStream(
+    registry: DeviceServerRegistry,
+): Triple<Name, Device, DeviceManifest>? {
+    val deviceId = call.pathNameForWebSocket("deviceId")
+    if (deviceId == null) {
+        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Route parameter 'deviceId' is missing or invalid."))
+        return null
+    }
+    val device = registry.devices[deviceId]
+    if (device == null) {
+        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Device '$deviceId' is not registered."))
+        return null
+    }
+    val manifest = registry.manifest(deviceId)
+    if (manifest == null) {
+        close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Manifest for device '$deviceId' is not registered."))
+        return null
+    }
+    return Triple(deviceId, device, manifest)
+}
+
+private fun ApplicationCall.pathNameForWebSocket(parameter: String): Name? =
+    parameters[parameter]
+        ?.takeIf { it.isNotBlank() }
+        ?.let { raw -> runCatching { raw.parseAsName() }.getOrNull() }
+
+private suspend fun DefaultWebSocketServerSession.handleFormStream(
+    device: Device,
+    schema: DeviceFormSchema,
+    settings: KrigServerSettings,
+) {
+    val sendMutex = Mutex()
+    var streamJob: Job? = null
+
+    suspend fun sendStream(message: DeviceFormStreamServerMessage) {
+        val text = krigJson().encodeToString(DeviceFormStreamServerMessage.serializer(), message)
+        sendMutex.withLock {
+            send(Frame.Text(text))
+        }
+    }
+
+    suspend fun startStream(requestId: String?, requestedOptions: DeviceFormStreamOptions) {
+        val options = requestedOptions.withServerDefaults(settings)
+        val fault = options.validationFault(schema)
+        if (fault != null) {
+            sendStream(DeviceFormStreamServerMessage.Fault(requestId, fault))
+            return
+        }
+        streamJob?.cancelAndJoin()
+        sendStream(
+            DeviceFormStreamServerMessage.Subscribed(
+                requestId = requestId,
+                schemaHash = schema.schemaHash,
+                options = options,
+            ),
+        )
+        streamJob = launch {
+            var emitted = 0
+            while (isActive) {
+                sendStream(
+                    DeviceFormStreamServerMessage.Patch(
+                        requestId = requestId,
+                        patch = device.readFormPatch(schema, options.properties),
+                    ),
+                )
+                emitted++
+                val maxFrames = options.maxFrames
+                if (maxFrames != null && emitted >= maxFrames) {
+                    sendStream(DeviceFormStreamServerMessage.Completed(requestId, "maxFrames reached"))
+                    break
+                }
+                delay(options.pollDelayMillis(settings).milliseconds)
+            }
+        }
+    }
+
+    try {
+        for (frame in incoming) {
+            if (frame !is Frame.Text) continue
+            val message = try {
+                krigJson().decodeFromString(DeviceFormStreamClientMessage.serializer(), frame.readText())
+            } catch (cause: SerializationException) {
+                sendStream(DeviceFormStreamServerMessage.Fault(null, streamValidationFault(cause.message.orEmpty())))
+                continue
+            }
+            when (message) {
+                is DeviceFormStreamClientMessage.Subscribe -> startStream(message.requestId, message.options)
+                is DeviceFormStreamClientMessage.UpdateOptions -> startStream(message.requestId, message.options)
+                is DeviceFormStreamClientMessage.Unsubscribe -> {
+                    streamJob?.cancelAndJoin()
+                    streamJob = null
+                    sendStream(DeviceFormStreamServerMessage.Completed(message.requestId, "unsubscribed"))
+                }
+
+                is DeviceFormStreamClientMessage.Ping ->
+                    sendStream(DeviceFormStreamServerMessage.Pong(message.requestId))
+            }
+        }
+    } finally {
+        streamJob?.cancelAndJoin()
+    }
+}
 
 private suspend fun Device.executeFormCommand(
     schema: DeviceFormSchema,
@@ -430,6 +563,42 @@ private fun SubscribeOptions.pollDelayMillis(): Long =
         ?.takeIf { it.isFinite() && it > 0.0 }
         ?.let { (1_000.0 / it).roundToLong().coerceAtLeast(1L) }
         ?: 1_000L
+
+private fun DeviceFormStreamOptions.withServerDefaults(settings: KrigServerSettings): DeviceFormStreamOptions =
+    copy(maxRateHz = maxRateHz ?: settings.defaultSubscribeOptions.maxRateHz)
+
+private fun DeviceFormStreamOptions.pollDelayMillis(settings: KrigServerSettings): Long =
+    (maxRateHz ?: settings.defaultSubscribeOptions.maxRateHz)
+        ?.takeIf { it.isFinite() && it > 0.0 }
+        ?.let { (1_000.0 / it).roundToLong().coerceAtLeast(1L) }
+        ?: 1_000L
+
+private fun DeviceFormStreamOptions.validationFault(schema: DeviceFormSchema): ValidationFault? {
+    val rate = maxRateHz
+    if (rate != null && (!rate.isFinite() || rate <= 0.0)) {
+        return streamValidationFault("Stream maxRateHz must be positive and finite.")
+    }
+    val frameLimit = maxFrames
+    if (frameLimit != null && frameLimit <= 0) {
+        return streamValidationFault("Stream maxFrames must be positive.")
+    }
+    val readableNames = (schema.properties + schema.discoveredProperties)
+        .asSequence()
+        .filter { it.readable }
+        .map { it.name }
+        .toSet()
+    val unknown = properties - readableNames
+    return if (unknown.isEmpty()) {
+        null
+    } else {
+        streamValidationFault(
+            "Unknown or unreadable stream properties: ${unknown.sortedBy { it.toString() }.joinToString()}.",
+        )
+    }
+}
+
+private fun streamValidationFault(message: String): ValidationFault =
+    ValidationFault(details = faultDetails(message))
 
 private fun Application.krigOpenApiDocumentText(): OpenApiDocSource.Text =
     OpenApiDocSource.Routing().read(
@@ -527,6 +696,29 @@ private fun Route.describeSseRoute(): Route = describe {
         }
         HttpStatusCode.NotFound {
             description = "Device or manifest was not found."
+            schema = buildSchema(typeOf<ServerFaultDto>())
+        }
+    }
+}
+
+@OptIn(ExperimentalKtorApi::class)
+private fun Route.describeStreamRoute(): Route = describe {
+    operationId = "openDeviceFormStream"
+    summary = "Open a bounded WebSocket device form state stream"
+    tag("KRig Device Server")
+    parameters {
+        path("deviceId") {
+            description = "DataForge Name path parameter."
+            schema = buildSchema(typeOf<String>())
+        }
+    }
+    description = "WebSocket endpoint. Text frames use DeviceFormStreamClientMessage and DeviceFormStreamServerMessage JSON."
+    responses {
+        HttpStatusCode.SwitchingProtocols {
+            description = "WebSocket upgrade accepted."
+        }
+        HttpStatusCode.NotFound {
+            description = "Device or manifest was not found before the WebSocket session starts."
             schema = buildSchema(typeOf<ServerFaultDto>())
         }
     }
