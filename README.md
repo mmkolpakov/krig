@@ -101,7 +101,9 @@ leaves); contracts never depend on implementations, and no product module depend
 | L8 | `krig-assembly` | Acquisition DSL, Manifest/factory catalog, data-platform polling |
 | — | `krig-simulation` | Deterministic scheduler, resources, process DSL (virtual time) |
 | — | `krig-flow` | KMP declarative flow graphs and distributed flow-transfer DTOs |
+| — | `krig-schema-json` | KMP JSON Schema projection for manifests, descriptors, and serializable DTOs |
 | — | `krig-ui-schema` | KMP neutral form descriptors projected from manifests |
+| — | `krig-ui-remote-compose` | JVM-only optional AndroidX Remote Compose renderer over `krig-ui-schema` |
 | — | `krig-server` | JVM-only Ktor routes for discovery and device operations |
 | — | `krig-arrow` | JVM-only: Apache Arrow / Feather export |
 | — | `krig-analytics` | DataForge Workspace tasks and data selectors over the event journal (multiplatform) |
@@ -115,6 +117,12 @@ leaves); contracts never depend on implementations, and no product module depend
 (hubs, groups, journals, time travel). `krig-runtime` is the *engine and DSL* that orchestrates
 them (pipeline execution, `device { }`). Add a new default implementation to the former; add a
 new pipeline step or authoring DSL to the latter.
+
+UI and renderer integration follows the same boundary. `krig-ui-schema` is the stable,
+renderer-neutral device form model. Web/DOM, Compose HTML, native UI, and server-generated
+views should consume that neutral model directly. `krig-ui-remote-compose` is an optional
+Remote Compose target over the same schema; it is not the default web protocol and it is not
+the telemetry hot path.
 
 ## Stack
 

@@ -2,6 +2,7 @@ package space.kscience.krig.ui.schema
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -36,6 +37,8 @@ import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
 import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.manifestOf
 import kotlin.time.Instant
+
+private val formSchemaJson = Json { encodeDefaults = true }
 
 class DeviceFormSchemaTest {
 
@@ -134,6 +137,19 @@ class DeviceFormSchemaTest {
         val decoded = Json.decodeFromString(DeviceFormSchema.serializer(), json)
 
         assertEquals(original, decoded)
+    }
+
+    @Test
+    fun formSchemaJsonStaysRendererNeutral() {
+        val original = pumpManifest().toDeviceFormSchema()
+        val json = formSchemaJson.encodeToString(DeviceFormSchema.serializer(), original)
+        val decoded = Json.decodeFromString(DeviceFormSchema.serializer(), json)
+
+        assertEquals(original.commands.map { it.id }, decoded.commands.map { it.id })
+        assertEquals(original.bindings.map { it.id }, decoded.bindings.map { it.id })
+        assertEquals(original.debugTrace.map { it.nodeId }, decoded.debugTrace.map { it.nodeId })
+        assertFalse(json.contains("RemoteCompose"))
+        assertFalse(json.contains("androidx"))
     }
 
     @Test
