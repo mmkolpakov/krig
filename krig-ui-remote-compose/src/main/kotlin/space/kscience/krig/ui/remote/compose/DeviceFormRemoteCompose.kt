@@ -2,15 +2,22 @@ package space.kscience.krig.ui.remote.compose
 
 import androidx.compose.remote.creation.JvmRcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.actions.HostAction
+import space.kscience.dataforge.meta.Meta
 import space.kscience.krig.ui.schema.DeviceFormAction
+import space.kscience.krig.ui.schema.DeviceFormCommand
+import space.kscience.krig.ui.schema.DeviceFormCommandEnvelope
+import space.kscience.krig.ui.schema.DeviceFormCommandResult
 import space.kscience.krig.ui.schema.DeviceFormNodeId
 import space.kscience.krig.ui.schema.DeviceFormProperty
 import space.kscience.krig.ui.schema.DeviceFormSchema
 import space.kscience.krig.ui.schema.DeviceFormSourceKind
+import space.kscience.krig.ui.schema.DeviceFormStatePatch
 
 private const val DEFAULT_WIDTH: Int = 480
 private const val DEFAULT_HEIGHT: Int = 720
 private const val DEFAULT_MAX_NODES: Int = 64
+private const val DEFAULT_ACTION_PREFIX: String = "krig.form"
 private const val DEFAULT_DENSITY: Float = 1.0f
 private const val DOCUMENT_GENERATION_TIME: Long = 0L
 private const val LEFT_PADDING: Float = 24f
@@ -42,6 +49,83 @@ public data class DeviceFormRemoteComposeTrace(
     public val label: String,
 )
 
+/** Deterministic mapping between a Remote Compose host action name and a KRig form command. */
+public data class DeviceFormRemoteComposeActionBinding(
+    public val hostActionName: String,
+    public val command: DeviceFormCommand,
+)
+
+/** Renderer-side feedback frame derived from KRig command results or state patches. */
+public data class DeviceFormRemoteComposeHostFrame(
+    public val schemaHash: String,
+    public val hostActionName: String? = null,
+    public val commandResult: DeviceFormCommandResult? = null,
+    public val statePatch: DeviceFormStatePatch? = null,
+) {
+    init {
+        require(commandResult != null || statePatch != null) {
+            "Remote Compose host frame must carry a command result or a state patch"
+        }
+    }
+}
+
+/**
+ * Adapter between Remote Compose host-action names and KRig neutral command envelopes.
+ *
+ * This class does not execute commands. Runtime validation, authorization and device calls remain in
+ * KRig runtime/server layers; the renderer only provides a stable action id.
+ */
+public class DeviceFormRemoteComposeActionBridge(
+    public val schemaHash: String,
+    bindings: List<DeviceFormRemoteComposeActionBinding>,
+) {
+    public val bindings: List<DeviceFormRemoteComposeActionBinding> = bindings.toList()
+    private val byHostActionName: Map<String, DeviceFormRemoteComposeActionBinding> =
+        this.bindings.associateBy { it.hostActionName }
+    private val byCommandId: Map<DeviceFormNodeId, DeviceFormRemoteComposeActionBinding> =
+        this.bindings.associateBy { it.command.id }
+
+    init {
+        require(this.bindings.size == byHostActionName.size) { "Remote Compose host action names must be unique" }
+        require(this.bindings.size == byCommandId.size) { "Remote Compose command ids must be unique" }
+    }
+
+    public fun envelopeFor(
+        hostActionName: String,
+        input: Meta? = null,
+        correlationId: String? = null,
+    ): DeviceFormCommandEnvelope? = byHostActionName[hostActionName]?.let { binding ->
+        DeviceFormCommandEnvelope(
+            commandId = binding.command.id,
+            input = input,
+            correlationId = correlationId,
+        )
+    }
+
+    public fun requireEnvelopeFor(
+        hostActionName: String,
+        input: Meta? = null,
+        correlationId: String? = null,
+    ): DeviceFormCommandEnvelope = requireNotNull(envelopeFor(hostActionName, input, correlationId)) {
+        "Unknown Remote Compose host action '$hostActionName'"
+    }
+
+    public fun hostActionName(commandId: DeviceFormNodeId): String? = byCommandId[commandId]?.hostActionName
+
+    public fun frameFor(result: DeviceFormCommandResult): DeviceFormRemoteComposeHostFrame =
+        DeviceFormRemoteComposeHostFrame(
+            schemaHash = schemaHash,
+            hostActionName = hostActionName(result.commandId),
+            commandResult = result,
+        )
+
+    public fun frameFor(patch: DeviceFormStatePatch): DeviceFormRemoteComposeHostFrame =
+        DeviceFormRemoteComposeHostFrame(
+            schemaHash = schemaHash,
+            statePatch = patch,
+        )
+}
+
 /**
  * Immutable Remote Compose document produced from a neutral KRig form schema.
  *
@@ -53,6 +137,7 @@ public class DeviceFormRemoteComposeDocument(
     public val schemaHash: String,
     public val contentDescription: String,
     public val trace: List<DeviceFormRemoteComposeTrace>,
+    public val actionBridge: DeviceFormRemoteComposeActionBridge,
 ) {
     private val payload: ByteArray = bytes.copyOf()
 
@@ -68,6 +153,7 @@ public object DeviceFormRemoteComposeRenderer {
         options: DeviceFormRemoteComposeOptions = DeviceFormRemoteComposeOptions(),
     ): DeviceFormRemoteComposeDocument {
         val lines = schema.renderLines(options.maxNodes)
+        val actionBridge = schema.toRemoteComposeActionBridge()
         val writer = RemoteComposeWriter(
             options.width,
             options.height,
@@ -82,6 +168,7 @@ public object DeviceFormRemoteComposeRenderer {
             DEFAULT_DENSITY,
             DOCUMENT_GENERATION_TIME,
         )
+        writer.writeHostActions(actionBridge)
         writer.startRoot()
         writer.drawTextAnchored("KRig ${schema.manifestId}", LEFT_PADDING, TOP_PADDING, ANCHOR_PAN, ANCHOR_PAN, TEXT_FLAGS)
         writer.drawTextAnchored(
@@ -105,8 +192,24 @@ public object DeviceFormRemoteComposeRenderer {
             schemaHash = schema.schemaHash,
             contentDescription = options.contentDescription,
             trace = lines.map { it.trace },
+            actionBridge = actionBridge,
         )
     }
+}
+
+public fun DeviceFormSchema.toRemoteComposeActionBridge(
+    actionPrefix: String = DEFAULT_ACTION_PREFIX,
+): DeviceFormRemoteComposeActionBridge {
+    require(actionPrefix.isNotBlank()) { "Remote Compose actionPrefix must not be blank" }
+    return DeviceFormRemoteComposeActionBridge(
+        schemaHash = schemaHash,
+        bindings = commands.map { command ->
+            DeviceFormRemoteComposeActionBinding(
+                hostActionName = command.remoteComposeHostActionName(actionPrefix, schemaHash),
+                command = command,
+            )
+        },
+    )
 }
 
 public fun DeviceFormSchema.toRemoteComposeDocument(
@@ -124,6 +227,13 @@ private fun DeviceFormSchema.renderLines(maxNodes: Int): List<RenderLine> {
     val actionLines = actions.map(DeviceFormAction::renderLine)
     return (propertyLines + discoveredLines + actionLines).take(maxNodes)
 }
+
+private fun RemoteComposeWriter.writeHostActions(actionBridge: DeviceFormRemoteComposeActionBridge) {
+    actionBridge.bindings.forEach { binding -> addAction(HostAction(binding.hostActionName)) }
+}
+
+private fun DeviceFormCommand.remoteComposeHostActionName(actionPrefix: String, schemaHash: String): String =
+    "$actionPrefix:$schemaHash:$id"
 
 private fun DeviceFormProperty.renderLine(): RenderLine = RenderLine(
     text = "property ${name}: ${valueTypeId.id}",
