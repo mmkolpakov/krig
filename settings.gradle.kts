@@ -78,6 +78,9 @@ include(
     // UI schema — neutral KMP form descriptors projected from device manifests.
     ":krig-ui-schema",
 
+    // UI rendering — optional JVM Remote Compose projection from neutral form descriptors.
+    ":krig-ui-remote-compose",
+
     // Jupyter integration — JVM-only convenience module for notebook demos.
     ":krig-jupyter",
 

@@ -21,6 +21,7 @@ exposed = "1.1.1"
 kotlinx-collections-immutable = "0.4.0"
 ktor = "3.5.1"
 kt-schema = "0.7.0"
+androidx-compose-remote = "1.0.0-alpha14"
 
 # Testing
 turbine = "1.2.1"
@@ -105,6 +106,11 @@ kt-schema-annotations = { module = "me.kpavlov.kt.schema:kt-schema-annotations",
 kt-schema-generator-json = { module = "me.kpavlov.kt.schema:kt-schema-generator-json", version.ref = "kt-schema" }
 kt-schema-generator-core = { module = "me.kpavlov.kt.schema:kt-schema-generator-core", version.ref = "kt-schema" }
 kt-schema-ksp = { module = "me.kpavlov.kt.schema:kt-schema-ksp", version.ref = "kt-schema" }
+
+# AndroidX Remote Compose (optional JVM renderer layer)
+androidx-compose-remote-core = { module = "androidx.compose.remote:remote-core", version.ref = "androidx-compose-remote" }
+androidx-compose-remote-creation-core = { module = "androidx.compose.remote:remote-creation-core", version.ref = "androidx-compose-remote" }
+androidx-compose-remote-creation-jvm = { module = "androidx.compose.remote:remote-creation-jvm", version.ref = "androidx-compose-remote" }
 
 # Storage bench
 h2 = { module = "com.h2database:h2", version.ref = "h2" }

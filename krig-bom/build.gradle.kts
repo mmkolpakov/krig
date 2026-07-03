@@ -21,6 +21,7 @@ val publishedModules = listOf(
     ":krig-flow",
     ":krig-schema-json",
     ":krig-ui-schema",
+    ":krig-ui-remote-compose",
     ":krig-server",
     ":krig-arrow",
     ":krig-analytics",
