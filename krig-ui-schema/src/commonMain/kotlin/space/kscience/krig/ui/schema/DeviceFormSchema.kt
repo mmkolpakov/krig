@@ -36,6 +36,7 @@ import space.kscience.krig.api.descriptors.attributes.readable
 import space.kscience.krig.api.descriptors.attributes.task
 import space.kscience.krig.api.descriptors.attributes.unit
 import space.kscience.krig.api.descriptors.attributes.virtualProperty
+import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
@@ -202,6 +203,29 @@ public data class DeviceFormCommandEnvelope(
 )
 
 @Serializable
+@SerialName("schema.device.form.command-result")
+public data class DeviceFormCommandResult(
+    public val commandId: DeviceFormNodeId,
+    public val correlationId: String? = null,
+    public val outcome: OperationOutcome<DeviceFormCommandOutput>,
+)
+
+@Serializable
+public sealed interface DeviceFormCommandOutput {
+    @Serializable
+    @SerialName("schema.device.form.command-output.observed")
+    public data class Observed(public val observed: DeviceFormObservedMeta) : DeviceFormCommandOutput
+
+    @Serializable
+    @SerialName("schema.device.form.command-output.meta")
+    public data class MetaValue(public val value: Meta? = null) : DeviceFormCommandOutput
+
+    @Serializable
+    @SerialName("schema.device.form.command-output.completed")
+    public data object Completed : DeviceFormCommandOutput
+}
+
+@Serializable
 @SerialName("schema.device.form.task")
 public data class DeviceFormTaskReference(
     public val stateProperty: Name? = null,
@@ -281,13 +305,13 @@ public data class DeviceFormObservedMeta(
 @Serializable
 @SerialName("schema.device.form.state-snapshot")
 public data class DeviceFormStateSnapshot(
-    public val values: Map<Name, DeviceFormObservedMeta> = emptyMap(),
+    public val values: Map<Name, OperationOutcome<DeviceFormObservedMeta>> = emptyMap(),
 )
 
 @Serializable
 @SerialName("schema.device.form.state-patch")
 public data class DeviceFormStatePatch(
-    public val updates: Map<Name, DeviceFormObservedMeta> = emptyMap(),
+    public val updates: Map<Name, OperationOutcome<DeviceFormObservedMeta>> = emptyMap(),
     public val removed: Set<Name> = emptySet(),
 )
 

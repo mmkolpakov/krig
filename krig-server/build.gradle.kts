@@ -15,6 +15,7 @@ dependencies {
     api(libs.ktor.server.core)
     api(libs.ktor.server.content.negotiation)
     api(libs.ktor.server.routing.openapi)
+    api(libs.ktor.server.sse)
     api(libs.ktor.serialization.kotlinx.json)
 
     implementation(project(":krig-messaging"))

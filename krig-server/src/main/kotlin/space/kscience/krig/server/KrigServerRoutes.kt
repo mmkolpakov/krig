@@ -8,39 +8,64 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.install
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.server.routing.openapi.OpenApiDocSource
 import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.openapi.hide
+import io.ktor.server.sse.SSE
+import io.ktor.server.sse.sse
 import io.ktor.utils.io.ExperimentalKtorApi
+import io.ktor.sse.ServerSentEvent
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import space.kscience.dataforge.meta.Meta
+import space.kscience.dataforge.meta.descriptors.validate
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
+import space.kscience.krig.api.faults.ValidationFault
+import space.kscience.krig.api.faults.faultDetails
+import space.kscience.krig.api.result.OperationOutcome
+import space.kscience.krig.api.result.flatMapSuspend
 import space.kscience.krig.api.result.map
 import space.kscience.krig.api.serialization.krigJson
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
+import space.kscience.krig.core.contracts.SubscribeOptions
 import space.kscience.krig.core.contracts.schemaHash
 import space.kscience.krig.core.contracts.toJsonSchema
+import space.kscience.krig.ui.schema.DeviceFormCommand
+import space.kscience.krig.ui.schema.DeviceFormCommandEnvelope
+import space.kscience.krig.ui.schema.DeviceFormCommandKind
+import space.kscience.krig.ui.schema.DeviceFormCommandOutput
+import space.kscience.krig.ui.schema.DeviceFormCommandResult
+import space.kscience.krig.ui.schema.DeviceFormObservedMeta
 import space.kscience.krig.ui.schema.DeviceFormSchema
+import space.kscience.krig.ui.schema.DeviceFormStatePatch
 import space.kscience.krig.ui.schema.toDeviceFormObservedMeta
 import space.kscience.krig.ui.schema.toDeviceFormSchema
+import kotlin.math.roundToLong
 import kotlin.reflect.typeOf
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val KRIG_SERVER_API_VERSION: String = "0.1.0"
 
-/** Installs KRig's JSON defaults for Ktor responses. Call once before [krigDeviceServer]. */
-public fun Application.installKrigServerJson(wireJson: Json = krigJson()) {
+/** Installs KRig's Ktor defaults for JSON routes and bounded SSE form streams. */
+public fun Application.installKrigServerDefaults(wireJson: Json = krigJson()) {
     install(ContentNegotiation) {
         json(wireJson)
     }
+    install(SSE)
 }
 
 /** Installs the default KRig device HTTP routes into this [Application]. */
@@ -69,7 +94,7 @@ public fun Route.krigDeviceRoutes(
     installServerMetadataRoutes(settings)
     installDeviceInventoryRoutes(registry)
     installManifestRoutes(registry)
-    installFormRoutes(registry)
+    installFormRoutes(registry, settings)
     installReadRoutes(registry)
 }
 
@@ -148,7 +173,7 @@ private fun Route.installManifestRoutes(registry: DeviceServerRegistry) {
 }
 
 @OptIn(ExperimentalKtorApi::class)
-private fun Route.installFormRoutes(registry: DeviceServerRegistry) {
+private fun Route.installFormRoutes(registry: DeviceServerRegistry, settings: KrigServerSettings) {
     get("/devices/{deviceId}/form-schema") {
         val (_, device, manifest) = call.resolveDeviceManifest(registry) ?: return@get
         call.respond(manifest.deviceFormSchema(device))
@@ -162,16 +187,11 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry) {
     get("/devices/{deviceId}/form-state") {
         val (deviceId, device, manifest) = call.resolveDeviceManifest(registry) ?: return@get
         val schema = manifest.deviceFormSchema(device)
-        val values = (schema.properties + schema.discoveredProperties)
-            .filter { it.readable }
-            .associate { property ->
-                property.name to device.readObservedOutcome(property.name).map { it.toDeviceFormObservedMeta() }
-            }
         call.respond(
             DeviceFormStateReadDto(
                 deviceId = deviceId.toString(),
                 schemaHash = schema.schemaHash,
-                values = values,
+                values = device.readFormState(schema),
             ),
         )
     }.describeRead<DeviceFormStateReadDto>(
@@ -180,6 +200,33 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry) {
         pathParameters = listOf("deviceId"),
         notFound = true,
     )
+
+    post("/devices/{deviceId}/commands") {
+        val (_, device, manifest) = call.resolveDeviceManifest(registry) ?: return@post
+        val envelope = call.receive<DeviceFormCommandEnvelope>()
+        val schema = manifest.deviceFormSchema(device)
+        call.respond(device.executeFormCommand(schema, envelope))
+    }.describeCommandRoute()
+
+    sse("/devices/{deviceId}/form-events") {
+        val (_, device, manifest) = call.resolveDeviceManifest(registry) ?: return@sse
+        val schema = manifest.deviceFormSchema(device)
+        val maxEvents = call.maxEvents()
+        val delayMillis = settings.defaultSubscribeOptions.pollDelayMillis()
+        var emitted = 0
+        do {
+            val patch = device.readFormPatch(schema)
+            send(
+                ServerSentEvent(
+                    data = krigJson().encodeToString(DeviceFormStatePatch.serializer(), patch),
+                    event = "form.patch",
+                ),
+            )
+            emitted++
+            if (maxEvents != null && emitted >= maxEvents) break
+            delay(delayMillis.milliseconds)
+        } while (currentCoroutineContext().isActive)
+    }.describeSseRoute()
 }
 
 @OptIn(ExperimentalKtorApi::class)
@@ -294,6 +341,96 @@ private suspend fun ApplicationCall.pathName(parameter: String): Name? {
     }
 }
 
+private suspend fun Device.readFormState(
+    schema: DeviceFormSchema,
+): Map<Name, OperationOutcome<DeviceFormObservedMeta>> =
+    (schema.properties + schema.discoveredProperties)
+        .filter { it.readable }
+        .associate { property ->
+            property.name to readObservedOutcome(property.name).map { observed -> observed.toDeviceFormObservedMeta() }
+        }
+
+private suspend fun Device.readFormPatch(schema: DeviceFormSchema): DeviceFormStatePatch =
+    DeviceFormStatePatch(updates = readFormState(schema))
+
+private suspend fun Device.executeFormCommand(
+    schema: DeviceFormSchema,
+    envelope: DeviceFormCommandEnvelope,
+): DeviceFormCommandResult {
+    val command = schema.commands.firstOrNull { it.id == envelope.commandId }
+    val outcome = if (command == null) {
+        commandValidationFailure("Unknown form command '${envelope.commandId}'.")
+    } else {
+        executeKnownFormCommand(command, envelope)
+    }
+    return DeviceFormCommandResult(
+        commandId = envelope.commandId,
+        correlationId = envelope.correlationId,
+        outcome = outcome,
+    )
+}
+
+private suspend fun Device.executeKnownFormCommand(
+    command: DeviceFormCommand,
+    envelope: DeviceFormCommandEnvelope,
+): OperationOutcome<DeviceFormCommandOutput> = when (command.kind) {
+    DeviceFormCommandKind.ReadProperty,
+    DeviceFormCommandKind.OpenTaskState,
+        -> readObservedOutcome(command.target.name).map { observed ->
+        DeviceFormCommandOutput.Observed(observed.toDeviceFormObservedMeta())
+    }
+
+    DeviceFormCommandKind.WriteProperty -> validateCommandInput(command, envelope).flatMapSuspend { input ->
+        writePropertyOutcome(command.target.name, input).map { DeviceFormCommandOutput.Completed }
+    }
+
+    DeviceFormCommandKind.ExecuteAction,
+    DeviceFormCommandKind.CancelTask,
+        -> validateOptionalCommandInput(command, envelope).flatMapSuspend { input ->
+        executeOutcome(command.target.name, input).map { output -> DeviceFormCommandOutput.MetaValue(output) }
+    }
+
+    DeviceFormCommandKind.SubscribeProperty ->
+        commandValidationFailure("SubscribeProperty commands are served by /devices/{deviceId}/form-events.")
+}
+
+private fun validateCommandInput(
+    command: DeviceFormCommand,
+    envelope: DeviceFormCommandEnvelope,
+): OperationOutcome<Meta> {
+    val input = envelope.input
+        ?: return commandValidationFailure("Command '${command.id}' requires an input payload.")
+    return if (command.inputDescriptor.validate(input)) {
+        OperationOutcome.Ok(input)
+    } else {
+        commandValidationFailure("Command '${command.id}' input does not satisfy its MetaDescriptor.")
+    }
+}
+
+private fun validateOptionalCommandInput(
+    command: DeviceFormCommand,
+    envelope: DeviceFormCommandEnvelope,
+): OperationOutcome<Meta?> {
+    val input = envelope.input
+    return if (input == null || command.inputDescriptor.validate(input)) {
+        OperationOutcome.Ok(input)
+    } else {
+        commandValidationFailure("Command '${command.id}' input does not satisfy its MetaDescriptor.")
+    }
+}
+
+private fun <T> commandValidationFailure(message: String): OperationOutcome<T> =
+    OperationOutcome.Fail(ValidationFault(details = faultDetails(message)))
+
+private fun ApplicationCall.maxEvents(): Int? =
+    parameters["maxEvents"]?.toIntOrNull()?.takeIf { it > 0 }
+
+private fun SubscribeOptions.pollDelayMillis(): Long =
+    maxRateHz
+        ?.takeIf { it.isFinite() && it > 0.0 }
+        ?.let { (1_000.0 / it).roundToLong().coerceAtLeast(1L) }
+        ?: 1_000L
+
 private fun Application.krigOpenApiDocumentText(): OpenApiDocSource.Text =
     OpenApiDocSource.Routing().read(
         application = this,
@@ -333,6 +470,63 @@ private inline fun <reified T> Route.describeRead(
         }
         HttpStatusCode.BadRequest {
             description = "Route parameter validation failed."
+            schema = buildSchema(typeOf<ServerFaultDto>())
+        }
+    }
+}
+
+@OptIn(ExperimentalKtorApi::class)
+private fun Route.describeCommandRoute(): Route = describe {
+    operationId = "executeDeviceFormCommand"
+    summary = "Execute a neutral device form command"
+    tag("KRig Device Server")
+    parameters {
+        path("deviceId") {
+            description = "DataForge Name path parameter."
+            schema = buildSchema(typeOf<String>())
+        }
+    }
+    requestBody {
+        required = true
+        schema = buildSchema(typeOf<DeviceFormCommandEnvelope>())
+    }
+    responses {
+        HttpStatusCode.OK {
+            description = "Command result; predictable failures are encoded as OperationOutcome.Fail."
+            schema = buildSchema(typeOf<DeviceFormCommandResult>())
+        }
+        HttpStatusCode.NotFound {
+            description = "Device or manifest was not found."
+            schema = buildSchema(typeOf<ServerFaultDto>())
+        }
+        HttpStatusCode.BadRequest {
+            description = "Route parameter or request body validation failed."
+            schema = buildSchema(typeOf<ServerFaultDto>())
+        }
+    }
+}
+
+@OptIn(ExperimentalKtorApi::class)
+private fun Route.describeSseRoute(): Route = describe {
+    operationId = "subscribeDeviceFormEvents"
+    summary = "Stream bounded device form state patches"
+    tag("KRig Device Server")
+    parameters {
+        path("deviceId") {
+            description = "DataForge Name path parameter."
+            schema = buildSchema(typeOf<String>())
+        }
+        query("maxEvents") {
+            description = "Optional positive event limit for tests and finite snapshots."
+            schema = buildSchema(typeOf<Int>())
+        }
+    }
+    responses {
+        HttpStatusCode.OK {
+            description = "text/event-stream where each form.patch event data is DeviceFormStatePatch JSON."
+        }
+        HttpStatusCode.NotFound {
+            description = "Device or manifest was not found."
             schema = buildSchema(typeOf<ServerFaultDto>())
         }
     }
