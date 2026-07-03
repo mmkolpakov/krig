@@ -49,6 +49,21 @@ class KrigServerRoutesTest {
     }
 
     @Test
+    fun serverRouteAdvertisesFormCapabilities() = testApplication {
+        application {
+            installKrigServerJson()
+            krigDeviceServer(testRegistry())
+        }
+
+        val response = client.get("/server")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        assertTrue("\"FormSchema\"" in body)
+        assertTrue("\"FormState\"" in body)
+    }
+
+    @Test
     fun schemaRouteReturnsDeviceJsonSchema() = testApplication {
         application {
             installKrigServerJson()
@@ -61,6 +76,40 @@ class KrigServerRoutesTest {
         val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
         assertEquals("object", json["type"]?.jsonPrimitive?.content)
         assertNotNull(json["properties"]?.jsonObject?.get("rpm"))
+    }
+
+    @Test
+    fun formSchemaRouteReturnsNeutralSchema() = testApplication {
+        application {
+            installKrigServerJson()
+            krigDeviceServer(testRegistry())
+        }
+
+        val response = client.get("/devices/sensor/form-schema")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        assertTrue("\"manifestId\"" in body)
+        assertTrue("\"commands\"" in body)
+        assertTrue("\"valueDescriptor\"" in body)
+        assertTrue("\"rpm\"" in body)
+    }
+
+    @Test
+    fun formStateRouteReturnsQualityAwareValues() = testApplication {
+        application {
+            installKrigServerJson()
+            krigDeviceServer(testRegistry())
+        }
+
+        val response = client.get("/devices/sensor/form-state")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = response.bodyAsText()
+        assertTrue("\"schemaHash\"" in body)
+        assertTrue("\"rpm\"" in body)
+        assertTrue("\"label\":\"GOOD\"" in body)
+        assertTrue("\"time\"" in body)
     }
 
     @Test
@@ -117,8 +166,10 @@ class KrigServerRoutesTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         val json = Json.parseToJsonElement(response.bodyAsText()).jsonObject
-        assertEquals("3.1.0", json["openapi"]?.jsonPrimitive?.content)
+        assertEquals("3.1.1", json["openapi"]?.jsonPrimitive?.content)
         assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/properties/{property}"))
+        assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/form-schema"))
+        assertNotNull(json["paths"]?.jsonObject?.get("/devices/{deviceId}/form-state"))
     }
 
     private object SensorContract : DeviceContractBuilder() {

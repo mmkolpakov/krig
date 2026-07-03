@@ -10,9 +10,11 @@ description = "Optional JVM Ktor routes for KRig device discovery, manifests, sc
 
 dependencies {
     api(project(":krig-contracts"))
+    api(project(":krig-ui-schema"))
     api(libs.kotlinx.serialization.json)
     api(libs.ktor.server.core)
     api(libs.ktor.server.content.negotiation)
+    api(libs.ktor.server.routing.openapi)
     api(libs.ktor.serialization.kotlinx.json)
 
     implementation(project(":krig-messaging"))

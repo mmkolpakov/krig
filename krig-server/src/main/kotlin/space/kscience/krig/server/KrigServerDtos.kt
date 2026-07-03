@@ -3,9 +3,9 @@ package space.kscience.krig.server
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.meta.toJson
 import space.kscience.dataforge.meta.descriptors.toJsonSchema
-import space.kscience.krig.api.data.ObservedValue
 import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyKind
 import space.kscience.krig.api.descriptors.PropertyDescriptor
@@ -14,6 +14,7 @@ import space.kscience.krig.api.result.map
 import space.kscience.krig.core.contracts.DeviceManifest
 import space.kscience.krig.core.contracts.schemaHash
 import space.kscience.krig.core.contracts.toJsonSchema
+import space.kscience.krig.ui.schema.DeviceFormObservedMeta
 
 /** Server capabilities and conservative defaults visible to clients. */
 @Serializable
@@ -21,7 +22,31 @@ public data class KrigServerInfoDto(
     public val apiVersion: String,
     public val readOnly: Boolean,
     public val defaultSubscribeOptions: SubscribeOptionsDto,
+    public val capabilities: List<KrigServerCapability> = KrigServerCapability.DefaultReadOnly,
 )
+
+/** Stable coarse-grained features exposed by the Ktor adapter. */
+@Serializable
+public enum class KrigServerCapability {
+    ReadOnly,
+    OpenApi,
+    Manifest,
+    JsonSchema,
+    FormSchema,
+    FormState,
+    ;
+
+    public companion object {
+        public val DefaultReadOnly: List<KrigServerCapability> = listOf(
+            ReadOnly,
+            OpenApi,
+            Manifest,
+            JsonSchema,
+            FormSchema,
+            FormState,
+        )
+    }
+}
 
 /** Device inventory response. */
 @Serializable
@@ -81,6 +106,14 @@ public data class ObservedReadDto(
     public val deviceId: String,
     public val property: String,
     public val outcome: OperationOutcome<ObservedMetaDto>,
+)
+
+/** Initial quality-aware state for a generated device form. */
+@Serializable
+public data class DeviceFormStateReadDto(
+    public val deviceId: String,
+    public val schemaHash: String,
+    public val values: Map<Name, OperationOutcome<DeviceFormObservedMeta>>,
 )
 
 /** JSON-friendly projection of `ObservedValue<Meta?>`. */
@@ -147,7 +180,7 @@ internal fun OperationOutcome<space.kscience.dataforge.meta.Meta>.toPropertyRead
     outcome = map { it.toJson() },
 )
 
-internal fun OperationOutcome<ObservedValue<space.kscience.dataforge.meta.Meta?>>.toObservedReadDto(
+internal fun OperationOutcome<space.kscience.krig.api.data.ObservedValue<space.kscience.dataforge.meta.Meta?>>.toObservedReadDto(
     deviceId: String,
     property: String,
 ): ObservedReadDto = ObservedReadDto(
