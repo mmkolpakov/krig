@@ -1,0 +1,47 @@
+public final class space/kscience/krig/schema/json/KrigActionJsonSchemas {
+	public static final field Companion Lspace/kscience/krig/schema/json/KrigActionJsonSchemas$Companion;
+	public fun <init> (Lme/kpavlov/kt/schema/json/JsonSchema;Lme/kpavlov/kt/schema/json/JsonSchema;)V
+	public final fun component1 ()Lme/kpavlov/kt/schema/json/JsonSchema;
+	public final fun component2 ()Lme/kpavlov/kt/schema/json/JsonSchema;
+	public final fun copy (Lme/kpavlov/kt/schema/json/JsonSchema;Lme/kpavlov/kt/schema/json/JsonSchema;)Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;
+	public static synthetic fun copy$default (Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;Lme/kpavlov/kt/schema/json/JsonSchema;Lme/kpavlov/kt/schema/json/JsonSchema;ILjava/lang/Object;)Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInput ()Lme/kpavlov/kt/schema/json/JsonSchema;
+	public final fun getOutput ()Lme/kpavlov/kt/schema/json/JsonSchema;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/schema/json/KrigActionJsonSchemas$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/schema/json/KrigActionJsonSchemas$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/schema/json/KrigActionJsonSchemas$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/schema/json/KrigJsonSchemaKt {
+	public static final fun getKrigSchemaJson ()Lkotlinx/serialization/json/Json;
+	public static final fun toJsonObject (Lme/kpavlov/kt/schema/json/JsonSchema;Lkotlinx/serialization/json/Json;)Lkotlinx/serialization/json/JsonObject;
+	public static synthetic fun toJsonObject$default (Lme/kpavlov/kt/schema/json/JsonSchema;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lkotlinx/serialization/json/JsonObject;
+	public static final fun toKrigJsonSchema (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/Json;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static final fun toKrigJsonSchema (Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlinx/serialization/json/Json;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static final fun toKrigJsonSchema (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlinx/serialization/json/Json;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static final fun toKrigJsonSchema (Lspace/kscience/krig/core/contracts/DeviceManifest;Lkotlinx/serialization/json/Json;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static synthetic fun toKrigJsonSchema$default (Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static synthetic fun toKrigJsonSchema$default (Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static synthetic fun toKrigJsonSchema$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static synthetic fun toKrigJsonSchema$default (Lspace/kscience/krig/core/contracts/DeviceManifest;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lme/kpavlov/kt/schema/json/JsonSchema;
+	public static final fun toKrigJsonSchemas (Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lkotlinx/serialization/json/Json;)Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;
+	public static synthetic fun toKrigJsonSchemas$default (Lspace/kscience/krig/api/descriptors/ActionDescriptor;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Lspace/kscience/krig/schema/json/KrigActionJsonSchemas;
+	public static final fun toSchemaString (Lme/kpavlov/kt/schema/json/JsonSchema;Lkotlinx/serialization/json/Json;)Ljava/lang/String;
+	public static synthetic fun toSchemaString$default (Lme/kpavlov/kt/schema/json/JsonSchema;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)Ljava/lang/String;
+}
+

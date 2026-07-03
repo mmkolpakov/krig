@@ -20,6 +20,7 @@ exposed = "1.1.1"
 # Immutable collections
 kotlinx-collections-immutable = "0.4.0"
 ktor = "3.5.1"
+kt-schema = "0.7.0"
 
 # Testing
 turbine = "1.2.1"
@@ -93,6 +94,11 @@ ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+
+# JSON Schema projection
+kt-schema-json = { module = "me.kpavlov.kt.schema:kt-schema-json", version.ref = "kt-schema" }
+kt-schema-generator-json = { module = "me.kpavlov.kt.schema:kt-schema-generator-json", version.ref = "kt-schema" }
+kt-schema-generator-core = { module = "me.kpavlov.kt.schema:kt-schema-generator-core", version.ref = "kt-schema" }
 
 # Storage bench
 h2 = { module = "com.h2database:h2", version.ref = "h2" }

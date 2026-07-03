@@ -1,0 +1,48 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <space.kscience:krig-schema-json>
+final class space.kscience.krig.schema.json/KrigActionJsonSchemas { // space.kscience.krig.schema.json/KrigActionJsonSchemas|null[0]
+    constructor <init>(me.kpavlov.kt.schema.json/JsonSchema, me.kpavlov.kt.schema.json/JsonSchema) // space.kscience.krig.schema.json/KrigActionJsonSchemas.<init>|<init>(me.kpavlov.kt.schema.json.JsonSchema;me.kpavlov.kt.schema.json.JsonSchema){}[0]
+
+    final val input // space.kscience.krig.schema.json/KrigActionJsonSchemas.input|{}input[0]
+        final fun <get-input>(): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/KrigActionJsonSchemas.input.<get-input>|<get-input>(){}[0]
+    final val output // space.kscience.krig.schema.json/KrigActionJsonSchemas.output|{}output[0]
+        final fun <get-output>(): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/KrigActionJsonSchemas.output.<get-output>|<get-output>(){}[0]
+
+    final fun component1(): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/KrigActionJsonSchemas.component1|component1(){}[0]
+    final fun component2(): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/KrigActionJsonSchemas.component2|component2(){}[0]
+    final fun copy(me.kpavlov.kt.schema.json/JsonSchema = ..., me.kpavlov.kt.schema.json/JsonSchema = ...): space.kscience.krig.schema.json/KrigActionJsonSchemas // space.kscience.krig.schema.json/KrigActionJsonSchemas.copy|copy(me.kpavlov.kt.schema.json.JsonSchema;me.kpavlov.kt.schema.json.JsonSchema){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // space.kscience.krig.schema.json/KrigActionJsonSchemas.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // space.kscience.krig.schema.json/KrigActionJsonSchemas.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // space.kscience.krig.schema.json/KrigActionJsonSchemas.toString|toString(){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<space.kscience.krig.schema.json/KrigActionJsonSchemas> { // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer|null[0]
+        final val descriptor // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): space.kscience.krig.schema.json/KrigActionJsonSchemas // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, space.kscience.krig.schema.json/KrigActionJsonSchemas) // space.kscience.krig.schema.json/KrigActionJsonSchemas.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;space.kscience.krig.schema.json.KrigActionJsonSchemas){}[0]
+    }
+
+    final object Companion { // space.kscience.krig.schema.json/KrigActionJsonSchemas.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<space.kscience.krig.schema.json/KrigActionJsonSchemas> // space.kscience.krig.schema.json/KrigActionJsonSchemas.Companion.serializer|serializer(){}[0]
+    }
+}
+
+final val space.kscience.krig.schema.json/KrigSchemaJson // space.kscience.krig.schema.json/KrigSchemaJson|{}KrigSchemaJson[0]
+    final fun <get-KrigSchemaJson>(): kotlinx.serialization.json/Json // space.kscience.krig.schema.json/KrigSchemaJson.<get-KrigSchemaJson>|<get-KrigSchemaJson>(){}[0]
+
+final fun (kotlinx.serialization.json/JsonObject).space.kscience.krig.schema.json/toKrigJsonSchema(kotlinx.serialization.json/Json = ...): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/toKrigJsonSchema|toKrigJsonSchema@kotlinx.serialization.json.JsonObject(kotlinx.serialization.json.Json){}[0]
+final fun (me.kpavlov.kt.schema.json/JsonSchema).space.kscience.krig.schema.json/toJsonObject(kotlinx.serialization.json/Json = ...): kotlinx.serialization.json/JsonObject // space.kscience.krig.schema.json/toJsonObject|toJsonObject@me.kpavlov.kt.schema.json.JsonSchema(kotlinx.serialization.json.Json){}[0]
+final fun (me.kpavlov.kt.schema.json/JsonSchema).space.kscience.krig.schema.json/toSchemaString(kotlinx.serialization.json/Json = ...): kotlin/String // space.kscience.krig.schema.json/toSchemaString|toSchemaString@me.kpavlov.kt.schema.json.JsonSchema(kotlinx.serialization.json.Json){}[0]
+final fun (space.kscience.dataforge.meta.descriptors/MetaDescriptor).space.kscience.krig.schema.json/toKrigJsonSchema(kotlinx.serialization.json/Json = ...): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/toKrigJsonSchema|toKrigJsonSchema@space.kscience.dataforge.meta.descriptors.MetaDescriptor(kotlinx.serialization.json.Json){}[0]
+final fun (space.kscience.krig.api.descriptors/ActionDescriptor).space.kscience.krig.schema.json/toKrigJsonSchemas(kotlinx.serialization.json/Json = ...): space.kscience.krig.schema.json/KrigActionJsonSchemas // space.kscience.krig.schema.json/toKrigJsonSchemas|toKrigJsonSchemas@space.kscience.krig.api.descriptors.ActionDescriptor(kotlinx.serialization.json.Json){}[0]
+final fun (space.kscience.krig.api.descriptors/PropertyDescriptor).space.kscience.krig.schema.json/toKrigJsonSchema(kotlinx.serialization.json/Json = ...): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/toKrigJsonSchema|toKrigJsonSchema@space.kscience.krig.api.descriptors.PropertyDescriptor(kotlinx.serialization.json.Json){}[0]
+final fun (space.kscience.krig.core.contracts/DeviceManifest).space.kscience.krig.schema.json/toKrigJsonSchema(kotlinx.serialization.json/Json = ...): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/toKrigJsonSchema|toKrigJsonSchema@space.kscience.krig.core.contracts.DeviceManifest(kotlinx.serialization.json.Json){}[0]
+final inline fun <#A: reified kotlin/Any?> space.kscience.krig.schema.json/serializableKrigJsonSchema(): me.kpavlov.kt.schema.json/JsonSchema // space.kscience.krig.schema.json/serializableKrigJsonSchema|serializableKrigJsonSchema(){0§<kotlin.Any?>}[0]

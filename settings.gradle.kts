@@ -72,6 +72,9 @@ include(
     // Flow simulation — optional continuous-flow primitives over KRig stepping backends.
     ":krig-flow",
 
+    // Schema projection — optional JSON Schema/OpenAPI/function-calling adapters.
+    ":krig-schema-json",
+
     // UI schema — neutral KMP form descriptors projected from device manifests.
     ":krig-ui-schema",
 
