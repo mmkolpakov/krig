@@ -1,11 +1,8 @@
 package space.kscience.krig.schema.json
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import me.kpavlov.kt.schema.generator.json.serialization.SerializationClassJsonSchemaGenerator
 import me.kpavlov.kt.schema.json.AdditionalPropertiesConstraint

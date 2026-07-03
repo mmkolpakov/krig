@@ -245,7 +245,7 @@ private fun DeviceFormProperty.renderLine(): RenderLine = RenderLine(
 )
 
 private fun DeviceFormAction.renderLine(): RenderLine = RenderLine(
-    text = "action ${name}",
+    text = "action $name",
     trace = DeviceFormRemoteComposeTrace(
         nodeId = id,
         sourceKind = source.kind,

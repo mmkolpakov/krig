@@ -41,10 +41,14 @@ class KtSchemaKspInteropTest {
                 }
 
                 val generatedSchemaString = CommandDto::class.jsonSchemaString
+                val generatedRegistry = SchemaContractGenerated.registry
+                val generatedManifest = SchemaContractGenerated.manifest()
 
                 val schemaInteropSmoke: Boolean = run {
                     check(generatedSchemaString.contains("properties"))
                     check(generatedSchemaString.contains("speed"))
+                    check(generatedRegistry.propertiesByName.containsKey(SchemaContract.speed.name))
+                    check(generatedManifest.properties.containsKey(SchemaContract.speed.name))
                     check(SchemaContractGenerated.schemaHash.startsWith("fnv1a64:"))
                     true
                 }

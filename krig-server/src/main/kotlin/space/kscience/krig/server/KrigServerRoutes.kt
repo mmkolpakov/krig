@@ -300,7 +300,7 @@ private fun DeviceServerRegistry.treeDto(): DeviceTreeDto = DeviceTreeDto(
 
 private suspend fun ApplicationCall.resolveDevice(
     registry: DeviceServerRegistry,
-): Pair<Name, space.kscience.krig.core.contracts.Device>? {
+): Pair<Name, Device>? {
     val deviceId = pathName("deviceId") ?: return null
     val device = registry.devices[deviceId]
     if (device == null) {

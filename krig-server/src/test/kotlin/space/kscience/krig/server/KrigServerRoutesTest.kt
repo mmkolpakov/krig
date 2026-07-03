@@ -51,6 +51,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
 class KrigServerRoutesTest {
     @Test
@@ -453,7 +454,7 @@ class KrigServerRoutesTest {
     }
 
     private suspend fun DefaultClientWebSocketSession.receiveServer(): DeviceFormStreamServerMessage =
-        withTimeout(5_000) {
+        withTimeout(5.seconds) {
             val text = (incoming.receive() as Frame.Text).readText()
             wireJson.decodeFromString(DeviceFormStreamServerMessage.serializer(), text)
         }
