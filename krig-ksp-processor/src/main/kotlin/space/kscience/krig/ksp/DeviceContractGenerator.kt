@@ -27,6 +27,7 @@ internal class DeviceContractGenerator(
         const val KRIG_DEVICE_CONTRACT_FQN = "space.kscience.krig.api.annotations.KrigDeviceContract"
         const val DEVICE_CONTRACT_BUILDER_FQN = "space.kscience.krig.core.meta.DeviceContractBuilder"
         const val GENERATED_PACKAGE_ROOT = "space.kscience.krig.generated"
+        const val GENERATED_FORM_SCHEMA_OPTION = "krig.generated.formSchema"
     }
 
     private val emittedContracts: MutableSet<String> = mutableSetOf()
@@ -193,16 +194,22 @@ internal class DeviceContractGenerator(
             ClassKind.CLASS -> "$fqn()"
             else -> return
         }
+        val includeFormSchema = environment.booleanOption(GENERATED_FORM_SCHEMA_OPTION)
+        val imports = buildList {
+            add("kotlinx.serialization.json.JsonObject")
+            add("space.kscience.dataforge.names.parseAsName")
+            add("space.kscience.krig.core.contracts.DeviceManifest")
+            add("space.kscience.krig.core.contracts.toJsonSchema")
+            add("space.kscience.krig.core.meta.DeviceContractRegistry")
+            add("space.kscience.krig.core.meta.deviceContractRegistry")
+            if (includeFormSchema) {
+                add("space.kscience.krig.ui.schema.DeviceFormSchema")
+                add("space.kscience.krig.ui.schema.toDeviceFormSchema")
+            }
+        }
         val text = generatedKotlinFile(
             outputPackage = outputPackage,
-            imports = listOf(
-                "kotlinx.serialization.json.JsonObject",
-                "space.kscience.dataforge.names.parseAsName",
-                "space.kscience.krig.core.contracts.DeviceManifest",
-                "space.kscience.krig.core.contracts.toJsonSchema",
-                "space.kscience.krig.core.meta.DeviceContractRegistry",
-                "space.kscience.krig.core.meta.deviceContractRegistry",
-            ),
+            imports = imports,
         ) {
             appendLine("/** Generated common artifacts for [$fqn]. */")
             appendLine("public object $generatedObjectName {")
@@ -218,6 +225,10 @@ internal class DeviceContractGenerator(
             appendLine("    public val schemaHash: String get() = registry.schemaHash")
             appendLine()
             appendLine("    public fun jsonSchema(): JsonObject = registry.manifest.toJsonSchema()")
+            if (includeFormSchema) {
+                appendLine()
+                appendLine("    public fun formSchema(): DeviceFormSchema = registry.manifest.toDeviceFormSchema()")
+            }
             appendLine("}")
         }
 
@@ -235,6 +246,13 @@ internal class DeviceContractGenerator(
 
 private fun KSAnnotation.stringArg(name: String): String? =
     arguments.firstOrNull { it.name?.asString() == name }?.value as? String
+
+private fun SymbolProcessorEnvironment.booleanOption(name: String): Boolean =
+    when (val value = options[name]?.trim()?.lowercase()) {
+        null, "", "false" -> false
+        "true" -> true
+        else -> error("Unsupported '$name' value '$value'. Expected true or false.")
+    }
 
 private fun KSTypeReference.safeResolve(
     owner: KSAnnotated,

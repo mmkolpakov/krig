@@ -101,8 +101,10 @@ ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref 
 
 # JSON Schema projection
 kt-schema-json = { module = "me.kpavlov.kt.schema:kt-schema-json", version.ref = "kt-schema" }
+kt-schema-annotations = { module = "me.kpavlov.kt.schema:kt-schema-annotations", version.ref = "kt-schema" }
 kt-schema-generator-json = { module = "me.kpavlov.kt.schema:kt-schema-generator-json", version.ref = "kt-schema" }
 kt-schema-generator-core = { module = "me.kpavlov.kt.schema:kt-schema-generator-core", version.ref = "kt-schema" }
+kt-schema-ksp = { module = "me.kpavlov.kt.schema:kt-schema-ksp", version.ref = "kt-schema" }
 
 # Storage bench
 h2 = { module = "com.h2database:h2", version.ref = "h2" }

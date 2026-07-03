@@ -69,6 +69,42 @@ class DeviceContractGeneratorTest {
     }
 
     @Test
+    fun generatesFormSchemaHookWhenEnabled() {
+        val result = compileDeviceContracts(
+            SourceFile.kotlin(
+                "FormContract.kt",
+                """
+                package sample
+
+                import space.kscience.dataforge.names.parseAsName
+                import space.kscience.krig.api.annotations.KrigDeviceContract
+                import space.kscience.krig.core.meta.DeviceContractBuilder
+                import space.kscience.krig.core.meta.doubleProperty
+                import space.kscience.krig.generated.contract_test.FormContractGenerated
+
+                @KrigDeviceContract(id = "lab.form", version = "1.1.0")
+                object FormContract : DeviceContractBuilder() {
+                    val temperature by doubleProperty()
+                }
+
+                val generatedFormSchema = FormContractGenerated.formSchema()
+
+                val generatedFormSchemaSmoke: Boolean = run {
+                    check(generatedFormSchema.manifestId == "lab.form".parseAsName())
+                    check(generatedFormSchema.manifestVersion == "1.1.0")
+                    check(generatedFormSchema.properties.single().name == FormContract.temperature.name)
+                    check(generatedFormSchema.commands.any { it.target.name == FormContract.temperature.name })
+                    true
+                }
+                """.trimIndent(),
+            ),
+            extraProcessorOptions = mapOf(DeviceContractGenerator.GENERATED_FORM_SCHEMA_OPTION to "true"),
+        )
+
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
+    }
+
+    @Test
     fun rejectsAnnotatedObjectThatIsNotAContractBuilder() {
         val result = compileDeviceContracts(
             SourceFile.kotlin(
@@ -122,9 +158,13 @@ class DeviceContractGeneratorTest {
 }
 
 @OptIn(ExperimentalCompilerApi::class)
-private fun compileDeviceContracts(vararg extra: SourceFile): com.tschuchort.compiletesting.JvmCompilationResult =
+private fun compileDeviceContracts(
+    vararg extra: SourceFile,
+    extraProcessorOptions: Map<String, String> = emptyMap(),
+): com.tschuchort.compiletesting.JvmCompilationResult =
     compileWithKrigKsp(
         *extra,
         generatedModule = "contract_test",
         generatedLayer = "common",
+        extraProcessorOptions = extraProcessorOptions,
     )

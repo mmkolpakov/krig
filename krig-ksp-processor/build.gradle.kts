@@ -9,8 +9,11 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
     testImplementation(libs.kctfork.core)
     testImplementation(libs.kctfork.ksp)
+    testImplementation(libs.kt.schema.annotations)
     testImplementation(project(":krig-contracts"))
     testImplementation(project(":krig-assembly"))
+    testImplementation(project(":krig-ui-schema"))
+    testRuntimeOnly(libs.kt.schema.ksp)
 }
 
 kotlin {

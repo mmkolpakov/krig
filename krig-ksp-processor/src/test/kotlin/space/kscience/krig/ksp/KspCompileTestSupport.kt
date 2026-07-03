@@ -1,5 +1,6 @@
 package space.kscience.krig.ksp
 
+import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -12,6 +13,8 @@ internal fun compileWithKrigKsp(
     vararg sources: SourceFile,
     generatedModule: String,
     generatedLayer: String? = null,
+    extraProcessorOptions: Map<String, String> = emptyMap(),
+    extraSymbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     inheritClassPath: Boolean = true,
     withCompilation: Boolean = true,
 ): JvmCompilationResult =
@@ -23,8 +26,10 @@ internal fun compileWithKrigKsp(
             if (generatedLayer != null) {
                 processorOptions["krig.generated.layer"] = generatedLayer
             }
+            processorOptions.putAll(extraProcessorOptions)
             this.withCompilation = withCompilation
             symbolProcessorProviders += KrigSymbolProcessorProvider()
+            symbolProcessorProviders += extraSymbolProcessorProviders
         }
     }.also { it.useKsp2() }.compile()
 
