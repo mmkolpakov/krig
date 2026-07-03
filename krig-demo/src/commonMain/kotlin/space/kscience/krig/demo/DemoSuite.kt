@@ -38,6 +38,7 @@ suspend fun alpha3Showcase() {
     deadPlcCircuitBreakerDemo()
     tagTableBackendDemo()
     labDiscoveryAdHocDemo()
+    deviceFormIntegrationDemo()
     edgeTelemetryWireDemo()
     distributedTypedProxyDemo()
     distributedFlowTransferDemo()

@@ -41,15 +41,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import space.kscience.dataforge.meta.Meta
-import space.kscience.dataforge.meta.descriptors.validate
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.parseAsName
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.faults.faultDetails
-import space.kscience.krig.api.result.OperationOutcome
-import space.kscience.krig.api.result.flatMapSuspend
-import space.kscience.krig.api.result.map
 import space.kscience.krig.api.serialization.krigJson
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.DeviceManifest
@@ -57,18 +52,16 @@ import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
 import space.kscience.krig.core.contracts.SubscribeOptions
 import space.kscience.krig.core.contracts.schemaHash
 import space.kscience.krig.core.contracts.toJsonSchema
-import space.kscience.krig.ui.schema.DeviceFormCommand
 import space.kscience.krig.ui.schema.DeviceFormCommandEnvelope
-import space.kscience.krig.ui.schema.DeviceFormCommandKind
-import space.kscience.krig.ui.schema.DeviceFormCommandOutput
 import space.kscience.krig.ui.schema.DeviceFormCommandResult
-import space.kscience.krig.ui.schema.DeviceFormObservedMeta
 import space.kscience.krig.ui.schema.DeviceFormSchema
 import space.kscience.krig.ui.schema.DeviceFormStatePatch
 import space.kscience.krig.ui.schema.DeviceFormStreamClientMessage
 import space.kscience.krig.ui.schema.DeviceFormStreamOptions
 import space.kscience.krig.ui.schema.DeviceFormStreamServerMessage
-import space.kscience.krig.ui.schema.toDeviceFormObservedMeta
+import space.kscience.krig.ui.schema.executeDeviceFormCommand
+import space.kscience.krig.ui.schema.readDeviceFormPatch
+import space.kscience.krig.ui.schema.readDeviceFormState
 import space.kscience.krig.ui.schema.toDeviceFormSchema
 import kotlin.math.roundToLong
 import kotlin.reflect.typeOf
@@ -208,7 +201,7 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry, settings: Kr
             DeviceFormStateReadDto(
                 deviceId = deviceId.toString(),
                 schemaHash = schema.schemaHash,
-                values = device.readFormState(schema),
+                values = device.readDeviceFormState(schema).values,
             ),
         )
     }.describeRead<DeviceFormStateReadDto>(
@@ -222,7 +215,7 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry, settings: Kr
         val (_, device, manifest) = call.resolveDeviceManifest(registry) ?: return@post
         val envelope = call.receive<DeviceFormCommandEnvelope>()
         val schema = manifest.deviceFormSchema(device)
-        call.respond(device.executeFormCommand(schema, envelope))
+        call.respond(device.executeDeviceFormCommand(schema, envelope))
     }.describeCommandRoute()
 
     sse("/devices/{deviceId}/form-events") {
@@ -232,7 +225,7 @@ private fun Route.installFormRoutes(registry: DeviceServerRegistry, settings: Kr
         val delayMillis = settings.defaultSubscribeOptions.pollDelayMillis()
         var emitted = 0
         do {
-            val patch = device.readFormPatch(schema)
+            val patch = device.readDeviceFormPatch(schema)
             send(
                 ServerSentEvent(
                     data = krigJson().encodeToString(DeviceFormStatePatch.serializer(), patch),
@@ -367,22 +360,6 @@ private suspend fun ApplicationCall.pathName(parameter: String): Name? {
     }
 }
 
-private suspend fun Device.readFormState(
-    schema: DeviceFormSchema,
-    properties: Set<Name> = emptySet(),
-): Map<Name, OperationOutcome<DeviceFormObservedMeta>> =
-    (schema.properties + schema.discoveredProperties)
-        .filter { it.readable }
-        .filter { property -> properties.isEmpty() || property.name in properties }
-        .associate { property ->
-            property.name to readObservedOutcome(property.name).map { observed -> observed.toDeviceFormObservedMeta() }
-        }
-
-private suspend fun Device.readFormPatch(
-    schema: DeviceFormSchema,
-    properties: Set<Name> = emptySet(),
-): DeviceFormStatePatch = DeviceFormStatePatch(updates = readFormState(schema, properties))
-
 private suspend fun DefaultWebSocketServerSession.resolveDeviceManifestForStream(
     registry: DeviceServerRegistry,
 ): Triple<Name, Device, DeviceManifest>? {
@@ -445,7 +422,7 @@ private suspend fun DefaultWebSocketServerSession.handleFormStream(
                 sendStream(
                     DeviceFormStreamServerMessage.Patch(
                         requestId = requestId,
-                        patch = device.readFormPatch(schema, options.properties),
+                        patch = device.readDeviceFormPatch(schema, options.properties),
                     ),
                 )
                 emitted++
@@ -485,75 +462,6 @@ private suspend fun DefaultWebSocketServerSession.handleFormStream(
         streamJob?.cancelAndJoin()
     }
 }
-
-private suspend fun Device.executeFormCommand(
-    schema: DeviceFormSchema,
-    envelope: DeviceFormCommandEnvelope,
-): DeviceFormCommandResult {
-    val command = schema.commands.firstOrNull { it.id == envelope.commandId }
-    val outcome = if (command == null) {
-        commandValidationFailure("Unknown form command '${envelope.commandId}'.")
-    } else {
-        executeKnownFormCommand(command, envelope)
-    }
-    return DeviceFormCommandResult(
-        commandId = envelope.commandId,
-        correlationId = envelope.correlationId,
-        outcome = outcome,
-    )
-}
-
-private suspend fun Device.executeKnownFormCommand(
-    command: DeviceFormCommand,
-    envelope: DeviceFormCommandEnvelope,
-): OperationOutcome<DeviceFormCommandOutput> = when (command.kind) {
-    DeviceFormCommandKind.ReadProperty,
-    DeviceFormCommandKind.OpenTaskState,
-        -> readObservedOutcome(command.target.name).map { observed ->
-        DeviceFormCommandOutput.Observed(observed.toDeviceFormObservedMeta())
-    }
-
-    DeviceFormCommandKind.WriteProperty -> validateCommandInput(command, envelope).flatMapSuspend { input ->
-        writePropertyOutcome(command.target.name, input).map { DeviceFormCommandOutput.Completed }
-    }
-
-    DeviceFormCommandKind.ExecuteAction,
-    DeviceFormCommandKind.CancelTask,
-        -> validateOptionalCommandInput(command, envelope).flatMapSuspend { input ->
-        executeOutcome(command.target.name, input).map { output -> DeviceFormCommandOutput.MetaValue(output) }
-    }
-
-    DeviceFormCommandKind.SubscribeProperty ->
-        commandValidationFailure("SubscribeProperty commands are served by /devices/{deviceId}/form-events.")
-}
-
-private fun validateCommandInput(
-    command: DeviceFormCommand,
-    envelope: DeviceFormCommandEnvelope,
-): OperationOutcome<Meta> {
-    val input = envelope.input
-        ?: return commandValidationFailure("Command '${command.id}' requires an input payload.")
-    return if (command.inputDescriptor.validate(input)) {
-        OperationOutcome.Ok(input)
-    } else {
-        commandValidationFailure("Command '${command.id}' input does not satisfy its MetaDescriptor.")
-    }
-}
-
-private fun validateOptionalCommandInput(
-    command: DeviceFormCommand,
-    envelope: DeviceFormCommandEnvelope,
-): OperationOutcome<Meta?> {
-    val input = envelope.input
-    return if (input == null || command.inputDescriptor.validate(input)) {
-        OperationOutcome.Ok(input)
-    } else {
-        commandValidationFailure("Command '${command.id}' input does not satisfy its MetaDescriptor.")
-    }
-}
-
-private fun <T> commandValidationFailure(message: String): OperationOutcome<T> =
-    OperationOutcome.Fail(ValidationFault(details = faultDetails(message)))
 
 private fun ApplicationCall.maxEvents(): Int? =
     parameters["maxEvents"]?.toIntOrNull()?.takeIf { it > 0 }

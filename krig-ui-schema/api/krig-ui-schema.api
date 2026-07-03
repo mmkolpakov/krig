@@ -615,6 +615,14 @@ public final class space/kscience/krig/ui/schema/DeviceFormRendererProfile$Compa
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/ui/schema/DeviceFormRuntimeKt {
+	public static final fun executeDeviceFormCommand (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun readDeviceFormPatch (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/util/Set;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun readDeviceFormPatch$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/util/Set;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun readDeviceFormState (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/util/Set;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun readDeviceFormState$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/util/Set;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
 public final class space/kscience/krig/ui/schema/DeviceFormSchema {
 	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSchema$Companion;
 	public fun <init> (ILspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;Ljava/util/List;)V

@@ -18,6 +18,7 @@ import space.kscience.krig.core.contracts.sampling.doubleSampler
 import space.kscience.krig.core.contracts.write
 import space.kscience.krig.core.contracts.remoteManifestRef
 import space.kscience.krig.dsl.device
+import space.kscience.krig.ui.schema.DeviceFormCommandKind
 import space.kscience.krig.simulation.SimulationCorrectionStatus
 import space.kscience.magix.api.MagixSubscriptionPushdown
 import space.kscience.dataforge.names.asName
@@ -88,6 +89,20 @@ class GoldenPathDemoTest {
         assertFalse(snapshot.strictWriteAccepted)
         assertTrue(snapshot.adHocPropertyVisible)
         assertEquals(2.5, snapshot.discoveredGain)
+    }
+
+    @Test
+    fun deviceFormIntegrationCoversSchemaStateCommandAndPatch() = runTest {
+        val snapshot = deviceFormIntegrationSnapshot()
+
+        assertTrue(snapshot.schemaHash.startsWith("fnv1a64:"))
+        assertEquals(listOf(PumpSpec.load.name, PumpSpec.rpm.name), snapshot.properties)
+        assertTrue(DeviceFormCommandKind.ReadProperty in snapshot.commands)
+        assertTrue(DeviceFormCommandKind.WriteProperty in snapshot.commands)
+        assertTrue(DeviceFormCommandKind.ExecuteAction in snapshot.commands)
+        assertEquals(listOf(PumpSpec.load.name, PumpSpec.rpm.name), snapshot.initialStateProperties)
+        assertEquals("ack:reset", snapshot.actionAck)
+        assertEquals(listOf(PumpSpec.load.name, PumpSpec.rpm.name), snapshot.patchProperties)
     }
 
     @Test

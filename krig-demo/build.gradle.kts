@@ -24,6 +24,7 @@ kotlin {
                 implementation(project(":krig-assembly"))
                 implementation(project(":krig-magix"))
                 implementation(project(":krig-simulation"))
+                implementation(project(":krig-ui-schema"))
             }
         }
         jvmMain {

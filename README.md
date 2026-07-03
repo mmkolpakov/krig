@@ -157,6 +157,7 @@ devices, and operation policies.
 | State model | [`StateModelDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/StateModelDemo.kt) | Explicit virtual-device state mapped to typed properties and actions |
 | Meta interop | [`MetaInteropDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/MetaInteropDemo.kt) | Dynamic Meta read/write and JSON interop beside the typed hot path |
 | Lab discovery | [`LabDiscoveryAdHocDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/LabDiscoveryAdHocDemo.kt) | Schemaless/ad-hoc property discovery for lab setup |
+| Device form integration | [`DeviceFormIntegrationDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceFormIntegrationDemo.kt) | Neutral form schema, initial state, command envelope/result, and state patch |
 | Device tree | [`DeviceTreeDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceTreeDemo.kt) | Folder nodes and alternative topology views over live devices |
 | Device-tree acquisition | [`DeviceTreeAcquisitionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/DeviceTreeAcquisitionDemo.kt) | Device group topology feeding reusable acquisition runners |
 | Batch acquisition | [`BatchAcquisitionDemo.kt`](krig-demo/src/commonMain/kotlin/space/kscience/krig/demo/BatchAcquisitionDemo.kt) | Quality-preserving batch reads and transactional batch writes |
