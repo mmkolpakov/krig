@@ -1,18 +1,34 @@
 public final class space/kscience/krig/ui/schema/DeviceFormAction {
 	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormAction$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun component4 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/ui/schema/DeviceFormAction;
-	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormAction;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormAction;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormCommand;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormCommand;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component10 ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public final fun component11 ()Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public final fun component12 ()Ljava/util/List;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun component5 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun component6 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun component7 ()Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public final fun component8 ()Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public final fun component9 ()Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public final fun copy-eP1JpGg (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormCommand;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormAction;
+	public static synthetic fun copy-eP1JpGg$default (Lspace/kscience/krig/ui/schema/DeviceFormAction;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormCommand;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormAction;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommand ()Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public final fun getControlKind ()Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
 	public final fun getDescription ()Ljava/lang/String;
-	public final fun getInputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getInputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun getName ()Lspace/kscience/dataforge/names/Name;
-	public final fun getOutputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getOutputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getRenderHints ()Ljava/util/List;
+	public final fun getSemantics ()Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public final fun getSource ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun getTask ()Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public final fun getValidationMode ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -32,30 +48,354 @@ public final class space/kscience/krig/ui/schema/DeviceFormAction$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class space/kscience/krig/ui/schema/DeviceFormBinding {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormBinding$Companion;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public final fun component3 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun copy-u8J9XZ4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;)Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public static synthetic fun copy-u8J9XZ4$default (Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getKind ()Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public final fun getSource ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormBinding$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormBinding$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormBinding;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormBinding$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormBindingKind : java/lang/Enum {
+	public static final field ActionCommand Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormBindingKind$Companion;
+	public static final field PropertyQuality Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static final field PropertyValue Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static final field TaskProgress Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static final field TaskState Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormBindingKind;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormBindingKind$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCapability : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormCapability$Companion;
+	public static final field DynamicDiscovery Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Execute Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Quality Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Read Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Subscribe Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Tasks Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static final field Write Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormCapability;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCapability$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommand {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormCommand$Companion;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public final fun component3 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun component4 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun component5 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun component6 ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public final fun component7 ()Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public final fun copy-7TTW4HM (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;)Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public static synthetic fun copy-7TTW4HM$default (Lspace/kscience/krig/ui/schema/DeviceFormCommand;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getInputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getKind ()Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public final fun getOutputDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun getTarget ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun getTask ()Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public final fun getValidationMode ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormCommand$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormCommand$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormCommand;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommand$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommandEnvelope {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope$Companion;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy-u8J9XZ4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public static synthetic fun copy-u8J9XZ4$default (Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommandId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getCorrelationId ()Ljava/lang/String;
+	public final fun getInput ()Lspace/kscience/dataforge/meta/Meta;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormCommandEnvelope$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommandEnvelope$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommandKind : java/lang/Enum {
+	public static final field CancelTask Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormCommandKind$Companion;
+	public static final field ExecuteAction Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static final field OpenTaskState Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static final field ReadProperty Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static final field SubscribeProperty Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static final field WriteProperty Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormCommandKind;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormCommandKind$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormControlKind : java/lang/Enum {
+	public static final field BinaryInput Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field BooleanInput Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field CommandButton Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormControlKind$Companion;
+	public static final field Display Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field NumericInput Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field ObjectEditor Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field TaskLink Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static final field TextInput Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormControlKind$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormDebugTrace {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace$Companion;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy-u8J9XZ4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace;
+	public static synthetic fun copy-u8J9XZ4$default (Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getNodeId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getNotes ()Ljava/util/List;
+	public final fun getSource ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormDebugTrace$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormDebugTrace;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormDebugTrace$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormDescriptorSemantics {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics$Companion;
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;Ljava/util/Map;)V
+	public synthetic fun <init> (Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public final fun component2 ()Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public final fun component4 ()Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public final fun component5 ()Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;
+	public final fun component6 ()Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
+	public final fun component7 ()Ljava/util/Map;
+	public final fun copy (Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;Ljava/util/Map;)Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;Ljava/util/Map;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAcquisitionPolicy ()Lspace/kscience/krig/api/descriptors/attributes/AcquisitionPolicyAttribute;
+	public final fun getBehavior ()Lspace/kscience/krig/api/descriptors/attributes/BehaviorAttribute;
+	public final fun getDeliveryClass ()Lspace/kscience/krig/api/descriptors/attributes/DeliveryClassAttribute;
+	public final fun getEngineeringRange ()Lspace/kscience/krig/api/descriptors/attributes/EngineeringRangeAttribute;
+	public final fun getPhysicalQuantity ()Lspace/kscience/krig/api/descriptors/attributes/PhysicalQuantityAttribute;
+	public final fun getProtocolBindings ()Ljava/util/Map;
+	public final fun getVirtualProperty ()Lspace/kscience/krig/api/descriptors/attributes/VirtualPropertyAttribute;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormDescriptorSemantics$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormDescriptorSemantics$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormNodeId {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormNodeId$Companion;
+	public static final synthetic fun box-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/ui/schema/DeviceFormNodeId;
+	public static fun constructor-impl (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/dataforge/names/Name;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Lspace/kscience/dataforge/names/Name;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;)Z
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public static fun hashCode-impl (Lspace/kscience/dataforge/names/Name;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Lspace/kscience/dataforge/names/Name;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Lspace/kscience/dataforge/names/Name;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormNodeId$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormNodeId$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize-yJE0U8M (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/dataforge/names/Name;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize-Zk1muTg (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/dataforge/names/Name;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormNodeId$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormObservedMeta {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta$Companion;
+	public fun <init> (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormQuality;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormQuality;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/meta/Meta;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public final fun copy (Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormQuality;)Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormQuality;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getQuality ()Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public final fun getTime ()Ljava/lang/String;
+	public final fun getValue ()Lspace/kscience/dataforge/meta/Meta;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormObservedMeta$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormObservedMeta$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class space/kscience/krig/ui/schema/DeviceFormProperty {
 	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormProperty$Companion;
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
-	public final fun component2 ()Lspace/kscience/krig/api/descriptors/PropertyKind;
-	public final fun component3-DjDdlIg ()Ljava/lang/String;
-	public final fun component4 ()Z
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component10 ()Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;
+	public final fun component11 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun component12 ()Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public final fun component13 ()Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public final fun component14 ()Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
+	public final fun component15 ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public final fun component16 ()Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public final fun component17 ()Ljava/util/List;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/krig/api/descriptors/PropertyKind;
+	public final fun component4-DjDdlIg ()Ljava/lang/String;
 	public final fun component5 ()Z
-	public final fun component6 ()Ljava/lang/String;
+	public final fun component6 ()Z
 	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Lkotlinx/serialization/json/JsonObject;
-	public final fun component9 ()Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;
-	public final fun copy-5CYrpA0 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
-	public static synthetic fun copy-5CYrpA0$default (Lspace/kscience/krig/ui/schema/DeviceFormProperty;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
+	public final fun copy-ujuSB9c (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
+	public static synthetic fun copy-ujuSB9c$default (Lspace/kscience/krig/ui/schema/DeviceFormProperty;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/api/descriptors/PropertyKind;Ljava/lang/String;ZZLjava/lang/String;Ljava/lang/String;Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormBinding;Lspace/kscience/krig/ui/schema/DeviceFormControlKind;Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getControlKind ()Lspace/kscience/krig/ui/schema/DeviceFormControlKind;
 	public final fun getDescription ()Ljava/lang/String;
+	public final fun getId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
 	public final fun getKind ()Lspace/kscience/krig/api/descriptors/PropertyKind;
 	public final fun getMutable ()Z
 	public final fun getName ()Lspace/kscience/dataforge/names/Name;
 	public final fun getOrigin ()Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;
+	public final fun getQualityBinding ()Lspace/kscience/krig/ui/schema/DeviceFormBinding;
 	public final fun getReadable ()Z
+	public final fun getRenderHints ()Ljava/util/List;
+	public final fun getSemantics ()Lspace/kscience/krig/ui/schema/DeviceFormDescriptorSemantics;
+	public final fun getSource ()Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
 	public final fun getUnit ()Ljava/lang/String;
-	public final fun getValueSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getValidationMode ()Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public final fun getValueBinding ()Lspace/kscience/krig/ui/schema/DeviceFormBinding;
+	public final fun getValueDescriptor ()Lspace/kscience/dataforge/meta/descriptors/MetaDescriptor;
 	public final fun getValueTypeId-DjDdlIg ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -89,27 +429,123 @@ public final class space/kscience/krig/ui/schema/DeviceFormPropertyOrigin$Compan
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/ui/schema/DeviceFormSchema {
-	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSchema$Companion;
-	public fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;)V
-	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+public final class space/kscience/krig/ui/schema/DeviceFormQuality {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormQuality$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/util/List;
-	public final fun component6 ()Ljava/util/List;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormQuality;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public final fun getDetail ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getSeverity ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormQuality$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormQuality$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormQuality;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormQuality$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormRenderHint : java/lang/Enum {
+	public static final field Advanced Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormRenderHint$Companion;
+	public static final field Critical Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static final field Dynamic Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static final field ReadOnly Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static final field Task Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static final field Virtual Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormRenderHint;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormRenderHint$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormRendererProfile {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCapabilities ()Ljava/util/List;
+	public final fun getHints ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormRendererProfile$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormRendererProfile$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSchema {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSchema$Companion;
+	public fun <init> (ILspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;Ljava/util/List;)V
+	public synthetic fun <init> (ILspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/util/List;
+	public final fun component11 ()Ljava/util/List;
+	public final fun component12 ()Ljava/util/List;
+	public final fun component13 ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
+	public final fun component14 ()Ljava/util/List;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;
 	public final fun component7 ()Ljava/util/List;
-	public final fun copy (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
-	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+	public final fun component8 ()Ljava/util/List;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (ILspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormSchema;ILspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getActions ()Ljava/util/List;
+	public final fun getBindings ()Ljava/util/List;
+	public final fun getCommands ()Ljava/util/List;
+	public final fun getDebugTrace ()Ljava/util/List;
 	public final fun getDeviceContractFqName ()Ljava/lang/String;
 	public final fun getDiscoveredProperties ()Ljava/util/List;
+	public final fun getDynamicDiscoveryPolicy ()Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;
 	public final fun getManifestId ()Lspace/kscience/dataforge/names/Name;
 	public final fun getManifestVersion ()Ljava/lang/String;
 	public final fun getProperties ()Ljava/util/List;
+	public final fun getRendererProfile ()Lspace/kscience/krig/ui/schema/DeviceFormRendererProfile;
 	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getSchemaVersion ()I
+	public final fun getSections ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -130,10 +566,201 @@ public final class space/kscience/krig/ui/schema/DeviceFormSchema$Companion {
 }
 
 public final class space/kscience/krig/ui/schema/DeviceFormSchemaKt {
+	public static final field DEVICE_FORM_SCHEMA_VERSION I
+	public static final fun snapshotDeviceFormSchema (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+	public static synthetic fun snapshotDeviceFormSchema$default (Lspace/kscience/krig/core/contracts/Device;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
 	public static final fun toDeviceFormAction (Lspace/kscience/krig/api/descriptors/ActionDescriptor;)Lspace/kscience/krig/ui/schema/DeviceFormAction;
+	public static final fun toDeviceFormObservedMeta (Lspace/kscience/krig/api/data/ObservedValue;)Lspace/kscience/krig/ui/schema/DeviceFormObservedMeta;
 	public static final fun toDeviceFormProperty (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
 	public static synthetic fun toDeviceFormProperty$default (Lspace/kscience/krig/api/descriptors/PropertyDescriptor;Lspace/kscience/krig/ui/schema/DeviceFormPropertyOrigin;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormProperty;
-	public static final fun toDeviceFormSchema (Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/Iterable;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
-	public static synthetic fun toDeviceFormSchema$default (Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/Iterable;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+	public static final fun toDeviceFormQuality (Lspace/kscience/krig/api/data/DataQuality;)Lspace/kscience/krig/ui/schema/DeviceFormQuality;
+	public static final fun toDeviceFormSchema (Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/Iterable;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+	public static synthetic fun toDeviceFormSchema$default (Lspace/kscience/krig/core/contracts/DeviceManifest;Ljava/lang/Iterable;Lspace/kscience/krig/core/contracts/DynamicDiscoveryPolicy;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSchema;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSection {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSection$Companion;
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/List;
+	public final fun copy-u8J9XZ4 (Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/List;)Lspace/kscience/krig/ui/schema/DeviceFormSection;
+	public static synthetic fun copy-u8J9XZ4$default (Lspace/kscience/krig/ui/schema/DeviceFormSection;Lspace/kscience/dataforge/names/Name;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSection;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getNodes ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormSection$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormSection$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormSection;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormSection;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSection$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSourceKind : java/lang/Enum {
+	public static final field Action Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSourceKind$Companion;
+	public static final field DiscoveredProperty Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static final field ManifestProperty Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static final field TaskCancelAction Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static final field TaskProgressProperty Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static final field TaskStateProperty Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSourceKind$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSourceReference {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormSourceReference$Companion;
+	public fun <init> (Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Lspace/kscience/dataforge/names/Name;)V
+	public final fun component1 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun copy (Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Lspace/kscience/dataforge/names/Name;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKind ()Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public final fun getName ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormSourceReference$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormSourceReference$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormSourceReference;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormSourceReference$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStatePatch {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStatePatch$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;Ljava/util/Set;)V
+	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun component2 ()Ljava/util/Set;
+	public final fun copy (Ljava/util/Map;Ljava/util/Set;)Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;Ljava/util/Map;Ljava/util/Set;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getRemoved ()Ljava/util/Set;
+	public final fun getUpdates ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStatePatch$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStatePatch$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStatePatch$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStateSnapshot {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot;Ljava/util/Map;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValues ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormStateSnapshot$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormStateSnapshot;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormStateSnapshot$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormTaskReference {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormTaskReference$Companion;
+	public fun <init> ()V
+	public fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Z)V
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component3 ()Lspace/kscience/dataforge/names/Name;
+	public final fun component4 ()Z
+	public final fun copy (Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Z)Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;Lspace/kscience/dataforge/names/Name;ZILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCancelAction ()Lspace/kscience/dataforge/names/Name;
+	public final fun getEmitsMessages ()Z
+	public final fun getProgressProperty ()Lspace/kscience/dataforge/names/Name;
+	public final fun getStateProperty ()Lspace/kscience/dataforge/names/Name;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/ui/schema/DeviceFormTaskReference$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/schema/DeviceFormTaskReference$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/ui/schema/DeviceFormTaskReference;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormTaskReference$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormValidationMode : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/ui/schema/DeviceFormValidationMode$Companion;
+	public static final field HostValidated Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public static final field LocalDescriptor Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public static final field None Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+	public static fun values ()[Lspace/kscience/krig/ui/schema/DeviceFormValidationMode;
+}
+
+public final class space/kscience/krig/ui/schema/DeviceFormValidationMode$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

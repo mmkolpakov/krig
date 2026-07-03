@@ -10,7 +10,12 @@ kotlin {
         commonMain {
             dependencies {
                 api(project(":krig-contracts"))
-                api(libs.kotlinx.serialization.json)
+                api(libs.kotlinx.serialization.core)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinx.serialization.json)
             }
         }
     }
