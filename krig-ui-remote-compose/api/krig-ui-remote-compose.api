@@ -1,0 +1,101 @@
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBinding {
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommand;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommand;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBinding;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBinding;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommand;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBinding;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommand ()Lspace/kscience/krig/ui/schema/DeviceFormCommand;
+	public final fun getHostActionName ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun envelopeFor (Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public static synthetic fun envelopeFor$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public final fun frameFor (Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame;
+	public final fun frameFor (Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame;
+	public final fun getBindings ()Ljava/util/List;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun hostActionName-iHLk8lo (Lspace/kscience/dataforge/names/Name;)Ljava/lang/String;
+	public final fun requireEnvelopeFor (Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+	public static synthetic fun requireEnvelopeFor$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;Ljava/lang/String;Lspace/kscience/dataforge/meta/Meta;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/schema/DeviceFormCommandEnvelope;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeDocument {
+	public fun <init> ([BLjava/lang/String;Ljava/lang/String;Ljava/util/List;Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;)V
+	public final fun getActionBridge ()Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;
+	public final fun getByteSize ()I
+	public final fun getContentDescription ()Ljava/lang/String;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getTrace ()Ljava/util/List;
+	public final fun toByteArray ()[B
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;
+	public final fun component4 ()Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeHostFrame;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCommandResult ()Lspace/kscience/krig/ui/schema/DeviceFormCommandResult;
+	public final fun getHostActionName ()Ljava/lang/String;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getStatePatch ()Lspace/kscience/krig/ui/schema/DeviceFormStatePatch;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeKt {
+	public static final fun toRemoteComposeActionBridge (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/lang/String;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;
+	public static synthetic fun toRemoteComposeActionBridge$default (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeActionBridge;
+	public static final fun toRemoteComposeDocument (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeDocument;
+	public static synthetic fun toRemoteComposeDocument$default (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeDocument;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions {
+	public fun <init> ()V
+	public fun <init> (IILjava/lang/String;I)V
+	public synthetic fun <init> (IILjava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()I
+	public final fun copy (IILjava/lang/String;I)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;
+	public static synthetic fun copy$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;IILjava/lang/String;IILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContentDescription ()Ljava/lang/String;
+	public final fun getHeight ()I
+	public final fun getMaxNodes ()I
+	public final fun getWidth ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeRenderer {
+	public static final field INSTANCE Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeRenderer;
+	public final fun render (Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeDocument;
+	public static synthetic fun render$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeRenderer;Lspace/kscience/krig/ui/schema/DeviceFormSchema;Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeOptions;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeDocument;
+}
+
+public final class space/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeTrace {
+	public synthetic fun <init> (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Ljava/lang/String;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun component2 ()Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy-u8J9XZ4 (Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Ljava/lang/String;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeTrace;
+	public static synthetic fun copy-u8J9XZ4$default (Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeTrace;Lspace/kscience/dataforge/names/Name;Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/ui/remote/compose/DeviceFormRemoteComposeTrace;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getNodeId-5ojKpSs ()Lspace/kscience/dataforge/names/Name;
+	public final fun getSourceKind ()Lspace/kscience/krig/ui/schema/DeviceFormSourceKind;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

@@ -1,0 +1,477 @@
+public final class space/kscience/krig/server/ActionDescriptorDto {
+	public static final field Companion Lspace/kscience/krig/server/ActionDescriptorDto$Companion;
+	public fun <init> (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun component3 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/server/ActionDescriptorDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/ActionDescriptorDto;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/server/ActionDescriptorDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getInputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getOutputSchema ()Lkotlinx/serialization/json/JsonObject;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/ActionDescriptorDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/ActionDescriptorDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/ActionDescriptorDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/ActionDescriptorDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ActionDescriptorDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DataQualityDto {
+	public static final field Companion Lspace/kscience/krig/server/DataQualityDto$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/server/DataQualityDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/DataQualityDto;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/server/DataQualityDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public final fun getDetail ()Ljava/lang/String;
+	public final fun getLabel ()Ljava/lang/String;
+	public final fun getSeverity ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/DataQualityDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/DataQualityDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/DataQualityDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/DataQualityDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DataQualityDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceFormStateReadDto {
+	public static final field Companion Lspace/kscience/krig/server/DeviceFormStateReadDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)Lspace/kscience/krig/server/DeviceFormStateReadDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/DeviceFormStateReadDto;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lspace/kscience/krig/server/DeviceFormStateReadDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeviceId ()Ljava/lang/String;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getValues ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/DeviceFormStateReadDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/DeviceFormStateReadDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/DeviceFormStateReadDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/DeviceFormStateReadDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceFormStateReadDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceManifestDto {
+	public static final field Companion Lspace/kscience/krig/server/DeviceManifestDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/util/List;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Ljava/util/List;
+	public final fun component8 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;)Lspace/kscience/krig/server/DeviceManifestDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/DeviceManifestDto;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lkotlinx/serialization/json/JsonElement;ILjava/lang/Object;)Lspace/kscience/krig/server/DeviceManifestDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActions ()Ljava/util/List;
+	public final fun getDeviceContractFqName ()Ljava/lang/String;
+	public final fun getFeatureIds ()Ljava/util/List;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getMeta ()Lkotlinx/serialization/json/JsonElement;
+	public final fun getProperties ()Ljava/util/List;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/DeviceManifestDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/DeviceManifestDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/DeviceManifestDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/DeviceManifestDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceManifestDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public abstract interface class space/kscience/krig/server/DeviceServerRegistry {
+	public abstract fun getDevices ()Ljava/util/Map;
+	public abstract fun manifest (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+}
+
+public final class space/kscience/krig/server/DeviceSummaryDto {
+	public static final field Companion Lspace/kscience/krig/server/DeviceSummaryDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/server/DeviceSummaryDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/DeviceSummaryDto;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/server/DeviceSummaryDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()Ljava/lang/String;
+	public final fun getManifestId ()Ljava/lang/String;
+	public final fun getSchemaHash ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/DeviceSummaryDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/DeviceSummaryDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/DeviceSummaryDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/DeviceSummaryDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceSummaryDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceTreeDto {
+	public static final field Companion Lspace/kscience/krig/server/DeviceTreeDto$Companion;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lspace/kscience/krig/server/DeviceTreeDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/DeviceTreeDto;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/server/DeviceTreeDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDevices ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/DeviceTreeDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/DeviceTreeDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/DeviceTreeDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/DeviceTreeDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/DeviceTreeDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/KrigServerCapability : java/lang/Enum {
+	public static final field Companion Lspace/kscience/krig/server/KrigServerCapability$Companion;
+	public static final field FormSchema Lspace/kscience/krig/server/KrigServerCapability;
+	public static final field FormState Lspace/kscience/krig/server/KrigServerCapability;
+	public static final field JsonSchema Lspace/kscience/krig/server/KrigServerCapability;
+	public static final field Manifest Lspace/kscience/krig/server/KrigServerCapability;
+	public static final field OpenApi Lspace/kscience/krig/server/KrigServerCapability;
+	public static final field ReadOnly Lspace/kscience/krig/server/KrigServerCapability;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/server/KrigServerCapability;
+	public static fun values ()[Lspace/kscience/krig/server/KrigServerCapability;
+}
+
+public final class space/kscience/krig/server/KrigServerCapability$Companion {
+	public final fun getDefaultReadOnly ()Ljava/util/List;
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/KrigServerInfoDto {
+	public static final field Companion Lspace/kscience/krig/server/KrigServerInfoDto$Companion;
+	public fun <init> (Ljava/lang/String;ZLspace/kscience/krig/server/SubscribeOptionsDto;Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/lang/String;ZLspace/kscience/krig/server/SubscribeOptionsDto;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Z
+	public final fun component3 ()Lspace/kscience/krig/server/SubscribeOptionsDto;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/String;ZLspace/kscience/krig/server/SubscribeOptionsDto;Ljava/util/List;)Lspace/kscience/krig/server/KrigServerInfoDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/KrigServerInfoDto;Ljava/lang/String;ZLspace/kscience/krig/server/SubscribeOptionsDto;Ljava/util/List;ILjava/lang/Object;)Lspace/kscience/krig/server/KrigServerInfoDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApiVersion ()Ljava/lang/String;
+	public final fun getCapabilities ()Ljava/util/List;
+	public final fun getDefaultSubscribeOptions ()Lspace/kscience/krig/server/SubscribeOptionsDto;
+	public final fun getReadOnly ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/KrigServerInfoDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/KrigServerInfoDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/KrigServerInfoDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/KrigServerInfoDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/KrigServerInfoDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/KrigServerRoutesKt {
+	public static final fun installKrigServerDefaults (Lio/ktor/server/application/Application;Lkotlinx/serialization/json/Json;)V
+	public static synthetic fun installKrigServerDefaults$default (Lio/ktor/server/application/Application;Lkotlinx/serialization/json/Json;ILjava/lang/Object;)V
+	public static final fun krigDeviceRoutes (Lio/ktor/server/routing/Route;Lspace/kscience/krig/server/DeviceServerRegistry;Lspace/kscience/krig/server/KrigServerSettings;)V
+	public static synthetic fun krigDeviceRoutes$default (Lio/ktor/server/routing/Route;Lspace/kscience/krig/server/DeviceServerRegistry;Lspace/kscience/krig/server/KrigServerSettings;ILjava/lang/Object;)V
+	public static final fun krigDeviceServer (Lio/ktor/server/application/Application;Lspace/kscience/krig/server/DeviceServerRegistry;Lspace/kscience/krig/server/KrigServerSettings;)V
+	public static synthetic fun krigDeviceServer$default (Lio/ktor/server/application/Application;Lspace/kscience/krig/server/DeviceServerRegistry;Lspace/kscience/krig/server/KrigServerSettings;ILjava/lang/Object;)V
+}
+
+public final class space/kscience/krig/server/KrigServerSettings {
+	public static final field Companion Lspace/kscience/krig/server/KrigServerSettings$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Lspace/kscience/krig/core/contracts/SubscribeOptions;)V
+	public synthetic fun <init> (Ljava/lang/String;Lspace/kscience/krig/core/contracts/SubscribeOptions;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public final fun copy (Ljava/lang/String;Lspace/kscience/krig/core/contracts/SubscribeOptions;)Lspace/kscience/krig/server/KrigServerSettings;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/KrigServerSettings;Ljava/lang/String;Lspace/kscience/krig/core/contracts/SubscribeOptions;ILjava/lang/Object;)Lspace/kscience/krig/server/KrigServerSettings;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBasePath ()Ljava/lang/String;
+	public final fun getDefaultSubscribeOptions ()Lspace/kscience/krig/core/contracts/SubscribeOptions;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class space/kscience/krig/server/KrigServerSettings$Companion {
+	public final fun getDefaultSubscribeOptions ()Lspace/kscience/krig/core/contracts/SubscribeOptions;
+}
+
+public final class space/kscience/krig/server/ObservedMetaDto {
+	public static final field Companion Lspace/kscience/krig/server/ObservedMetaDto$Companion;
+	public fun <init> (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/krig/server/DataQualityDto;)V
+	public final fun component1 ()Lkotlinx/serialization/json/JsonElement;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/server/DataQualityDto;
+	public final fun copy (Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/krig/server/DataQualityDto;)Lspace/kscience/krig/server/ObservedMetaDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/ObservedMetaDto;Lkotlinx/serialization/json/JsonElement;Ljava/lang/String;Lspace/kscience/krig/server/DataQualityDto;ILjava/lang/Object;)Lspace/kscience/krig/server/ObservedMetaDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getQuality ()Lspace/kscience/krig/server/DataQualityDto;
+	public final fun getTime ()Ljava/lang/String;
+	public final fun getValue ()Lkotlinx/serialization/json/JsonElement;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/ObservedMetaDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/ObservedMetaDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/ObservedMetaDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/ObservedMetaDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ObservedMetaDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ObservedReadDto {
+	public static final field Companion Lspace/kscience/krig/server/ObservedReadDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/api/result/OperationOutcome;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;)Lspace/kscience/krig/server/ObservedReadDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/ObservedReadDto;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;ILjava/lang/Object;)Lspace/kscience/krig/server/ObservedReadDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeviceId ()Ljava/lang/String;
+	public final fun getOutcome ()Lspace/kscience/krig/api/result/OperationOutcome;
+	public final fun getProperty ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/ObservedReadDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/ObservedReadDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/ObservedReadDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/ObservedReadDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ObservedReadDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/PropertyDescriptorDto {
+	public static final field Companion Lspace/kscience/krig/server/PropertyDescriptorDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Lkotlinx/serialization/json/JsonObject;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;)Lspace/kscience/krig/server/PropertyDescriptorDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/PropertyDescriptorDto;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/serialization/json/JsonObject;ILjava/lang/Object;)Lspace/kscience/krig/server/PropertyDescriptorDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getKind ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSchema ()Lkotlinx/serialization/json/JsonObject;
+	public final fun getValueTypeId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/PropertyDescriptorDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/PropertyDescriptorDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/PropertyDescriptorDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/PropertyDescriptorDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/PropertyDescriptorDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/PropertyReadDto {
+	public static final field Companion Lspace/kscience/krig/server/PropertyReadDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Lspace/kscience/krig/api/result/OperationOutcome;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;)Lspace/kscience/krig/server/PropertyReadDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/PropertyReadDto;Ljava/lang/String;Ljava/lang/String;Lspace/kscience/krig/api/result/OperationOutcome;ILjava/lang/Object;)Lspace/kscience/krig/server/PropertyReadDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDeviceId ()Ljava/lang/String;
+	public final fun getOutcome ()Lspace/kscience/krig/api/result/OperationOutcome;
+	public final fun getProperty ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/PropertyReadDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/PropertyReadDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/PropertyReadDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/PropertyReadDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/PropertyReadDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ServerFaultDto {
+	public static final field Companion Lspace/kscience/krig/server/ServerFaultDto$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lspace/kscience/krig/server/ServerFaultDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/ServerFaultDto;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/server/ServerFaultDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getMessage ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/ServerFaultDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/ServerFaultDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/ServerFaultDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/ServerFaultDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/ServerFaultDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/StaticDeviceServerRegistry : space/kscience/krig/server/DeviceServerRegistry {
+	public fun <init> (Ljava/util/Map;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/util/Map;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getDevices ()Ljava/util/Map;
+	public fun manifest (Lspace/kscience/dataforge/names/Name;)Lspace/kscience/krig/core/contracts/DeviceManifest;
+}
+
+public final class space/kscience/krig/server/SubscribeOptionsDto {
+	public static final field Companion Lspace/kscience/krig/server/SubscribeOptionsDto$Companion;
+	public fun <init> (Ljava/lang/Double;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/Double;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Double;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/String;)Lspace/kscience/krig/server/SubscribeOptionsDto;
+	public static synthetic fun copy$default (Lspace/kscience/krig/server/SubscribeOptionsDto;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lspace/kscience/krig/server/SubscribeOptionsDto;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getDiscardPolicy ()Ljava/lang/String;
+	public final fun getMaxRateHz ()Ljava/lang/Double;
+	public final fun getQueueSize ()Ljava/lang/Integer;
+	public final fun getTypeFilter ()Ljava/util/List;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class space/kscience/krig/server/SubscribeOptionsDto$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lspace/kscience/krig/server/SubscribeOptionsDto$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lspace/kscience/krig/server/SubscribeOptionsDto;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lspace/kscience/krig/server/SubscribeOptionsDto;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class space/kscience/krig/server/SubscribeOptionsDto$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+

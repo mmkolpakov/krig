@@ -1,0 +1,18 @@
+public final class space/kscience/krig/arrow/ArrowCompression : java/lang/Enum {
+	public static final field LZ4 Lspace/kscience/krig/arrow/ArrowCompression;
+	public static final field NONE Lspace/kscience/krig/arrow/ArrowCompression;
+	public static final field ZSTD Lspace/kscience/krig/arrow/ArrowCompression;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lspace/kscience/krig/arrow/ArrowCompression;
+	public static fun values ()[Lspace/kscience/krig/arrow/ArrowCompression;
+}
+
+public final class space/kscience/krig/arrow/ArrowTimeSeriesExportKt {
+	public static final fun writeArrowIpc (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/channels/WritableByteChannel;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;)V
+	public static synthetic fun writeArrowIpc$default (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/channels/WritableByteChannel;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;ILjava/lang/Object;)V
+	public static final fun writeArrowIpcFile (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/file/Path;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;)V
+	public static synthetic fun writeArrowIpcFile$default (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/file/Path;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;ILjava/lang/Object;)V
+	public static final fun writeFeatherV2 (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/file/Path;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;)V
+	public static synthetic fun writeFeatherV2$default (Lspace/kscience/krig/storage/timeseries/DenseDoubleTimeSeriesChunk;Ljava/nio/file/Path;Lspace/kscience/krig/arrow/ArrowCompression;ILjava/util/Map;Ljava/util/Map;ILjava/lang/Object;)V
+}
+

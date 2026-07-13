@@ -39,6 +39,11 @@ publishing {
 kotlin {
     jvmToolchain(21)
     explicitApi()
+
+    @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
+    abiValidation {
+        filters.exclude.annotatedWith.add("space.kscience.krig.core.InternalKrigApi")
+    }
 }
 
 val verifyNotebookResources = tasks.register("verifyNotebookResources") {
