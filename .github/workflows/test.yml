@@ -60,14 +60,41 @@ jobs:
       - name: Run project checks
         run: ./gradlew check --no-daemon --console=plain --stacktrace --warning-mode all
 
+      - name: Verify diagnostic evidence
+        if: always()
+        shell: pwsh
+        run: |
+          $requiredPaths = @(
+            "build/reports/architecture/report.json",
+            "build/reports/architecture/report.md",
+            "buildSrc/build/test-results/test",
+            "krig-model/build/reports/detekt/detekt.sarif"
+          )
+          $missingPaths = @($requiredPaths | Where-Object { -not (Test-Path -LiteralPath $_) })
+          if ($missingPaths.Count -ne 0) {
+            throw "Required verification evidence is missing: $($missingPaths -join ', ')"
+          }
+          $architectureStatus = (Get-Content -Raw -LiteralPath $requiredPaths[0] | ConvertFrom-Json).status
+          if ($architectureStatus -ne "PASS") {
+            throw "Architecture report status is '$architectureStatus', expected 'PASS'"
+          }
+          $buildLogicTestResults = @(Get-ChildItem -LiteralPath $requiredPaths[2] -File -Filter "TEST-*.xml")
+          if ($buildLogicTestResults.Count -eq 0) {
+            throw "No build-logic JUnit XML results were produced"
+          }
+
       - name: Upload verification reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: verification-${{ matrix.id }}-${{ github.run_attempt }}
           path: |
+            build/reports/architecture/**
+            build/reports/problems/**
+            buildSrc/build/test-results/**
+            buildSrc/build/reports/tests/**
             **/build/test-results/**
             **/build/reports/tests/**
             **/build/reports/detekt/**
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 7
