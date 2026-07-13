@@ -3,12 +3,12 @@ kotlin = "2.4.0"
 
 # Core runtime
 atomicfu = "0.32.1"
-dataforge = "0.11.0-dev-2"
+dataforge = "0.11.0"
 # tables-kt has its own release line; the match with the DataForge dev version is coincidental.
-tables-kt = "0.11.0-dev-2"
+tables-kt = "0.11.0"
 kmath = "0.5.0"
 kotlinx-coroutines = "1.11.0"
-kotlinx-serialization = "1.10.0"
+kotlinx-serialization = "1.11.0"
 kotlinx-io-core = "0.9.0"
 attributes-kt = "0.4.0"
 slf4j = "2.0.18"
