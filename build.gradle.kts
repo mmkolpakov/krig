@@ -20,6 +20,7 @@
  */
 
 plugins {
+    id("krig-architecture")
     alias(libs.plugins.ben.manes.versions)
     alias(libs.plugins.kotlinx.benchmark) apply false
     id("org.jetbrains.dokka")
