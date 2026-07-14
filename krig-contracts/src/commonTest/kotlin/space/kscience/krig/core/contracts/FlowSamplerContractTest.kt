@@ -144,6 +144,41 @@ class FlowSamplerContractTest {
         assertEquals(QualitySeverity(255), sampler.latestSeverity())
     }
 
+    @Test
+    fun qualityRanksPreserveOpenIntScaleWhenRingWraps() {
+        val sampler = FlowSampler<String>(safeTypeOf(), capacity = 3, trackQuality = true)
+
+        sampler.publish("dropped", QualitySeverity.GOOD)
+        sampler.publish("negative", QualitySeverity(-1))
+        sampler.publish("above-byte", QualitySeverity(256))
+        sampler.publish("custom", QualitySeverity(300))
+
+        assertEquals(listOf("negative", "above-byte", "custom"), sampler.snapshot())
+        assertContentEquals(intArrayOf(-1, 256, 300), sampler.snapshotSeverityRanks())
+        assertEquals(QualitySeverity(300), sampler.latestSeverity())
+    }
+
+    @Test
+    fun primitiveQualityEntryPointsPreserveIntBoundaries() {
+        val doubles = RingDoubleSampler(capacity = 2, trackQuality = true)
+        doubles.publishDouble(1.0, Int.MIN_VALUE)
+        doubles.publishDouble(2.0, Int.MAX_VALUE)
+        assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), doubles.snapshotSeverityRanks())
+        assertEquals(QualitySeverity(Int.MAX_VALUE), doubles.latestSeverity())
+
+        val ints = RingIntSampler(capacity = 2, trackQuality = true)
+        ints.publishInt(1, Int.MIN_VALUE)
+        ints.publishInt(2, Int.MAX_VALUE)
+        assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), ints.snapshotSeverityRanks())
+        assertEquals(QualitySeverity(Int.MAX_VALUE), ints.latestSeverity())
+
+        val longs = RingLongSampler(capacity = 2, trackQuality = true)
+        longs.publishLong(1L, Int.MIN_VALUE)
+        longs.publishLong(2L, Int.MAX_VALUE)
+        assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), longs.snapshotSeverityRanks())
+        assertEquals(QualitySeverity(Int.MAX_VALUE), longs.latestSeverity())
+    }
+
     private suspend fun <T> CoroutineScope.assertHotNonReplay(
         flow: Flow<T>,
         beforeSubscription: List<T>,

@@ -103,12 +103,12 @@ public sealed class AbstractRingSampler<T> protected constructor(
 
     /**
      * Optional parallel severity lane (a `Structure-of-Arrays` column), allocated only when
-     * [trackQuality] is requested — zero cost otherwise. Stores a single [QualitySeverity.rank] per
-     * slot as an unsigned byte (0..255), enough for the standard ladder (GOOD=0/UNCERTAIN=50/BAD=100).
-     * The full [space.kscience.krig.api.data.DataQuality] (string code/detail) is **not** on the hot
-     * path: it travels the event channel, keeping the per-tick publish allocation-free.
+     * [trackQuality] is requested — zero cost otherwise. Stores the full open `Int` range of
+     * [QualitySeverity.rank] without boxing. The full [space.kscience.krig.api.data.DataQuality]
+     * (string code/detail) is **not** on the hot path: it travels the event channel, keeping the
+     * per-tick publish allocation-free.
      */
-    private val severities: ByteArray? = if (trackQuality) ByteArray(capacity) else null
+    private val severities: IntArray? = if (trackQuality) IntArray(capacity) else null
     private var latestSeverityRank: Int = QualitySeverity.GOOD.rank
 
     private val updates = MutableSharedFlow<T>(
@@ -128,13 +128,13 @@ public sealed class AbstractRingSampler<T> protected constructor(
 
     /**
      * Under a held [lock]: reserves the next write slot, records [severityRank] in the quality lane
-     * (if tracked), and advances ring bookkeeping. The rank is stored as a byte; callers feed
-     * [QualitySeverity.rank] (the boxed `DataQuality` never reaches this path).
+     * (if tracked), and advances ring bookkeeping. Callers feed [QualitySeverity.rank]; the boxed
+     * `DataQuality` never reaches this path.
      */
     @JvmSynthetic
     internal fun reserveSlotLocked(severityRank: Int): Int {
         val slot = nextIndex
-        severities?.set(slot, severityRank.toByte())
+        severities?.set(slot, severityRank)
         latestSeverityRank = severityRank
         nextIndex = (nextIndex + 1) % capacity
         if (storedSize < capacity) storedSize++
@@ -178,14 +178,13 @@ public sealed class AbstractRingSampler<T> protected constructor(
      * Defensive snapshot of the severity ranks in oldest-to-newest order, or `null` when quality is
      * untracked. It is column-aligned with a value snapshot ([snapshot] / `snapshot*Array`) only when
      * no publication occurs between the two calls; this API does not provide an atomic value/quality
-     * snapshot pair. Returned as unsigned ranks (0..255) so it drops straight into a columnar quality
-     * band / Arrow `IntVector` without per-row boxing.
+     * snapshot pair. The full open `Int` rank is returned without per-row boxing.
      */
     public fun snapshotSeverityRanks(): IntArray? = synchronized(lock) {
         val lane = severities ?: return@synchronized null
         val count = storedSize
         val start = oldestSlotLocked()
-        IntArray(count) { lane[(start + it) % capacity].toInt() and 0xFF }
+        IntArray(count) { lane[(start + it) % capacity] }
     }
 
     /**
