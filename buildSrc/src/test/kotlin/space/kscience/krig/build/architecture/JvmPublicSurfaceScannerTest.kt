@@ -71,6 +71,46 @@ class JvmPublicSurfaceScannerTest {
     }
 
     @Test
+    fun requiresOuterInputForPublicOrProtectedNestedClass() {
+        val outer = kotlinInput("PublicOuter")
+        val nested = kotlinInput("PublicOuter\$Nested").copy(
+            origin = "fixture-api!/$API_INTERNAL_NAME/PublicOuter\$Nested.class",
+        )
+        val complete = JvmPublicSurfaceScanner.scanClassBytes(listOf(outer, nested))
+
+        assertTrue(complete.reachableClasses.any { it.fqName == "$API_PACKAGE.PublicOuter.Nested" })
+
+        val failure = assertFailsWith<IllegalArgumentException> {
+            JvmPublicSurfaceScanner.scanClassBytes(listOf(nested))
+        }
+        assertTrue("$MODULE:${nested.origin}" in failure.message.orEmpty())
+        assertTrue("$API_INTERNAL_NAME/PublicOuter" in failure.message.orEmpty())
+    }
+
+    @Test
+    fun failsClosedForCyclicPublicNestedOwnership() {
+        val failure = assertFailsWith<IllegalArgumentException> {
+            JvmPublicSurfaceScanner.scanClassBytes(
+                listOf(
+                    JvmClassBytes(
+                        MODULE,
+                        "cycle/CycleA.class",
+                        publicNestedClass("p/CycleA", "p/CycleB", "CycleA"),
+                    ),
+                    JvmClassBytes(
+                        MODULE,
+                        "cycle/CycleB.class",
+                        publicNestedClass("p/CycleB", "p/CycleA", "CycleB"),
+                    ),
+                ),
+            )
+        }
+
+        assertTrue("Cyclic public/protected nested JVM ownership" in failure.message.orEmpty())
+        assertTrue("$MODULE:cycle/" in failure.message.orEmpty())
+    }
+
+    @Test
     fun countsOnlyTheAuthoredDataClassWhenSerializerBytecodeIsPresent() {
         val data = kotlinInput("DataFixture")
         val serializer = JvmClassBytes(
@@ -186,6 +226,23 @@ class JvmPublicSurfaceScannerTest {
         assertTrue("$EXTERNAL_PACKAGE.InlineAnonymousMethodOnly" in references)
         assertTrue("$EXTERNAL_PACKAGE.NamedInlineHelper" in references)
         assertFalse("$EXTERNAL_PACKAGE.NamedInlineImplementationOnly" in references)
+    }
+
+    @Test
+    fun recursivelyTraversesNestedSyntheticCarrierFromRealInlineBytecode() {
+        val snapshot = JvmPublicSurfaceScanner.scanClassBytes(
+            listOf(
+                kotlinInput("PublicSurfaceFixturesKt"),
+                kotlinInput("PublicSurfaceFixturesKt\$inlineNestedCarrierLeak\$1"),
+                kotlinInput("PublicSurfaceFixturesKt\$inlineNestedCarrierLeak\$1\$1"),
+                externalInput("NamedInlineHelper"),
+            ),
+        )
+
+        assertTrue(snapshot.referenceView.getValue("$EXTERNAL_PACKAGE.InlineNestedCarrierOnly").any {
+            it.location.startsWith("function inlineNestedCarrierLeak")
+        })
+        assertFalse("$EXTERNAL_PACKAGE.NamedInlineImplementationOnly" in snapshot.referenceView)
     }
 
     @Test
@@ -468,6 +525,7 @@ class JvmPublicSurfaceScannerTest {
         val snapshot = JvmPublicSurfaceScanner.scanClassBytes(
             listOf(
                 JvmClassBytes("alpha", "alpha/A-dollar-B.class", binaryIdentityClass(nested = false)),
+                JvmClassBytes("beta", "beta/A.class", emptyJavaClass("p/A")),
                 JvmClassBytes("beta", "beta/A-nested-B.class", binaryIdentityClass(nested = true)),
             ),
         )
@@ -484,6 +542,7 @@ class JvmPublicSurfaceScannerTest {
     fun reportsSourceNameCollisionWithoutInventingBinaryCollision() {
         val snapshot = JvmPublicSurfaceScanner.scanClassBytes(
             listOf(
+                JvmClassBytes("alpha", "alpha/A.class", emptyJavaClass("p/A")),
                 JvmClassBytes("alpha", "alpha/A-nested-B.class", binaryIdentityClass(nested = true)),
                 JvmClassBytes("beta", "beta/package-A-B.class", emptyJavaClass("p/A/B")),
             ),
@@ -492,6 +551,37 @@ class JvmPublicSurfaceScannerTest {
         val sourceOrigins = snapshot.sourceNameCollisions.getValue("p.A.B")
         assertEquals(listOf("alpha", "beta"), sourceOrigins.map { it.moduleName })
         assertTrue(snapshot.binaryNameCollisions.isEmpty())
+    }
+
+    @Test
+    fun resolvesSourceDisplayWithinReferencingModuleBeforeUsingFallback() {
+        val binaryInternalName = "p/A\$B"
+        val binaryName = "p.A\$B"
+        val snapshot = JvmPublicSurfaceScanner.scanClassBytes(
+            listOf(
+                JvmClassBytes("alpha-other", "other/A-dollar-B.class", binaryIdentityClass(nested = false)),
+                JvmClassBytes(
+                    "middle-fallback",
+                    "fallback/FallbackConsumer.class",
+                    javaApiReturning("q/FallbackConsumer", binaryInternalName),
+                ),
+                JvmClassBytes("zeta-consumer", "consumer/A.class", emptyJavaClass("p/A")),
+                JvmClassBytes("zeta-consumer", "consumer/A-nested-B.class", binaryIdentityClass(nested = true)),
+                JvmClassBytes(
+                    "zeta-consumer",
+                    "consumer/LocalConsumer.class",
+                    javaApiReturning("q/LocalConsumer", binaryInternalName),
+                ),
+            ),
+        )
+        val origins = snapshot.jvmBinaryClassifierReferences.getValue(binaryName)
+        val local = origins.single { it.ownerFqName == "q.LocalConsumer" }
+        val fallback = origins.single { it.ownerFqName == "q.FallbackConsumer" }
+
+        assertEquals("p.A.B", local.sourceDisplayName)
+        assertEquals("p.A.B", fallback.sourceDisplayName)
+        assertTrue(binaryName in snapshot.jvmBinaryClassifierReferences)
+        assertFalse("p.A.B" in snapshot.jvmBinaryClassifierReferences)
     }
 
     @Test
@@ -650,6 +740,8 @@ class JvmPublicSurfaceScannerTest {
         kotlinInput("PublicSurfaceFixturesKt\$inlineDefaultLeak\$1"),
         kotlinInput("PublicSurfaceFixturesKt\$inlinePropertyLeak\$1"),
         kotlinInput("PublicSurfaceFixturesKt\$inlineAnonymousObjectLeak\$1"),
+        kotlinInput("PublicSurfaceFixturesKt\$inlineNestedCarrierLeak\$1"),
+        kotlinInput("PublicSurfaceFixturesKt\$inlineNestedCarrierLeak\$1\$1"),
         externalInput("NamedInlineHelper"),
     )
 
@@ -792,6 +884,18 @@ class JvmPublicSurfaceScannerTest {
         }
         visitEnd()
     }.toByteArray()
+
+    private fun publicNestedClass(internalName: String, outerInternalName: String, innerName: String): ByteArray =
+        ClassWriter(0).apply {
+            visit(Opcodes.V21, Opcodes.ACC_PUBLIC, internalName, null, "java/lang/Object", null)
+            visitInnerClass(
+                internalName,
+                outerInternalName,
+                innerName,
+                Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC,
+            )
+            visitEnd()
+        }.toByteArray()
 
     private fun publicKmClass(simpleName: String, classKind: ClassKind = ClassKind.CLASS): KmClass = KmClass().apply {
         name = "$GENERATED_INTERNAL_NAME/$simpleName"

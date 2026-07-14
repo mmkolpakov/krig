@@ -920,8 +920,16 @@ internal object JvmPublicSurfaceScanner {
 
         val outerName = record.outerInternalName ?: return true
         val key = record.origin.moduleName to outerName
-        if (!visiting.add(key)) return false
-        val outer = lookup[key]?.firstOrNull() ?: return false
+        if (!visiting.add(key)) {
+            throw IllegalArgumentException(
+                "Cyclic public/protected nested JVM ownership at ${record.origin.describe()}: " +
+                        "${record.node.name} -> $outerName",
+            )
+        }
+        val outer = lookup[key]?.firstOrNull() ?: throw IllegalArgumentException(
+            "Public/protected nested JVM class ${record.node.name} from ${record.origin.describe()} " +
+                    "declares missing outer class $outerName in the same module",
+        )
         return isReachable(outer, lookup, visiting)
     }
 
@@ -1096,8 +1104,8 @@ internal object JvmPublicSurfaceScanner {
     ) {
         fun fqName(record: ParsedClass): String = fqName(record, mutableSetOf())
 
-        fun jvmName(internalName: String): String {
-            val known = lookup.entries.firstOrNull { it.key.second == internalName }?.value?.firstOrNull()
+        fun jvmName(moduleName: String, internalName: String): String {
+            val known = lookup[moduleName to internalName]?.firstOrNull()
             return known?.let(::fqName) ?: internalName.replace('/', '.').replace('$', '.')
         }
 
@@ -1151,7 +1159,10 @@ internal object JvmPublicSurfaceScanner {
         fun jvmName(internalName: String) {
             if (internalName.isNotEmpty() && internalName[0] != '[') {
                 val binaryName = internalName.replace('/', '.')
-                addJvm(binaryName, origin.copy(sourceDisplayName = names.jvmName(internalName)))
+                addJvm(
+                    binaryName,
+                    origin.copy(sourceDisplayName = names.jvmName(origin.origin.moduleName, internalName)),
+                )
             } else {
                 descriptor(internalName)
             }

@@ -49,6 +49,10 @@ object InlinePropertyOnly {
     fun value(): String = "inline-property"
 }
 
+object InlineNestedCarrierOnly {
+    fun value(): String = "inline-nested-carrier"
+}
+
 object NonInlinePropertyOnly {
     fun value(): String = "non-inline-property"
 }

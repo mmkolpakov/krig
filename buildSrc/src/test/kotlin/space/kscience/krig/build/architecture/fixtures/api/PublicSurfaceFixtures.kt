@@ -11,6 +11,7 @@ import space.kscience.krig.build.architecture.fixtures.external.ExternalType
 import space.kscience.krig.build.architecture.fixtures.external.InlineDefaultOnly
 import space.kscience.krig.build.architecture.fixtures.external.InlineDefaultLambdaOnly
 import space.kscience.krig.build.architecture.fixtures.external.InlineMemberDefaultOnly
+import space.kscience.krig.build.architecture.fixtures.external.InlineNestedCarrierOnly
 import space.kscience.krig.build.architecture.fixtures.external.InlineOnly
 import space.kscience.krig.build.architecture.fixtures.external.InlinePropertyOnly
 import space.kscience.krig.build.architecture.fixtures.external.InlineSuspendDefaultOnly
@@ -103,6 +104,10 @@ inline fun inlineAnonymousObjectLeak(): Any = object : InlineAnonymousExternalMa
     val field: InlineAnonymousFieldOnly? = null
 
     fun map(value: InlineAnonymousMethodOnly): InlineAnonymousMethodOnly = value
+}
+
+inline fun inlineNestedCarrierLeak(): String = invokePropertyBlock {
+    invokePropertyBlock { InlineNestedCarrierOnly.value() }
 }
 
 fun nonInlineHelperWithDefault(value: String = NonInlineHelperDefaultOnly.value()): String = value
