@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.shareIn
@@ -153,24 +154,25 @@ public fun <T> Flow<T>.sampleWithHold(ticks: Flow<Unit>): Flow<T> = channelFlow 
 }
 
 /**
- * Emits one stale observation with the last known value when the upstream
- * observation stream completes or fails. Cancellation is propagated unchanged.
+ * Emits one stale last value on normal completion or before rethrowing a non-cancellation upstream
+ * [Exception]. Cancellation, fatal throwables, and downstream failures propagate without fallback.
  */
 public fun <T> Flow<ObservedValue<T>>.withStalenessFallback(
     clock: Clock = Clock.System,
     staleQuality: DataQuality = staleDataQuality(),
 ): Flow<ObservedValue<T>> = flow {
     var latest: Any? = UninitializedSample
-    try {
-        collect { observed ->
+    this@withStalenessFallback
+        .catch { cause ->
+            if (cause is Exception && cause !is CancellationException) {
+                emitStale(latest, clock, staleQuality)
+            }
+            throw cause
+        }
+        .collect { observed ->
             latest = observed.value
             emit(observed)
         }
-    } catch (e: Exception) {
-        if (e is CancellationException) throw e
-        emitStale(latest, clock, staleQuality)
-        throw e
-    }
     emitStale(latest, clock, staleQuality)
 }
 

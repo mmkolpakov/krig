@@ -3,8 +3,10 @@
 package space.kscience.krig.core.operations
 
 import app.cash.turbine.test
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
@@ -21,6 +23,8 @@ import space.kscience.krig.api.data.QualitySeverity
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertSame
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Instant
@@ -60,6 +64,10 @@ private class LaggingSamplingClock(
         kotlinx.coroutines.delay(duration)
         overshoot += lag
     }
+}
+
+private class FixedClock(private val instant: Instant) : Clock {
+    override fun now(): Instant = instant
 }
 
 class SampleWithHoldTest {
@@ -234,5 +242,104 @@ class SampleWithHoldTest {
         assertEquals(2, values.size)
         assertEquals(42, values[1].value)
         assertEquals(QualitySeverity.UNCERTAIN, values[1].quality.severity)
+    }
+
+    @Test
+    fun withStalenessFallbackEmitsStaleLastValueThenPropagatesUpstreamFailure() = runTest {
+        val observed = ObservedValue(
+            value = 42,
+            time = Instant.fromEpochMilliseconds(1),
+            quality = DataQuality.GOOD,
+        )
+        val staleAt = Instant.fromEpochMilliseconds(2)
+        val upstreamFailure = IllegalStateException("upstream failure")
+        val values = mutableListOf<ObservedValue<Int>>()
+
+        val thrown = assertFailsWith<IllegalStateException> {
+            flow {
+                emit(observed)
+                throw upstreamFailure
+            }.withStalenessFallback(FixedClock(staleAt)).toList(values)
+        }
+
+        assertSame(upstreamFailure, thrown)
+        assertEquals(listOf(observed), values.take(1))
+        assertEquals(2, values.size)
+        assertEquals(42, values[1].value)
+        assertEquals(staleAt, values[1].time)
+        assertEquals(QualitySeverity.UNCERTAIN, values[1].quality.severity)
+    }
+
+    @Test
+    fun withStalenessFallbackDoesNotMaskDownstreamCollectorFailure() = runTest {
+        val downstreamFailure = IllegalArgumentException("downstream failure")
+        var received = 0
+
+        val thrown = assertFailsWith<IllegalArgumentException> {
+            flowOf(
+                ObservedValue(
+                    value = 42,
+                    time = Instant.fromEpochMilliseconds(1),
+                    quality = DataQuality.GOOD,
+                ),
+            ).withStalenessFallback(FixedClock(Instant.fromEpochMilliseconds(2))).collect {
+                received++
+                throw downstreamFailure
+            }
+        }
+
+        assertSame(downstreamFailure, thrown)
+        assertEquals(1, received)
+    }
+
+    @Test
+    fun withStalenessFallbackPropagatesCancellationWithoutStaleEmission() = runTest {
+        val observed = ObservedValue(
+            value = 42,
+            time = Instant.fromEpochMilliseconds(1),
+            quality = DataQuality.GOOD,
+        )
+        val cancellation = CancellationException("cancelled")
+        val values = mutableListOf<ObservedValue<Int>>()
+
+        val thrown = assertFailsWith<CancellationException> {
+            flow {
+                emit(observed)
+                throw cancellation
+            }.withStalenessFallback(FixedClock(Instant.fromEpochMilliseconds(2))).toList(values)
+        }
+
+        assertSame(cancellation, thrown)
+        assertEquals(listOf(observed), values)
+    }
+
+    @Test
+    fun withStalenessFallbackDoesNotMaterializeFatalUpstreamErrors() = runTest {
+        val observed = ObservedValue(
+            value = 42,
+            time = Instant.fromEpochMilliseconds(1),
+            quality = DataQuality.GOOD,
+        )
+        val fatal = AssertionError("fatal upstream error")
+        val values = mutableListOf<ObservedValue<Int>>()
+
+        val thrown = assertFailsWith<AssertionError> {
+            flow {
+                emit(observed)
+                throw fatal
+            }.withStalenessFallback(FixedClock(Instant.fromEpochMilliseconds(2))).toList(values)
+        }
+
+        assertSame(fatal, thrown)
+        assertEquals(listOf(observed), values)
+    }
+
+    @Test
+    fun withStalenessFallbackKeepsEmptyCompletionEmpty() = runTest {
+        val values = emptyFlow<ObservedValue<Int>>()
+            .withStalenessFallback(FixedClock(Instant.fromEpochMilliseconds(1)))
+            .toList()
+
+        assertEquals(emptyList(), values)
     }
 }
