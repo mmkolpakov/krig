@@ -1,9 +1,13 @@
+@file:Suppress("UnstableApiUsage")
+
+import space.kscience.krig.build.bom.KrigBomCompletenessPlugin
+
 plugins {
     `java-platform`
     `maven-publish`
 }
 
-description = "krig Bill of Materials — version-aligned dependency constraints for all published modules"
+description = "KRig Bill of Materials — version alignment for KMP root and direct JVM publication coordinates"
 
 val publishedModules = listOf(
     ":krig-state",
@@ -22,6 +26,7 @@ val publishedModules = listOf(
     ":krig-schema-json",
     ":krig-ui-schema",
     ":krig-ui-remote-compose",
+    ":krig-jupyter",
     ":krig-server",
     ":krig-arrow",
     ":krig-analytics",
@@ -30,13 +35,8 @@ val publishedModules = listOf(
 dependencies {
     constraints {
         publishedModules.forEach { path ->
-            api(project(path))
+            api(project.dependencyFactory.createProjectDependency(path))
         }
-
-        // Align KMath versions for downstream consumers.
-        api(libs.kmath.core)
-        api(libs.kmath.coroutines)
-        api(libs.kmath.functions)
     }
 }
 
@@ -48,3 +48,5 @@ publishing {
         }
     }
 }
+
+apply<KrigBomCompletenessPlugin>()
