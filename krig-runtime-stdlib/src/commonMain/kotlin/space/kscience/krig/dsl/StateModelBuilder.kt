@@ -49,14 +49,22 @@ public class StateModelBuilder<S : Any> internal constructor(
         writeAppliers[spec.name] = { state, meta -> state.write(spec.converter.read(meta)) }
     }
 
-    /** Registers a mutable property backed by the state. */
+    /**
+     * Registers a mutable property backed by the state.
+     *
+     * @throws IllegalStateException if either handler conflicts with an existing property registration.
+     */
     public fun <T> bind(
         spec: MutableDevicePropertyContract<T>,
         read: suspend S.() -> T,
         write: suspend S.(T) -> Unit,
     ) {
-        reader(spec, read)
-        writer(spec, write)
+        backend.bind(
+            spec,
+            read = { cell.value.read() },
+            write = { value -> cell.value.write(value) },
+        )
+        writeAppliers[spec.name] = { state, meta -> state.write(spec.converter.read(meta)) }
     }
 
     /** Registers an action backed by the state. */
@@ -96,8 +104,7 @@ public class ReconstructibleStateModel internal constructor(
  *
  * ```kotlin
  * val model = stateModel(CounterState.metaConverter, ::CounterState) {
- *     reader(CounterContract.count) { count }
- *     writer(CounterContract.count) { count = it }
+ *     bind(CounterContract.count, read = { count }, write = { count = it })
  * }
  * val device = device("counter", model.backend) { }
  * device.enableTimeTravel(model.reconstructible)

@@ -476,6 +476,7 @@ public final class space/kscience/krig/core/contracts/DeviceBackendBuilder {
 	public final fun batchObservedReader (Lkotlin/jvm/functions/Function3;)V
 	public final fun batchWriter (Lkotlin/jvm/functions/Function3;)V
 	public final fun binaryReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
+	public final fun bind (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;)V
 	public final fun bytesReader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
 	public final fun computed (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
 	public final fun computed (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function0;)Lspace/kscience/krig/core/contracts/ConnectionProperty;

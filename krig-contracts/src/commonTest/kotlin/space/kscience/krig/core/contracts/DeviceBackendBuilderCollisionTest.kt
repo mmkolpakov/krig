@@ -133,6 +133,81 @@ class DeviceBackendBuilderCollisionTest {
     }
 
     @Test
+    fun bindRejectsWriterConflictBeforeInstallingReader() = runTest {
+        var written = 0.0
+        val builder = DeviceBackendBuilder()
+        builder.writer(CollisionContract.value) { written = it }
+
+        val error = assertFailsWith<IllegalStateException> {
+            builder.bind(
+                CollisionContract.value,
+                read = { -1.0 },
+                write = { written = -it },
+            )
+        }
+        assertCollisionDiagnostic(error, CollisionContract.value.name, "writer")
+
+        val backend = builder.build()
+        assertNull(backend.reader(CollisionContract.value))
+        val writer = assertNotNull(backend.writer(CollisionContract.value))
+        writer.write(4.0)
+        assertEquals(4.0, written)
+    }
+
+    @Test
+    fun bindRejectsReaderConflictBeforeInstallingWriter() = runTest {
+        val builder = DeviceBackendBuilder()
+        builder.reader(CollisionContract.value) { 3.0 }
+
+        val error = assertFailsWith<IllegalStateException> {
+            builder.bind(
+                CollisionContract.value,
+                read = { -1.0 },
+                write = {},
+            )
+        }
+        assertCollisionDiagnostic(error, CollisionContract.value.name, "reader")
+
+        val backend = builder.build()
+        assertEquals(3.0, assertNotNull(backend.reader(CollisionContract.value)).read())
+        assertNull(backend.writer(CollisionContract.value))
+    }
+
+    @Test
+    fun bindRegistersReaderAndWriterAsOneDeclaration() = runTest {
+        for (samplerFirst in listOf(true, false)) {
+            var value = 1.0
+            val sampler = doubleSampler(capacity = 2)
+            val builder = DeviceBackendBuilder()
+            if (samplerFirst) builder.sampler(CollisionContract.value) { sampler }
+            builder.bind(
+                CollisionContract.value,
+                read = { value },
+                write = { value = it },
+            )
+            if (!samplerFirst) builder.sampler(CollisionContract.value) { sampler }
+            val backend = builder.build()
+
+            val reader = assertNotNull(backend.reader(CollisionContract.value))
+            val writer = assertNotNull(backend.writer(CollisionContract.value))
+            assertSame(sampler, backend.sampler(CollisionContract.value))
+            assertSame(CollisionContract.value, backend.propertySpec(CollisionContract.value.name))
+            assertSame(
+                CollisionContract.value,
+                backend.propertySpecs()[CollisionContract.value.name],
+            )
+            assertEquals(1.0, reader.read())
+
+            val bound = backend.bindCollisionStub()
+            assertEquals(1.0, bound.read(CollisionContract.value.descriptor).doubleValue)
+            bound.write(CollisionContract.value.descriptor, metaOf(7.0))
+            assertEquals(7.0, reader.read())
+            writer.write(9.0)
+            assertEquals(9.0, bound.read(CollisionContract.value.descriptor).doubleValue)
+        }
+    }
+
+    @Test
     fun duplicateSamplerIsRejectedBeforeItsFactoryRuns() {
         val first = doubleSampler(capacity = 2)
         val builder = DeviceBackendBuilder()

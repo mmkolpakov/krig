@@ -72,9 +72,9 @@ public class ConnectionProperty<T> internal constructor(
 /**
  * Single builder for a [DeviceBackend]. Two declaration styles share one dispatch/fault/codec core:
  *
- * - **contract-first** ([reader], [observedReader], [binaryReader], [writer], [sampler], [action]) —
- *   for drivers that own I/O against pure device contracts and want native typed handles plus spec
- *   introspection;
+ * - **contract-first** ([reader], [observedReader], [binaryReader], [writer], [bind], [sampler],
+ *   [action]) — for drivers that own I/O against pure device contracts and want native typed
+ *   handles plus spec introspection;
  * - **cell sugar** ([readable], [writable], [computed]) — backing cells for stateful simulation
  *   devices that advance on [onStep].
  *
@@ -131,6 +131,26 @@ public class DeviceBackendBuilder internal constructor() {
     public fun <T> writer(spec: MutableDevicePropertyContract<T>, body: suspend (T) -> Unit) {
         reserveWriterSlot(spec)
         writers[spec.name] = WriterEntry(spec, TypedWriter(body))
+    }
+
+    /**
+     * Registers a typed reader and writer for [spec] as one declaration. All slot and compatibility
+     * checks complete before either handler is installed, so a rejected binding leaves this builder unchanged.
+     *
+     * @throws IllegalStateException if either handler conflicts with an existing property registration.
+     */
+    public fun <T> bind(
+        spec: MutableDevicePropertyContract<T>,
+        read: suspend () -> T,
+        write: suspend (T) -> Unit,
+    ) {
+        reserveReaderSlot(spec, "reader")
+        reserveWriterSlot(spec)
+
+        val readerEntry = ReaderEntry(spec, TypedReader(read))
+        val writerEntry = WriterEntry(spec, TypedWriter(write))
+        readers[spec.name] = readerEntry
+        writers[spec.name] = writerEntry
     }
 
     /** Registers a typed sampler for [spec]. */
