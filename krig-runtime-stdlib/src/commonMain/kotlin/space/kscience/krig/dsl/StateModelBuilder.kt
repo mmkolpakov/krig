@@ -4,6 +4,7 @@ import space.kscience.krig.api.data.DeviceSnapshot
 import space.kscience.krig.api.messages.DeviceMessage
 import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.contracts.DeviceBackendBuilder
+import space.kscience.krig.core.contracts.DeviceBackendDsl
 import space.kscience.krig.core.contracts.typed.TypedDeviceBackend
 import space.kscience.krig.core.contracts.deviceBackend
 import space.kscience.krig.core.meta.DeviceActionContract
@@ -26,7 +27,11 @@ internal class StateCell<S : Any>(var value: S)
  * Declares properties and actions of a virtual model backed by explicit state. Each declaration is
  * registered directly on the underlying [DeviceBackendBuilder]; writers also record how to fold a
  * [PropertyChangedMessage] back into the state for replay.
+ * Handler lambdas expose the model state as their only implicit KRig receiver; capture external
+ * collaborators explicitly.
  */
+@DeviceBackendDsl
+@KrigDsl
 public class StateModelBuilder<S : Any> internal constructor(
     private val cell: StateCell<S>,
     private val writeAppliers: MutableMap<Name, suspend (S, Meta) -> Unit>,
@@ -35,7 +40,7 @@ public class StateModelBuilder<S : Any> internal constructor(
     /** Registers a read-only property backed by the state. */
     public fun <T> reader(
         spec: DevicePropertyContract<T>,
-        read: suspend S.() -> T,
+        read: suspend @KrigDsl S.() -> T,
     ) {
         backend.reader(spec) { cell.value.read() }
     }
@@ -43,7 +48,7 @@ public class StateModelBuilder<S : Any> internal constructor(
     /** Registers a mutable property writer backed by the state. */
     public fun <T> writer(
         spec: MutableDevicePropertyContract<T>,
-        write: suspend S.(T) -> Unit,
+        write: suspend @KrigDsl S.(T) -> Unit,
     ) {
         backend.writer(spec) { value -> cell.value.write(value) }
         writeAppliers[spec.name] = { state, meta -> state.write(spec.converter.read(meta)) }
@@ -56,8 +61,8 @@ public class StateModelBuilder<S : Any> internal constructor(
      */
     public fun <T> bind(
         spec: MutableDevicePropertyContract<T>,
-        read: suspend S.() -> T,
-        write: suspend S.(T) -> Unit,
+        read: suspend @KrigDsl S.() -> T,
+        write: suspend @KrigDsl S.(T) -> Unit,
     ) {
         backend.bind(
             spec,
@@ -70,7 +75,7 @@ public class StateModelBuilder<S : Any> internal constructor(
     /** Registers an action backed by the state. */
     public fun <I, O> action(
         spec: DeviceActionContract<I, O>,
-        execute: suspend S.(I) -> O?,
+        execute: suspend @KrigDsl S.(I) -> O?,
     ) {
         backend.action(spec) { input -> cell.value.execute(input) }
     }

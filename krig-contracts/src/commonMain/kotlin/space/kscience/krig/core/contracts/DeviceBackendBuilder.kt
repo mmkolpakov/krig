@@ -28,10 +28,12 @@ import kotlin.concurrent.Volatile
 import kotlin.time.Duration
 
 /**
- * DSL marker for [deviceBackend] builder blocks. Prevents accidental capture of an outer DSL's
- * receiver inside a nested block such as [DeviceBackendBuilder.onStep].
+ * DSL marker for typed backend builder receivers. In nested marked builders, only the closest
+ * receiver remains available implicitly; an outer receiver requires an explicit label.
  */
 @DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.BINARY)
 public annotation class DeviceBackendDsl
 
 /**

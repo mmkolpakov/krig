@@ -9,4 +9,5 @@ package space.kscience.krig.dsl
  */
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS, AnnotationTarget.TYPE)
+@Retention(AnnotationRetention.BINARY)
 public annotation class KrigDsl

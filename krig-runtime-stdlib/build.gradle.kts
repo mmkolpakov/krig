@@ -23,5 +23,10 @@ kotlin {
                 implementation(libs.kotlinx.coroutines.core)
             }
         }
+        jvmTest {
+            dependencies {
+                implementation(libs.kctfork.core)
+            }
+        }
     }
 }
