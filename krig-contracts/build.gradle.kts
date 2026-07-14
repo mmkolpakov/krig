@@ -15,12 +15,16 @@ kotlin {
                 api(project(":krig-operation"))
                 api(project(":krig-messaging"))
 
+                api(libs.attributes.kt)
                 api(libs.dataforge.context)
                 api(libs.dataforge.io)
                 api(libs.dataforge.meta)
-                implementation(libs.kotlinx.collections.immutable)
-                implementation(libs.kotlinx.atomicfu)
                 api(libs.kotlinx.coroutines.core)
+                api(libs.kotlinx.serialization.core)
+                api(libs.kotlinx.serialization.json)
+
+                implementation(libs.kotlinx.atomicfu)
+                implementation(libs.kotlinx.collections.immutable)
             }
         }
     }
