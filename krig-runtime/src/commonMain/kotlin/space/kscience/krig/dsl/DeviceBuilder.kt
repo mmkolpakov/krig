@@ -273,11 +273,28 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
     @PublishedApi internal var stepBody: ((Duration) -> Unit)? = null
     @PublishedApi internal var closeBody: (() -> Unit)? = null
 
+    private fun reserveProperty(name: Name) {
+        check(
+            name !in readers &&
+                    name !in observedReaders &&
+                    name !in writers &&
+                    name !in valueWriters &&
+                    name !in propertyDescriptors,
+        ) { "Property '$name' was already declared on this builder" }
+    }
+
+    private fun reserveAction(name: Name) {
+        check(name !in actions && name !in actionDescriptors) {
+            "Action '$name' was already declared on this builder"
+        }
+    }
+
     /** Read-only property whose value is computed on each read. */
     public fun property(name: String, read: DeviceReadBlock<Any>): Unit = property(name.asName(), read)
 
     /** Read-only property keyed by [Name]. */
     public fun property(name: Name, read: DeviceReadBlock<Any>) {
+        reserveProperty(name)
         readers[name] = read
         propertyDescriptors[name] = synthesizeProperty(name, mutable = false)
     }
@@ -299,6 +316,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
 
     /** Quality-aware read-only property keyed by [Name]. */
     public fun observedProperty(name: Name, read: DeviceObservedReadBlock) {
+        reserveProperty(name)
         observedReaders[name] = read
         // Value-only path (readProperty/typed read/subscribe diff): extract the value, fault on absence.
         readers[name] = DeviceReadBlock {
@@ -312,6 +330,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
     /** Registers a typed reader and a descriptor carrying the actual [TypeId] (not the erased META). */
     private fun typedProperty(name: String, valueTypeId: TypeId, read: DeviceReadBlock<Any>) {
         val key = name.asName()
+        reserveProperty(key)
         readers[key] = read
         propertyDescriptors[key] = synthesizeProperty(key, mutable = false, valueTypeId = valueTypeId)
     }
@@ -363,6 +382,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
 
     /** Action keyed by [Name]. */
     public fun action(name: Name, body: DeviceActionBlock) {
+        reserveAction(name)
         actions[name] = body
         actionDescriptors[name] = ActionDescriptor(name = name)
     }
@@ -449,6 +469,7 @@ public class DeclarativeDeviceBuilder @PublishedApi internal constructor(
     @OptIn(kotlin.concurrent.atomics.ExperimentalAtomicApi::class)
     private fun <T : Any> declareCell(name: String, initial: T, valueTypeId: TypeId, decode: (Meta) -> T) {
         val key = name.asName()
+        reserveProperty(key)
         // Atomic ensures visibility across coroutines on different dispatchers.
         val cell = kotlin.concurrent.atomics.AtomicReference(initial)
         // Cell-backed mutables don't use the DeviceEnvironment context.
