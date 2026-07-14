@@ -9,8 +9,10 @@ import space.kscience.krig.api.messages.PropertyChangedMessage
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
 import space.kscience.krig.core.meta.mutableDevicePropertyContract
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.time.Instant
@@ -99,5 +101,31 @@ class StateModelBuilderTest {
 
         assertEquals(11.0, state.value)
         assertEquals(11.0, assertNotNull(model.backend.reader(valueSpec)).read())
+    }
+
+    @Test
+    fun escapedBuilderCannotDivergeBackendAndReplayAfterBuild() = runTest {
+        val state = State()
+        lateinit var escapedBuilder: StateModelBuilder<State>
+        val model = stateModel(stateConverter, { state }) {
+            escapedBuilder = this
+        }
+
+        val registration = runCatching {
+            escapedBuilder.writer(valueSpec) { value = it }
+        }
+
+        val error = assertIs<IllegalStateException>(registration.exceptionOrNull())
+        assertContains(error.message.orEmpty(), "built")
+        assertNull(model.backend.writer(valueSpec))
+        model.reconstructible.applyEvent(
+            PropertyChangedMessage(
+                time = Instant.fromEpochMilliseconds(1),
+                property = valueSpec.name,
+                value = valueSpec.converter.convert(13.0),
+                sourceDevice = Name.of("source"),
+            ),
+        )
+        assertEquals(1.0, state.value)
     }
 }

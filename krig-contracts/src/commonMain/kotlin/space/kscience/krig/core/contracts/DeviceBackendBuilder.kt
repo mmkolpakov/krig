@@ -58,8 +58,8 @@ public class ConnectionProperty<T> internal constructor(
     private val setter: ((T) -> Unit)?,
 ) {
     /**
-     * Current value. The handle's [internal][ConnectionProperty] constructor means external code
-     * cannot obtain it to mutate, so a public setter is safe; writing a read-only handle fails fast.
+     * Current value. A handle captured from the builder block intentionally remains live after the
+     * backend is built; writing a read-only handle fails fast.
      */
     public var value: T
         get() = getter()
@@ -82,9 +82,15 @@ public class ConnectionProperty<T> internal constructor(
  *
  * Both lower to one [TypedDeviceBackend]; a backend without native handles simply falls back to the
  * `Meta` plane. Declaring [onStep] makes the result a [SteppedBackend] as well.
+ *
+ * This builder is single-use and not thread-safe. Its configuration scope ends when the backend is
+ * built; a captured builder rejects later declarations, while previously returned [ConnectionProperty]
+ * handles remain live as runtime state.
  */
 @DeviceBackendDsl
 public class DeviceBackendBuilder internal constructor() {
+
+    private var configurationClosed: Boolean = false
 
     private val readers: MutableMap<Name, ReaderEntry<*>> = mutableMapOf()
     private val observedReaders: MutableMap<Name, ObservedReaderEntry<*>> = mutableMapOf()
@@ -283,6 +289,7 @@ public class DeviceBackendBuilder internal constructor() {
      * descriptors only; protocol grouping, addresses, and retries belong to the backend that owns it.
      */
     public fun batchMetaReader(body: BatchMetaReadBody) {
+        checkConfiguring()
         check(batchMetaReadBody == null && batchObservedReadBody == null) {
             "A batch value reader was already declared; cannot register batchMetaReader"
         }
@@ -291,6 +298,7 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Registers a batch reader that preserves per-item quality and source timestamps. */
     public fun batchObservedReader(body: BatchObservedReadBody) {
+        checkConfiguring()
         check(batchMetaReadBody == null && batchObservedReadBody == null) {
             "A batch value reader was already declared; cannot register batchObservedReader"
         }
@@ -299,6 +307,7 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Registers a batch binary reader for payloads that must not cross `Meta`. */
     public fun batchBinaryReader(body: BatchBinaryReadBody) {
+        checkConfiguring()
         check(batchBinaryReadBody == null) { "batchBinaryReader was already declared on this builder" }
         batchBinaryReadBody = body
     }
@@ -309,6 +318,7 @@ public class DeviceBackendBuilder internal constructor() {
      * failure for each requested descriptor.
      */
     public fun batchWriter(body: BatchWriteBody) {
+        checkConfiguring()
         check(batchWriteBody == null) { "batchWriter was already declared on this builder" }
         batchWriteBody = body
     }
@@ -320,18 +330,22 @@ public class DeviceBackendBuilder internal constructor() {
      * write declared cells through their handles. Omitting [onStep] keeps the backend stateless.
      */
     public fun onStep(block: (dt: Duration) -> Unit) {
+        checkConfiguring()
         check(stepBlock == null) { "onStep was already declared on this builder" }
         stepBlock = block
     }
 
     /** Optional `close()` body for driver-owned resources; a no-op when omitted. */
     public fun onClose(block: () -> Unit) {
+        checkConfiguring()
         check(closeBlock == null) { "onClose was already declared on this builder" }
         closeBlock = block
     }
 
     @OptIn(InternalKrigApi::class)
     internal fun build(): TypedDeviceBackend {
+        checkConfiguring()
+        configurationClosed = true
         val readerEntries = readers.toMap()
         val observedEntries = observedReaders.toMap()
         val binaryEntries = binaryReaders.toMap()
@@ -370,7 +384,14 @@ public class DeviceBackendBuilder internal constructor() {
         return stepBlock?.let { SteppingTypedBackend(typed, it) } ?: typed
     }
 
+    private fun checkConfiguring() {
+        check(!configurationClosed) {
+            "DeviceBackendBuilder cannot be configured after the backend has been built"
+        }
+    }
+
     private fun reserveReaderSlot(spec: DevicePropertyContract<*>, requestedLane: String) {
+        checkConfiguring()
         val name = spec.name
         val existingLane = existingReadLane(name) ?: if (name in cellReaders) "cell" else null
         check(existingLane == null) {
@@ -380,6 +401,7 @@ public class DeviceBackendBuilder internal constructor() {
     }
 
     private fun reserveWriterSlot(spec: MutableDevicePropertyContract<*>) {
+        checkConfiguring()
         val name = spec.name
         val existingLane = when {
             name in writers -> "writer"
@@ -393,6 +415,7 @@ public class DeviceBackendBuilder internal constructor() {
     }
 
     private fun reserveSamplerSlot(spec: DevicePropertyContract<*>) {
+        checkConfiguring()
         val name = spec.name
         val existingLane = if (name in samplers) "sampler" else null
         check(existingLane == null) {
@@ -409,6 +432,7 @@ public class DeviceBackendBuilder internal constructor() {
     }
 
     private fun reserveCellSlot(name: Name, spec: DevicePropertyContract<*>?) {
+        checkConfiguring()
         val existingLane = existingReadLane(name) ?: when {
             name in writers -> "writer"
             name in cellReaders -> "cell"
@@ -426,6 +450,7 @@ public class DeviceBackendBuilder internal constructor() {
     }
 
     private fun reserveActionSlot(name: Name, requestedLane: String) {
+        checkConfiguring()
         val existingLane = when {
             name in actions -> "typed action"
             name in metaActions -> "Meta action"
