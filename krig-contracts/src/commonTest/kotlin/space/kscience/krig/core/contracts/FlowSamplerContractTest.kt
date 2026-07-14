@@ -2,15 +2,21 @@
 
 package space.kscience.krig.core.contracts
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import space.kscience.attributes.safeTypeOf
+import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.core.contracts.sampling.FlowSampler
 import space.kscience.krig.core.contracts.sampling.RingDoubleSampler
+import space.kscience.krig.core.contracts.sampling.RingIntSampler
+import space.kscience.krig.core.contracts.sampling.RingLongSampler
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -26,19 +32,12 @@ class FlowSamplerContractTest {
     @Test
     fun flowSamplerDoesNotReplayValuesPublishedBeforeSubscription() = runTest {
         val sampler = FlowSampler<Int>(safeTypeOf(), capacity = 8)
-        sampler.publish(1)
-        sampler.publish(2)
-
-        val collected = mutableListOf<Int>()
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            sampler.flow().take(2).toList(collected)
-        }
-        // Subscription is registered (UNDISPATCHED): only these post-subscription values must arrive.
-        sampler.publish(3)
-        sampler.publish(4)
-        job.join()
-
-        assertEquals(listOf(3, 4), collected, "new collector must not see pre-subscription values")
+        assertHotNonReplay(
+            flow = sampler.flow(),
+            beforeSubscription = listOf(1, 2),
+            afterSubscription = listOf(3, 4),
+            publish = sampler::publish,
+        )
     }
 
     @Test
@@ -55,20 +54,30 @@ class FlowSamplerContractTest {
     }
 
     @Test
-    fun ringDoubleSamplerDoesNotReplayValuesPublishedBeforeSubscription() = runTest {
-        val sampler = RingDoubleSampler(capacity = 8)
-        sampler.publishDouble(1.0)
-        sampler.publishDouble(2.0)
+    fun primitiveRingSamplersDoNotReplayValuesPublishedBeforeSubscription() = runTest {
+        val doubles = RingDoubleSampler(capacity = 8)
+        assertHotNonReplay(
+            flow = doubles.flow(),
+            beforeSubscription = listOf(1.0, 2.0),
+            afterSubscription = listOf(3.0, 4.0),
+            publish = doubles::publishDouble,
+        )
 
-        val collected = mutableListOf<Double>()
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            sampler.flow().take(2).toList(collected)
-        }
-        sampler.publishDouble(3.0)
-        sampler.publishDouble(4.0)
-        job.join()
+        val ints = RingIntSampler(capacity = 8)
+        assertHotNonReplay(
+            flow = ints.flow(),
+            beforeSubscription = listOf(1, 2),
+            afterSubscription = listOf(3, 4),
+            publish = ints::publishInt,
+        )
 
-        assertEquals(listOf(3.0, 4.0), collected, "new collector must not see pre-subscription values")
+        val longs = RingLongSampler(capacity = 8)
+        assertHotNonReplay(
+            flow = longs.flow(),
+            beforeSubscription = listOf(1L, 2L),
+            afterSubscription = listOf(3L, 4L),
+            publish = longs::publishLong,
+        )
     }
 
     @Test
@@ -92,5 +101,63 @@ class FlowSamplerContractTest {
 
         assertEquals(listOf(3, 4, 5), sampler.snapshot(), "ring keeps the most recent capacity values")
         assertEquals(5, sampler.latest())
+    }
+
+    @Test
+    fun primitiveRingSamplersWrapAndExposeLatestWithoutSubscribers() {
+        val doubles = RingDoubleSampler(capacity = 3)
+        assertTrue(doubles.latestDoubleOrNaN().isNaN())
+        for (value in 1..5) doubles.publishDouble(value.toDouble())
+        assertContentEquals(doubleArrayOf(3.0, 4.0, 5.0), doubles.snapshotDoubleArray())
+        assertEquals(5.0, doubles.latestDoubleOrNaN())
+        assertEquals(5.0, doubles.latest())
+
+        val ints = RingIntSampler(capacity = 3)
+        assertEquals(-1, ints.latestIntOr(-1))
+        for (value in 1..5) ints.publishInt(value)
+        assertContentEquals(intArrayOf(3, 4, 5), ints.snapshotIntArray())
+        assertEquals(5, ints.latestIntOr(-1))
+        assertEquals(5, ints.latest())
+
+        val longs = RingLongSampler(capacity = 3)
+        assertEquals(-1L, longs.latestLongOr(-1L))
+        for (value in 1L..5L) longs.publishLong(value)
+        assertContentEquals(longArrayOf(3L, 4L, 5L), longs.snapshotLongArray())
+        assertEquals(5L, longs.latestLongOr(-1L))
+        assertEquals(5L, longs.latest())
+    }
+
+    @Test
+    fun qualityRanksStayAlignedForRepresentableValuesWhenRingWraps() {
+        val sampler = FlowSampler<String>(safeTypeOf(), capacity = 3, trackQuality = true)
+        assertTrue(sampler.tracksQuality)
+        assertNull(sampler.latestSeverity())
+        assertContentEquals(intArrayOf(), sampler.snapshotSeverityRanks())
+
+        sampler.publish("dropped", QualitySeverity.GOOD)
+        sampler.publish("uncertain", QualitySeverity.UNCERTAIN)
+        sampler.publish("bad", QualitySeverity.BAD)
+        sampler.publish("custom", QualitySeverity(255))
+
+        assertEquals(listOf("uncertain", "bad", "custom"), sampler.snapshot())
+        assertContentEquals(intArrayOf(50, 100, 255), sampler.snapshotSeverityRanks())
+        assertEquals(QualitySeverity(255), sampler.latestSeverity())
+    }
+
+    private suspend fun <T> CoroutineScope.assertHotNonReplay(
+        flow: Flow<T>,
+        beforeSubscription: List<T>,
+        afterSubscription: List<T>,
+        publish: (T) -> Unit,
+    ) {
+        beforeSubscription.forEach(publish)
+        val collected = mutableListOf<T>()
+        val job = launch(start = CoroutineStart.UNDISPATCHED) {
+            flow.take(afterSubscription.size).toList(collected)
+        }
+        afterSubscription.forEach(publish)
+        job.join()
+
+        assertEquals(afterSubscription, collected, "new collector must not see pre-subscription values")
     }
 }
