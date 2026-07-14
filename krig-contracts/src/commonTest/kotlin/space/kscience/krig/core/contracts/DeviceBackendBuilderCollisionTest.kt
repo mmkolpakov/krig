@@ -33,9 +33,37 @@ private object CollisionContract : DeviceContractBuilder() {
     val command by action(MetaConverter.string, MetaConverter.string)
 }
 
+private object ReadOnlyCollisionContract : DeviceContractBuilder() {
+    val value by property(MetaConverter.double, TypeIds.DOUBLE)
+}
+
 private object IncompatibleValueContract : MutableDevicePropertyContract<Double> {
     override val name: Name = CollisionContract.value.name
     override val descriptor = CollisionContract.value.descriptor.copy(kind = PropertyKind.LOGICAL)
+    override val converter: MetaConverter<Double> = MetaConverter.double
+}
+
+private object IncompatibleReadOnlyValueContract : DevicePropertyContract<Double> {
+    override val name: Name = ReadOnlyCollisionContract.value.name
+    override val descriptor = ReadOnlyCollisionContract.value.descriptor.copy(kind = PropertyKind.LOGICAL)
+    override val converter: MetaConverter<Double> = MetaConverter.double
+}
+
+private object CompatibleReadOnlyValueAlias : DevicePropertyContract<Double> {
+    override val name: Name = ReadOnlyCollisionContract.value.name
+    override val descriptor = ReadOnlyCollisionContract.value.descriptor
+    override val converter: MetaConverter<Double> = ReadOnlyCollisionContract.value.converter
+}
+
+private object ReadOnlyContractWithMutableDescriptor : DevicePropertyContract<Double> {
+    override val name: Name = CollisionContract.value.name
+    override val descriptor = CollisionContract.value.descriptor
+    override val converter: MetaConverter<Double> = MetaConverter.double
+}
+
+private object MutableContractWithReadOnlyDescriptor : MutableDevicePropertyContract<Double> {
+    override val name: Name = CollisionContract.value.name
+    override val descriptor = ReadOnlyCollisionContract.value.descriptor
     override val converter: MetaConverter<Double> = MetaConverter.double
 }
 
@@ -48,7 +76,7 @@ private object SameNameActionContract : DeviceActionContract<String, String> {
 
 private object CustomComputedContract : DevicePropertyContract<Double> {
     override val name: Name = CollisionContract.value.name
-    override val descriptor = CollisionContract.value.descriptor
+    override val descriptor = ReadOnlyCollisionContract.value.descriptor
     override val converter: MetaConverter<Double> = object : MetaConverter<Double> {
         override fun convert(obj: Double) = MetaConverter.double.convert(obj + 100.0)
 
@@ -183,24 +211,100 @@ class DeviceBackendBuilderCollisionTest {
     fun typedCellsComposeWithCompatibleSamplersInEitherOrder() = runTest {
         val sampler = doubleSampler(capacity = 2)
         val cellFirst = DeviceBackendBuilder()
-        val readable = cellFirst.readable(CollisionContract.value, initial = 1.0)
-        cellFirst.sampler(CollisionContract.value) { sampler }
+        val readable = cellFirst.readable(ReadOnlyCollisionContract.value, initial = 1.0)
+        cellFirst.sampler(CompatibleReadOnlyValueAlias) { sampler }
         val readableBackend = cellFirst.build()
-        assertSame(sampler, readableBackend.sampler(CollisionContract.value))
+        assertSame(sampler, readableBackend.sampler(CompatibleReadOnlyValueAlias))
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            readableBackend.propertySpec(ReadOnlyCollisionContract.value.name),
+        )
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            readableBackend.propertySpecs()[ReadOnlyCollisionContract.value.name],
+        )
         assertEquals(
             readable.value,
-            readableBackend.bindCollisionStub().read(CollisionContract.value.descriptor).doubleValue,
+            readableBackend.bindCollisionStub().read(ReadOnlyCollisionContract.value.descriptor).doubleValue,
         )
 
         val samplerFirst = DeviceBackendBuilder()
-        samplerFirst.sampler(CollisionContract.value) { sampler }
-        val secondReadable = samplerFirst.readable(CollisionContract.value, initial = 2.0)
+        samplerFirst.sampler(CompatibleReadOnlyValueAlias) { sampler }
+        val secondReadable = samplerFirst.readable(ReadOnlyCollisionContract.value, initial = 2.0)
         val samplerBackend = samplerFirst.build()
-        assertSame(sampler, samplerBackend.sampler(CollisionContract.value))
+        assertSame(sampler, samplerBackend.sampler(CompatibleReadOnlyValueAlias))
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            samplerBackend.propertySpec(ReadOnlyCollisionContract.value.name),
+        )
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            samplerBackend.propertySpecs()[ReadOnlyCollisionContract.value.name],
+        )
         assertEquals(
             secondReadable.value,
-            samplerBackend.bindCollisionStub().read(CollisionContract.value.descriptor).doubleValue,
+            samplerBackend.bindCollisionStub().read(ReadOnlyCollisionContract.value.descriptor).doubleValue,
         )
+    }
+
+    @Test
+    fun typedCellsExposeTheirContractsWhileKeepingMetaFallback() = runTest {
+        val readableBackend = deviceBackend {
+            readable(ReadOnlyCollisionContract.value, initial = 1.0)
+        }
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            readableBackend.propertySpec(ReadOnlyCollisionContract.value.name),
+        )
+        assertEquals(
+            mapOf(ReadOnlyCollisionContract.value.name to ReadOnlyCollisionContract.value),
+            readableBackend.propertySpecs(),
+        )
+        assertNull(readableBackend.reader(ReadOnlyCollisionContract.value))
+
+        val writableBuilder = DeviceBackendBuilder()
+        val cell = writableBuilder.writable(CollisionContract.value, initial = 2.0)
+        val writableBackend = writableBuilder.build()
+        assertSame(CollisionContract.value, writableBackend.propertySpec(CollisionContract.value.name))
+        assertEquals(
+            mapOf(CollisionContract.value.name to CollisionContract.value),
+            writableBackend.propertySpecs(),
+        )
+        assertNull(writableBackend.reader(CollisionContract.value))
+        assertNull(writableBackend.writer(CollisionContract.value))
+
+        writableBackend.bindCollisionStub().write(CollisionContract.value.descriptor, metaOf(3.0))
+        assertEquals(3.0, cell.value)
+    }
+
+    @Test
+    fun cellContractsRejectContradictoryMutabilityBeforeMutation() {
+        val readableBuilder = DeviceBackendBuilder()
+        assertFailsWith<IllegalArgumentException> {
+            readableBuilder.readable(CollisionContract.value, initial = 1.0)
+        }
+        readableBuilder.writable(CollisionContract.value, initial = 2.0)
+
+        val computedBuilder = DeviceBackendBuilder()
+        assertFailsWith<IllegalArgumentException> {
+            computedBuilder.computed(CollisionContract.value) { 1.0 }
+        }
+        computedBuilder.readable(ReadOnlyCollisionContract.value, initial = 2.0)
+
+        val malformedReadOnlyBuilder = DeviceBackendBuilder()
+        assertFailsWith<IllegalArgumentException> {
+            malformedReadOnlyBuilder.readable(ReadOnlyContractWithMutableDescriptor, initial = 1.0)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            malformedReadOnlyBuilder.computed(ReadOnlyContractWithMutableDescriptor) { 1.0 }
+        }
+        malformedReadOnlyBuilder.readable(ReadOnlyCollisionContract.value, initial = 2.0)
+
+        val malformedMutableBuilder = DeviceBackendBuilder()
+        assertFailsWith<IllegalArgumentException> {
+            malformedMutableBuilder.writable(MutableContractWithReadOnlyDescriptor, initial = 1.0)
+        }
+        malformedMutableBuilder.writable(CollisionContract.value, initial = 2.0)
     }
 
     @Test
@@ -241,30 +345,34 @@ class DeviceBackendBuilderCollisionTest {
         }
 
         val typedCellFirst = DeviceBackendBuilder()
-        typedCellFirst.readable(CollisionContract.value, initial = 1.0)
+        typedCellFirst.readable(ReadOnlyCollisionContract.value, initial = 1.0)
         assertFailsWith<IllegalStateException> {
-            typedCellFirst.sampler(IncompatibleValueContract) { sampler }
+            typedCellFirst.sampler(IncompatibleReadOnlyValueContract) { sampler }
         }
 
         val incompatibleSamplerFirst = DeviceBackendBuilder()
-        incompatibleSamplerFirst.sampler(IncompatibleValueContract) { sampler }
+        incompatibleSamplerFirst.sampler(IncompatibleReadOnlyValueContract) { sampler }
         assertFailsWith<IllegalStateException> {
-            incompatibleSamplerFirst.readable(CollisionContract.value, initial = 1.0)
+            incompatibleSamplerFirst.readable(ReadOnlyCollisionContract.value, initial = 1.0)
         }
     }
 
     @Test
     fun computedCellCannotDivergeFromAContractWriter() = runTest {
         val computedFirst = DeviceBackendBuilder()
-        val computed = computedFirst.computed(CollisionContract.value) { 3.0 }
+        val computed = computedFirst.computed(ReadOnlyCollisionContract.value) { 3.0 }
         assertFailsWith<IllegalStateException> {
             computedFirst.writer(CollisionContract.value) { }
         }
         val computedBackend = computedFirst.build()
         assertNull(computedBackend.writer(CollisionContract.value))
+        assertSame(
+            ReadOnlyCollisionContract.value,
+            computedBackend.propertySpec(ReadOnlyCollisionContract.value.name),
+        )
         assertEquals(
             computed.value,
-            computedBackend.bindCollisionStub().read(CollisionContract.value.descriptor).doubleValue,
+            computedBackend.bindCollisionStub().read(ReadOnlyCollisionContract.value.descriptor).doubleValue,
         )
     }
 

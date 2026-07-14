@@ -7,6 +7,7 @@ import space.kscience.dataforge.meta.MetaConverter
 import space.kscience.dataforge.names.Name
 import space.kscience.dataforge.names.asName
 import space.kscience.krig.api.data.ObservedValue
+import space.kscience.krig.api.descriptors.attributes.mutable
 import space.kscience.krig.api.result.getOrThrow
 import space.kscience.krig.core.InternalKrigApi
 import space.kscience.krig.core.UnstableKrigForSubclassing
@@ -154,20 +155,32 @@ public class DeviceBackendBuilder internal constructor() {
     public fun <T : Any> readable(name: String, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> =
         readableCell(name.asName(), initial, converter, spec = null)
 
-    /** Read-only cell keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
+    /**
+     * Read-only cell keyed by a read-only [DevicePropertyContract]; preserves hierarchical names.
+     *
+     * @throws IllegalArgumentException if the contract or its descriptor declares mutability.
+     */
     @IgnorableReturnValue
-    public fun <T : Any> readable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
-        readableCell(spec.name, initial, spec.converter, spec)
+    public fun <T : Any> readable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> {
+        requireReadOnlyCellContract(spec, "readable")
+        return readableCell(spec.name, initial, spec.converter, spec)
+    }
 
     /** Declares a writable property: external `Meta` writes also reach the backing cell. */
     @IgnorableReturnValue
     public fun <T : Any> writable(name: String, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> =
         writableCell(name.asName(), initial, converter, spec = null)
 
-    /** Writable cell keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
+    /**
+     * Writable cell keyed by a [MutableDevicePropertyContract]; preserves hierarchical names.
+     *
+     * @throws IllegalArgumentException if the contract descriptor does not declare mutability.
+     */
     @IgnorableReturnValue
-    public fun <T : Any> writable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
-        writableCell(spec.name, initial, spec.converter, spec)
+    public fun <T : Any> writable(spec: MutableDevicePropertyContract<T>, initial: T): ConnectionProperty<T> {
+        requireMutableCellContract(spec)
+        return writableCell(spec.name, initial, spec.converter, spec)
+    }
 
     /**
      * Declares a *computed* property derived on every read by [compute]. Use it for values that
@@ -177,10 +190,16 @@ public class DeviceBackendBuilder internal constructor() {
     public fun computed(name: String, compute: () -> Double): ConnectionProperty<Double> =
         computedCell(name.asName(), compute, spec = null)
 
-    /** Computed property keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
+    /**
+     * Computed property keyed by a read-only [DevicePropertyContract]; preserves hierarchical names.
+     *
+     * @throws IllegalArgumentException if the contract or its descriptor declares mutability.
+     */
     @IgnorableReturnValue
-    public fun computed(spec: DevicePropertyContract<Double>, compute: () -> Double): ConnectionProperty<Double> =
-        computedCell(spec.name, compute, spec)
+    public fun computed(spec: DevicePropertyContract<Double>, compute: () -> Double): ConnectionProperty<Double> {
+        requireReadOnlyCellContract(spec, "computed")
+        return computedCell(spec.name, compute, spec)
+    }
 
     private fun <T : Any> readableCell(
         key: Name,
@@ -199,7 +218,7 @@ public class DeviceBackendBuilder internal constructor() {
         key: Name,
         initial: T,
         converter: MetaConverter<T>,
-        spec: DevicePropertyContract<T>?,
+        spec: MutableDevicePropertyContract<T>?,
     ): ConnectionProperty<T> {
         reserveCellSlot(key, spec)
         val cell = VolatileCell(initial)
@@ -297,10 +316,11 @@ public class DeviceBackendBuilder internal constructor() {
         val writerEntries = writers.toMap()
         val samplerEntries = samplers.toMap()
         val actionEntries = actions.toMap()
+        val cellEntries = cellReaders.toMap()
         val core = BackendCore(
             BackendHandlers(
                 metaReaders = readerEntries.toMetaReaders(::readEntryAsMeta) +
-                        cellReaders.toMetaReaders { entry -> entry.converter.convertAny(entry.read()) },
+                        cellEntries.toMetaReaders { entry -> entry.converter.convertAny(entry.read()) },
                 observedReaders = observedEntries.toObservedReaders(::readObservedEntryAsMeta),
                 binaryReaders = binaryEntries.toBinaryReaders { it.reader() },
                 writers = writerEntries.toMetaWriters(::writeEntry) +
@@ -315,7 +335,16 @@ public class DeviceBackendBuilder internal constructor() {
             ),
         )
         val typed: TypedDeviceBackend =
-            BuiltTypedBackend(readerEntries, observedEntries, binaryEntries, writerEntries, samplerEntries, actionEntries, core)
+            BuiltTypedBackend(
+                readerEntries,
+                observedEntries,
+                binaryEntries,
+                writerEntries,
+                samplerEntries,
+                actionEntries,
+                cellEntries,
+                core,
+            )
         return stepBlock?.let { SteppingTypedBackend(typed, it) } ?: typed
     }
 
@@ -400,6 +429,21 @@ public class DeviceBackendBuilder internal constructor() {
         writers[name]?.let { checkCompatible(it.spec, spec) }
         samplers[name]?.let { checkCompatible(it.spec, spec) }
     }
+
+    private fun requireReadOnlyCellContract(spec: DevicePropertyContract<*>, declaration: String) {
+        require(spec !is MutableDevicePropertyContract<*>) {
+            "A $declaration cell for property '${spec.name}' requires a read-only contract; use writable for a mutable contract"
+        }
+        require(!spec.descriptor.mutable) {
+            "A $declaration cell for property '${spec.name}' requires a descriptor with mutable=false"
+        }
+    }
+
+    private fun requireMutableCellContract(spec: MutableDevicePropertyContract<*>) {
+        require(spec.descriptor.mutable) {
+            "A writable cell for property '${spec.name}' requires a descriptor with mutable=true"
+        }
+    }
 }
 
 /**
@@ -451,6 +495,7 @@ private class BuiltTypedBackend(
     private val writers: Map<Name, WriterEntry<*>>,
     private val samplers: Map<Name, SamplerEntry<*>>,
     private val actions: Map<Name, ActionEntry<*, *>>,
+    private val cells: Map<Name, CellReaderEntry>,
     core: BackendCore,
 ) : TypedDeviceBackend, DeviceBackend by core {
 
@@ -495,7 +540,7 @@ private class BuiltTypedBackend(
 
     override fun propertySpec(name: Name): DevicePropertyContract<*>? =
         writers[name]?.spec ?: readers[name]?.spec ?: observedReaders[name]?.spec
-            ?: binaryReaders[name]?.spec ?: samplers[name]?.spec
+            ?: binaryReaders[name]?.spec ?: cells[name]?.spec ?: samplers[name]?.spec
 
     override fun actionSpec(name: Name): DeviceActionContract<*, *>? = actions[name]?.spec
 
@@ -504,6 +549,9 @@ private class BuiltTypedBackend(
         binaryReaders.forEach { (name, entry) -> put(name, entry.spec) }
         observedReaders.forEach { (name, entry) -> put(name, entry.spec) }
         readers.forEach { (name, entry) -> put(name, entry.spec) }
+        // A typed cell is the complete property declaration, so it is canonical when composed
+        // with a compatible sampler regardless of registration order.
+        cells.forEach { (name, entry) -> entry.spec?.let { put(name, it) } }
         // Writers last: for a property that is both readable and writable the mutable spec wins,
         // matching the lookup order of [propertySpec].
         writers.forEach { (name, entry) -> put(name, entry.spec) }

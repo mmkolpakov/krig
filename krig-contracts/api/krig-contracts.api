@@ -487,7 +487,7 @@ public final class space/kscience/krig/core/contracts/DeviceBackendBuilder {
 	public final fun reader (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function1;)V
 	public final fun sampler (Lspace/kscience/krig/core/meta/DevicePropertyContract;Lkotlin/jvm/functions/Function0;)V
 	public final fun writable (Ljava/lang/String;Ljava/lang/Object;Lspace/kscience/dataforge/meta/MetaConverter;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
-	public final fun writable (Lspace/kscience/krig/core/meta/DevicePropertyContract;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
+	public final fun writable (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Ljava/lang/Object;)Lspace/kscience/krig/core/contracts/ConnectionProperty;
 	public final fun writer (Lspace/kscience/krig/core/meta/MutableDevicePropertyContract;Lkotlin/jvm/functions/Function2;)V
 }
 

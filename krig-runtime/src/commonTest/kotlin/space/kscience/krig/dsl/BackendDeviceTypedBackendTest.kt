@@ -35,6 +35,7 @@ import space.kscience.krig.api.services.AuditService
 import space.kscience.krig.core.contracts.DeviceBackend
 import space.kscience.krig.core.contracts.BackendEnvironment
 import space.kscience.krig.core.contracts.BoundDeviceBackend
+import space.kscience.krig.core.contracts.ConnectionProperty
 import space.kscience.krig.core.contracts.DynamicDescriptorOverlay
 import space.kscience.krig.core.contracts.DynamicDiscoveryPolicy
 import space.kscience.krig.core.contracts.doubleValue
@@ -46,10 +47,12 @@ import space.kscience.krig.core.contracts.typed.TypedWriter
 import space.kscience.krig.core.contracts.typed.TypedBackend
 import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
+import space.kscience.krig.core.meta.mutableDevicePropertyContract
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Instant
 
@@ -203,6 +206,41 @@ class BackendDeviceTypedBackendTest {
 
         assertEquals(17.0, observed.value.value?.doubleValue)
         assertEquals(listOf(valueSpec.name), batchRequests)
+    }
+
+    @Test
+    fun typedWritableCellWorksThroughMetaFallbackWithoutDescriptorSource() = runTest {
+        val spec = mutableDevicePropertyContract(
+            name = Name.of("setpoint"),
+            converter = MetaConverter.double,
+            kind = PropertyKind.LOGICAL,
+            valueTypeId = TypeIds.DOUBLE,
+        )
+        lateinit var cell: ConnectionProperty<Double>
+        val backend = deviceBackend {
+            cell = writable(spec, initial = 1.5)
+        }
+        val context = permissiveContext("typed-cell-meta-fallback-test")
+        val device = BackendDevice(
+            backend = backend,
+            name = Name.of("typed-cell-meta-fallback"),
+            context = context,
+            descriptorSource = DescriptorSource.Empty,
+        )
+
+        assertSame(spec, backend.propertySpec(spec.name))
+        assertEquals(spec.descriptor, device.propertyDescriptors[spec.name])
+        assertEquals(1.5, device.readProperty(spec.name).doubleValue)
+
+        device.writeProperty(spec.name, metaOf(4.5))
+        assertEquals(4.5, cell.value)
+        assertEquals(4.5, device.reader(spec).read())
+
+        device.writer(spec).write(6.0)
+        assertEquals(6.0, cell.value)
+
+        device.close()
+        context.close()
     }
 
     @Test
