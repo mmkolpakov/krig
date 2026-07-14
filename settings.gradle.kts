@@ -30,6 +30,7 @@ pluginManagement {
 }
 
 plugins {
+    id("org.jetbrains.kotlinx.artifacts-validator-plugin") version "0.0.2"
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 

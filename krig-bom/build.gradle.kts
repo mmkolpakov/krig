@@ -1,7 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
-import space.kscience.krig.build.bom.KrigBomCompletenessPlugin
-
 plugins {
     `java-platform`
     `maven-publish`
@@ -34,9 +30,7 @@ val publishedModules = listOf(
 
 dependencies {
     constraints {
-        publishedModules.forEach { path ->
-            api(project.dependencyFactory.createProjectDependency(path))
-        }
+        publishedModules.forEach { path -> api(project(path)) }
     }
 }
 
@@ -48,5 +42,3 @@ publishing {
         }
     }
 }
-
-apply<KrigBomCompletenessPlugin>()

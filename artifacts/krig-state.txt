@@ -1,0 +1,10 @@
+space.kscience:krig-state-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-state-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-state-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-state-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-state-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-state-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-state-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-state-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-state-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-state/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

@@ -1,0 +1,10 @@
+space.kscience:krig-analytics-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-analytics-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-analytics-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-analytics-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-analytics-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-analytics-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-analytics-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-analytics-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-analytics-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-analytics/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

@@ -1,0 +1,10 @@
+space.kscience:krig-flow-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-flow-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-flow-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-flow-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-flow-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-flow-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-flow-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-flow-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-flow-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-flow/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

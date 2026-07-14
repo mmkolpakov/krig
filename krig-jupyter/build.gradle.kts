@@ -42,6 +42,8 @@ kotlin {
 
     @OptIn(org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation::class)
     abiValidation {
+        binariesSource.set(org.jetbrains.kotlin.gradle.dsl.abi.BinariesSource.MAVEN_PUBLICATIONS)
+        keepLocallyUnsupportedTargets.set(false)
         filters.exclude.annotatedWith.add("space.kscience.krig.core.InternalKrigApi")
     }
 }

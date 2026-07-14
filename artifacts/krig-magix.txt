@@ -1,0 +1,6 @@
+space.kscience:krig-magix-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-magix-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-magix-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-magix-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-magix-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-magix/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

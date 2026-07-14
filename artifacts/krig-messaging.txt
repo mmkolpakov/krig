@@ -1,0 +1,10 @@
+space.kscience:krig-messaging-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-messaging-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-messaging-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-messaging-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-messaging-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-messaging-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-messaging-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-messaging-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-messaging-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-messaging/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

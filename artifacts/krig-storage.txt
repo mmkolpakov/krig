@@ -1,0 +1,10 @@
+space.kscience:krig-storage-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-storage-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-storage-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-storage-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-storage-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-storage-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-storage-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-storage-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-storage-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-storage/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

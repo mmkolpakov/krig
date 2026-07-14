@@ -1,0 +1,10 @@
+space.kscience:krig-contracts-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-contracts-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-contracts-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-contracts-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-contracts-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-contracts-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-contracts-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-contracts-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-contracts-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-contracts/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

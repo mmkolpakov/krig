@@ -93,6 +93,8 @@ kotlin {
     // block; the explicit `enabled.set(true)` getter is gone. Filters still apply.
     @OptIn(ExperimentalAbiValidation::class)
     abiValidation {
+        binariesSource.set(org.jetbrains.kotlin.gradle.dsl.abi.BinariesSource.MAVEN_PUBLICATIONS)
+        keepLocallyUnsupportedTargets.set(false)
         filters.exclude.annotatedWith.add("space.kscience.krig.core.InternalKrigApi")
     }
 }

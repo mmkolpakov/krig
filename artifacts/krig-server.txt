@@ -1,0 +1,1 @@
+space.kscience:krig-server/.jar,.module,.pom

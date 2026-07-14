@@ -1,0 +1,10 @@
+space.kscience:krig-identity-iosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-identity-iossimulatorarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-identity-iosx64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-identity-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-identity-jvm/.jar,.module,.pom,sources.jar
+space.kscience:krig-identity-linuxx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-identity-macosarm64/.klib,.module,.pom,metadata.jar,sources.jar
+space.kscience:krig-identity-mingwx64/.klib,.module,.pom,sources.jar
+space.kscience:krig-identity-wasm-js/.klib,.module,.pom,sources.jar
+space.kscience:krig-identity/.jar,.module,.pom,kotlin-tooling-metadata.json,sources.jar

@@ -1,0 +1,1 @@
+space.kscience:krig-ui-remote-compose/.jar,.module,.pom
