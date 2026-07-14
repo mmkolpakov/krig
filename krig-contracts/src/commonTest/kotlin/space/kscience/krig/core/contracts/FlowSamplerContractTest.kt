@@ -178,6 +178,43 @@ class FlowSamplerContractTest {
     }
 
     @Test
+    fun typedQualityEntryPointsFeedTheReactiveView() = runTest {
+        val severity = QualitySeverity(300)
+
+        val generic = FlowSampler<String>(safeTypeOf(), capacity = 2, trackQuality = true)
+        assertHotNonReplay(
+            flow = generic.flow(),
+            beforeSubscription = emptyList(),
+            afterSubscription = listOf("a", "b"),
+            publish = { generic.publish(it, severity) },
+        )
+
+        val doubles = RingDoubleSampler(capacity = 2, trackQuality = true)
+        assertHotNonReplay(
+            flow = doubles.flow(),
+            beforeSubscription = emptyList(),
+            afterSubscription = listOf(1.0, 2.0),
+            publish = { doubles.publish(it, severity) },
+        )
+
+        val ints = RingIntSampler(capacity = 2, trackQuality = true)
+        assertHotNonReplay(
+            flow = ints.flow(),
+            beforeSubscription = emptyList(),
+            afterSubscription = listOf(1, 2),
+            publish = { ints.publish(it, severity) },
+        )
+
+        val longs = RingLongSampler(capacity = 2, trackQuality = true)
+        assertHotNonReplay(
+            flow = longs.flow(),
+            beforeSubscription = emptyList(),
+            afterSubscription = listOf(1L, 2L),
+            publish = { longs.publish(it, severity) },
+        )
+    }
+
+    @Test
     fun primitiveQualityEntryPointsPreserveIntBoundaries() {
         val doubles = RingDoubleSampler(capacity = 2, trackQuality = true)
         doubles.publish(1.0, QualitySeverity(Int.MIN_VALUE))

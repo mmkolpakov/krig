@@ -19,10 +19,13 @@ import kotlin.jvm.JvmSynthetic
  * Generic [TypedSampler] over a **boxed** ring buffer — the fallback for non-primitive value types.
  *
  * Shares the bounded-ring engine and the non-replaying [flow] contract with the primitive samplers:
- * a new collector observes only values published *after* it subscribes (no replay of buffered
- * history), and [latest] / [snapshot] read the stored ring rather than a flow cache. For
- * high-frequency numeric streams prefer the unboxed [RingDoubleSampler] / [RingIntSampler] /
- * [RingLongSampler]; with this generic sampler each published value is boxed.
+ * in sequential use a new collector observes only values published *after* it subscribes (no replay
+ * of buffered history), and [latest] / [snapshot] read the stored ring rather than a flow cache.
+ * Concurrent publications are forwarded in ring-commit order; a non-draining publisher can return
+ * before that forwarding completes, so the concurrent subscription boundary is the actual flow
+ * emission rather than method completion. For high-frequency numeric streams prefer the unboxed
+ * [RingDoubleSampler] / [RingIntSampler] / [RingLongSampler]; with this generic sampler each
+ * published value is boxed.
  */
 public class FlowSampler<T>(
     type: SafeType<T>,
@@ -35,21 +38,23 @@ public class FlowSampler<T>(
     private var latestValue: T? = null
 
     public fun publish(value: T) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked()] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     /** Publishes [value] tagging the slot with [severity] (recorded only when quality is tracked). */
     @JvmName("publishWithSeverityRank")
     public fun publish(value: T, severity: QualitySeverity) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked(severity.rank)] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     override fun latest(): T? = synchronized(lock) { if (hasLatestLocked()) latestValue else null }
@@ -117,6 +122,9 @@ public sealed class AbstractRingSampler<T> protected constructor(
         extraBufferCapacity = capacity,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
+    private val flowSubscriptionCount = updates.subscriptionCount
+    private var pendingFlowValues: ArrayDeque<T>? = null
+    private var flowDrainInProgress: Boolean = false
 
     /** Whether any value has been published; safe to call without holding [lock]. */
     public val hasLatest: Boolean get() = synchronized(lock) { hasLatestValue }
@@ -194,22 +202,55 @@ public sealed class AbstractRingSampler<T> protected constructor(
      * Whether anyone is currently collecting [flow]. Reading [subscriptionCount] is allocation-free.
      */
     @get:JvmSynthetic
-    internal val hasFlowSubscribers: Boolean get() = updates.subscriptionCount.value > 0
+    internal val hasFlowSubscribers: Boolean get() = flowSubscriptionCount.value > 0
 
     /**
-     * Raw emit into the boxed reactive [flow]. Built-in samplers go through [emitToFlowIfObserved] so
-     * a primitive is boxed only when a collector exists.
+     * Under a held [lock], joins the ordered reactive publication lane. The first publisher becomes
+     * its synchronous drainer; concurrent publishers append to a lazy queue bounded by [capacity].
      */
     @JvmSynthetic
-    internal fun emitToFlow(value: T) { updates.tryEmit(value) }
+    internal fun enqueueFlowValueLocked(value: T): Boolean {
+        if (!flowDrainInProgress) {
+            flowDrainInProgress = true
+            return true
+        }
+
+        val pending = pendingFlowValues ?: ArrayDeque<T>().also { pendingFlowValues = it }
+        if (pending.size == capacity) pending.removeFirst()
+        pending.addLast(value)
+        return false
+    }
 
     /**
-     * Forwards [value] to [flow] only when a collector is attached. `inline` keeps primitive boxing
-     * inside the subscriber branch, so the silent telemetry path remains allocation-free.
+     * Under a held [lock], schedules [value] only while [flow] has a collector. `inline` keeps
+     * primitive boxing inside that branch, so the silent telemetry path remains allocation-free.
      */
     @JvmSynthetic
-    internal inline fun emitToFlowIfObserved(value: () -> T) {
-        if (hasFlowSubscribers) emitToFlow(value())
+    internal inline fun scheduleFlowValueLocked(value: () -> T): Boolean {
+        if (hasFlowSubscribers) return enqueueFlowValueLocked(value())
+        pendingFlowValues?.clear()
+        return false
+    }
+
+    /**
+     * Drains values in ring-commit order without holding [lock] while `SharedFlow` resumes collectors.
+     * Concurrent and reentrant publishers only append to the bounded pending lane.
+     */
+    @JvmSynthetic
+    internal fun drainFlowValues(initialValue: T) {
+        var nextValue = initialValue
+        while (true) {
+            updates.tryEmit(nextValue)
+            synchronized(lock) {
+                val pending = pendingFlowValues
+                if (!hasFlowSubscribers || pending == null || pending.isEmpty()) {
+                    pending?.clear()
+                    flowDrainInProgress = false
+                    return
+                }
+                nextValue = pending.removeFirst()
+            }
+        }
     }
 
     final override fun flow(): Flow<T> = updates.asSharedFlow()
@@ -229,19 +270,21 @@ public class RingDoubleSampler(
     private var latestValue: Double = 0.0
 
     public fun publishDouble(value: Double) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked()] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     private fun publishDouble(value: Double, severityRank: Int) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     public fun publish(value: Double): Unit = publishDouble(value)
@@ -279,19 +322,21 @@ public class RingIntSampler(
     private var latestValue: Int = 0
 
     public fun publishInt(value: Int) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked()] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     private fun publishInt(value: Int, severityRank: Int) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     public fun publish(value: Int): Unit = publishInt(value)
@@ -326,19 +371,21 @@ public class RingLongSampler(
     private var latestValue: Long = 0L
 
     public fun publishLong(value: Long) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked()] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     private fun publishLong(value: Long, severityRank: Int) {
-        synchronized(lock) {
+        val shouldDrainFlow = synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
+            scheduleFlowValueLocked { value }
         }
-        emitToFlowIfObserved { value }
+        if (shouldDrainFlow) drainFlowValues(value)
     }
 
     public fun publish(value: Long): Unit = publishLong(value)
