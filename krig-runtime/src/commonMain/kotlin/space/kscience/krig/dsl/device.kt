@@ -123,16 +123,22 @@ public suspend fun device(
 ): Device = device(name.asName(), backend, runtime, builder)
 
 /**
- * Session-aware [device] form — the Context comes from the ambient [DeviceRuntime]
- * context parameter so nested DSL blocks don't repeat the context argument. Kotlin 2.4
- * `context(...)` semantics: works with any call site that already binds a DeviceRuntime
- * (e.g. inside `deviceGroup { ... }`).
+ * Session-aware [device] form — the ambient [DeviceRuntime] is forwarded intact,
+ * so nested DSL blocks don't repeat the runtime argument. Kotlin 2.4
+ * `context(...)` semantics work at a call site that binds a DeviceRuntime.
  */
 context(session: DeviceRuntime)
 public suspend fun device(
     name: Name,
     builder: DeclarativeDeviceBuilder.() -> Unit,
-): Device = device(name, session.context, builder)
+): Device = device(name, session, builder)
+
+/** String-name form of the session-aware declarative [device]. */
+context(session: DeviceRuntime)
+public suspend fun device(
+    name: String,
+    builder: DeclarativeDeviceBuilder.() -> Unit,
+): Device = device(name, session, builder)
 
 /** Session-aware explicit-backend [device] form. */
 context(session: DeviceRuntime)
@@ -140,7 +146,15 @@ public suspend fun device(
     name: Name,
     backend: DeviceBackend,
     builder: ExplicitDeviceBuilder.() -> Unit = {},
-): Device = device(name, backend, session.context, builder)
+): Device = device(name, backend, session, builder)
+
+/** String-name form of the session-aware explicit-backend [device]. */
+context(session: DeviceRuntime)
+public suspend fun device(
+    name: String,
+    backend: DeviceBackend,
+    builder: ExplicitDeviceBuilder.() -> Unit = {},
+): Device = device(name, backend, session, builder)
 
 // ── Private impl: synthesised backend for DeclarativeDeviceBuilder ──
 

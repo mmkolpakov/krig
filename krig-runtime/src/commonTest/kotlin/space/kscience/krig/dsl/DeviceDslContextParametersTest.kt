@@ -1,4 +1,5 @@
 @file:OptIn(
+    space.kscience.krig.core.InternalKrigApi::class,
     space.kscience.krig.core.KrigPerformancePitfall::class,
     space.kscience.krig.core.UnstableKrigForSubclassing::class,
     kotlin.concurrent.atomics.ExperimentalAtomicApi::class,
@@ -15,16 +16,25 @@ import space.kscience.dataforge.names.asName
 import space.kscience.krig.core.contracts.readProperty
 import space.kscience.krig.core.contracts.writeProperty
 import space.kscience.krig.core.contracts.execute
+import space.kscience.krig.api.descriptors.ActionDescriptor
 import space.kscience.krig.api.descriptors.PropertyDescriptor
 import space.kscience.krig.api.faults.OperationFaultException
 import space.kscience.krig.api.faults.ValidationFault
 import space.kscience.krig.api.result.OperationOutcome
 import space.kscience.krig.api.services.AllowAllAuthorizationService
 import space.kscience.krig.api.services.AuditService
+import space.kscience.krig.core.contracts.AbstractDevice
 import space.kscience.krig.core.contracts.BackendEnvironment
+import space.kscience.krig.core.contracts.BoundDeviceBackend
+import space.kscience.krig.core.contracts.Device
+import space.kscience.krig.core.contracts.DeviceBackend
+import space.kscience.krig.core.contracts.DeviceMessaging
+import space.kscience.krig.core.contracts.DeviceRuntime
 import space.kscience.krig.core.contracts.metaOf
 import space.kscience.krig.core.contracts.readOutcome
 import space.kscience.krig.core.meta.MutableDevicePropertyContract
+import space.kscience.krig.core.operations.HybridLogicalClock
+import space.kscience.krig.core.pipeline.PipelineDevice
 import space.kscience.dataforge.meta.MetaConverter
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.AtomicLong
@@ -34,19 +44,112 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Instant
+import kotlin.time.TimeMark
+import kotlin.time.TimeSource
 
 /**
  * Device DSL lambdas receive narrow device scopes: enough for computed properties,
  * without exposing the full device lifecycle surface.
  */
 class DeviceDslContextParametersTest {
+    private class FixedClock(private val instant: Instant) : Clock {
+        override fun now(): Instant = instant
+    }
+
+    private class DelegatingTimeSource : TimeSource {
+        override fun markNow(): TimeMark = TimeSource.Monotonic.markNow()
+    }
+
+    private class EnvironmentCapturingBackend : DeviceBackend {
+        val environment: AtomicReference<BackendEnvironment?> = AtomicReference(null)
+
+        override fun bind(environment: BackendEnvironment): BoundDeviceBackend {
+            this.environment.store(environment)
+            return object : BoundDeviceBackend {
+                override val environment: BackendEnvironment = environment
+
+                override suspend fun read(property: PropertyDescriptor): Meta = Meta.EMPTY
+
+                override suspend fun write(property: PropertyDescriptor, value: Meta) = Unit
+
+                override suspend fun execute(
+                    action: ActionDescriptor,
+                    argument: Meta?,
+                ): Meta? = null
+
+                override fun close() = Unit
+            }
+        }
+    }
+
     private val lexicalReceiverToken: String = "outer-receiver"
 
     private fun permissiveContext(name: String): Context = Context(name) {
         plugin(AllowAllAuthorizationService)
         plugin(AuditService)
+    }
+
+    private fun testRuntime(name: String): DeviceRuntime {
+        val clock = FixedClock(Instant.fromEpochMilliseconds(12_345L))
+        return DeviceRuntime(
+            context = permissiveContext(name),
+            clock = clock,
+            messaging = DeviceMessaging(controlBufferCapacity = 7, dataBufferCapacity = 3, replay = 1),
+            hlc = HybridLogicalClock(physicalClock = clock),
+            timeSource = DelegatingTimeSource(),
+        )
+    }
+
+    private fun assertRuntimeIdentity(expected: DeviceRuntime, device: Device) {
+        val baseDevice = assertIs<AbstractDevice>(assertIs<PipelineDevice>(device).delegate)
+        val actual = baseDevice.runtime
+        assertSame(expected, actual)
+        assertSame(expected.context, actual.context)
+        assertSame(expected.clock, actual.clock)
+        assertSame(expected.timeSource, actual.timeSource)
+        assertSame(expected.messaging, actual.messaging)
+        assertSame(expected.hlc, actual.hlc)
+        assertSame(expected.clock, device.clock)
+        assertSame(expected.timeSource, device.timeSource)
+    }
+
+    @Test
+    fun contextRuntimeIsPreservedByDeclarativeDevice() = runTest {
+        val runtime = testRuntime("dsl-context-runtime-declarative")
+        val created = with(runtime) {
+            device("declarative") {
+                property("timestamp") { clock.now().toEpochMilliseconds() }
+            }
+        }
+
+        try {
+            assertRuntimeIdentity(runtime, created)
+        } finally {
+            created.shutdown()
+        }
+    }
+
+    @Test
+    fun contextRuntimeIsPreservedByExplicitBackendDevice() = runTest {
+        val runtime = testRuntime("dsl-context-runtime-explicit")
+        val backend = EnvironmentCapturingBackend()
+        val created = with(runtime) {
+            device("explicit", backend)
+        }
+
+        try {
+            assertRuntimeIdentity(runtime, created)
+            val environment = assertNotNull(backend.environment.load())
+            assertSame(runtime.context, environment.context)
+            assertSame(runtime.clock, environment.clock)
+            assertSame(runtime.timeSource, environment.timeSource)
+        } finally {
+            created.shutdown()
+        }
     }
 
     @Test
