@@ -1047,7 +1047,7 @@ public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSa
 	public final fun getHasLatest ()Z
 	public final fun getTracksQuality ()Z
 	public final fun getType-V0oMfBY ()Lkotlin/reflect/KType;
-	public final fun latestSeverity-5e092yg ()Lspace/kscience/krig/api/data/QualitySeverity;
+	public final fun latestSeverity ()Lspace/kscience/krig/api/data/QualitySeverity;
 	public final fun snapshotSeverityRanks ()[I
 }
 
@@ -1056,7 +1056,7 @@ public final class space/kscience/krig/core/contracts/sampling/FlowSampler : spa
 	public synthetic fun <init> (Lkotlin/reflect/KType;IZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun latest ()Ljava/lang/Object;
 	public final fun publish (Ljava/lang/Object;)V
-	public final fun publish-Hib2M5Q (Ljava/lang/Object;I)V
+	public final fun publishWithSeverityRank (Ljava/lang/Object;I)V
 	public fun snapshot ()Ljava/util/List;
 	public fun toString ()Ljava/lang/String;
 }
@@ -1085,9 +1085,8 @@ public final class space/kscience/krig/core/contracts/sampling/RingDoubleSampler
 	public final fun latestDoubleOr (D)D
 	public final fun latestDoubleOrNaN ()D
 	public final fun publish (D)V
-	public final fun publish-Hib2M5Q (DI)V
 	public final fun publishDouble (D)V
-	public final fun publishDouble (DI)V
+	public final fun publishDoubleWithSeverityRank (DI)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotDoubleArray ()[D
 }
@@ -1100,9 +1099,8 @@ public final class space/kscience/krig/core/contracts/sampling/RingIntSampler : 
 	public synthetic fun latest ()Ljava/lang/Object;
 	public final fun latestIntOr (I)I
 	public final fun publish (I)V
-	public final fun publish-Hib2M5Q (II)V
 	public final fun publishInt (I)V
-	public final fun publishInt (II)V
+	public final fun publishIntWithSeverityRank (II)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotIntArray ()[I
 }
@@ -1115,9 +1113,8 @@ public final class space/kscience/krig/core/contracts/sampling/RingLongSampler :
 	public synthetic fun latest ()Ljava/lang/Object;
 	public final fun latestLongOr (J)J
 	public final fun publish (J)V
-	public final fun publish-Hib2M5Q (JI)V
 	public final fun publishLong (J)V
-	public final fun publishLong (JI)V
+	public final fun publishLongWithSeverityRank (JI)V
 	public fun snapshot ()Ljava/util/List;
 	public final fun snapshotLongArray ()[J
 }

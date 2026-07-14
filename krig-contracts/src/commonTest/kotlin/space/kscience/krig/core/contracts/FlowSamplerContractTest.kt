@@ -159,22 +159,41 @@ class FlowSamplerContractTest {
     }
 
     @Test
+    fun typedQualityEntryPointsPublishAndExposeLatestSeverity() {
+        val generic = FlowSampler<String>(safeTypeOf(), capacity = 1, trackQuality = true)
+        generic.publish("value", QualitySeverity(-1))
+        assertEquals(QualitySeverity(-1), generic.latestSeverity())
+
+        val doubles = RingDoubleSampler(capacity = 1, trackQuality = true)
+        doubles.publish(1.0, QualitySeverity(256))
+        assertEquals(QualitySeverity(256), doubles.latestSeverity())
+
+        val ints = RingIntSampler(capacity = 1, trackQuality = true)
+        ints.publish(1, QualitySeverity(300))
+        assertEquals(QualitySeverity(300), ints.latestSeverity())
+
+        val longs = RingLongSampler(capacity = 1, trackQuality = true)
+        longs.publish(1L, QualitySeverity(Int.MAX_VALUE))
+        assertEquals(QualitySeverity(Int.MAX_VALUE), longs.latestSeverity())
+    }
+
+    @Test
     fun primitiveQualityEntryPointsPreserveIntBoundaries() {
         val doubles = RingDoubleSampler(capacity = 2, trackQuality = true)
-        doubles.publishDouble(1.0, Int.MIN_VALUE)
-        doubles.publishDouble(2.0, Int.MAX_VALUE)
+        doubles.publish(1.0, QualitySeverity(Int.MIN_VALUE))
+        doubles.publish(2.0, QualitySeverity(Int.MAX_VALUE))
         assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), doubles.snapshotSeverityRanks())
         assertEquals(QualitySeverity(Int.MAX_VALUE), doubles.latestSeverity())
 
         val ints = RingIntSampler(capacity = 2, trackQuality = true)
-        ints.publishInt(1, Int.MIN_VALUE)
-        ints.publishInt(2, Int.MAX_VALUE)
+        ints.publish(1, QualitySeverity(Int.MIN_VALUE))
+        ints.publish(2, QualitySeverity(Int.MAX_VALUE))
         assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), ints.snapshotSeverityRanks())
         assertEquals(QualitySeverity(Int.MAX_VALUE), ints.latestSeverity())
 
         val longs = RingLongSampler(capacity = 2, trackQuality = true)
-        longs.publishLong(1L, Int.MIN_VALUE)
-        longs.publishLong(2L, Int.MAX_VALUE)
+        longs.publish(1L, QualitySeverity(Int.MIN_VALUE))
+        longs.publish(2L, QualitySeverity(Int.MAX_VALUE))
         assertContentEquals(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE), longs.snapshotSeverityRanks())
         assertEquals(QualitySeverity(Int.MAX_VALUE), longs.latestSeverity())
     }

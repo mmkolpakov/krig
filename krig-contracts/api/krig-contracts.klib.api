@@ -604,7 +604,6 @@ final class space.kscience.krig.core.contracts.sampling/RingDoubleSampler : spac
     final fun publish(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publish|publish(kotlin.Double){}[0]
     final fun publish(kotlin/Double, space.kscience.krig.api.data/QualitySeverity) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publish|publish(kotlin.Double;space.kscience.krig.api.data.QualitySeverity){}[0]
     final fun publishDouble(kotlin/Double) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publishDouble|publishDouble(kotlin.Double){}[0]
-    final fun publishDouble(kotlin/Double, kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.publishDouble|publishDouble(kotlin.Double;kotlin.Int){}[0]
     final fun snapshot(): kotlin.collections/List<kotlin/Double> // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.snapshot|snapshot(){}[0]
     final fun snapshotDoubleArray(): kotlin/DoubleArray // space.kscience.krig.core.contracts.sampling/RingDoubleSampler.snapshotDoubleArray|snapshotDoubleArray(){}[0]
 }
@@ -617,7 +616,6 @@ final class space.kscience.krig.core.contracts.sampling/RingIntSampler : space.k
     final fun publish(kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publish|publish(kotlin.Int){}[0]
     final fun publish(kotlin/Int, space.kscience.krig.api.data/QualitySeverity) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publish|publish(kotlin.Int;space.kscience.krig.api.data.QualitySeverity){}[0]
     final fun publishInt(kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publishInt|publishInt(kotlin.Int){}[0]
-    final fun publishInt(kotlin/Int, kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingIntSampler.publishInt|publishInt(kotlin.Int;kotlin.Int){}[0]
     final fun snapshot(): kotlin.collections/List<kotlin/Int> // space.kscience.krig.core.contracts.sampling/RingIntSampler.snapshot|snapshot(){}[0]
     final fun snapshotIntArray(): kotlin/IntArray // space.kscience.krig.core.contracts.sampling/RingIntSampler.snapshotIntArray|snapshotIntArray(){}[0]
 }
@@ -630,7 +628,6 @@ final class space.kscience.krig.core.contracts.sampling/RingLongSampler : space.
     final fun publish(kotlin/Long) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publish|publish(kotlin.Long){}[0]
     final fun publish(kotlin/Long, space.kscience.krig.api.data/QualitySeverity) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publish|publish(kotlin.Long;space.kscience.krig.api.data.QualitySeverity){}[0]
     final fun publishLong(kotlin/Long) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publishLong|publishLong(kotlin.Long){}[0]
-    final fun publishLong(kotlin/Long, kotlin/Int) // space.kscience.krig.core.contracts.sampling/RingLongSampler.publishLong|publishLong(kotlin.Long;kotlin.Int){}[0]
     final fun snapshot(): kotlin.collections/List<kotlin/Long> // space.kscience.krig.core.contracts.sampling/RingLongSampler.snapshot|snapshot(){}[0]
     final fun snapshotLongArray(): kotlin/LongArray // space.kscience.krig.core.contracts.sampling/RingLongSampler.snapshotLongArray|snapshotLongArray(){}[0]
 }

@@ -12,6 +12,7 @@ import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.core.contracts.Device
 import space.kscience.krig.core.contracts.typed.TypedSampler
 import space.kscience.krig.core.meta.DevicePropertyContract
+import kotlin.jvm.JvmName
 import kotlin.jvm.JvmSynthetic
 
 /**
@@ -42,6 +43,7 @@ public class FlowSampler<T>(
     }
 
     /** Publishes [value] tagging the slot with [severity] (recorded only when quality is tracked). */
+    @JvmName("publishWithSeverityRank")
     public fun publish(value: T, severity: QualitySeverity) {
         synchronized(lock) {
             values[reserveSlotLocked(severity.rank)] = value
@@ -170,6 +172,7 @@ public sealed class AbstractRingSampler<T> protected constructor(
      * Severity of the most recently published value, or `null` when quality is untracked or nothing
      * has been published yet. Reads the unboxed lane, allocating only the [QualitySeverity] wrapper.
      */
+    @JvmName("latestSeverity")
     public fun latestSeverity(): QualitySeverity? = synchronized(lock) {
         if (severities != null && hasLatestValue) QualitySeverity(latestSeverityRank) else null
     }
@@ -233,8 +236,7 @@ public class RingDoubleSampler(
         emitToFlowIfObserved { value }
     }
 
-    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
-    public fun publishDouble(value: Double, severityRank: Int) {
+    private fun publishDouble(value: Double, severityRank: Int) {
         synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
@@ -244,6 +246,8 @@ public class RingDoubleSampler(
 
     public fun publish(value: Double): Unit = publishDouble(value)
 
+    /** Publishes [value] with [severity] while retaining an unboxed primitive hot path. */
+    @JvmName("publishDoubleWithSeverityRank")
     public fun publish(value: Double, severity: QualitySeverity): Unit = publishDouble(value, severity.rank)
 
     public fun latestDoubleOr(default: Double): Double = synchronized(lock) {
@@ -282,8 +286,7 @@ public class RingIntSampler(
         emitToFlowIfObserved { value }
     }
 
-    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
-    public fun publishInt(value: Int, severityRank: Int) {
+    private fun publishInt(value: Int, severityRank: Int) {
         synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
@@ -293,6 +296,8 @@ public class RingIntSampler(
 
     public fun publish(value: Int): Unit = publishInt(value)
 
+    /** Publishes [value] with [severity] while retaining an unboxed primitive hot path. */
+    @JvmName("publishIntWithSeverityRank")
     public fun publish(value: Int, severity: QualitySeverity): Unit = publishInt(value, severity.rank)
 
     public fun latestIntOr(default: Int): Int = synchronized(lock) {
@@ -328,8 +333,7 @@ public class RingLongSampler(
         emitToFlowIfObserved { value }
     }
 
-    /** Unboxed hot-path publish tagging the slot with [severityRank] (recorded only when tracked). */
-    public fun publishLong(value: Long, severityRank: Int) {
+    private fun publishLong(value: Long, severityRank: Int) {
         synchronized(lock) {
             values[reserveSlotLocked(severityRank)] = value
             latestValue = value
@@ -339,6 +343,8 @@ public class RingLongSampler(
 
     public fun publish(value: Long): Unit = publishLong(value)
 
+    /** Publishes [value] with [severity] while retaining an unboxed primitive hot path. */
+    @JvmName("publishLongWithSeverityRank")
     public fun publish(value: Long, severity: QualitySeverity): Unit = publishLong(value, severity.rank)
 
     public fun latestLongOr(default: Long): Long = synchronized(lock) {
