@@ -28,7 +28,7 @@ turbine = "1.2.1"
 
 # Code Generation (used by krig-ksp-processor + buildSrc convention plugin)
 ksp = "2.3.9"
-kctfork = "0.13.0-alpha01"
+kctfork = "0.13.0"
 
 # Static Analysis
 detekt = "2.0.0-alpha.3"
