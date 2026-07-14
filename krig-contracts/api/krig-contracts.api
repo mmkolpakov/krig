@@ -1040,24 +1040,14 @@ public final class space/kscience/krig/core/contracts/TypedSteppedBackend$Defaul
 }
 
 public abstract class space/kscience/krig/core/contracts/sampling/AbstractRingSampler : space/kscience/krig/core/contracts/typed/TypedSampler {
-	public synthetic fun <init> (ILkotlin/reflect/KType;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (ILkotlin/reflect/KType;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun drainOverrunCount ()J
-	public final fun emitToFlow (Ljava/lang/Object;)V
-	protected final fun emitToFlowIfObserved (Lkotlin/jvm/functions/Function0;)V
 	public final fun flow ()Lkotlinx/coroutines/flow/Flow;
 	public final fun getCapacity ()I
-	protected final fun getHasFlowSubscribers ()Z
 	public final fun getHasLatest ()Z
-	protected final fun getLock ()Ljava/lang/Object;
 	public final fun getTracksQuality ()Z
 	public final fun getType-V0oMfBY ()Lkotlin/reflect/KType;
-	protected final fun hasLatestLocked ()Z
 	public final fun latestSeverity-5e092yg ()Lspace/kscience/krig/api/data/QualitySeverity;
-	protected final fun oldestSlotLocked ()I
-	protected final fun reserveSlotLocked ()I
-	protected final fun reserveSlotLocked (I)I
-	protected final fun sizeLocked ()I
 	public final fun snapshotSeverityRanks ()[I
 }
 

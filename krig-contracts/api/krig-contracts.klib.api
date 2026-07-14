@@ -1,6 +1,5 @@
 // Klib ABI Dump
 // Targets: [iosArm64, iosSimulatorArm64, iosX64, js, linuxX64, macosArm64, mingwX64, wasmJs]
-// Alias: native => [iosArm64, iosSimulatorArm64, iosX64, linuxX64, macosArm64, mingwX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -433,39 +432,6 @@ sealed interface space.kscience.krig.core.operations/HlcLocalClockPolicy { // sp
         final fun localPhysicalMilliseconds(kotlin/Long, kotlin/Long): kotlin/Long // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.localPhysicalMilliseconds|localPhysicalMilliseconds(kotlin.Long;kotlin.Long){}[0]
         final fun toString(): kotlin/String // space.kscience.krig.core.operations/HlcLocalClockPolicy.AcceptPhysicalTime.toString|toString(){}[0]
     }
-}
-
-abstract class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/AbstractRingSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/AbstractRingSampler|null[0]
-    constructor <init>(kotlin/Int, space.kscience.attributes/SafeType<#A>, kotlin/Boolean = ...) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.<init>|<init>(kotlin.Int;space.kscience.attributes.SafeType<1:0>;kotlin.Boolean){}[0]
-
-    final val capacity // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity|{}capacity[0]
-        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
-    final val hasFlowSubscribers // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasFlowSubscribers|{}hasFlowSubscribers[0]
-        final fun <get-hasFlowSubscribers>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasFlowSubscribers.<get-hasFlowSubscribers>|<get-hasFlowSubscribers>(){}[0]
-    final val hasLatest // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest|{}hasLatest[0]
-        final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
-    final val lock // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock|{}lock[0]
-        // Targets: [native]
-        final fun <get-lock>(): kotlinx.atomicfu.locks/SynchronizedObject // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock.<get-lock>|<get-lock>(){}[0]
-
-        // Targets: [js, wasmJs]
-        final fun <get-lock>(): kotlin/Any // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.lock.<get-lock>|<get-lock>(){}[0]
-    final val tracksQuality // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.tracksQuality|{}tracksQuality[0]
-        final fun <get-tracksQuality>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.tracksQuality.<get-tracksQuality>|<get-tracksQuality>(){}[0]
-    final val type // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type|{}type[0]
-        final fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type.<get-type>|<get-type>(){}[0]
-
-    final fun drainOverrunCount(): kotlin/Long // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.drainOverrunCount|drainOverrunCount(){}[0]
-    final fun emitToFlow(#A) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.emitToFlow|emitToFlow(1:0){}[0]
-    final fun flow(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.flow|flow(){}[0]
-    final fun hasLatestLocked(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatestLocked|hasLatestLocked(){}[0]
-    final fun latestSeverity(): space.kscience.krig.api.data/QualitySeverity? // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.latestSeverity|latestSeverity(){}[0]
-    final fun oldestSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.oldestSlotLocked|oldestSlotLocked(){}[0]
-    final fun reserveSlotLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.reserveSlotLocked|reserveSlotLocked(){}[0]
-    final fun reserveSlotLocked(kotlin/Int): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.reserveSlotLocked|reserveSlotLocked(kotlin.Int){}[0]
-    final fun sizeLocked(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.sizeLocked|sizeLocked(){}[0]
-    final fun snapshotSeverityRanks(): kotlin/IntArray? // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.snapshotSeverityRanks|snapshotSeverityRanks(){}[0]
-    final inline fun emitToFlowIfObserved(kotlin/Function0<#A>) // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.emitToFlowIfObserved|emitToFlowIfObserved(kotlin.Function0<1:0>){}[0]
 }
 
 abstract class <#A: space.kscience.krig.core.contracts/Device, #B: kotlin/Any?> space.kscience.krig.api.factory/DeviceFactory : space.kscience.dataforge.context/Factory<#A>, space.kscience.dataforge.meta.descriptors/Described { // space.kscience.krig.api.factory/DeviceFactory|null[0]
@@ -1071,6 +1037,22 @@ final class space.kscience.krig.core.operations/HybridLogicalClock { // space.ks
     final fun snapshot(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.snapshot|snapshot(){}[0]
     final fun tick(): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.tick|tick(){}[0]
     final fun update(space.kscience.krig.api.data/HlcTimestamp): space.kscience.krig.api.data/HlcTimestamp // space.kscience.krig.core.operations/HybridLogicalClock.update|update(space.kscience.krig.api.data.HlcTimestamp){}[0]
+}
+
+sealed class <#A: kotlin/Any?> space.kscience.krig.core.contracts.sampling/AbstractRingSampler : space.kscience.krig.core.contracts.typed/TypedSampler<#A> { // space.kscience.krig.core.contracts.sampling/AbstractRingSampler|null[0]
+    final val capacity // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity|{}capacity[0]
+        final fun <get-capacity>(): kotlin/Int // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.capacity.<get-capacity>|<get-capacity>(){}[0]
+    final val hasLatest // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest|{}hasLatest[0]
+        final fun <get-hasLatest>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.hasLatest.<get-hasLatest>|<get-hasLatest>(){}[0]
+    final val tracksQuality // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.tracksQuality|{}tracksQuality[0]
+        final fun <get-tracksQuality>(): kotlin/Boolean // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.tracksQuality.<get-tracksQuality>|<get-tracksQuality>(){}[0]
+    final val type // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type|{}type[0]
+        final fun <get-type>(): space.kscience.attributes/SafeType<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.type.<get-type>|<get-type>(){}[0]
+
+    final fun drainOverrunCount(): kotlin/Long // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.drainOverrunCount|drainOverrunCount(){}[0]
+    final fun flow(): kotlinx.coroutines.flow/Flow<#A> // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.flow|flow(){}[0]
+    final fun latestSeverity(): space.kscience.krig.api.data/QualitySeverity? // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.latestSeverity|latestSeverity(){}[0]
+    final fun snapshotSeverityRanks(): kotlin/IntArray? // space.kscience.krig.core.contracts.sampling/AbstractRingSampler.snapshotSeverityRanks|snapshotSeverityRanks(){}[0]
 }
 
 final object space.kscience.krig.api.discovery/ActionHandlerContributions { // space.kscience.krig.api.discovery/ActionHandlerContributions|null[0]

@@ -10,8 +10,9 @@ import space.kscience.attributes.SafeType
 import space.kscience.attributes.safeTypeOf
 import space.kscience.krig.api.data.QualitySeverity
 import space.kscience.krig.core.contracts.Device
-import space.kscience.krig.core.meta.DevicePropertyContract
 import space.kscience.krig.core.contracts.typed.TypedSampler
+import space.kscience.krig.core.meta.DevicePropertyContract
+import kotlin.jvm.JvmSynthetic
 
 /**
  * Generic [TypedSampler] over a **boxed** ring buffer — the fallback for non-primitive value types.
@@ -78,19 +79,22 @@ public inline fun <reified T> sampler(capacity: Int = 256, trackQuality: Boolean
     }
 
 /**
- * Shared bounded ring engine: holds the index/size bookkeeping, the latest-flag, and the boxed
- * reactive [flow] view under one synchronized monitor. Primitive subclasses own an unboxed backing
- * array and expose the unboxed publish/latest/snapshot surface — the duplicated, error-prone
- * wrap-around arithmetic lives here only once. Also the extension point for custom unboxed samplers.
+ * Shared bounded ring implementation used by the built-in samplers. It owns index/size bookkeeping,
+ * the latest flag, and the boxed reactive [flow] view under one synchronized monitor. Primitive
+ * implementations keep their values in unboxed arrays while reusing the wrap-around bookkeeping.
+ *
+ * External sampler implementations should implement [TypedSampler] instead of inheriting storage
+ * and synchronization mechanics from this sealed family.
  */
-public abstract class AbstractRingSampler<T>(
+public sealed class AbstractRingSampler<T> protected constructor(
     final override val capacity: Int,
     final override val type: SafeType<T>,
     trackQuality: Boolean = false,
 ) : TypedSampler<T> {
     init { require(capacity > 0) { "capacity must be > 0, got $capacity" } }
 
-    protected val lock: SynchronizedObject = SynchronizedObject()
+    @get:JvmSynthetic
+    internal val lock: SynchronizedObject = SynchronizedObject()
     private var nextIndex: Int = 0
     private var storedSize: Int = 0
     private var hasLatestValue: Boolean = false
@@ -119,14 +123,16 @@ public abstract class AbstractRingSampler<T>(
     public val tracksQuality: Boolean get() = severities != null
 
     /** Under a held [lock]: reserves the next write slot and advances ring bookkeeping. */
-    protected fun reserveSlotLocked(): Int = reserveSlotLocked(QualitySeverity.GOOD.rank)
+    @JvmSynthetic
+    internal fun reserveSlotLocked(): Int = reserveSlotLocked(QualitySeverity.GOOD.rank)
 
     /**
      * Under a held [lock]: reserves the next write slot, records [severityRank] in the quality lane
      * (if tracked), and advances ring bookkeeping. The rank is stored as a byte; callers feed
      * [QualitySeverity.rank] (the boxed `DataQuality` never reaches this path).
      */
-    protected fun reserveSlotLocked(severityRank: Int): Int {
+    @JvmSynthetic
+    internal fun reserveSlotLocked(severityRank: Int): Int {
         val slot = nextIndex
         severities?.set(slot, severityRank.toByte())
         latestSeverityRank = severityRank
@@ -149,13 +155,16 @@ public abstract class AbstractRingSampler<T>(
     }
 
     /** Under a held [lock]: number of stored elements. */
-    protected fun sizeLocked(): Int = storedSize
+    @JvmSynthetic
+    internal fun sizeLocked(): Int = storedSize
 
     /** Under a held [lock]: ring index of the oldest stored element. */
-    protected fun oldestSlotLocked(): Int = if (storedSize == capacity) nextIndex else 0
+    @JvmSynthetic
+    internal fun oldestSlotLocked(): Int = if (storedSize == capacity) nextIndex else 0
 
     /** Under a held [lock]: whether any value has been published. */
-    protected fun hasLatestLocked(): Boolean = hasLatestValue
+    @JvmSynthetic
+    internal fun hasLatestLocked(): Boolean = hasLatestValue
 
     /**
      * Severity of the most recently published value, or `null` when quality is untracked or nothing
@@ -166,10 +175,11 @@ public abstract class AbstractRingSampler<T>(
     }
 
     /**
-     * Defensive snapshot of the severity ranks in oldest-to-newest order, column-aligned with the
-     * value snapshot ([snapshot] / `snapshot*Array`), or `null` when quality is untracked. Returned
-     * as unsigned ranks (0..255) so it drops straight into a columnar quality band / Arrow `IntVector`
-     * without per-row boxing.
+     * Defensive snapshot of the severity ranks in oldest-to-newest order, or `null` when quality is
+     * untracked. It is column-aligned with a value snapshot ([snapshot] / `snapshot*Array`) only when
+     * no publication occurs between the two calls; this API does not provide an atomic value/quality
+     * snapshot pair. Returned as unsigned ranks (0..255) so it drops straight into a columnar quality
+     * band / Arrow `IntVector` without per-row boxing.
      */
     public fun snapshotSeverityRanks(): IntArray? = synchronized(lock) {
         val lane = severities ?: return@synchronized null
@@ -181,24 +191,22 @@ public abstract class AbstractRingSampler<T>(
     /**
      * Whether anyone is currently collecting [flow]. Reading [subscriptionCount] is allocation-free.
      */
-    protected val hasFlowSubscribers: Boolean get() = updates.subscriptionCount.value > 0
+    @get:JvmSynthetic
+    internal val hasFlowSubscribers: Boolean get() = updates.subscriptionCount.value > 0
 
     /**
-     * Raw emit into the boxed reactive [flow]. Deliberately **not** part of the protected subclass
-     * surface (a direct call boxes the primitive on every tick, even with no collector); subclasses
-     * must go through [emitToFlowIfObserved]. `@PublishedApi internal` keeps it reachable from the
-     * inline guard while removing it from the footgun-prone API.
+     * Raw emit into the boxed reactive [flow]. Built-in samplers go through [emitToFlowIfObserved] so
+     * a primitive is boxed only when a collector exists.
      */
-    @PublishedApi
+    @JvmSynthetic
     internal fun emitToFlow(value: T) { updates.tryEmit(value) }
 
     /**
-     * The only emit primitive a subclass should call: forwards [value] to [flow] **only** when a
-     * collector is attached. `inline` so the value is materialised (and, for a primitive subclass,
-     * boxed) strictly inside the subscriber branch — on the silent hot path (no collector, the common
-     * telemetry case) the unboxed publish stays zero-allocation. Makes the guard impossible to forget.
+     * Forwards [value] to [flow] only when a collector is attached. `inline` keeps primitive boxing
+     * inside the subscriber branch, so the silent telemetry path remains allocation-free.
      */
-    protected inline fun emitToFlowIfObserved(value: () -> T) {
+    @JvmSynthetic
+    internal inline fun emitToFlowIfObserved(value: () -> T) {
         if (hasFlowSubscribers) emitToFlow(value())
     }
 
