@@ -90,7 +90,7 @@ public class DeviceBackendBuilder internal constructor() {
     private val samplers: MutableMap<Name, SamplerEntry<*>> = mutableMapOf()
     private val actions: MutableMap<Name, ActionEntry<*, *>> = mutableMapOf()
 
-    private val cellReaders: MutableMap<Name, Pair<suspend () -> Any?, MetaConverter<*>>> = mutableMapOf()
+    private val cellReaders: MutableMap<Name, CellReaderEntry> = mutableMapOf()
     private val cellWriters: MutableMap<Name, suspend (Meta) -> Unit> = mutableMapOf()
     private val metaActions: MutableMap<Name, suspend (Meta?) -> Meta?> = mutableMapOf()
 
@@ -105,19 +105,19 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Registers a typed reader for [spec]. The body owns I/O, caching, and faults; the spec stays pure. */
     public fun <T> reader(spec: DevicePropertyContract<T>, body: suspend () -> T) {
-        reserveReaderSlot(spec.name)
+        reserveReaderSlot(spec, "reader")
         readers[spec.name] = ReaderEntry(spec, TypedReader(body))
     }
 
     /** Registers a typed reader that also reports sample quality and source timestamp. */
     public fun <T> observedReader(spec: DevicePropertyContract<T>, body: suspend () -> ObservedValue<T>) {
-        reserveReaderSlot(spec.name)
+        reserveReaderSlot(spec, "observed reader")
         observedReaders[spec.name] = ObservedReaderEntry(spec, body)
     }
 
     /** Registers a binary reader for payloads that must not be forced through a `Meta` tree on the hot path. */
     public fun binaryReader(spec: DevicePropertyContract<*>, body: suspend () -> Binary) {
-        reserveReaderSlot(spec.name)
+        reserveReaderSlot(spec, "binary reader")
         binaryReaders[spec.name] = BinaryReaderEntry(spec, body)
     }
 
@@ -128,16 +128,19 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Registers a typed writer for [spec]. */
     public fun <T> writer(spec: MutableDevicePropertyContract<T>, body: suspend (T) -> Unit) {
+        reserveWriterSlot(spec)
         writers[spec.name] = WriterEntry(spec, TypedWriter(body))
     }
 
     /** Registers a typed sampler for [spec]. */
     public fun <T> sampler(spec: DevicePropertyContract<T>, body: () -> TypedSampler<T>) {
+        reserveSamplerSlot(spec)
         samplers[spec.name] = SamplerEntry(spec, body())
     }
 
     /** Registers a typed action for [spec]; converters stay on the pure action contract. */
     public fun <I, O> action(spec: DeviceActionContract<I, O>, body: suspend (I) -> O?) {
+        reserveActionSlot(spec.name, "typed action")
         actions[spec.name] = ActionEntry(spec, TypedAction(body))
     }
 
@@ -149,22 +152,22 @@ public class DeviceBackendBuilder internal constructor() {
      */
     @IgnorableReturnValue
     public fun <T : Any> readable(name: String, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> =
-        readableCell(name.asName(), initial, converter)
+        readableCell(name.asName(), initial, converter, spec = null)
 
     /** Read-only cell keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
     @IgnorableReturnValue
     public fun <T : Any> readable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
-        readableCell(spec.name, initial, spec.converter)
+        readableCell(spec.name, initial, spec.converter, spec)
 
     /** Declares a writable property: external `Meta` writes also reach the backing cell. */
     @IgnorableReturnValue
     public fun <T : Any> writable(name: String, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> =
-        writableCell(name.asName(), initial, converter)
+        writableCell(name.asName(), initial, converter, spec = null)
 
     /** Writable cell keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
     @IgnorableReturnValue
     public fun <T : Any> writable(spec: DevicePropertyContract<T>, initial: T): ConnectionProperty<T> =
-        writableCell(spec.name, initial, spec.converter)
+        writableCell(spec.name, initial, spec.converter, spec)
 
     /**
      * Declares a *computed* property derived on every read by [compute]. Use it for values that
@@ -172,34 +175,48 @@ public class DeviceBackendBuilder internal constructor() {
      */
     @IgnorableReturnValue
     public fun computed(name: String, compute: () -> Double): ConnectionProperty<Double> =
-        computedCell(name.asName(), compute)
+        computedCell(name.asName(), compute, spec = null)
 
     /** Computed property keyed by a typed [DevicePropertyContract]; preserves hierarchical names. */
     @IgnorableReturnValue
     public fun computed(spec: DevicePropertyContract<Double>, compute: () -> Double): ConnectionProperty<Double> =
-        computedCell(spec.name, compute)
+        computedCell(spec.name, compute, spec)
 
-    private fun <T : Any> readableCell(key: Name, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> {
-        reserveReaderSlot(key)
+    private fun <T : Any> readableCell(
+        key: Name,
+        initial: T,
+        converter: MetaConverter<T>,
+        spec: DevicePropertyContract<T>?,
+    ): ConnectionProperty<T> {
+        reserveCellSlot(key, spec)
         val cell = VolatileCell(initial)
-        cellReaders[key] = Pair({ cell.value }, converter)
+        cellReaders[key] = CellReaderEntry({ cell.value }, converter, spec)
         return ConnectionProperty(key, { cell.value }) { cell.value = it }
     }
 
     @OptIn(InternalKrigApi::class)
-    private fun <T : Any> writableCell(key: Name, initial: T, converter: MetaConverter<T>): ConnectionProperty<T> {
-        reserveReaderSlot(key)
+    private fun <T : Any> writableCell(
+        key: Name,
+        initial: T,
+        converter: MetaConverter<T>,
+        spec: DevicePropertyContract<T>?,
+    ): ConnectionProperty<T> {
+        reserveCellSlot(key, spec)
         val cell = VolatileCell(initial)
-        cellReaders[key] = Pair({ cell.value }, converter)
+        cellReaders[key] = CellReaderEntry({ cell.value }, converter, spec)
         cellWriters[key] = { meta ->
             cell.value = decodeMetaOutcome(converter, meta, "property", key).getOrThrow()
         }
         return ConnectionProperty(key, { cell.value }) { cell.value = it }
     }
 
-    private fun computedCell(key: Name, compute: () -> Double): ConnectionProperty<Double> {
-        reserveReaderSlot(key)
-        cellReaders[key] = Pair({ compute() }, MetaConverter.double)
+    private fun computedCell(
+        key: Name,
+        compute: () -> Double,
+        spec: DevicePropertyContract<Double>?,
+    ): ConnectionProperty<Double> {
+        reserveCellSlot(key, spec)
+        cellReaders[key] = CellReaderEntry(compute, spec?.converter ?: MetaConverter.double, spec)
         return ConnectionProperty(key, compute, setter = null)
     }
 
@@ -207,11 +224,14 @@ public class DeviceBackendBuilder internal constructor() {
 
     /** Declares a raw `Meta`→`Meta` action by name; the body is suspendable for I/O. */
     public fun action(name: String, body: suspend (argument: Meta?) -> Meta?) {
-        metaActions[name.asName()] = body
+        val key = name.asName()
+        reserveActionSlot(key, "Meta action")
+        metaActions[key] = body
     }
 
     /** Declares a raw `Meta`→`Meta` action keyed by a typed [DeviceActionContract]. */
     public fun actionMeta(spec: DeviceActionContract<*, *>, body: suspend (argument: Meta?) -> Meta?) {
+        reserveActionSlot(spec.name, "Meta action")
         metaActions[spec.name] = body
     }
 
@@ -222,13 +242,17 @@ public class DeviceBackendBuilder internal constructor() {
      * descriptors only; protocol grouping, addresses, and retries belong to the backend that owns it.
      */
     public fun batchMetaReader(body: BatchMetaReadBody) {
-        check(batchMetaReadBody == null) { "batchMetaReader was already declared on this builder" }
+        check(batchMetaReadBody == null && batchObservedReadBody == null) {
+            "A batch value reader was already declared; cannot register batchMetaReader"
+        }
         batchMetaReadBody = body
     }
 
     /** Registers a batch reader that preserves per-item quality and source timestamps. */
     public fun batchObservedReader(body: BatchObservedReadBody) {
-        check(batchObservedReadBody == null) { "batchObservedReader was already declared on this builder" }
+        check(batchMetaReadBody == null && batchObservedReadBody == null) {
+            "A batch value reader was already declared; cannot register batchObservedReader"
+        }
         batchObservedReadBody = body
     }
 
@@ -276,7 +300,7 @@ public class DeviceBackendBuilder internal constructor() {
         val core = BackendCore(
             BackendHandlers(
                 metaReaders = readerEntries.toMetaReaders(::readEntryAsMeta) +
-                        cellReaders.toMetaReaders { (read, converter) -> converter.convertAny(read()) },
+                        cellReaders.toMetaReaders { entry -> entry.converter.convertAny(entry.read()) },
                 observedReaders = observedEntries.toObservedReaders(::readObservedEntryAsMeta),
                 binaryReaders = binaryEntries.toBinaryReaders { it.reader() },
                 writers = writerEntries.toMetaWriters(::writeEntry) +
@@ -295,10 +319,86 @@ public class DeviceBackendBuilder internal constructor() {
         return stepBlock?.let { SteppingTypedBackend(typed, it) } ?: typed
     }
 
-    private fun reserveReaderSlot(name: Name) {
-        check(name !in readers && name !in observedReaders && name !in binaryReaders && name !in cellReaders) {
-            "Reader for property '$name' was already declared on this builder"
+    private fun reserveReaderSlot(spec: DevicePropertyContract<*>, requestedLane: String) {
+        val name = spec.name
+        val existingLane = existingReadLane(name) ?: if (name in cellReaders) "cell" else null
+        check(existingLane == null) {
+            "Property '$name' already has a $existingLane; cannot register a $requestedLane"
         }
+        checkCompatiblePropertyRegistrations(spec)
+    }
+
+    private fun reserveWriterSlot(spec: MutableDevicePropertyContract<*>) {
+        val name = spec.name
+        val existingLane = when {
+            name in writers -> "writer"
+            name in cellReaders -> "cell"
+            else -> null
+        }
+        check(existingLane == null) {
+            "Property '$name' already has a $existingLane; cannot register a writer"
+        }
+        checkCompatiblePropertyRegistrations(spec)
+    }
+
+    private fun reserveSamplerSlot(spec: DevicePropertyContract<*>) {
+        val name = spec.name
+        val existingLane = if (name in samplers) "sampler" else null
+        check(existingLane == null) {
+            "Property '$name' already has a $existingLane; cannot register a sampler"
+        }
+        cellReaders[name]?.let { cell ->
+            val cellSpec = cell.spec
+            check(cellSpec != null) {
+                "Property '$name' already has an untyped cell; cannot register a sampler"
+            }
+            checkCompatible(cellSpec, spec)
+        }
+        checkCompatiblePropertyRegistrations(spec)
+    }
+
+    private fun reserveCellSlot(name: Name, spec: DevicePropertyContract<*>?) {
+        val existingLane = existingReadLane(name) ?: when {
+            name in writers -> "writer"
+            name in cellReaders -> "cell"
+            else -> null
+        }
+        check(existingLane == null) {
+            "Property '$name' already has a $existingLane; cannot register a cell"
+        }
+        samplers[name]?.let { sampler ->
+            check(spec != null) {
+                "Property '$name' already has a sampler contract; cannot register an untyped cell"
+            }
+            checkCompatible(sampler.spec, spec)
+        }
+    }
+
+    private fun reserveActionSlot(name: Name, requestedLane: String) {
+        val existingLane = when {
+            name in actions -> "typed action"
+            name in metaActions -> "Meta action"
+            else -> null
+        }
+        check(existingLane == null) {
+            "Action '$name' already has a $existingLane; cannot register a $requestedLane"
+        }
+    }
+
+    private fun existingReadLane(name: Name): String? = when {
+        name in readers -> "reader"
+        name in observedReaders -> "observed reader"
+        name in binaryReaders -> "binary reader"
+        else -> null
+    }
+
+    private fun checkCompatiblePropertyRegistrations(spec: DevicePropertyContract<*>) {
+        val name = spec.name
+        readers[name]?.let { checkCompatible(it.spec, spec) }
+        observedReaders[name]?.let { checkCompatible(it.spec, spec) }
+        binaryReaders[name]?.let { checkCompatible(it.spec, spec) }
+        writers[name]?.let { checkCompatible(it.spec, spec) }
+        samplers[name]?.let { checkCompatible(it.spec, spec) }
     }
 }
 
@@ -331,6 +431,12 @@ private data class WriterEntry<T>(val spec: MutableDevicePropertyContract<T>, va
 private data class SamplerEntry<T>(val spec: DevicePropertyContract<T>, val sampler: TypedSampler<T>)
 
 private data class ActionEntry<I, O>(val spec: DeviceActionContract<I, O>, val action: TypedAction<I, O>)
+
+private data class CellReaderEntry(
+    val read: () -> Any?,
+    val converter: MetaConverter<*>,
+    val spec: DevicePropertyContract<*>?,
+)
 
 /**
  * Concrete [TypedDeviceBackend]: owns the typed data-plane handles and spec introspection. The `Meta`
