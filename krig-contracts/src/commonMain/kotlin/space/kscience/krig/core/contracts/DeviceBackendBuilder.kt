@@ -91,6 +91,7 @@ public class ConnectionProperty<T> internal constructor(
 public class DeviceBackendBuilder internal constructor() {
 
     private var configurationClosed: Boolean = false
+    private var activeSamplerFactory: Name? = null
 
     private val readers: MutableMap<Name, ReaderEntry<*>> = mutableMapOf()
     private val observedReaders: MutableMap<Name, ObservedReaderEntry<*>> = mutableMapOf()
@@ -161,10 +162,19 @@ public class DeviceBackendBuilder internal constructor() {
         writers[spec.name] = writerEntry
     }
 
-    /** Registers a typed sampler for [spec]. */
+    /**
+     * Registers a typed sampler for [spec]. The factory runs synchronously after validation and must not
+     * configure this builder; if the factory throws, this declaration leaves the builder unchanged.
+     */
     public fun <T> sampler(spec: DevicePropertyContract<T>, body: () -> TypedSampler<T>) {
         reserveSamplerSlot(spec)
-        samplers[spec.name] = SamplerEntry(spec, body())
+        activeSamplerFactory = spec.name
+        val sampler = try {
+            body()
+        } finally {
+            activeSamplerFactory = null
+        }
+        samplers[spec.name] = SamplerEntry(spec, sampler)
     }
 
     /** Registers a typed action for [spec]; converters stay on the pure action contract. */
@@ -387,6 +397,10 @@ public class DeviceBackendBuilder internal constructor() {
     private fun checkConfiguring() {
         check(!configurationClosed) {
             "DeviceBackendBuilder cannot be configured after the backend has been built"
+        }
+        check(activeSamplerFactory == null) {
+            "DeviceBackendBuilder cannot be configured while the sampler factory for property " +
+                    "'$activeSamplerFactory' is running"
         }
     }
 
