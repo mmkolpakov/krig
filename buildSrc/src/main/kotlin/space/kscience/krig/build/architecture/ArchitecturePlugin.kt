@@ -10,7 +10,8 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
-public class ArchitecturePlugin : Plugin<Project> {
+@Suppress("unused") // Loaded by the generated Gradle plugin descriptor.
+class ArchitecturePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         require(project == project.rootProject) { "krig-architecture must be applied to the root project" }
         project.pluginManager.apply("base")

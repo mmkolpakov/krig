@@ -1,5 +1,6 @@
 package space.kscience.krig.build.architecture
 
+@Suppress("unused") // Policy rows are decoded through enumValues<T>().
 internal enum class ModuleKind {
     Library,
     Build,
@@ -8,6 +9,7 @@ internal enum class ModuleKind {
     Platform,
 }
 
+@Suppress("unused") // Policy rows are decoded through enumValues<T>().
 internal enum class ArchitectureLayer {
     L0,
     L1,

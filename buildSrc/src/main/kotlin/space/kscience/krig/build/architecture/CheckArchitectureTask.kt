@@ -90,13 +90,13 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
             .mapNotNull { file ->
                 val path = file.toPath().toAbsolutePath().normalize()
                 val module = moduleRootMappings.firstOrNull { path.startsWith(it.path) }?.module
-                when {
-                    module == null -> {
+                when (module) {
+                    null -> {
                         sourceProblems += "Java source is outside declared module roots: ${relative(root, file)}"
                         null
                     }
-                    module !in libraryModules -> null
-                    else -> relative(root, file)
+                    in libraryModules -> relative(root, file)
+                    else -> null
                 }
             }
             .sorted()
