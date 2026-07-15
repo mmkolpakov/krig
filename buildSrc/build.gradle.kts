@@ -18,5 +18,6 @@ dependencies {
     implementation(libs.dokka.gradle.plugin)
     implementation(libs.detekt.gradle.plugin)
     implementation(libs.ksp.gradle.plugin)
+    testImplementation(gradleTestKit())
     testImplementation(kotlin("test-junit"))
 }

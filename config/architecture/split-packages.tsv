@@ -1,8 +1,0 @@
-package	owner	contributors
-space.kscience.krig.api.annotations	krig-state	krig-contracts,krig-model,krig-state
-space.kscience.krig.api.data	krig-state	krig-operation,krig-state,krig-storage
-space.kscience.krig.api.hub	krig-contracts	krig-contracts,krig-messaging
-space.kscience.krig.core.capabilities	krig-contracts	krig-contracts,krig-runtime-stdlib
-space.kscience.krig.core.operations	krig-operation	krig-contracts,krig-operation,krig-runtime,krig-runtime-stdlib
-space.kscience.krig.core.pipeline	krig-operation	krig-contracts,krig-operation,krig-runtime
-space.kscience.krig.dsl	krig-runtime	krig-runtime,krig-runtime-stdlib

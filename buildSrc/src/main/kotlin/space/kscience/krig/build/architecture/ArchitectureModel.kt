@@ -36,7 +36,7 @@ internal data class ModuleEdge(
     override fun toString(): String = "$consumer -> $dependency"
 }
 
-internal data class SplitPackagePolicy(
+internal data class PackagePolicy(
     val packageName: String,
     val owner: String,
     val contributors: Set<String>,
@@ -45,7 +45,7 @@ internal data class SplitPackagePolicy(
 internal data class ArchitecturePolicy(
     val modules: Map<String, ModulePolicy>,
     val edges: Set<ModuleEdge>,
-    val splitPackages: Map<String, SplitPackagePolicy>,
+    val packages: Map<String, PackagePolicy>,
 ) {
     val libraryModules: Set<String> = modules.values
         .filter { it.kind == ModuleKind.Library }

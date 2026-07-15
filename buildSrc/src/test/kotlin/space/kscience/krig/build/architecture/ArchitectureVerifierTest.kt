@@ -99,46 +99,60 @@ class ArchitectureVerifierTest {
     }
 
     @Test
-    fun rejectsNewAndChangedSplitPackages() {
+    fun rejectsUnclassifiedAndChangedPackages() {
         val verification = ArchitectureVerifier.verify(
             policy = policy(),
             snapshot = snapshot(
                 packages = mapOf(
+                    "sample.core" to setOf("core"),
                     "sample.shared" to setOf("core", "adapter", "third"),
                     "sample.new" to setOf("core", "adapter"),
                 ),
             ),
         )
 
-        assertContains(verification, "Unapproved split packages: sample.new")
-        assertContains(verification, "Split package 'sample.shared' contributors changed; added: third")
+        assertContains(verification, "Unclassified production packages: sample.new")
+        assertContains(verification, "Package 'sample.shared' contributors changed; added: third")
     }
 
     @Test
-    fun rejectsRemovedSplitContributor() {
+    fun rejectsRemovedPackageContributor() {
         val base = policy()
         val third = ModulePolicy("third", ModuleKind.Library, ArchitectureLayer.L6)
         val modules = base.modules + (third.name to third)
-        val split = base.splitPackages.getValue("sample.shared").copy(
+        val sharedPackage = base.packages.getValue("sample.shared").copy(
             contributors = setOf("core", "adapter", "third"),
         )
         val policy = base.copy(
             modules = modules,
-            splitPackages = mapOf(split.packageName to split),
+            packages = mapOf(sharedPackage.packageName to sharedPackage),
         )
         val verification = ArchitectureVerifier.verify(
             policy = policy,
             snapshot = ArchitectureSnapshot(
                 modules = modules.keys,
                 edges = base.edges,
-                packageContributors = mapOf("sample.shared" to setOf("core", "adapter")),
+                packageContributors = mapOf(
+                    "sample.core" to setOf("core"),
+                    "sample.shared" to setOf("core", "adapter"),
+                ),
             ),
         )
 
         assertContains(
             verification,
-            "Split package 'sample.shared' contributors changed; missing: third",
+            "Package 'sample.shared' contributors changed; missing: third",
         )
+    }
+
+    @Test
+    fun rejectsStalePackagePolicy() {
+        val verification = ArchitectureVerifier.verify(
+            policy = policy(),
+            snapshot = snapshot(packages = mapOf("sample.core" to setOf("core"))),
+        )
+
+        assertContains(verification, "Stale package policies: sample.shared")
     }
 
     private fun policy(): ArchitecturePolicy {
@@ -149,8 +163,13 @@ class ArchitectureVerifierTest {
         return ArchitecturePolicy(
             modules = modules,
             edges = setOf(ModuleEdge("adapter", "core")),
-            splitPackages = mapOf(
-                "sample.shared" to SplitPackagePolicy(
+            packages = mapOf(
+                "sample.core" to PackagePolicy(
+                    packageName = "sample.core",
+                    owner = "core",
+                    contributors = setOf("core"),
+                ),
+                "sample.shared" to PackagePolicy(
                     packageName = "sample.shared",
                     owner = "core",
                     contributors = setOf("core", "adapter"),
@@ -162,7 +181,10 @@ class ArchitectureVerifierTest {
     private fun snapshot(
         modules: Set<String> = setOf("core", "adapter"),
         edges: Set<ModuleEdge> = setOf(ModuleEdge("adapter", "core")),
-        packages: Map<String, Set<String>> = mapOf("sample.shared" to setOf("core", "adapter")),
+        packages: Map<String, Set<String>> = mapOf(
+            "sample.core" to setOf("core"),
+            "sample.shared" to setOf("core", "adapter"),
+        ),
     ): ArchitectureSnapshot = ArchitectureSnapshot(modules, edges, packages)
 
     private fun assertContains(verification: ArchitectureVerification, expected: String) {

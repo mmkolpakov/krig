@@ -6,8 +6,8 @@ internal object ArchitecturePolicyLoader {
     fun load(directory: File): ArchitecturePolicy {
         val modules = loadModules(directory.resolve("modules.tsv"))
         val edges = loadEdges(directory.resolve("edges.tsv"), modules)
-        val splitPackages = loadSplitPackages(directory.resolve("split-packages.tsv"), modules)
-        return ArchitecturePolicy(modules, edges, splitPackages)
+        val packages = loadPackages(directory.resolve("packages.tsv"), modules)
+        return ArchitecturePolicy(modules, edges, packages)
     }
 
     private fun loadModules(file: File): Map<String, ModulePolicy> {
@@ -57,11 +57,11 @@ internal object ArchitecturePolicyLoader {
         return result
     }
 
-    private fun loadSplitPackages(
+    private fun loadPackages(
         file: File,
         modules: Map<String, ModulePolicy>,
-    ): Map<String, SplitPackagePolicy> {
-        val result = linkedMapOf<String, SplitPackagePolicy>()
+    ): Map<String, PackagePolicy> {
+        val result = linkedMapOf<String, PackagePolicy>()
         rows(file, listOf("package", "owner", "contributors")).forEachIndexed { index, columns ->
             val packageName = columns[0]
             require(packageName.split('.').all(::isKotlinIdentifier)) {
@@ -71,10 +71,10 @@ internal object ArchitecturePolicyLoader {
             val contributorEntries = columns[2].split(',').map(String::trim)
             val contributors = contributorEntries.toCollection(linkedSetOf())
             require(contributorEntries.size == contributors.size) {
-                "${file.path}:${index + 2}: duplicate split-package contributor"
+                "${file.path}:${index + 2}: duplicate package contributor"
             }
-            require(contributors.size > 1) {
-                "${file.path}:${index + 2}: a split package needs at least two contributors"
+            require(contributors.isNotEmpty()) {
+                "${file.path}:${index + 2}: a package needs at least one contributor"
             }
             require(owner in contributors) {
                 "${file.path}:${index + 2}: owner '$owner' is not a contributor"
@@ -84,9 +84,9 @@ internal object ArchitecturePolicyLoader {
                     "${file.path}:${index + 2}: unknown library contributor '$module'"
                 }
             }
-            val policy = SplitPackagePolicy(packageName, owner, contributors)
+            val policy = PackagePolicy(packageName, owner, contributors)
             require(result.put(packageName, policy) == null) {
-                "${file.path}:${index + 2}: duplicate split package '$packageName'"
+                "${file.path}:${index + 2}: duplicate package '$packageName'"
             }
         }
         return result

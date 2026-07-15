@@ -40,22 +40,20 @@ internal object ArchitectureVerifier {
             errors += "Production module cycle: ${cycle.joinToString(" -> ")}"
         }
 
-        val actualSplits = snapshot.packageContributors
-            .filterValues { it.size > 1 }
-        val missingSplits = policy.splitPackages.keys - actualSplits.keys
-        val unexpectedSplits = actualSplits.keys - policy.splitPackages.keys
-        if (missingSplits.isNotEmpty()) {
-            errors += "Stale split-package allowances: ${missingSplits.sorted().joinToString()}"
+        val stalePackages = policy.packages.keys - snapshot.packageContributors.keys
+        val unclassifiedPackages = snapshot.packageContributors.keys - policy.packages.keys
+        if (stalePackages.isNotEmpty()) {
+            errors += "Stale package policies: ${stalePackages.sorted().joinToString()}"
         }
-        if (unexpectedSplits.isNotEmpty()) {
-            errors += "Unapproved split packages: ${unexpectedSplits.sorted().joinToString()}"
+        if (unclassifiedPackages.isNotEmpty()) {
+            errors += "Unclassified production packages: ${unclassifiedPackages.sorted().joinToString()}"
         }
-        (policy.splitPackages.keys intersect actualSplits.keys).sorted().forEach { packageName ->
-            val expected = policy.splitPackages.getValue(packageName).contributors
-            val actual = actualSplits.getValue(packageName)
+        (policy.packages.keys intersect snapshot.packageContributors.keys).sorted().forEach { packageName ->
+            val expected = policy.packages.getValue(packageName).contributors
+            val actual = snapshot.packageContributors.getValue(packageName)
             if (expected != actual) {
                 errors += buildString {
-                    append("Split package '").append(packageName).append("' contributors changed")
+                    append("Package '").append(packageName).append("' contributors changed")
                     val missing = expected - actual
                     val added = actual - expected
                     if (missing.isNotEmpty()) append("; missing: ").append(missing.sorted().joinToString())

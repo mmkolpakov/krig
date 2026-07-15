@@ -39,6 +39,9 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     @get:Input
     abstract val sourceRoots: MapProperty<String, String>
 
+    @get:Input
+    abstract val javaSourceRoots: MapProperty<String, String>
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceFiles: ConfigurableFileCollection
@@ -62,14 +65,18 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
         val roots = sourceRoots.get().entries.map { (relativePath, module) ->
             SourceRoot(root.resolve(relativePath).normalize(), module)
         }.sortedByDescending { it.path.nameCount }
-        roots.forEachIndexed { index, sourceRoot ->
-            roots.drop(index + 1)
+        val javaRoots = javaSourceRoots.get().entries.map { (relativePath, module) ->
+            SourceRoot(root.resolve(relativePath).normalize(), module)
+        }.sortedByDescending { it.path.nameCount }
+        val logicalRoots = roots + javaRoots
+        logicalRoots.forEachIndexed { index, sourceRoot ->
+            logicalRoots.drop(index + 1)
                 .filter { other ->
                     sourceRoot.module != other.module &&
                         (sourceRoot.path.startsWith(other.path) || other.path.startsWith(sourceRoot.path))
                 }
                 .forEach { other ->
-                    sourceProblems += "Overlapping Kotlin source roots belong to different modules: " +
+                    sourceProblems += "Overlapping production source roots belong to different modules: " +
                         "${sourceRoot.module}:${root.relativize(sourceRoot.path)} and " +
                         "${other.module}:${root.relativize(other.path)}"
                 }
@@ -85,11 +92,17 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
         val moduleRootMappings = moduleRoots.get().entries.map { (relativePath, module) ->
             SourceRoot(root.resolve(relativePath).normalize(), module)
         }.sortedByDescending { it.path.nameCount }
-        val javaSources = productionJavaFiles.files
-            .filter { it.isFile && it.extension == "java" }
+        val javaSources = (
+            productionJavaFiles.files +
+                sourceFiles.files.filter { it.extension.equals("java", ignoreCase = true) }
+            )
+            .distinct()
+            .filter { it.isFile && it.extension.equals("java", ignoreCase = true) }
             .mapNotNull { file ->
                 val path = file.toPath().toAbsolutePath().normalize()
-                val module = moduleRootMappings.firstOrNull { path.startsWith(it.path) }?.module
+                val module = javaRoots.firstOrNull { path.startsWith(it.path) }?.module
+                    ?: roots.firstOrNull { path.startsWith(it.path) }?.module
+                    ?: moduleRootMappings.firstOrNull { path.startsWith(it.path) }?.module
                 when (module) {
                     null -> {
                         sourceProblems += "Java source is outside declared module roots: ${relative(root, file)}"
@@ -104,7 +117,7 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
             sourceProblems += "Production Java package checking is not implemented; Java sources: ${javaSources.joinToString()}"
         }
         sourceFiles.files.asSequence()
-            .filter { it.isFile && it.extension == "kt" }
+            .filter { it.isFile && it.extension.lowercase() in KOTLIN_SOURCE_EXTENSIONS }
             .sortedBy { it.invariantSeparatorsPath }
             .forEach { sourceFile ->
                 val path = sourceFile.toPath().toAbsolutePath().normalize()
@@ -159,9 +172,8 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     ) {
         val modules = snapshot.modules.sorted()
         val edges = snapshot.edges.sorted()
-        val splitPackages = snapshot.packageContributors
-            .filterValues { it.size > 1 }
-            .toSortedMap()
+        val packages = snapshot.packageContributors.toSortedMap()
+        val splitPackageCount = packages.count { (_, contributors) -> contributors.size > 1 }
         val directory = reportDirectory.get().asFile.apply { mkdirs() }
         directory.resolve("report.json").writeText(
             buildString {
@@ -172,7 +184,7 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 appendLine("    \"libraryModules\": ${policy.libraryModules.size},")
                 appendLine("    \"edges\": ${edges.size},")
                 appendLine("    \"packages\": ${snapshot.packageContributors.size},")
-                appendLine("    \"splitPackages\": ${splitPackages.size}")
+                appendLine("    \"splitPackages\": $splitPackageCount")
                 appendLine("  },")
                 appendLine("  \"moduleClassifications\": [")
                 modules.forEachIndexed { index, module ->
@@ -194,13 +206,13 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                     )
                 }
                 appendLine("  ],")
-                appendLine("  \"splitPackages\": [")
-                splitPackages.entries.forEachIndexed { index, (packageName, contributors) ->
-                    val suffix = if (index == splitPackages.size - 1) "" else ","
+                appendLine("  \"packages\": [")
+                packages.entries.forEachIndexed { index, (packageName, contributors) ->
+                    val suffix = if (index == packages.size - 1) "" else ","
                     val contributorValues = contributors.sorted().joinToString(", ", transform = ::jsonValue)
                     appendLine(
                         "    {\"package\": ${jsonValue(packageName)}, " +
-                            "\"owner\": ${jsonValue(policy.splitPackages[packageName]?.owner)}, " +
+                            "\"owner\": ${jsonValue(policy.packages[packageName]?.owner)}, " +
                             "\"contributors\": [$contributorValues]}$suffix",
                     )
                 }
@@ -227,7 +239,7 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 appendLine("| Library modules | ${policy.libraryModules.size} |")
                 appendLine("| Direct production edges | ${edges.size} |")
                 appendLine("| Production packages | ${snapshot.packageContributors.size} |")
-                appendLine("| Split packages | ${splitPackages.size} |")
+                appendLine("| Split packages | $splitPackageCount |")
                 appendLine()
                 appendLine("## Module classifications")
                 appendLine()
@@ -247,13 +259,13 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 appendLine("|---|---|")
                 edges.forEach { edge -> appendLine("| ${edge.consumer} | ${edge.dependency} |") }
                 appendLine()
-                appendLine("## Split packages")
+                appendLine("## Production package ownership")
                 appendLine()
                 appendLine("| Package | Owner | Contributors |")
                 appendLine("|---|---|---|")
-                splitPackages.forEach { (packageName, contributors) ->
+                packages.forEach { (packageName, contributors) ->
                     appendLine(
-                        "| $packageName | ${policy.splitPackages[packageName]?.owner ?: "unclassified"} | " +
+                        "| $packageName | ${policy.packages[packageName]?.owner ?: "unclassified"} | " +
                             "${contributors.sorted().joinToString()} |",
                     )
                 }
@@ -271,20 +283,30 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     private fun relative(root: java.nio.file.Path, file: File): String =
         root.relativize(file.toPath().toAbsolutePath().normalize()).toString().replace(File.separatorChar, '/')
 
-    private fun jsonValue(value: String?): String = value?.let { "\"${jsonEscape(it)}\"" } ?: "null"
+    private fun jsonValue(value: String?): String = value?.let { "\"${escapeJsonString(it)}\"" } ?: "null"
 
-    private fun jsonEscape(value: String): String = buildString(value.length) {
-        value.forEach { char ->
-            when (char) {
-                '\\' -> append("\\\\")
-                '"' -> append("\\\"")
-                '\n' -> append("\\n")
-                '\r' -> append("\\r")
-                '\t' -> append("\\t")
-                else -> append(char)
+    private data class SourceRoot(val path: java.nio.file.Path, val module: String)
+
+    private companion object {
+        val KOTLIN_SOURCE_EXTENSIONS: Set<String> = setOf("kt", "kts")
+    }
+}
+
+internal fun escapeJsonString(value: String): String = buildString(value.length) {
+    value.forEach { char ->
+        when (char) {
+            '\\' -> append("\\\\")
+            '"' -> append("\\\"")
+            '\b' -> append("\\b")
+            '\u000C' -> append("\\f")
+            '\n' -> append("\\n")
+            '\r' -> append("\\r")
+            '\t' -> append("\\t")
+            else -> if (char.code < ' '.code) {
+                append("\\u").append(char.code.toString(16).padStart(4, '0'))
+            } else {
+                append(char)
             }
         }
     }
-
-    private data class SourceRoot(val path: java.nio.file.Path, val module: String)
 }

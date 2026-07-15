@@ -15,7 +15,8 @@ class ArchitecturePolicyLoaderTest {
 
         assertEquals(setOf("core", "adapter"), policy.libraryModules)
         assertEquals(setOf(ModuleEdge("adapter", "core")), policy.edges)
-        assertEquals("core", policy.splitPackages.getValue("sample.shared").owner)
+        assertEquals(setOf("core"), policy.packages.getValue("sample.core").contributors)
+        assertEquals("core", policy.packages.getValue("sample.shared").owner)
     }
 
     @Test
@@ -32,9 +33,9 @@ class ArchitecturePolicyLoaderTest {
     }
 
     @Test
-    fun rejectsUnknownSplitContributor() {
+    fun rejectsUnknownPackageContributor() {
         val directory = policyDirectory()
-        directory.resolve("split-packages.tsv").writeText(
+        directory.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\nsample.shared\tcore\tcore,missing\n",
         )
 
@@ -45,16 +46,29 @@ class ArchitecturePolicyLoaderTest {
     }
 
     @Test
-    fun rejectsDuplicateSplitContributor() {
+    fun rejectsDuplicatePackageContributor() {
         val directory = policyDirectory()
-        directory.resolve("split-packages.tsv").writeText(
+        directory.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\nsample.shared\tcore\tcore,adapter,core\n",
         )
 
         val failure = assertFailsWith<IllegalArgumentException> {
             ArchitecturePolicyLoader.load(directory.toFile())
         }
-        assertTrue(failure.message.orEmpty().contains("duplicate split-package contributor"))
+        assertTrue(failure.message.orEmpty().contains("duplicate package contributor"))
+    }
+
+    @Test
+    fun rejectsOwnerOutsideContributors() {
+        val directory = policyDirectory()
+        directory.resolve("packages.tsv").writeText(
+            "package\towner\tcontributors\nsample.shared\tcore\tadapter\n",
+        )
+
+        val failure = assertFailsWith<IllegalArgumentException> {
+            ArchitecturePolicyLoader.load(directory.toFile())
+        }
+        assertTrue(failure.message.orEmpty().contains("owner 'core' is not a contributor"))
     }
 
     private fun policyDirectory() = Files.createTempDirectory("architecture-policy").also { directory ->
@@ -64,8 +78,10 @@ class ArchitecturePolicyLoaderTest {
         directory.resolve("edges.tsv").writeText(
             "consumer\tdependency\nadapter\tcore\n",
         )
-        directory.resolve("split-packages.tsv").writeText(
-            "package\towner\tcontributors\nsample.shared\tcore\tcore,adapter\n",
+        directory.resolve("packages.tsv").writeText(
+            "package\towner\tcontributors\n" +
+                "sample.core\tcore\tcore\n" +
+                "sample.shared\tcore\tcore,adapter\n",
         )
     }
 }
