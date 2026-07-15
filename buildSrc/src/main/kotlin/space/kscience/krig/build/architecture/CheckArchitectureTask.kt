@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileCollection
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.tasks.CacheableTask
@@ -11,12 +12,21 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.charset.StandardCharsets
+
+internal class KotlinModuleSources(
+    @get:Input
+    val moduleName: String,
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    val files: FileCollection,
+)
 
 @CacheableTask
 internal abstract class CheckArchitectureTask : DefaultTask() {
@@ -42,9 +52,8 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     @get:Input
     abstract val javaSourceRoots: MapProperty<String, String>
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val sourceFiles: ConfigurableFileCollection
+    @get:Nested
+    abstract val productionKotlinSources: ListProperty<KotlinModuleSources>
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -88,14 +97,26 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 missingKotlinModels.sorted().joinToString()
         }
 
+        val compilationSources = linkedMapOf<java.nio.file.Path, CompilationSource>()
+        productionKotlinSources.get().sortedBy(KotlinModuleSources::moduleName).forEach { moduleSources ->
+            moduleSources.files.files.asSequence()
+                .filter(File::isFile)
+                .forEach sourceFileLoop@{ file ->
+                    val path = file.toPath().toAbsolutePath().normalize()
+                    if (!path.startsWith(root)) {
+                        sourceProblems += "Production source for module '${moduleSources.moduleName}' is outside " +
+                            "the repository root: ${path.toString().replace(File.separatorChar, '/')}"
+                        return@sourceFileLoop
+                    }
+                    compilationSources.getOrPut(path) { CompilationSource(file) }.modules += moduleSources.moduleName
+                }
+        }
+
         val packageContributors = linkedMapOf<String, MutableSet<String>>()
         val moduleRootMappings = moduleRoots.get().entries.map { (relativePath, module) ->
             SourceRoot(root.resolve(relativePath).normalize(), module)
         }.sortedByDescending { it.path.nameCount }
-        val javaSources = (
-            productionJavaFiles.files +
-                sourceFiles.files.filter { it.extension.equals("java", ignoreCase = true) }
-            )
+        val sourceSetJavaSources = productionJavaFiles.files
             .distinct()
             .filter { it.isFile && it.extension.equals("java", ignoreCase = true) }
             .mapNotNull { file ->
@@ -112,31 +133,34 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                     else -> null
                 }
             }
+        val compilationJavaSources = compilationSources.values.asSequence()
+            .filter { source -> source.file.extension.equals("java", ignoreCase = true) }
+            .filter { source -> source.modules.any { module -> module in libraryModules } }
+            .map { source -> relative(root, source.file) }
+            .toList()
+        val javaSources = (sourceSetJavaSources + compilationJavaSources)
+            .distinct()
             .sorted()
         if (javaSources.isNotEmpty()) {
             sourceProblems += "Production Java package checking is not implemented; Java sources: ${javaSources.joinToString()}"
         }
-        sourceFiles.files.asSequence()
-            .filter { it.isFile && it.extension.lowercase() in KOTLIN_SOURCE_EXTENSIONS }
-            .sortedBy { it.invariantSeparatorsPath }
-            .forEach { sourceFile ->
-                val path = sourceFile.toPath().toAbsolutePath().normalize()
-                val sourceRoot = roots.firstOrNull { path.startsWith(it.path) }
-                if (sourceRoot == null) {
-                    sourceProblems += "Source file is outside declared Kotlin source roots: ${relative(root, sourceFile)}"
-                    return@forEach
-                }
-                if (sourceRoot.module !in libraryModules) return@forEach
+        compilationSources.values.asSequence()
+            .filter { source -> source.file.extension.lowercase() in KOTLIN_SOURCE_EXTENSIONS }
+            .sortedBy { source -> source.file.invariantSeparatorsPath }
+            .forEach sourceLoop@{ source ->
+                val contributors = source.modules.filterTo(linkedSetOf()) { module -> module in libraryModules }
+                if (contributors.isEmpty()) return@sourceLoop
+                val sourceFile = source.file
                 val packageName = runCatching {
                     KotlinPackageParser.parse(sourceFile.readText(StandardCharsets.UTF_8))
                 }.getOrElse { error ->
                     sourceProblems += "Cannot parse package in ${relative(root, sourceFile)}: ${error.message}"
-                    return@forEach
+                    return@sourceLoop
                 }
                 if (packageName == null) {
                     sourceProblems += "Production Kotlin file has no package: ${relative(root, sourceFile)}"
                 } else {
-                    packageContributors.getOrPut(packageName, ::linkedSetOf) += sourceRoot.module
+                    packageContributors.getOrPut(packageName, ::linkedSetOf) += contributors
                 }
             }
 
@@ -286,6 +310,11 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     private fun jsonValue(value: String?): String = value?.let { "\"${escapeJsonString(it)}\"" } ?: "null"
 
     private data class SourceRoot(val path: java.nio.file.Path, val module: String)
+
+    private data class CompilationSource(
+        val file: File,
+        val modules: MutableSet<String> = linkedSetOf(),
+    )
 
     private companion object {
         val KOTLIN_SOURCE_EXTENSIONS: Set<String> = setOf("kt", "kts")

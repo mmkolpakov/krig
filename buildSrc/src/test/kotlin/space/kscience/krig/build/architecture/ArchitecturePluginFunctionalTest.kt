@@ -36,6 +36,19 @@ class ArchitecturePluginFunctionalTest {
                         output.text = 'package sample.generated\\n\\nclass Generated\\n'
                     }
                 }
+                def compileAttachedOutput = layout.buildDirectory.dir('generated/compile-attached')
+                def compileAttachedPackage = providers.gradleProperty('compileAttachedPackage')
+                    .orElse('sample.compileattached')
+                def generateCompileAttached = tasks.register('generateCompileAttached') {
+                    inputs.property('packageName', compileAttachedPackage)
+                    outputs.dir(compileAttachedOutput)
+                    doLast {
+                        def output = compileAttachedOutput.get()
+                            .file('sample/compileattached/CompileAttached.kt').asFile
+                        output.parentFile.mkdirs()
+                        output.text = 'package ' + compileAttachedPackage.get() + '\\n\\nclass CompileAttached\\n'
+                    }
+                }
                 def generatedJavaOutput = layout.buildDirectory.dir('generated/java')
                 def generateJava = tasks.register('generateJava') {
                     outputs.dir(generatedJavaOutput)
@@ -54,6 +67,10 @@ class ArchitecturePluginFunctionalTest {
                     def shared = sourceSets.create('shared')
                     sourceSets.desktopMain.dependsOn(shared)
                     sourceSets.shared.generatedKotlin.srcDir(generateContracts)
+                }
+
+                tasks.matching { it.name == 'compileCommonMainKotlinMetadata' }.configureEach {
+                    source(project.files(compileAttachedOutput).builtBy(generateCompileAttached))
                 }
 
                 sourceSets.named('desktopMain') {
@@ -75,6 +92,7 @@ class ArchitecturePluginFunctionalTest {
         policy.resolve("edges.tsv").writeText("consumer\tdependency\n")
         policy.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\n" +
+                "sample.compileattached\tsample\tsample\n" +
                 "sample.generated\tsample\tsample\n" +
                 "sample.ios\tsample\tsample\n" +
                 "sample.shared\tsample\tsample\n",
@@ -95,10 +113,35 @@ class ArchitecturePluginFunctionalTest {
         val first = runner(project).build()
         assertEquals(TaskOutcome.SUCCESS, first.task(":checkArchitecture")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, first.task(":sample:generateContracts")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, first.task(":sample:generateCompileAttached")?.outcome)
+        assertTrue(first.tasks.none { it.path.startsWith(":sample:compile") }, first.output)
+        val firstReport = project.resolve("build/reports/architecture/report.json").toFile().readText()
+        assertTrue(
+            firstReport.contains(
+                "{\"package\": \"sample.compileattached\", \"owner\": \"sample\", " +
+                    "\"contributors\": [\"sample\"]}",
+            ),
+            firstReport,
+        )
+        assertTrue(!firstReport.contains("sample.testonly"), firstReport)
 
         val unchanged = runner(project).build()
         assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":sample:generateCompileAttached")?.outcome)
+        assertTrue(unchanged.tasks.none { it.path.startsWith(":sample:compile") }, unchanged.output)
         assertTrue(unchanged.output.contains("Reusing configuration cache."), unchanged.output)
+
+        val changedGenerated = runner(project, "-PcompileAttachedPackage=sample.compilechanged").buildAndFail()
+        assertEquals(TaskOutcome.SUCCESS, changedGenerated.task(":sample:generateCompileAttached")?.outcome)
+        assertTrue(changedGenerated.tasks.none { it.path.startsWith(":sample:compile") }, changedGenerated.output)
+        assertTrue(
+            changedGenerated.output.contains("Stale package policies: sample.compileattached"),
+            changedGenerated.output,
+        )
+        assertTrue(
+            changedGenerated.output.contains("Unclassified production packages: sample.compilechanged"),
+            changedGenerated.output,
+        )
 
         val script = project.resolve("sample/src/shared/kotlin/sample/Script.KTS").apply {
             writeText("package sample.script\n\nval scriptValue = 1\n")

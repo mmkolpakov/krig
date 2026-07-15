@@ -12,7 +12,9 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompileTool
 
 @Suppress("unused") // Loaded by the generated Gradle plugin descriptor.
 class ArchitecturePlugin : Plugin<Project> {
@@ -44,9 +46,24 @@ class ArchitecturePlugin : Plugin<Project> {
                 }
             }
             val lazySources = kotlinModels.map { model ->
-                model.project.files(Callable {
-                    productionSourceSets(model.kotlin).map { sourceSet -> sourceSet.allKotlinSources }
-                })
+                KotlinModuleSources(
+                    moduleName = model.id,
+                    files = model.project.files(Callable {
+                        buildList {
+                            addAll(
+                                productionSourceSets(model.kotlin).map { sourceSet -> sourceSet.allKotlinSources },
+                            )
+                            addAll(productionMetadataCompilations(model.kotlin).map { compilation ->
+                                val compileTask = compilation.compileTaskProvider.get()
+                                val compileTool = compileTask as? KotlinCompileTool ?: error(
+                                    "Production Kotlin metadata task '${compileTask.path}' does not implement " +
+                                        "KotlinCompileTool; architecture source discovery cannot fail open",
+                                )
+                                compileTool.sources
+                            })
+                        }
+                    }),
+                )
             }
             val lazyJavaSources = kotlinModels.map { model ->
                 model.project.files(Callable {
@@ -69,7 +86,7 @@ class ArchitecturePlugin : Plugin<Project> {
                 kotlinModuleNames.set(kotlinModels.map(KotlinModuleModel::id).sorted())
                 moduleRoots.set(moduleRootMappings.toSortedMap())
                 productionJavaFiles.from(lazyJavaSources)
-                sourceFiles.from(lazySources)
+                productionKotlinSources.set(lazySources)
                 sourceRoots.set(project.providers.provider {
                     collectSourceRoots(project.projectDir, kotlinModels)
                 })
@@ -79,15 +96,6 @@ class ArchitecturePlugin : Plugin<Project> {
                 declaredEdges.set(project.providers.provider {
                     collectEdges(kotlinModels, projectsByPath)
                 })
-                kotlinModels.forEach { model ->
-                    if (model.project.pluginManager.hasPlugin("com.google.devtools.ksp")) {
-                        dependsOn(
-                            model.project.tasks.matching { task ->
-                                task.name == "kspCommonMainKotlinMetadata" || task.name == "kspKotlinJvm"
-                            },
-                        )
-                    }
-                }
             }
         }
     }
@@ -164,26 +172,50 @@ class ArchitecturePlugin : Plugin<Project> {
         return result.sorted()
     }
 
-    private fun productionSourceSets(kotlin: KotlinProjectExtension): List<KotlinSourceSet> {
-        val sourceSets = when (kotlin) {
-            is KotlinMultiplatformExtension -> kotlin.targets.flatMapTo(linkedSetOf()) { target ->
-                target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                    ?.allKotlinSourceSets
-                    .orEmpty()
-            }
+    private fun platformMainCompilations(kotlin: KotlinProjectExtension): List<KotlinCompilation<*>> {
+        val compilations = when (kotlin) {
+            is KotlinMultiplatformExtension -> kotlin.targets
+                .filter { target -> target.platformType != KotlinPlatformType.common }
+                .mapTo(linkedSetOf()) { target ->
+                    target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                        ?: error(
+                            "Kotlin target '${target.name}' has no '${KotlinCompilation.MAIN_COMPILATION_NAME}' " +
+                                "compilation; production variant discovery is not supported safely",
+                        )
+                }
 
-            is KotlinJvmProjectExtension -> kotlin.target.compilations
-                .findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                ?.allKotlinSourceSets
-                .orEmpty()
+            is KotlinJvmProjectExtension -> listOf(
+                kotlin.target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                    ?: error("Kotlin JVM target has no '${KotlinCompilation.MAIN_COMPILATION_NAME}' compilation"),
+            )
 
             else -> error(
                 "Unsupported Kotlin project model '${kotlin::class.qualifiedName}'; " +
-                    "production source sets cannot be determined safely",
+                    "production compilations cannot be determined safely",
             )
         }
-        return sourceSets.sortedBy { it.name }
+        return compilations.sortedBy { it.compileKotlinTaskName }
     }
+
+    private fun productionMetadataCompilations(kotlin: KotlinProjectExtension): List<KotlinCompilation<*>> {
+        if (kotlin !is KotlinMultiplatformExtension) return emptyList()
+        val productionSourceSets = productionSourceSets(kotlin).toSet()
+        return kotlin.targets
+            .filter { target -> target.platformType == KotlinPlatformType.common }
+            .flatMap { target -> target.compilations }
+            .filter { compilation ->
+                compilation.name != KotlinCompilation.MAIN_COMPILATION_NAME &&
+                    compilation.defaultSourceSet.name == KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME &&
+                    compilation.defaultSourceSet in productionSourceSets
+            }
+            .distinct()
+            .sortedBy { it.compileKotlinTaskName }
+    }
+
+    private fun productionSourceSets(kotlin: KotlinProjectExtension): List<KotlinSourceSet> =
+        platformMainCompilations(kotlin)
+            .flatMapTo(linkedSetOf<KotlinSourceSet>()) { compilation -> compilation.allKotlinSourceSets }
+            .sortedBy { it.name }
 
     private fun projectId(project: Project): String = project.path.removePrefix(":")
 
