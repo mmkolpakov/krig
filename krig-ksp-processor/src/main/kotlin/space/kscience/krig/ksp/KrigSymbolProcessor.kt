@@ -1,6 +1,8 @@
 package space.kscience.krig.ksp
 
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.JvmPlatformInfo
+import com.google.devtools.ksp.processing.PlatformInfo
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -82,7 +84,7 @@ internal const val KRIG_GENERATED_LAYER_OPTION: String = "krig.generated.layer"
 
 private fun SymbolProcessorEnvironment.processingLayer(): KrigProcessingLayer {
     val platformNames = platforms.map { it.platformName }
-    return resolveProcessingLayer(options[KRIG_GENERATED_LAYER_OPTION], platformNames).also { layer ->
+    return resolveProcessingLayer(options[KRIG_GENERATED_LAYER_OPTION], platforms).also { layer ->
         logger.info(
             "KRig KSP processing layer: $layer " +
                 "(option=${options[KRIG_GENERATED_LAYER_OPTION].orEmpty()}, platforms=$platformNames)",
@@ -92,13 +94,13 @@ private fun SymbolProcessorEnvironment.processingLayer(): KrigProcessingLayer {
 
 internal fun resolveProcessingLayer(
     configuredValue: String?,
-    platformNames: List<String>,
+    platforms: List<PlatformInfo>,
 ): KrigProcessingLayer {
     return when (val configured = configuredValue?.trim()?.lowercase()) {
-        null, "", "all" -> KrigProcessingLayer.ALL
+        null, "", "auto" -> inferProcessingLayer(platforms)
+        "all" -> KrigProcessingLayer.ALL
         "common", "metadata", "commonmainmetadata" -> KrigProcessingLayer.COMMON
         "jvm", "jvmaggregation", "jvm-aggregation" -> KrigProcessingLayer.JVM_AGGREGATION
-        "auto" -> inferProcessingLayer(platformNames)
         else -> error(
             "Unsupported '$KRIG_GENERATED_LAYER_OPTION' value '$configured'. " +
                 "Expected one of: auto, common, jvmAggregation, all.",
@@ -106,16 +108,8 @@ internal fun resolveProcessingLayer(
     }
 }
 
-private fun inferProcessingLayer(platformNames: List<String>): KrigProcessingLayer {
-    val normalized = platformNames.map { it.lowercase() }
-    return when {
-        normalized.any { it.contains("common") || it.contains("metadata") } -> KrigProcessingLayer.COMMON
-        normalized.size > 1 -> KrigProcessingLayer.COMMON
-        normalized.any { it.contains("jvm") } -> KrigProcessingLayer.JVM_AGGREGATION
-        normalized.isNotEmpty() -> KrigProcessingLayer.COMMON
-        else -> KrigProcessingLayer.ALL
-    }
-}
+private fun inferProcessingLayer(platforms: List<PlatformInfo>): KrigProcessingLayer =
+    if (platforms.singleOrNull() is JvmPlatformInfo) KrigProcessingLayer.ALL else KrigProcessingLayer.COMMON
 
 private fun commonGenerators(environment: SymbolProcessorEnvironment): List<Generator> =
     listOf(

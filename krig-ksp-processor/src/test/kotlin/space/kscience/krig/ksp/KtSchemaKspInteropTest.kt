@@ -14,6 +14,10 @@ class KtSchemaKspInteropTest {
 
     @Test
     fun ktSchemaKspCanRunBesideKrigContractGeneration() {
+        val generatedName = DeviceContractGenerator.generatedArtifactName(
+            "sample.schema.SchemaContract",
+            "SchemaContract",
+        )
         val ktSchemaProvider = ServiceLoader.load(SymbolProcessorProvider::class.java)
             .firstOrNull { provider ->
                 provider.javaClass.name == "me.kpavlov.kt.schema.ksp.SchemaExtensionProcessorProvider"
@@ -30,7 +34,7 @@ class KtSchemaKspInteropTest {
                 import space.kscience.krig.api.annotations.KrigDeviceContract
                 import space.kscience.krig.core.meta.DeviceContractBuilder
                 import space.kscience.krig.core.meta.doubleProperty
-                import space.kscience.krig.generated.schema_interop.SchemaContractGenerated
+                import space.kscience.krig.generated.schema_interop.$generatedName
 
                 @Schema
                 data class CommandDto(val speed: Double)
@@ -41,15 +45,15 @@ class KtSchemaKspInteropTest {
                 }
 
                 val generatedSchemaString = CommandDto::class.jsonSchemaString
-                val generatedRegistry = SchemaContractGenerated.registry
-                val generatedManifest = SchemaContractGenerated.manifest()
+                val generatedRegistry = $generatedName.registry
+                val generatedManifest = $generatedName.manifest()
 
                 val schemaInteropSmoke: Boolean = run {
                     check(generatedSchemaString.contains("properties"))
                     check(generatedSchemaString.contains("speed"))
                     check(generatedRegistry.propertiesByName.containsKey(SchemaContract.speed.name))
                     check(generatedManifest.properties.containsKey(SchemaContract.speed.name))
-                    check(SchemaContractGenerated.schemaHash.startsWith("fnv1a64:"))
+                    check($generatedName.schemaHash.startsWith("fnv1a64:"))
                     true
                 }
                 """.trimIndent(),

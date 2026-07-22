@@ -10,20 +10,12 @@ import kotlin.test.assertEquals
  * Verifies the serializers registry processor compiles correctly with
  * multiple `@PolymorphicBase` subclasses across separate files.
  *
- * ## Incremental build sanity (manual, Gradle only)
+ * ## Incremental build boundary
  * On the Kotlin 2.4 / KSP 2.x stack the generated registry is split into isolating
  * per-subclass contributors and one aggregating index. The index records all source
  * files that contributed registrations in `Dependencies(aggregating = true, ...)`.
- *
- * Manual Gradle smoke:
- * ```
- * ./gradlew :krig-model:krigKspIncrementalReport "-Pksp.incremental=true" "-Pksp.incremental.log=true"
- * cat krig-model/build/reports/krig/ksp-incremental-report.txt
- * ```
- * The report records the generator baseline and the KSP dirty-set logs for the
- * actual `krig-mpp-ksp` common/JVM split. Use it for the four boundary scenarios:
- * non-annotated source, `@Serializable` subclass, `@Contributes` object, and
- * unrelated source changes.
+ * Compilation-level aggregation is covered here; Gradle add/change/remove and stale-output
+ * behavior is verified against the real multiplatform consumer build.
  */
 @OptIn(ExperimentalCompilerApi::class)
 class KspIncrementalRegressionTest {

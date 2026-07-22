@@ -8,8 +8,9 @@ import space.kscience.krig.api.discovery.ProtocolContributions
 
 /**
  * Marks a `() -> DeviceManifest` factory object for discovery via [DeviceCatalog].
- * [manifestId] becomes the `Name` key in the generated plugin's entries map; KSP enforces
- * uniqueness per module.
+ * [manifestId] is a canonical lowercase dotted id (`segment-name.segment`) and becomes the `Name`
+ * key in the generated plugin. KSP enforces syntax/uniqueness; plugin initialization also verifies
+ * that the produced [DeviceManifest.id] matches it.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)

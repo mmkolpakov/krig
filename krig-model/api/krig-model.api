@@ -1283,7 +1283,7 @@ public final class space/kscience/krig/api/tasks/DeviceTaskState$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class space/kscience/krig/generated/space/kscience/model/GeneratedKrigSerializersModuleKt {
+public final class space/kscience/krig/generated/krig_model/he5c24ff13b2f990ed73f0f4abdcbca42/GeneratedKrigSerializersModuleKt {
 	public static final fun getGeneratedKrigSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
 }
 

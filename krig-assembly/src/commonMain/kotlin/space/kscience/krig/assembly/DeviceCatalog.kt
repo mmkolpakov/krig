@@ -82,7 +82,7 @@ public class DeviceCatalog(
         else -> emptyMap()
     }
 
-    @TargetId("krig.manifest")
+    @TargetId("krig.manifest", generatedName = "Manifests")
     public companion object : PluginFactory<DeviceCatalog> {
         /** Typed discovery target — `Context.gather(DeviceCatalog.Target)` returns `Map<Name, DeviceManifest>`. */
         public val Target: ContributionTarget<DeviceManifest> =

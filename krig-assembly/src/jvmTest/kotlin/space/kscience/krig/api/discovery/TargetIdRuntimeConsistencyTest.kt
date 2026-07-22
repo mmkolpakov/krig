@@ -6,7 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Guards the invariant between the KSP-visible `@TargetId("...")` literals and the
+ * Guards the invariant between the KSP-visible `@TargetId(value = "...", generatedName = "...")` literals and the
  * runtime `Target: ContributionTarget<*>` ids without depending on runtime annotation
  * reflection. `@TargetId` is a compile-time/KSP annotation with BINARY retention.
  */

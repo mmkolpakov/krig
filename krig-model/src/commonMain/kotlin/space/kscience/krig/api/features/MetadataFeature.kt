@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import space.kscience.krig.api.annotations.KrigPipelineFeatureSpec
 import space.kscience.dataforge.names.Name
-import space.kscience.dataforge.names.asName
 
 /**
  * Standard pipeline-feature DTO for descriptive Manifest metadata.
@@ -22,6 +21,6 @@ public data class MetadataFeature(
         public const val ID: String = "feature.metadata"
 
         /** Stable pipeline-feature identifier. */
-        public val NAME: Name = ID.asName()
+        public val NAME: Name = Name.of(ID)
     }
 }

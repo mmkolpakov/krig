@@ -103,7 +103,12 @@ kotlin {
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(rootProject.files("config/detekt/detekt.yml"))
-    source.setFrom(provider { kotlin.sourceSets.flatMap { it.kotlin.srcDirs } })
+    source.setFrom(provider {
+        val buildRoot = layout.buildDirectory.get().asFile.toPath().toAbsolutePath().normalize()
+        kotlin.sourceSets
+            .flatMap { sourceSet -> sourceSet.kotlin.srcDirs }
+            .filterNot { directory -> directory.toPath().toAbsolutePath().normalize().startsWith(buildRoot) }
+    })
 }
 
 

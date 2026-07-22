@@ -16,7 +16,8 @@ public enum class EmissionStrategy {
 
 /**
  * Generic contribution marker. [anchor] is the `object` or class companion carrying a
- * `@TargetId("...")` annotation; the KSP aggregator emits a matching `Merged<Kind>Plugin`
+ * `@TargetId(value = "...", generatedName = "...")` annotation; the KSP aggregator emits the named
+ * `Merged<generatedName>Plugin`
  * that returns every contributor for that target. Meta-annotatable via
  * `@Contributes(TheirAnchor::class) annotation class ContributesX`.
  */

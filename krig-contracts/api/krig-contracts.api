@@ -49,6 +49,7 @@ public final class space/kscience/krig/api/discovery/ProtocolContributions {
 }
 
 public abstract interface annotation class space/kscience/krig/api/discovery/TargetId : java/lang/annotation/Annotation {
+	public abstract fun generatedName ()Ljava/lang/String;
 	public abstract fun value ()Ljava/lang/String;
 }
 

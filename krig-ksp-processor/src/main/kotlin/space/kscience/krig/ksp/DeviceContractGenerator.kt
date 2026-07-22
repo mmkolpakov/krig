@@ -1,5 +1,6 @@
 package space.kscience.krig.ksp
 
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -11,6 +12,15 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeSpec
 
 /**
  * Common KSP generator for stable device-contract artifacts.
@@ -26,20 +36,30 @@ internal class DeviceContractGenerator(
     internal companion object {
         const val KRIG_DEVICE_CONTRACT_FQN = "space.kscience.krig.api.annotations.KrigDeviceContract"
         const val DEVICE_CONTRACT_BUILDER_FQN = "space.kscience.krig.core.meta.DeviceContractBuilder"
-        const val GENERATED_PACKAGE_ROOT = "space.kscience.krig.generated"
         const val GENERATED_FORM_SCHEMA_OPTION = "krig.generated.formSchema"
+
+        private val JSON_OBJECT = ClassName("kotlinx.serialization.json", "JsonObject")
+        private val DEVICE_MANIFEST = ClassName("space.kscience.krig.core.contracts", "DeviceManifest")
+        private val DEVICE_CONTRACT_REGISTRY =
+            ClassName("space.kscience.krig.core.meta", "DeviceContractRegistry")
+        private val DEVICE_FORM_SCHEMA = ClassName("space.kscience.krig.ui.schema", "DeviceFormSchema")
+        private val PARSE_AS_NAME = MemberName("space.kscience.dataforge.names", "parseAsName")
+        private val DEVICE_CONTRACT_REGISTRY_FACTORY =
+            MemberName("space.kscience.krig.core.meta", "deviceContractRegistry")
+        private val TO_JSON_SCHEMA = MemberName("space.kscience.krig.core.contracts", "toJsonSchema")
+        private val TO_DEVICE_FORM_SCHEMA =
+            MemberName("space.kscience.krig.ui.schema", "toDeviceFormSchema")
+
+        internal fun generatedArtifactName(fqn: String, simpleName: String): String =
+            "DeviceContract_${simpleName.generatedIdentifierStem(maxLength = 24)}_" +
+                "${stableGeneratedToken(fqn)}_Generated"
     }
 
     private val emittedContracts: MutableSet<String> = mutableSetOf()
     private val generatedObjectNames: MutableMap<String, String> = linkedMapOf()
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val moduleSuffix = environment.options["krig.generated.module"]
-            ?: error(
-                "krig-ksp-processor requires the 'krig.generated.module' KSP argument. " +
-                    "Apply the `krig-mpp-ksp` convention plugin which sets it automatically.",
-            )
-        val generatedPackage = "$GENERATED_PACKAGE_ROOT.$moduleSuffix"
+        val generatedPackage = environment.requireGeneratedNamespace().packageName
 
         val deferred = mutableListOf<KSAnnotated>()
         val contractDeclarations = resolver.getSymbolsWithAnnotation(KRIG_DEVICE_CONTRACT_FQN)
@@ -50,7 +70,14 @@ internal class DeviceContractGenerator(
                 deferred += decl
                 continue
             }
-            val fqn = decl.qualifiedName?.asString() ?: continue
+            val fqn = decl.qualifiedName?.asString()
+            if (fqn == null) {
+                environment.logger.error(
+                    "@KrigDeviceContract is supported only on declarations with a stable qualified name.",
+                    decl,
+                )
+                continue
+            }
             if (fqn in emittedContracts) continue
 
             val contract = readContractAnnotation(decl, deferred) ?: continue
@@ -58,7 +85,7 @@ internal class DeviceContractGenerator(
             if (!validateContractShape(resolver, decl, deferred)) continue
             if (deferred.contains(decl)) continue
 
-            val generatedObjectName = "${decl.simpleName.asString()}Generated"
+            val generatedObjectName = generatedArtifactName(fqn, decl.simpleName.asString())
             val previousFqn = generatedObjectNames.putIfAbsent(generatedObjectName, fqn)
             if (previousFqn != null && previousFqn != fqn) {
                 environment.logger.error(
@@ -133,6 +160,41 @@ internal class DeviceContractGenerator(
             )
             return false
         }
+        if (!decl.isAccessibleFromGeneratedPackage()) {
+            environment.logger.error(
+                "@KrigDeviceContract declaration '$fqn' and all its enclosing declarations must be public.",
+                decl,
+            )
+            return false
+        }
+        if (Modifier.SEALED in decl.modifiers) {
+            environment.logger.error(
+                "@KrigDeviceContract declaration '$fqn' must be concrete; sealed classes are not supported.",
+                decl,
+            )
+            return false
+        }
+        if (Modifier.ABSTRACT in decl.modifiers) {
+            environment.logger.error(
+                "@KrigDeviceContract declaration '$fqn' must be concrete; abstract classes are not supported.",
+                decl,
+            )
+            return false
+        }
+        if (Modifier.INNER in decl.modifiers) {
+            environment.logger.error(
+                "@KrigDeviceContract class '$fqn' must not be inner because generated code has no enclosing instance.",
+                decl,
+            )
+            return false
+        }
+        if (decl.typeParameters.isNotEmpty()) {
+            environment.logger.error(
+                "@KrigDeviceContract class '$fqn' must not declare type parameters.",
+                decl,
+            )
+            return false
+        }
 
         val expectedDeclaration = resolver.getClassDeclarationByName(
             resolver.getKSNameFromString(DEVICE_CONTRACT_BUILDER_FQN),
@@ -159,18 +221,23 @@ internal class DeviceContractGenerator(
         }
 
         if (decl.classKind == ClassKind.CLASS) {
-            val constructor = decl.primaryConstructor
-            if (constructor != null && constructor.parameters.isNotEmpty()) {
+            val constructors = decl.getConstructors().toList()
+            val noArgConstructors = constructors.filter { it.parameters.isEmpty() }
+            if (noArgConstructors.isEmpty()) {
                 environment.logger.error(
                     "@KrigDeviceContract class '$fqn' must have a public no-arg constructor.",
-                    constructor,
+                    decl,
                 )
                 return false
             }
-            if (constructor != null && Modifier.PRIVATE in constructor.modifiers) {
+            val callableConstructor = noArgConstructors.firstOrNull { constructor ->
+                constructor.modifiers.none { it in INACCESSIBLE_VISIBILITY_MODIFIERS }
+            }
+            if (callableConstructor == null) {
                 environment.logger.error(
-                    "@KrigDeviceContract class '$fqn' must have a public no-arg constructor.",
-                    constructor,
+                    "@KrigDeviceContract class '$fqn' must have a public no-arg constructor; " +
+                        "private, protected and internal constructors cannot be called from generated code.",
+                    noArgConstructors.first(),
                 )
                 return false
             }
@@ -189,48 +256,73 @@ internal class DeviceContractGenerator(
             environment.logger.warn("DeviceContractGenerator: '$fqn' has no containing file; skipping emission.")
             return
         }
+        val contractClassName = contractDeclaration.toClassName()
         val contractExpression = when (contractDeclaration.classKind) {
-            ClassKind.OBJECT -> fqn
-            ClassKind.CLASS -> "$fqn()"
+            ClassKind.OBJECT -> CodeBlock.of("%T", contractClassName)
+            ClassKind.CLASS -> CodeBlock.of("%T()", contractClassName)
             else -> return
         }
         val includeFormSchema = environment.booleanOption(GENERATED_FORM_SCHEMA_OPTION)
-        val imports = buildList {
-            add("kotlinx.serialization.json.JsonObject")
-            add("space.kscience.dataforge.names.parseAsName")
-            add("space.kscience.krig.core.contracts.DeviceManifest")
-            add("space.kscience.krig.core.contracts.toJsonSchema")
-            add("space.kscience.krig.core.meta.DeviceContractRegistry")
-            add("space.kscience.krig.core.meta.deviceContractRegistry")
-            if (includeFormSchema) {
-                add("space.kscience.krig.ui.schema.DeviceFormSchema")
-                add("space.kscience.krig.ui.schema.toDeviceFormSchema")
+        val registryInitializer = CodeBlock.builder()
+            .add("%M(\n", DEVICE_CONTRACT_REGISTRY_FACTORY)
+            .indent()
+            .add("id = %S.%M(),\n", contract.id, PARSE_AS_NAME)
+            .add("contract = %L,\n", contractExpression)
+            .add("version = %S,\n", contract.version)
+            .add("deviceContractFqName = %S,\n", fqn)
+            .unindent()
+            .add(")")
+            .build()
+        val generatedObject = TypeSpec.objectBuilder(generatedObjectName)
+            .addModifiers(KModifier.PUBLIC)
+            .addKdoc("Generated common artifacts for [%T].\n", contractClassName)
+            .addProperty(
+                PropertySpec.builder("registry", DEVICE_CONTRACT_REGISTRY)
+                    .addModifiers(KModifier.PUBLIC)
+                    .initializer(registryInitializer)
+                    .build(),
+            )
+            .addFunction(
+                FunSpec.builder("manifest")
+                    .addModifiers(KModifier.PUBLIC)
+                    .returns(DEVICE_MANIFEST)
+                    .addStatement("return registry.manifest")
+                    .build(),
+            )
+            .addProperty(
+                PropertySpec.builder("schemaHash", STRING)
+                    .addModifiers(KModifier.PUBLIC)
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addStatement("return registry.schemaHash")
+                            .build(),
+                    )
+                    .build(),
+            )
+            .addFunction(
+                FunSpec.builder("jsonSchema")
+                    .addModifiers(KModifier.PUBLIC)
+                    .returns(JSON_OBJECT)
+                    .addStatement("return registry.manifest.%M()", TO_JSON_SCHEMA)
+                    .build(),
+            )
+            .apply {
+                if (includeFormSchema) {
+                    addFunction(
+                        FunSpec.builder("formSchema")
+                            .addModifiers(KModifier.PUBLIC)
+                            .returns(DEVICE_FORM_SCHEMA)
+                            .addStatement("return registry.manifest.%M()", TO_DEVICE_FORM_SCHEMA)
+                            .build(),
+                    )
+                }
             }
-        }
-        val text = generatedKotlinFile(
-            outputPackage = outputPackage,
-            imports = imports,
-        ) {
-            appendLine("/** Generated common artifacts for [$fqn]. */")
-            appendLine("public object $generatedObjectName {")
-            appendLine("    public val registry: DeviceContractRegistry = deviceContractRegistry(")
-            appendLine("        id = ${contract.id.quoted()}.parseAsName(),")
-            appendLine("        contract = $contractExpression,")
-            appendLine("        version = ${contract.version.quoted()},")
-            appendLine("        deviceContractFqName = ${fqn.quoted()},")
-            appendLine("    )")
-            appendLine()
-            appendLine("    public fun manifest(): DeviceManifest = registry.manifest")
-            appendLine()
-            appendLine("    public val schemaHash: String get() = registry.schemaHash")
-            appendLine()
-            appendLine("    public fun jsonSchema(): JsonObject = registry.manifest.toJsonSchema()")
-            if (includeFormSchema) {
-                appendLine()
-                appendLine("    public fun formSchema(): DeviceFormSchema = registry.manifest.toDeviceFormSchema()")
-            }
-            appendLine("}")
-        }
+            .build()
+        val text = FileSpec.builder(outputPackage, generatedObjectName)
+            .addFileComment("Generated by krig-ksp-processor — do not edit by hand.")
+            .addType(generatedObject)
+            .build()
+            .toString()
 
         val file = environment.codeGenerator.createNewFile(
             dependencies = Dependencies(aggregating = false, containingFile),
@@ -266,17 +358,17 @@ private fun KSTypeReference.safeResolve(
     return type
 }
 
-private fun String.quoted(): String = buildString {
-    append('"')
-    for (char in this@quoted) {
-        when (char) {
-            '\\' -> append("\\\\")
-            '"' -> append("\\\"")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> append(char)
-        }
-    }
-    append('"')
+private fun KSClassDeclaration.isAccessibleFromGeneratedPackage(): Boolean =
+    generateSequence(this) { declaration ->
+        declaration.parentDeclaration as? KSClassDeclaration
+    }.all { declaration -> declaration.modifiers.none { it in INACCESSIBLE_VISIBILITY_MODIFIERS } }
+
+private fun KSClassDeclaration.toClassName(): ClassName {
+    val simpleNames = generateSequence(this) { declaration ->
+        declaration.parentDeclaration as? KSClassDeclaration
+    }.map { it.simpleName.asString() }.toList().asReversed()
+    return ClassName(packageName.asString(), simpleNames.first(), *simpleNames.drop(1).toTypedArray())
 }
+
+private val INACCESSIBLE_VISIBILITY_MODIFIERS: Set<Modifier> =
+    setOf(Modifier.PRIVATE, Modifier.PROTECTED, Modifier.INTERNAL)

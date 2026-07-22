@@ -1,6 +1,8 @@
 package space.kscience.krig.api.serialization
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -45,8 +47,8 @@ public inline fun <reified B : Any, reified S : B> polymorphicSerializationContr
 
 /**
  * Aggregates [krigApiSerializersModule] with [contributors] into a single
- * [SerializersModule]. Contributors are merged in declaration order; a later
- * contributor overrides an earlier one for clashing polymorphic keys.
+ * [SerializersModule]. Conflicting polymorphic registrations fail fast; repeated
+ * inclusion is accepted only when it resolves to the same serializer.
  */
 public fun buildKrigSerializersModule(
     vararg contributors: SerializationContributor,
@@ -57,13 +59,16 @@ public fun buildKrigSerializersModule(
 
 /**
  * Ready-to-use [Json] configured with [buildKrigSerializersModule] and the
- * wire defaults (`classDiscriminator = "type"`, `ignoreUnknownKeys`, `encodeDefaults`).
+ * wire defaults (`classDiscriminator = "type"`, polymorphic discriminators,
+ * `ignoreUnknownKeys`, `encodeDefaults`).
  */
+@OptIn(ExperimentalSerializationApi::class)
 public fun krigJson(vararg contributors: SerializationContributor): Json = Json {
     serializersModule = buildKrigSerializersModule(*contributors)
     ignoreUnknownKeys = true
     encodeDefaults = true
     classDiscriminator = "type"
+    classDiscriminatorMode = ClassDiscriminatorMode.POLYMORPHIC
 }
 
 /** Compact storage JSON: same polymorphic module, but default fields are omitted. */

@@ -1,14 +1,19 @@
 @file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompileTool
+import space.kscience.krig.build.generatedNamespace
 
 /**
  * Applies the krig KSP processor to a multiplatform module.
  *
- * Common/metadata KSP emits common-safe generated API, while the JVM pass emits
- * DataForge aggregation glue. Both use a group+artifact-derived namespace so two
- * modules that happen to share a Gradle project name (e.g. `:utils`) never
- * collide at runtime.
+ * Common metadata and every leaf target run the processor independently. The processor
+ * infers a common-safe layer for non-JVM targets and a complete layer for JVM. Generated
+ * packages use a group+artifact-derived namespace so same-named projects do not collide.
  */
 
 plugins {
@@ -16,110 +21,66 @@ plugins {
 }
 
 plugins.withId("org.jetbrains.kotlin.multiplatform") {
-    dependencies {
-        add("kspCommonMainMetadata", project(":krig-ksp-processor"))
-        add("kspJvm", project(":krig-ksp-processor"))
+    val kotlin = extensions.getByType<KotlinMultiplatformExtension>()
+    val commonMetadataSourceArchives = tasks.withType<Jar>().matching { task ->
+        task.name == "sourcesJar" || task.name == "metadataSourcesJar"
     }
-
-    extensions.configure<KotlinMultiplatformExtension>("kotlin") {
-        sourceSets.named("commonMain") {
-            generatedKotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
-        }
-    }
-
-    tasks.matching { task ->
-        task.name.startsWith("compile") && task.name.contains("Kotlin")
-    }.configureEach {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-
-    tasks.matching { task ->
-        task.name.startsWith("ksp") && task.name != "kspCommonMainKotlinMetadata"
-    }.configureEach {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-
-    tasks.matching { task ->
-        task.name == "detekt"
-    }.configureEach {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
-
-    tasks.register("krigKspIncrementalReport") {
-        group = "verification"
-        description = "Collect KRig KSP dirty-set logs into a stable report for incremental-boundary review."
-        dependsOn("kspCommonMainKotlinMetadata", "kspKotlinJvm")
-        outputs.upToDateWhen { false }
-
-        doLast {
-            val reportFile = layout.buildDirectory.file("reports/krig/ksp-incremental-report.txt").get().asFile
-            val buildRoot = layout.buildDirectory.get().asFile
-            val logNames = setOf(
-                "kspDirtySet.log",
-                "kspDirtySetByDeps.log",
-                "kspDirtySetByOutputs.log",
-                "kspSourceToOutputs.log",
-            )
-            val logFiles = buildRoot
-                .walkTopDown()
-                .filter { file -> file.isFile && file.name in logNames }
-                .sortedBy { file -> file.relativeTo(buildRoot).invariantSeparatorsPath }
-                .toList()
-
-            reportFile.parentFile.mkdirs()
-            reportFile.writeText(
-                buildString {
-                    appendLine("KRig KSP incremental boundary report")
-                    appendLine("Project: ${project.path}")
-                    appendLine()
-                    appendLine("Run with: ./gradlew ${project.path}:krigKspIncrementalReport \"-Pksp.incremental=true\" \"-Pksp.incremental.log=true\"")
-                    appendLine()
-                    appendLine("Generator baseline:")
-                    appendLine("- DeviceContractGenerator: isolating common contract artifacts.")
-                    appendLine("- SerializersModuleGenerator: isolating per-subclass contributors plus one aggregating serializers index.")
-                    appendLine("- ContributesAggregator: JVM aggregation plugin output per target id.")
-                    appendLine()
-                    appendLine("Manual scenario matrix:")
-                    appendLine("- non-annotated source changed: should not expand KRig generated outputs.")
-                    appendLine("- one @Serializable subclass changed: subclass contributor plus serializers index may be dirty.")
-                    appendLine("- one @Contributes object changed: target JVM aggregation plugin may be dirty.")
-                    appendLine("- unrelated file changed: inspect whether aggregating outputs are the only KRig-generated dirtiness.")
-                    appendLine()
-                    if (logFiles.isEmpty()) {
-                        appendLine("No KSP incremental logs found. Re-run with \"-Pksp.incremental=true\" \"-Pksp.incremental.log=true\" after a clean build and one incremental rebuild.")
-                    } else {
-                        appendLine("Collected logs:")
-                        for (file in logFiles) {
-                            appendLine()
-                            appendLine("## ${file.relativeTo(buildRoot).invariantSeparatorsPath}")
-                            val lines = file.readLines()
-                            val excerpt = lines.take(200)
-                            for (line in excerpt) appendLine(line)
-                            if (lines.size > excerpt.size) {
-                                appendLine("... truncated ${lines.size - excerpt.size} lines ...")
-                            }
+    dependencies.add("kspCommonMainMetadata", project(":krig-ksp-processor"))
+    kotlin.targets.configureEach {
+        if (platformType == KotlinPlatformType.common) {
+            compilations.configureEach {
+                val compilation = this
+                if (
+                    compilation.name != KotlinCompilation.MAIN_COMPILATION_NAME &&
+                    compilation.defaultSourceSet.name == KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME
+                ) {
+                    val compileTask = compilation.compileTaskProvider.get()
+                    val compileTool = compileTask as? KotlinCompileTool ?: error(
+                        "Kotlin metadata task '${compileTask.path}' does not implement KotlinCompileTool",
+                    )
+                    val declaredSourceRoots = compilation.allKotlinSourceSets
+                        .flatMap { sourceSet -> sourceSet.kotlin.srcDirs + sourceSet.generatedKotlin.srcDirs }
+                        .map { sourceRoot -> sourceRoot.toPath().toAbsolutePath().normalize() }
+                    val generatedSources = compileTool.sources.asFileTree.matching {
+                        exclude { element ->
+                            val sourcePath = element.file.toPath().toAbsolutePath().normalize()
+                            declaredSourceRoots.any(sourcePath::startsWith)
                         }
                     }
-                },
-            )
-            logger.lifecycle("KRig KSP incremental report written to ${reportFile.relativeTo(project.rootDir)}")
+                    commonMetadataSourceArchives.configureEach {
+                        from(generatedSources) {
+                            into(KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME)
+                        }
+                    }
+                }
+            }
+            return@configureEach
         }
+        require(platformType != KotlinPlatformType.androidJvm) {
+            "krig-mpp-ksp does not yet support Android variant-specific KSP configurations"
+        }
+        requireNotNull(compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)) {
+            "Kotlin target '$name' has no '${KotlinCompilation.MAIN_COMPILATION_NAME}' compilation"
+        }
+        val configurationTargetName = when (name) {
+            "jsLegacy", "jsIr" -> "js"
+            else -> name
+        }
+        val configurationName = "ksp${configurationTargetName.replaceFirstChar { it.uppercase() }}"
+        dependencies.add(configurationName, project(":krig-ksp-processor"))
     }
 }
 
 ksp {
-    val groupSlug = project.group.toString()
-        .ifBlank { project.rootProject.name }
-        .lowercase()
-        .split(Regex("[^a-z0-9]+"))
-        .filter(String::isNotBlank)
-        .joinToString(".")
-        .ifBlank { "anon" }
-    val nameSlug = project.name
-        .removePrefix("krig-")
-        .lowercase()
-        .replace(Regex("[^a-z0-9]+"), "")
-        .ifBlank { "module" }
-    arg("krig.generated.module", "$groupSlug.$nameSlug")
+    val projectName = project.name
+    val projectPath = project.path
+    val namespace = project.provider {
+        generatedNamespace(
+            group = project.group.toString(),
+            projectName = projectName,
+            defaultGroup = projectPath.replace(':', '.'),
+        ).value
+    }
+    arg("krig.generated.module", namespace)
     arg("krig.generated.layer", "auto")
 }

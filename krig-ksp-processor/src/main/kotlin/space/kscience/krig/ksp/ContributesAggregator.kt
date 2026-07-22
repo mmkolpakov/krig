@@ -7,13 +7,24 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.validate
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 /**
- * Emits `Merged<Kind>Plugin` for each target id discovered on symbols annotated with
+ * Emits the explicitly named `Merged<generatedName>Plugin` for each target id discovered on symbols annotated with
  * `@Contributes(anchor)`. Target id is the `@TargetId` value on the anchor (or its
  * companion); a missing `@TargetId` is a compile error.
  */
@@ -39,7 +50,19 @@ internal class ContributesAggregator(
         const val DEVICE_MANIFEST_FQN = "space.kscience.krig.core.contracts.DeviceManifest"
         const val DEVICE_FACTORY_FQN = "space.kscience.krig.api.factory.DeviceFactory"
         const val PIPELINE_FEATURE_FQN = "space.kscience.krig.core.features.PipelineFeature"
-        const val GENERATED_PACKAGE_ROOT = "space.kscience.krig.generated"
+        private val ABSTRACT_PLUGIN = ClassName("space.kscience.dataforge.context", "AbstractPlugin")
+        private val CONTEXT = ClassName("space.kscience.dataforge.context", "Context")
+        private val PLUGIN_FACTORY = ClassName("space.kscience.dataforge.context", "PluginFactory")
+        private val PLUGIN_TAG = ClassName("space.kscience.dataforge.context", "PluginTag")
+        private val META = ClassName("space.kscience.dataforge.meta", "Meta")
+        private val NAME = ClassName("space.kscience.dataforge.names", "Name")
+        private val MAP = ClassName("kotlin.collections", "Map")
+        private val PARSE_AS_NAME = MemberName("space.kscience.dataforge.names", "parseAsName")
+
+        private val TARGET_ID_PATTERN = Regex("[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*")
+        private val GENERATED_NAME_PATTERN = Regex("[A-Z][A-Za-z0-9]{0,63}")
+        private val MANIFEST_ID_PATTERN = Regex("[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)*")
+        private val DEFAULT_KEY_PATTERN = Regex("[A-Za-z_][A-Za-z0-9_]*")
     }
 
     private val expectedSupertypeByAliasFqn: Map<String, String> = mapOf(
@@ -47,20 +70,8 @@ internal class ContributesAggregator(
         CONTRIBUTES_PIPELINE_FEATURE_FQN to PIPELINE_FEATURE_FQN,
     )
 
-    private val knownContributorAnnotationFqns: List<String> = listOf(
-        CONTRIBUTES_FQN,
-        CONTRIBUTES_MANIFEST_FQN,
-        CONTRIBUTES_FACTORY_FQN,
-        CONTRIBUTES_PIPELINE_FEATURE_FQN,
-        CONTRIBUTES_PROTOCOL_FQN,
-        CONTRIBUTES_ACTION_HANDLER_FQN,
-    )
-
-    /** First-round latch: aggregating files are emitted once per compilation. */
-    private var emitted = false
-
-    /** Contributor entry as seen by the aggregator — carries the symbol + optional explicit id. */
-    private data class ContributorEntry(
+    /** Round-local contributor entry used only while KSP symbols are current. */
+    private data class ResolvedContributorEntry(
         val decl: KSClassDeclaration,
         /** Annotation used on [decl], either direct `@Contributes` or a typed alias. */
         val annotationFqn: String,
@@ -70,32 +81,57 @@ internal class ContributesAggregator(
         val invokeAsFactory: Boolean,
     )
 
-    override fun process(resolver: Resolver): List<KSAnnotated> {
-        if (emitted) return emptyList()
+    /** Cross-round state deliberately contains no KSP symbols. */
+    private data class ContributorRef(
+        val declarationFqn: String,
+        val simpleName: String,
+        val declarationPackageName: String,
+        val declarationSimpleNames: List<String>,
+        val sourceFilePath: String,
+        val annotationFqn: String,
+        val manifestId: String?,
+        val invokeAsFactory: Boolean,
+    ) {
+        val effectiveKey: String get() = manifestId ?: simpleName
+    }
 
-        val moduleSuffix = environment.options["krig.generated.module"]
-            ?: error(
-                "krig-ksp-processor requires the 'krig.generated.module' KSP argument. " +
-                        "Apply the `krig-mpp-ksp` convention plugin which sets it automatically.",
-            )
-        val generatedPackage = "$GENERATED_PACKAGE_ROOT.$moduleSuffix"
+    private data class ContributionTargetSpec(
+        val id: String,
+        val generatedName: String,
+    )
+
+    private var generatedPackage: String? = null
+    private var moduleSuffix: String? = null
+    private val contributorsByTarget: MutableMap<String, MutableMap<String, ContributorRef>> = linkedMapOf()
+    private val targetSpecsById: MutableMap<String, ContributionTargetSpec> = linkedMapOf()
+    /** Replaced at the start of every round and consumed only by [finish]. */
+    private var lastSourceFilesByPath: Map<String, KSFile> = emptyMap()
+
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        val namespace = environment.requireGeneratedNamespace()
+        this.moduleSuffix = namespace.moduleSuffix
+        this.generatedPackage = namespace.packageName
+
+        val sourceFiles = resolver.getAllFiles().toList()
+        lastSourceFilesByPath = sourceFiles.associateBy { it.filePath }
 
         val deferred = mutableListOf<KSAnnotated>()
-        val bucketsByTarget: MutableMap<String, MutableList<ContributorEntry>> = mutableMapOf()
+        val bucketsByTarget: MutableMap<String, MutableList<ResolvedContributorEntry>> = mutableMapOf()
+        val metaAnnotationsByAliasFqn = mutableMapOf<String, List<KSAnnotation>>()
 
-        val contributorDeclarations = knownContributorAnnotationFqns
-            .asSequence()
-            .flatMap { annotationFqn ->
-                resolver.getSymbolsWithAnnotation(annotationFqn, inDepth = annotationFqn == CONTRIBUTES_FQN)
-            }
-            .filterIsInstance<KSClassDeclaration>()
-            .distinctBy { it.qualifiedName?.asString() ?: it.simpleName.asString() }
-
-        for (decl in contributorDeclarations) {
-            if (!decl.validate()) { deferred += decl; continue }
+        // The plugin is an aggregating output. getSymbolsWithAnnotation is dirty-only in
+        // incremental rounds, so discover contributors from every current source declaration.
+        for (decl in sourceFiles.getAllClassDeclarations()) {
             if (decl.classKind == ClassKind.ANNOTATION_CLASS) {
                 // Alias annotations such as `@ContributesManifest` are meta-annotated with
                 // `@Contributes`; they are not contributor objects themselves.
+                continue
+            }
+            val deferredBeforeAnnotations = deferred.size
+            val targets = decl.resolveContributes(deferred, metaAnnotationsByAliasFqn) ?: continue
+            if (deferred.size != deferredBeforeAnnotations) continue
+            if (!decl.validate()) {
+                deferred.addOnce(decl)
                 continue
             }
             if (decl.classKind != ClassKind.OBJECT) {
@@ -106,14 +142,19 @@ internal class ContributesAggregator(
                 )
                 continue
             }
-            val targets = decl.resolveContributes(deferred) ?: continue
+            if (!decl.isAccessibleFromGeneratedCode()) {
+                environment.logger.error(
+                    "ContributesAggregator cannot reference private/protected contributor " +
+                        "${decl.qualifiedName?.asString()} from generated code.",
+                    decl,
+                )
+                continue
+            }
             for ((targetId, entry) in targets) {
                 bucketsByTarget.getOrPut(targetId) { mutableListOf() } += entry
             }
         }
-        if (deferred.isNotEmpty()) return deferred
-
-        val validBucketsByTarget = linkedMapOf<String, MutableList<ContributorEntry>>()
+        val validBucketsByTarget = linkedMapOf<String, MutableList<ResolvedContributorEntry>>()
         for ((targetId, entries) in bucketsByTarget) {
             for (entry in entries) {
                 when (validateContributorShape(resolver, entry, deferred)) {
@@ -123,28 +164,113 @@ internal class ContributesAggregator(
                 }
             }
         }
-        if (deferred.isNotEmpty()) return deferred
-
-        // Uniqueness of Manifest ids within a target (per-module).
         for ((targetId, entries) in validBucketsByTarget) {
-            val duplicateIds = entries
-                .mapNotNull { it.manifestId }
-                .groupingBy { it }
-                .eachCount()
-                .filterValues { it > 1 }
-            if (duplicateIds.isNotEmpty()) {
-                environment.logger.error(
-                    "Duplicate Manifest ids on target '$targetId': ${duplicateIds.keys.joinToString()}",
-                )
+            val storedByDeclaration = contributorsByTarget.getOrPut(targetId) { linkedMapOf() }
+            for (entry in entries) {
+                val ref = entry.toRef() ?: continue
+                val previous = storedByDeclaration.putIfAbsent(ref.declarationFqn, ref)
+                if (previous != null && previous != ref) {
+                    environment.logger.error(
+                        "Conflicting @Contributes declarations for target '$targetId' and " +
+                            "${ref.declarationFqn} across KSP rounds.",
+                        entry.decl,
+                    )
+                }
             }
         }
 
-        for ((targetId, entries) in validBucketsByTarget) {
-            emitPlugin(generatedPackage, moduleSuffix, targetId, entries)
-        }
-        emitted = true
-
         return deferred
+    }
+
+    override fun finish() {
+        val generatedPackage = generatedPackage ?: return
+        val moduleSuffix = moduleSuffix ?: return
+        val generatedNameCollisions = targetSpecsById.values
+            .groupBy { it.generatedName }
+            .filterValues { specs -> specs.map { it.id }.distinct().size > 1 }
+        if (generatedNameCollisions.isNotEmpty()) {
+            environment.logger.error(
+                "Duplicate TargetId.generatedName values: " + generatedNameCollisions.entries
+                    .sortedBy { it.key }
+                    .joinToString { (name, specs) -> "$name -> ${specs.map { it.id }.sorted().joinToString()}" },
+            )
+            return
+        }
+        for ((targetId, refsByDeclaration) in contributorsByTarget.toSortedMap()) {
+            val targetSpec = targetSpecsById[targetId] ?: run {
+                environment.logger.error("ContributesAggregator lost TargetId metadata for '$targetId'.")
+                continue
+            }
+            val contributors = refsByDeclaration.values.sortedBy { it.declarationFqn }
+            val duplicateKeys = contributors
+                .groupingBy { it.effectiveKey }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
+            if (duplicateKeys.isNotEmpty()) {
+                environment.logger.error(
+                    "Duplicate contribution keys on target '$targetId': ${duplicateKeys.sorted().joinToString()}",
+                )
+                continue
+            }
+            val missingSourcePaths = contributors
+                .map { it.sourceFilePath }
+                .filterNot(lastSourceFilesByPath::containsKey)
+                .distinct()
+            if (missingSourcePaths.isNotEmpty()) {
+                environment.logger.error(
+                    "ContributesAggregator lost current KSP source origins before finish: " +
+                        missingSourcePaths.joinToString(),
+                )
+                continue
+            }
+            val containingFiles = contributors
+                .mapNotNull { lastSourceFilesByPath[it.sourceFilePath] }
+                .distinctBy { it.filePath }
+                .toTypedArray()
+            emitPlugin(generatedPackage, moduleSuffix, targetSpec, contributors, containingFiles)
+        }
+    }
+
+    override fun onError() {
+        contributorsByTarget.clear()
+        targetSpecsById.clear()
+        lastSourceFilesByPath = emptyMap()
+    }
+
+    private fun ResolvedContributorEntry.toRef(): ContributorRef? {
+        val declarationFqn = decl.qualifiedName?.asString() ?: return null
+        val sourceFilePath = decl.containingFile?.filePath ?: return null
+        val declarationSimpleName = decl.simpleName.asString()
+        if (manifestId != null && (manifestId.length > 128 || !MANIFEST_ID_PATTERN.matches(manifestId))) {
+            environment.logger.error(
+                "ContributesManifest.manifestId '$manifestId' must be at most 128 characters and match " +
+                    "${MANIFEST_ID_PATTERN.pattern}.",
+                decl,
+            )
+            return null
+        }
+        if (manifestId == null && !DEFAULT_KEY_PATTERN.matches(declarationSimpleName)) {
+            environment.logger.error(
+                "Contributor ${decl.qualifiedName?.asString()} needs a canonical generated key; " +
+                    "its simple name must match ${DEFAULT_KEY_PATTERN.pattern}.",
+                decl,
+            )
+            return null
+        }
+        val declarationSimpleNames = generateSequence(decl) { current ->
+            current.parentDeclaration as? KSClassDeclaration
+        }.map { it.simpleName.asString() }.toList().asReversed()
+        return ContributorRef(
+            declarationFqn = declarationFqn,
+            simpleName = declarationSimpleName,
+            declarationPackageName = decl.packageName.asString(),
+            declarationSimpleNames = declarationSimpleNames,
+            sourceFilePath = sourceFilePath,
+            annotationFqn = annotationFqn,
+            manifestId = manifestId,
+            invokeAsFactory = invokeAsFactory,
+        )
     }
 
     /**
@@ -154,52 +280,87 @@ internal class ContributesAggregator(
      */
     private fun KSClassDeclaration.resolveContributes(
         deferred: MutableList<KSAnnotated>,
-    ): Map<String, ContributorEntry>? {
-        val found = mutableMapOf<String, ContributorEntry>()
+        metaAnnotationsByAliasFqn: MutableMap<String, List<KSAnnotation>>,
+    ): Map<String, ResolvedContributorEntry>? {
+        val found = mutableMapOf<String, ResolvedContributorEntry>()
         for (ann in annotations) {
-            val annDecl = ann.annotationType.safeResolve(this, deferred)?.declaration as? KSClassDeclaration
+            val annDecl = ann.annotationType.safeResolve(this, deferred)?.declaration?.actualClassDeclaration()
                 ?: continue
             val annFqn = annDecl.qualifiedName?.asString() ?: continue
 
             // Direct usage: `@Contributes(Anchor::class) class Foo`.
             if (annFqn == CONTRIBUTES_FQN) {
-                val (id, strategy) = readContributes(ann, this, deferred) ?: continue
-                found[id] = ContributorEntry(
+                val (target, strategy) = readContributes(ann, this, deferred) ?: continue
+                if (!registerTarget(target, this)) continue
+                found.addContribution(target.id, ResolvedContributorEntry(
                     decl = this,
                     annotationFqn = CONTRIBUTES_FQN,
                     manifestId = readManifestId(annotations, this, deferred),
                     invokeAsFactory = strategy,
-                )
+                ), this)
                 continue
             }
 
             // Alias: walk the annotation's meta-annotations looking for @Contributes.
-            for (meta in annDecl.annotations) {
-                val metaFqn = meta.annotationType.safeResolve(this, deferred)
-                    ?.declaration
-                    ?.qualifiedName
-                    ?.asString()
-                    ?: continue
-                if (metaFqn != CONTRIBUTES_FQN) continue
-                val (id, strategy) = readContributes(meta, this, deferred) ?: continue
+            val metaAnnotations = metaAnnotationsByAliasFqn[annFqn] ?: run {
+                val deferredBeforeMeta = deferred.size
+                val resolved = annDecl.annotations.filter { meta ->
+                    val metaFqn = meta.annotationType.safeResolve(this, deferred)
+                        ?.declaration
+                        ?.actualClassDeclaration()
+                        ?.qualifiedName
+                        ?.asString()
+                    metaFqn == CONTRIBUTES_FQN
+                }.toList()
+                if (deferred.size == deferredBeforeMeta) metaAnnotationsByAliasFqn[annFqn] = resolved
+                resolved
+            }
+            for (meta in metaAnnotations) {
+                val (target, strategy) = readContributes(meta, this, deferred) ?: continue
+                if (!registerTarget(target, this)) continue
                 val manifestId = if (annFqn == CONTRIBUTES_MANIFEST_FQN) readManifestIdArg(ann) else null
-                found[id] = ContributorEntry(
+                found.addContribution(target.id, ResolvedContributorEntry(
                     decl = this,
                     annotationFqn = annFqn,
                     manifestId = manifestId,
                     invokeAsFactory = strategy,
-                )
+                ), this)
             }
         }
         return found.takeIf { it.isNotEmpty() }
     }
 
-    /** Returns (target-id, invokeAsFactory) or null if the anchor is malformed. */
+    private fun registerTarget(target: ContributionTargetSpec, owner: KSClassDeclaration): Boolean {
+        val previous = targetSpecsById.putIfAbsent(target.id, target)
+        if (previous == null || previous == target) return true
+        environment.logger.error(
+            "Target id '${target.id}' declares conflicting generated names " +
+                "'${previous.generatedName}' and '${target.generatedName}'.",
+            owner,
+        )
+        return false
+    }
+
+    private fun MutableMap<String, ResolvedContributorEntry>.addContribution(
+        targetId: String,
+        entry: ResolvedContributorEntry,
+        owner: KSClassDeclaration,
+    ) {
+        val previous = putIfAbsent(targetId, entry)
+        if (previous != null) {
+            environment.logger.error(
+                "${owner.qualifiedName?.asString()} contributes to target '$targetId' more than once.",
+                owner,
+            )
+        }
+    }
+
+    /** Returns (target identity, invokeAsFactory) or null if the anchor is malformed. */
     private fun readContributes(
         contributesAnnotation: KSAnnotation,
         owner: KSAnnotated,
         deferred: MutableList<KSAnnotated>,
-    ): Pair<String, Boolean>? {
+    ): Pair<ContributionTargetSpec, Boolean>? {
         val anchorType = contributesAnnotation.arguments
             .firstOrNull { it.name?.asString() == "anchor" }
             ?.value as? KSType
@@ -211,15 +372,15 @@ internal class ContributesAggregator(
             deferred += owner
             return null
         }
-        val anchorDecl = anchorType.declaration as? KSClassDeclaration ?: return null
+        val anchorDecl = anchorType.declaration.actualClassDeclaration() ?: return null
         val deferredBeforeTargetId = deferred.size
-        val targetId = readTargetIdOnAnchor(anchorDecl, owner, deferred)
+        val target = readTargetIdOnAnchor(anchorDecl, owner, deferred)
         if (deferred.size != deferredBeforeTargetId) return null
-        if (targetId == null) {
+        if (target == null) {
             environment.logger.error(
                 "@Contributes anchor ${anchorDecl.qualifiedName?.asString()} is missing " +
-                        "`@TargetId(\"...\")`. Every anchor — object or companion — must declare " +
-                        "its stable wire target id via the TargetId annotation.",
+                        "`@TargetId(value = \"...\", generatedName = \"...\")`. Every anchor — object or companion — " +
+                        "must declare its stable wire id and generated Kotlin name.",
                 anchorDecl,
             )
             return null
@@ -229,34 +390,55 @@ internal class ContributesAggregator(
             ?.value
             ?.toString()
             ?.endsWith("INVOKE_AS_FACTORY") == true
-        return targetId to invokeAsFactory
+        return target to invokeAsFactory
     }
 
     /**
      * Looks for `@TargetId` directly on the anchor (for `object` anchors) or on the
-     * anchor's companion (for `class` anchors). Returns the literal `value` argument.
+     * anchor's companion (for `class` anchors). Returns the validated wire/code identity.
      */
     private fun readTargetIdOnAnchor(
         anchor: KSClassDeclaration,
         owner: KSAnnotated,
         deferred: MutableList<KSAnnotated>,
-    ): String? {
+    ): ContributionTargetSpec? {
         anchor.annotations
             .firstOrNull { annFqn(it, owner, deferred) == TARGET_ID_FQN }
-            ?.let { return readTargetIdValue(it) }
+            ?.let { return readTargetSpec(it) }
         val companion = anchor.declarations
             .filterIsInstance<KSClassDeclaration>()
             .firstOrNull { it.isCompanionObject }
             ?: return null
         return companion.annotations
             .firstOrNull { annFqn(it, owner, deferred) == TARGET_ID_FQN }
-            ?.let { readTargetIdValue(it) }
+            ?.let { readTargetSpec(it) }
     }
 
-    private fun readTargetIdValue(targetIdAnnotation: KSAnnotation): String? =
-        targetIdAnnotation.arguments
+    private fun readTargetSpec(targetIdAnnotation: KSAnnotation): ContributionTargetSpec? {
+        val id = targetIdAnnotation.arguments
             .firstOrNull { it.name?.asString() == "value" }
             ?.value as? String
+            ?: return null
+        val generatedName = targetIdAnnotation.arguments
+            .firstOrNull { it.name?.asString() == "generatedName" }
+            ?.value as? String
+            ?: return null
+        if (id.length > 128 || !TARGET_ID_PATTERN.matches(id)) {
+            environment.logger.error(
+                "TargetId.value '$id' must be at most 128 characters and match ${TARGET_ID_PATTERN.pattern}.",
+                targetIdAnnotation,
+            )
+            return null
+        }
+        if (!GENERATED_NAME_PATTERN.matches(generatedName)) {
+            environment.logger.error(
+                "TargetId.generatedName '$generatedName' must match ${GENERATED_NAME_PATTERN.pattern}.",
+                targetIdAnnotation,
+            )
+            return null
+        }
+        return ContributionTargetSpec(id, generatedName)
+    }
 
     private fun annFqn(
         annotation: KSAnnotation,
@@ -264,6 +446,7 @@ internal class ContributesAggregator(
         deferred: MutableList<KSAnnotated>,
     ): String? = annotation.annotationType.safeResolve(owner, deferred)
         ?.declaration
+        ?.actualClassDeclaration()
         ?.qualifiedName
         ?.asString()
 
@@ -286,7 +469,7 @@ internal class ContributesAggregator(
 
     private fun validateContributorShape(
         resolver: Resolver,
-        entry: ContributorEntry,
+        entry: ResolvedContributorEntry,
         deferred: MutableList<KSAnnotated>,
     ): ValidationResult {
         if (entry.annotationFqn == CONTRIBUTES_MANIFEST_FQN) {
@@ -321,7 +504,7 @@ internal class ContributesAggregator(
 
     private fun validateManifestFactory(
         resolver: Resolver,
-        entry: ContributorEntry,
+        entry: ResolvedContributorEntry,
         deferred: MutableList<KSAnnotated>,
     ): ValidationResult {
         val expectedDeclaration = resolver.getClassDeclarationByName(resolver.getKSNameFromString(DEVICE_MANIFEST_FQN))
@@ -366,93 +549,122 @@ internal class ContributesAggregator(
         return ValidationResult.Valid
     }
 
-    /** Derives a Pascal-cased plugin name segment from a target id. */
-    private fun pluginNameSegment(targetId: String): String {
-        val suffix = targetId.substringAfterLast('.', targetId)
-        val pascal = suffix.split('-').joinToString("") { part ->
-            part.replaceFirstChar { ch -> if (ch.isLowerCase()) ch.titlecase() else ch.toString() }
-        }
-        return pluralize(pascal)
-    }
-
-    /**
-     * Ensure the generated plugin class name sounds natural. Covers the cases that appear
-     * in control-domain vocabulary without trying to be a full morphology library:
-     *  - already plural (ends in `s`)          — keep
-     *  - consonant + `y`                        — `y` → `ies`   (Factory, Policy, Proxy)
-     *  - otherwise                              — + `s`         (PipelineFeatureSpec, Handler, Recovery in kebab → "Recovery" + "s")
-     */
-    private fun pluralize(word: String): String = when {
-        word.endsWith("s") -> word
-        word.length >= 2 && word.endsWith("y") && word[word.length - 2] !in "aeiouAEIOU" ->
-            word.dropLast(1) + "ies"
-        else -> word + "s"
-    }
-
-    private fun pluginKindSegment(targetId: String): String =
-        targetId.substringAfterLast('.', targetId)
-
     /** Emits the `Merged<Kind>Plugin` for one (module × target-id) tuple. */
     private fun emitPlugin(
         generatedPackage: String,
         moduleSuffix: String,
-        targetId: String,
-        contributors: List<ContributorEntry>,
+        target: ContributionTargetSpec,
+        contributors: List<ContributorRef>,
+        containingFiles: Array<KSFile>,
     ) {
-        val pluginName = "Merged${pluginNameSegment(targetId)}Plugin"
-        val tagName = "krig.generated.$moduleSuffix.${pluginKindSegment(targetId)}"
-        val containingFiles = contributors.mapNotNull { it.decl.containingFile }.toTypedArray()
+        val targetId = target.id
+        val pluginName = "Merged${target.generatedName}Plugin"
+        val tagName = "krig.generated.$moduleSuffix.target.$targetId"
         val file = environment.codeGenerator.createNewFile(
             dependencies = Dependencies(aggregating = true, *containingFiles),
             packageName = generatedPackage,
             fileName = pluginName,
         )
 
-        val source = buildString {
-            appendLine("// Generated by krig-ksp-processor — do not edit by hand.")
-            appendLine("@file:Suppress(\"unused\", \"RedundantVisibilityModifier\")")
-            appendLine()
-            appendLine("package $generatedPackage")
-            appendLine()
-            appendLine("import space.kscience.dataforge.context.AbstractPlugin")
-            appendLine("import space.kscience.dataforge.context.Context")
-            appendLine("import space.kscience.dataforge.context.PluginFactory")
-            appendLine("import space.kscience.dataforge.context.PluginTag")
-            appendLine("import space.kscience.dataforge.meta.Meta")
-            appendLine("import space.kscience.dataforge.names.Name")
-            appendLine("import space.kscience.dataforge.names.parseAsName")
-            appendLine()
-            appendLine("/**")
-            appendLine(" * KSP-generated DataForge plugin for target `$targetId`.")
-            appendLine(" * Contributors: ${contributors.size}")
-            appendLine(" */")
-            appendLine("public class $pluginName(meta: Meta = Meta.EMPTY) : AbstractPlugin(meta) {")
-            appendLine("    override val tag: PluginTag get() = Companion.tag")
-            appendLine()
-            appendLine("    override fun content(target: String): Map<Name, Any> = when (target) {")
-            appendLine("        TARGET -> entries")
-            appendLine("        else -> emptyMap()")
-            appendLine("    }")
-            appendLine()
-            appendLine("    public companion object : PluginFactory<$pluginName> {")
-            appendLine("        public const val TARGET: String = \"$targetId\"")
-            appendLine()
-            appendLine("        override val tag: PluginTag = PluginTag(\"$tagName\", PluginTag.DATAFORGE_GROUP)")
-            appendLine()
-            appendLine("        override fun build(context: Context, meta: Meta): $pluginName = $pluginName(meta)")
-            appendLine()
-            appendLine("        public val entries: Map<Name, Any> = mapOf(")
-            for (entry in contributors) {
-                val fqn = entry.decl.qualifiedName?.asString() ?: continue
-                val keyLiteral = entry.manifestId ?: entry.decl.simpleName.asString()
-                val emit = if (entry.invokeAsFactory) "$fqn()" else fqn
-                appendLine("            \"${escapeStringLiteral(keyLiteral)}\".parseAsName() to $emit,")
+        val pluginType = ClassName(generatedPackage, pluginName)
+        val entriesType = MAP.parameterizedBy(NAME, ClassName("kotlin", "Any"))
+        val entriesInitializer = CodeBlock.builder().add("mapOf(\n").indent()
+        for (entry in contributors) {
+            val declarationType = ClassName(
+                entry.declarationPackageName,
+                entry.declarationSimpleNames.first(),
+                *entry.declarationSimpleNames.drop(1).toTypedArray(),
+            )
+            val parsedKey = CodeBlock.of("%S.%M()", entry.effectiveKey, PARSE_AS_NAME)
+            entriesInitializer.add("%L to ", parsedKey)
+            if (entry.invokeAsFactory) {
+                if (entry.manifestId != null) {
+                    entriesInitializer.add(
+                        "%T().also { manifest -> require(manifest.id == %L) { %S } }",
+                        declarationType,
+                        parsedKey,
+                        "ContributesManifest '${entry.effectiveKey}' produced a manifest with a different id.",
+                    )
+                } else {
+                    entriesInitializer.add("%T()", declarationType)
+                }
+            } else {
+                entriesInitializer.add("%T", declarationType)
             }
-            appendLine("        )")
-            appendLine("    }")
-            appendLine("}")
-            appendLine()
+            entriesInitializer.add(",\n")
         }
+        entriesInitializer.unindent().add(")")
+
+        val companion = TypeSpec.companionObjectBuilder()
+            .addSuperinterface(PLUGIN_FACTORY.parameterizedBy(pluginType))
+            .addProperty(
+                PropertySpec.builder("TARGET", String::class)
+                    .addModifiers(KModifier.PUBLIC, KModifier.CONST)
+                    .initializer("%S", targetId)
+                    .build(),
+            )
+            .addProperty(
+                PropertySpec.builder("tag", PLUGIN_TAG)
+                    .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                    .initializer("%T(%S, %T.DATAFORGE_GROUP)", PLUGIN_TAG, tagName, PLUGIN_TAG)
+                    .build(),
+            )
+            .addFunction(
+                FunSpec.builder("build")
+                    .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                    .addParameter("context", CONTEXT)
+                    .addParameter("meta", META)
+                    .returns(pluginType)
+                    .addStatement("return %T(meta)", pluginType)
+                    .build(),
+            )
+            .addProperty(
+                PropertySpec.builder("entries", entriesType)
+                    .addModifiers(KModifier.PUBLIC)
+                    .initializer(entriesInitializer.build())
+                    .build(),
+            )
+            .build()
+
+        val plugin = TypeSpec.classBuilder(pluginName)
+            .addModifiers(KModifier.PUBLIC)
+            .addKdoc("KSP-generated DataForge plugin for [TARGET].\n\nContributors: %L.\n", contributors.size)
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addParameter(
+                        ParameterSpec.builder("meta", META)
+                            .defaultValue("%T.EMPTY", META)
+                            .build(),
+                    )
+                    .build(),
+            )
+            .superclass(ABSTRACT_PLUGIN)
+            .addSuperclassConstructorParameter("meta")
+            .addProperty(
+                PropertySpec.builder("tag", PLUGIN_TAG)
+                    .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                    .getter(FunSpec.getterBuilder().addStatement("return Companion.tag").build())
+                    .build(),
+            )
+            .addFunction(
+                FunSpec.builder("content")
+                    .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                    .addParameter("target", String::class)
+                    .returns(entriesType)
+                    .beginControlFlow("return when (target)")
+                    .addStatement("TARGET -> entries")
+                    .addStatement("else -> emptyMap()")
+                    .endControlFlow()
+                    .build(),
+            )
+            .addType(companion)
+            .build()
+
+        val source = FileSpec.builder(generatedPackage, pluginName)
+            .addFileComment("Generated by krig-ksp-processor — do not edit by hand.")
+            .addType(plugin)
+            .build()
+            .toString()
 
         file.write(source.toByteArray(Charsets.UTF_8))
         file.close()
@@ -470,28 +682,13 @@ private enum class ValidationResult {
     Deferred,
 }
 
-/** Escapes a value for embedding into a generated Kotlin string literal. */
-private fun escapeStringLiteral(raw: String): String = buildString(raw.length) {
-    for (ch in raw) {
-        when (ch) {
-            '\\' -> append("\\\\")
-            '"' -> append("\\\"")
-            '$' -> append("\\$")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> append(ch)
-        }
-    }
-}
-
 private fun KSTypeReference?.safeResolve(
     owner: KSAnnotated,
     deferred: MutableList<KSAnnotated>,
 ): KSType? {
     val type = this?.resolve() ?: return null
     if (type.isError) {
-        deferred += owner
+        deferred.addOnce(owner)
         return null
     }
     return type

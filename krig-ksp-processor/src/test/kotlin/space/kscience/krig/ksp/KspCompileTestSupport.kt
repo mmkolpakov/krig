@@ -7,6 +7,7 @@ import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.configureKsp
 import com.tschuchort.compiletesting.useKsp2
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import java.io.File
 
 @OptIn(ExperimentalCompilerApi::class)
 internal fun compileWithKrigKsp(
@@ -16,11 +17,13 @@ internal fun compileWithKrigKsp(
     extraProcessorOptions: Map<String, String> = emptyMap(),
     extraSymbolProcessorProviders: List<SymbolProcessorProvider> = emptyList(),
     inheritClassPath: Boolean = true,
+    classpaths: List<File> = emptyList(),
     withCompilation: Boolean = true,
 ): JvmCompilationResult =
     KotlinCompilation().apply {
         this.sources = sources.toList()
         this.inheritClassPath = inheritClassPath
+        this.classpaths = classpaths
         configureKsp {
             processorOptions["krig.generated.module"] = generatedModule
             if (generatedLayer != null) {
@@ -35,9 +38,25 @@ internal fun compileWithKrigKsp(
 
 internal val KOTLINX_SERIALIZATION_STUBS: String = """
     package kotlinx.serialization
-    @Target(AnnotationTarget.CLASS) annotation class Serializable
-    @Target(AnnotationTarget.CLASS) annotation class SerialName(val value: String)
+    import kotlin.reflect.KClass
+    interface KSerializer<T>
+    @Target(AnnotationTarget.CLASS)
+    annotation class Serializable(
+        val with: KClass<out KSerializer<*>> = KSerializer::class,
+    )
+    @Target(AnnotationTarget.CLASS, AnnotationTarget.PROPERTY) annotation class SerialName(val value: String)
+    @Target(AnnotationTarget.PROPERTY) annotation class Transient
     @Target(AnnotationTarget.CLASS) annotation class Polymorphic
+    @Target(AnnotationTarget.CLASS) annotation class KeepGeneratedSerializer
+    @Target(AnnotationTarget.ANNOTATION_CLASS) annotation class MetaSerializable
+""".trimIndent()
+
+internal val KOTLINX_SERIALIZATION_JSON_STUBS: String = """
+    package kotlinx.serialization.json
+    @Target(AnnotationTarget.CLASS)
+    annotation class JsonClassDiscriminator(val discriminator: String)
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class JsonNames(vararg val names: String)
 """.trimIndent()
 
 internal val SERIALIZERS_MODULE_STUBS: String = """
@@ -56,5 +75,7 @@ internal val SERIALIZERS_MODULE_STUBS: String = """
 
 internal val POLYMORPHIC_BASE_STUB: String = """
     package space.kscience.krig.api.annotations
-    @Target(AnnotationTarget.CLASS) annotation class PolymorphicBase
+    @Target(AnnotationTarget.CLASS)
+    @Retention(AnnotationRetention.BINARY)
+    annotation class PolymorphicBase
 """.trimIndent()

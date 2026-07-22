@@ -25,8 +25,10 @@ open annotation class space.kscience.krig.api.annotations/KrigDeviceContract : k
 }
 
 open annotation class space.kscience.krig.api.discovery/TargetId : kotlin/Annotation { // space.kscience.krig.api.discovery/TargetId|null[0]
-    constructor <init>(kotlin/String) // space.kscience.krig.api.discovery/TargetId.<init>|<init>(kotlin.String){}[0]
+    constructor <init>(kotlin/String, kotlin/String) // space.kscience.krig.api.discovery/TargetId.<init>|<init>(kotlin.String;kotlin.String){}[0]
 
+    final val generatedName // space.kscience.krig.api.discovery/TargetId.generatedName|{}generatedName[0]
+        final fun <get-generatedName>(): kotlin/String // space.kscience.krig.api.discovery/TargetId.generatedName.<get-generatedName>|<get-generatedName>(){}[0]
     final val value // space.kscience.krig.api.discovery/TargetId.value|{}value[0]
         final fun <get-value>(): kotlin/String // space.kscience.krig.api.discovery/TargetId.value.<get-value>|<get-value>(){}[0]
 }

@@ -67,7 +67,7 @@ public class DeviceFactoryPlugin(
         else -> emptyMap()
     }
 
-    @TargetId("krig.factory")
+    @TargetId("krig.factory", generatedName = "Factories")
     public companion object : PluginFactory<DeviceFactoryPlugin> {
         /** Typed discovery target — `Context.gather(DeviceFactoryPlugin.Target)` returns `Map<Name, DeviceFactory<*, *>>`. */
         public val Target: ContributionTarget<DeviceFactory<*, *>> =

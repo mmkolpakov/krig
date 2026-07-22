@@ -41,7 +41,7 @@ space.kscience.krig.core.state	krig-runtime-stdlib	krig-runtime-stdlib
 space.kscience.krig.core.timetravel	krig-runtime-stdlib	krig-runtime-stdlib
 space.kscience.krig.dsl	krig-runtime	krig-runtime,krig-runtime-stdlib
 space.kscience.krig.flow	krig-flow	krig-flow
-space.kscience.krig.generated.space.kscience.model	krig-model	krig-model
+space.kscience.krig.generated.krig_model.he5c24ff13b2f990ed73f0f4abdcbca42	krig-model	krig-model
 space.kscience.krig.jupyter	krig-jupyter	krig-jupyter
 space.kscience.krig.schema.json	krig-schema-json	krig-schema-json
 space.kscience.krig.server	krig-server	krig-server
