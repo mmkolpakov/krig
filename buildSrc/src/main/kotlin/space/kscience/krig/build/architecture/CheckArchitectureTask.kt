@@ -37,8 +37,9 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
     @get:Input
     abstract val moduleNames: ListProperty<String>
 
-    @get:Input
-    abstract val declaredEdges: ListProperty<String>
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val dependencyFragments: ConfigurableFileCollection
 
     @get:Input
     abstract val kotlinModuleNames: ListProperty<String>
@@ -164,15 +165,14 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 }
             }
 
-        val edges = declaredEdges.get().mapTo(linkedSetOf()) { value ->
-            val columns = value.split('\t')
-            require(columns.size == 2) { "Invalid collected project edge '$value'" }
-            ModuleEdge(columns[0], columns[1])
-        }.filterTo(linkedSetOf()) { it.consumer in libraryModules }
+        val projectDependencies = ArchitectureFragmentLoader.load(
+            files = dependencyFragments.files,
+            expectedModules = libraryModules,
+        )
 
         val snapshot = ArchitectureSnapshot(
             modules = moduleNames.get().toSet(),
-            edges = edges,
+            projectDependencies = projectDependencies,
             packageContributors = packageContributors.mapValues { it.value.toSet() },
         )
         val verification = ArchitectureVerifier.verify(policy, snapshot)
@@ -195,7 +195,11 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
         errors: List<String>,
     ) {
         val modules = snapshot.modules.sorted()
+        val projectDependencies = snapshot.projectDependencies.sorted()
         val edges = snapshot.edges.sorted()
+        val scopeCounts = enumValues<ProjectDependencyScope>().associateWith { scope ->
+            projectDependencies.count { declaration -> declaration.scope == scope }
+        }
         val packages = snapshot.packageContributors.toSortedMap()
         val splitPackageCount = packages.count { (_, contributors) -> contributors.size > 1 }
         val directory = reportDirectory.get().asFile.apply { mkdirs() }
@@ -206,9 +210,16 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 appendLine("  \"counts\": {")
                 appendLine("    \"modules\": ${modules.size},")
                 appendLine("    \"libraryModules\": ${policy.libraryModules.size},")
+                appendLine("    \"projectDependencyDeclarations\": ${projectDependencies.size},")
                 appendLine("    \"edges\": ${edges.size},")
                 appendLine("    \"packages\": ${snapshot.packageContributors.size},")
                 appendLine("    \"splitPackages\": $splitPackageCount")
+                appendLine("  },")
+                appendLine("  \"dependencyScopes\": {")
+                scopeCounts.entries.forEachIndexed { index, (scope, count) ->
+                    val suffix = if (index == scopeCounts.size - 1) "" else ","
+                    appendLine("    ${jsonValue(scope.policyName)}: $count$suffix")
+                }
                 appendLine("  },")
                 appendLine("  \"moduleClassifications\": [")
                 modules.forEachIndexed { index, module ->
@@ -218,6 +229,17 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                         "    {\"module\": ${jsonValue(module)}, " +
                             "\"kind\": ${jsonValue(classification?.kind?.name?.lowercase())}, " +
                             "\"layer\": ${jsonValue(classification?.layer?.name)}}$suffix",
+                    )
+                }
+                appendLine("  ],")
+                appendLine("  \"projectDependencies\": [")
+                projectDependencies.forEachIndexed { index, declaration ->
+                    val suffix = if (index == projectDependencies.lastIndex) "" else ","
+                    appendLine(
+                        "    {\"consumer\": ${jsonValue(declaration.consumer)}, " +
+                            "\"dependency\": ${jsonValue(declaration.dependency)}, " +
+                            "\"sourceSet\": ${jsonValue(declaration.sourceSet)}, " +
+                            "\"scope\": ${jsonValue(declaration.scope.policyName)}}$suffix",
                     )
                 }
                 appendLine("  ],")
@@ -261,7 +283,8 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                 appendLine("|---|---:|")
                 appendLine("| Gradle modules | ${snapshot.modules.size} |")
                 appendLine("| Library modules | ${policy.libraryModules.size} |")
-                appendLine("| Direct production edges | ${edges.size} |")
+                appendLine("| Direct project dependency declarations | ${projectDependencies.size} |")
+                appendLine("| Unique production edges | ${edges.size} |")
                 appendLine("| Production packages | ${snapshot.packageContributors.size} |")
                 appendLine("| Split packages | $splitPackageCount |")
                 appendLine()
@@ -277,7 +300,18 @@ internal abstract class CheckArchitectureTask : DefaultTask() {
                     )
                 }
                 appendLine()
-                appendLine("## Direct production edges")
+                appendLine("## Direct project dependency declarations")
+                appendLine()
+                appendLine("| Consumer | Dependency | Source set | Scope |")
+                appendLine("|---|---|---|---|")
+                projectDependencies.forEach { declaration ->
+                    appendLine(
+                        "| ${declaration.consumer} | ${declaration.dependency} | ${declaration.sourceSet} | " +
+                            "${declaration.scope.policyName} |",
+                    )
+                }
+                appendLine()
+                appendLine("## Derived production edges")
                 appendLine()
                 appendLine("| Consumer | Dependency |")
                 appendLine("|---|---|")

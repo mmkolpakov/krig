@@ -8,6 +8,10 @@ gradlePlugin {
             id = "krig-architecture"
             implementationClass = "space.kscience.krig.build.architecture.ArchitecturePlugin"
         }
+        create("krigArchitectureModule") {
+            id = "krig-architecture-module"
+            implementationClass = "space.kscience.krig.build.architecture.ArchitectureModulePlugin"
+        }
     }
 }
 

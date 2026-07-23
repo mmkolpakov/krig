@@ -14,6 +14,17 @@ class ArchitecturePolicyLoaderTest {
         val policy = ArchitecturePolicyLoader.load(directory.toFile())
 
         assertEquals(setOf("core", "adapter"), policy.libraryModules)
+        assertEquals(
+            setOf(
+                ProjectDependencyDeclaration(
+                    consumer = "adapter",
+                    dependency = "core",
+                    sourceSet = "commonMain",
+                    scope = ProjectDependencyScope.Api,
+                ),
+            ),
+            policy.projectDependencies,
+        )
         assertEquals(setOf(ModuleEdge("adapter", "core")), policy.edges)
         assertEquals(setOf("core"), policy.packages.getValue("sample.core").contributors)
         assertEquals("core", policy.packages.getValue("sample.shared").owner)
@@ -22,14 +33,43 @@ class ArchitecturePolicyLoaderTest {
     @Test
     fun rejectsDuplicateRows() {
         val directory = policyDirectory()
-        directory.resolve("edges.tsv").writeText(
-            "consumer\tdependency\nadapter\tcore\nadapter\tcore\n",
+        directory.resolve("dependencies.tsv").writeText(
+            "consumer\tdependency\tsourceSet\tscope\n" +
+                "adapter\tcore\tcommonMain\tapi\n" +
+                "adapter\tcore\tcommonMain\tapi\n",
         )
 
         val failure = assertFailsWith<IllegalArgumentException> {
             ArchitecturePolicyLoader.load(directory.toFile())
         }
-        assertTrue(failure.message.orEmpty().contains("duplicate edge"))
+        assertTrue(failure.message.orEmpty().contains("duplicate project dependency declaration"))
+    }
+
+    @Test
+    fun rejectsUnknownDependencyScope() {
+        val directory = policyDirectory()
+        directory.resolve("dependencies.tsv").writeText(
+            "consumer\tdependency\tsourceSet\tscope\n" +
+                "adapter\tcore\tcommonMain\tprovided\n",
+        )
+
+        val failure = assertFailsWith<IllegalArgumentException> {
+            ArchitecturePolicyLoader.load(directory.toFile())
+        }
+        assertTrue(failure.message.orEmpty().contains("invalid dependency scope 'provided'"))
+    }
+
+    @Test
+    fun acceptsKgpSourceSetNameThatIsNotAKotlinIdentifier() {
+        val directory = policyDirectory()
+        directory.resolve("dependencies.tsv").writeText(
+            "consumer\tdependency\tsourceSet\tscope\n" +
+                "adapter\tcore\tshared-main\tapi\n",
+        )
+
+        val policy = ArchitecturePolicyLoader.load(directory.toFile())
+
+        assertEquals("shared-main", policy.projectDependencies.single().sourceSet)
     }
 
     @Test
@@ -75,8 +115,8 @@ class ArchitecturePolicyLoaderTest {
         directory.resolve("modules.tsv").writeText(
             "module\tkind\tlayer\ncore\tlibrary\tL0\nadapter\tlibrary\tL6\ndemo\texample\t-\n",
         )
-        directory.resolve("edges.tsv").writeText(
-            "consumer\tdependency\nadapter\tcore\n",
+        directory.resolve("dependencies.tsv").writeText(
+            "consumer\tdependency\tsourceSet\tscope\nadapter\tcore\tcommonMain\tapi\n",
         )
         directory.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\n" +

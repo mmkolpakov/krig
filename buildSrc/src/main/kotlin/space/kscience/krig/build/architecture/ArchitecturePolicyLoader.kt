@@ -5,17 +5,17 @@ import java.io.File
 internal object ArchitecturePolicyLoader {
     fun load(directory: File): ArchitecturePolicy {
         val modules = loadModules(directory.resolve("modules.tsv"))
-        val edges = loadEdges(directory.resolve("edges.tsv"), modules)
+        val projectDependencies = loadProjectDependencies(directory.resolve("dependencies.tsv"), modules)
         val packages = loadPackages(directory.resolve("packages.tsv"), modules)
-        return ArchitecturePolicy(modules, edges, packages)
+        return ArchitecturePolicy(modules, projectDependencies, packages)
     }
 
-    private fun loadModules(file: File): Map<String, ModulePolicy> {
+    internal fun loadModules(file: File): Map<String, ModulePolicy> {
         val rows = rows(file, listOf("module", "kind", "layer"))
         val modules = linkedMapOf<String, ModulePolicy>()
         rows.forEachIndexed { index, columns ->
             val name = columns[0]
-            require(name.matches(Regex("[a-z][a-z0-9-]*(?::[a-z][a-z0-9-]*)*"))) {
+            require(ArchitectureDependencyParser.isModuleName(name)) {
                 "${file.path}:${index + 2}: invalid module name '$name'"
             }
             val kind = enumValue<ModuleKind>(file, index, columns[1])
@@ -33,26 +33,31 @@ internal object ArchitecturePolicyLoader {
         return modules
     }
 
-    private fun loadEdges(file: File, modules: Map<String, ModulePolicy>): Set<ModuleEdge> {
-        val result = linkedSetOf<ModuleEdge>()
-        rows(file, listOf("consumer", "dependency")).forEachIndexed { index, columns ->
-            val edge = ModuleEdge(columns[0], columns[1])
-            require(edge.consumer in modules) {
-                "${file.path}:${index + 2}: unknown consumer '${edge.consumer}'"
+    private fun loadProjectDependencies(
+        file: File,
+        modules: Map<String, ModulePolicy>,
+    ): Set<ProjectDependencyDeclaration> {
+        val result = linkedSetOf<ProjectDependencyDeclaration>()
+        rows(file, PROJECT_DEPENDENCY_HEADER).forEachIndexed { index, columns ->
+            val declaration = ArchitectureDependencyParser.parse(file, index + 2, columns)
+            require(declaration.consumer in modules) {
+                "${file.path}:${index + 2}: unknown consumer '${declaration.consumer}'"
             }
-            require(edge.dependency in modules) {
-                "${file.path}:${index + 2}: unknown dependency '${edge.dependency}'"
+            require(declaration.dependency in modules) {
+                "${file.path}:${index + 2}: unknown dependency '${declaration.dependency}'"
             }
-            require(edge.consumer != edge.dependency) {
-                "${file.path}:${index + 2}: self dependency '${edge.consumer}'"
+            require(declaration.consumer != declaration.dependency) {
+                "${file.path}:${index + 2}: self dependency '${declaration.consumer}'"
             }
-            require(modules.getValue(edge.consumer).kind == ModuleKind.Library) {
-                "${file.path}:${index + 2}: consumer '${edge.consumer}' is not a library"
+            require(modules.getValue(declaration.consumer).kind == ModuleKind.Library) {
+                "${file.path}:${index + 2}: consumer '${declaration.consumer}' is not a library"
             }
-            require(modules.getValue(edge.dependency).kind == ModuleKind.Library) {
-                "${file.path}:${index + 2}: dependency '${edge.dependency}' is not a library"
+            require(modules.getValue(declaration.dependency).kind == ModuleKind.Library) {
+                "${file.path}:${index + 2}: dependency '${declaration.dependency}' is not a library"
             }
-            require(result.add(edge)) { "${file.path}:${index + 2}: duplicate edge '$edge'" }
+            require(result.add(declaration)) {
+                "${file.path}:${index + 2}: duplicate project dependency declaration '$declaration'"
+            }
         }
         return result
     }
@@ -64,7 +69,7 @@ internal object ArchitecturePolicyLoader {
         val result = linkedMapOf<String, PackagePolicy>()
         rows(file, listOf("package", "owner", "contributors")).forEachIndexed { index, columns ->
             val packageName = columns[0]
-            require(packageName.split('.').all(::isKotlinIdentifier)) {
+            require(packageName.split('.').all(ArchitectureDependencyParser::isKotlinIdentifier)) {
                 "${file.path}:${index + 2}: invalid package '$packageName'"
             }
             val owner = columns[1]
@@ -116,8 +121,4 @@ internal object ArchitecturePolicyLoader {
         enumValues<T>().singleOrNull { it.name.equals(value, ignoreCase = true) }
             ?: error("${file.path}:${index + 2}: invalid ${T::class.simpleName} '$value'")
 
-    private fun isKotlinIdentifier(value: String): Boolean =
-        value.isNotEmpty() &&
-            (value.first() == '_' || value.first().isLetter()) &&
-            value.drop(1).all { it == '_' || it.isLetterOrDigit() }
 }

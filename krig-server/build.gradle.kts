@@ -1,4 +1,5 @@
 plugins {
+    id("krig-architecture-module")
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")

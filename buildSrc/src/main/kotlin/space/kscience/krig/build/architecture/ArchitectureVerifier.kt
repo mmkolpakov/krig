@@ -9,10 +9,14 @@ internal object ArchitectureVerifier {
         if (missingModules.isNotEmpty()) errors += "Missing modules: ${missingModules.sorted().joinToString()}"
         if (unexpectedModules.isNotEmpty()) errors += "Unclassified modules: ${unexpectedModules.sorted().joinToString()}"
 
-        val missingEdges = policy.edges - snapshot.edges
-        val unexpectedEdges = snapshot.edges - policy.edges
-        if (missingEdges.isNotEmpty()) errors += "Missing project edges: ${missingEdges.sorted().joinToString()}"
-        if (unexpectedEdges.isNotEmpty()) errors += "Unexpected project edges: ${unexpectedEdges.sorted().joinToString()}"
+        val missingDeclarations = policy.projectDependencies - snapshot.projectDependencies
+        val unexpectedDeclarations = snapshot.projectDependencies - policy.projectDependencies
+        if (missingDeclarations.isNotEmpty()) {
+            errors += "Missing project dependency declarations: ${missingDeclarations.sorted().joinToString()}"
+        }
+        if (unexpectedDeclarations.isNotEmpty()) {
+            errors += "Unexpected project dependency declarations: ${unexpectedDeclarations.sorted().joinToString()}"
+        }
 
         snapshot.edges.sorted().forEach { edge ->
             val consumer = policy.modules[edge.consumer]

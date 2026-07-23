@@ -6,14 +6,10 @@ import java.io.File
 import java.util.concurrent.Callable
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.DocsType
 import org.gradle.api.tasks.SourceSetContainer
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompileTool
 
 @Suppress("unused") // Loaded by the generated Gradle plugin descriptor.
@@ -22,10 +18,37 @@ class ArchitecturePlugin : Plugin<Project> {
         require(project == project.rootProject) { "krig-architecture must be applied to the root project" }
         project.pluginManager.apply("base")
 
+        val architecturePolicyDirectory = project.layout.projectDirectory.dir("config/architecture")
+        val libraryModules = ArchitecturePolicyLoader.loadModules(architecturePolicyDirectory.file("modules.tsv").asFile)
+            .values
+            .filter { module -> module.kind == ModuleKind.Library }
+            .map(ModulePolicy::name)
+            .sorted()
+        val fragmentDependencyScope = project.configurations.dependencyScope("krigArchitectureFragmentDependencies")
+        fragmentDependencyScope.configure {
+            libraryModules.forEach { module ->
+                dependencies.add(project.dependencies.project(":$module"))
+            }
+        }
+        val architectureFragments = project.configurations.resolvable("krigArchitectureFragments") {
+            extendsFrom(fragmentDependencyScope.get())
+            isTransitive = false
+            attributes {
+                attribute(
+                    Category.CATEGORY_ATTRIBUTE,
+                    project.objects.named(Category::class.java, Category.DOCUMENTATION),
+                )
+                attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    project.objects.named(DocsType::class.java, ARCHITECTURE_FRAGMENT_FORMAT),
+                )
+            }
+        }
         val checkArchitecture = project.tasks.register("checkArchitecture", CheckArchitectureTask::class.java) {
             group = "verification"
             description = "Checks the declared module graph and production-package ownership baseline."
-            policyDirectory.set(project.layout.projectDirectory.dir("config/architecture"))
+            policyDirectory.set(architecturePolicyDirectory)
+            dependencyFragments.from(architectureFragments)
             repositoryDirectory.set(project.layout.projectDirectory)
             reportDirectory.set(project.layout.buildDirectory.dir("reports/architecture"))
         }
@@ -33,7 +56,6 @@ class ArchitecturePlugin : Plugin<Project> {
 
         project.gradle.projectsEvaluated {
             val modules = project.subprojects.sortedBy { it.path }
-            val projectsByPath = modules.associate { it.path to projectId(it) }
             val moduleRootMappings = modules.associate { module ->
                 project.projectDir.toPath()
                     .relativize(module.projectDir.toPath())
@@ -93,9 +115,6 @@ class ArchitecturePlugin : Plugin<Project> {
                 javaSourceRoots.set(project.providers.provider {
                     collectJavaSourceRoots(project.projectDir, kotlinModels)
                 })
-                declaredEdges.set(project.providers.provider {
-                    collectEdges(kotlinModels, projectsByPath)
-                })
             }
         }
     }
@@ -144,78 +163,6 @@ class ArchitecturePlugin : Plugin<Project> {
         }
         return result.toSortedMap()
     }
-
-    private fun collectEdges(
-        kotlinModels: List<KotlinModuleModel>,
-        projectsByPath: Map<String, String>,
-    ): List<String> {
-        val result = linkedSetOf<String>()
-        kotlinModels.forEach { model ->
-            val configurationNames = productionSourceSets(model.kotlin).flatMapTo(linkedSetOf()) { sourceSet ->
-                listOf(
-                    sourceSet.apiConfigurationName,
-                    sourceSet.implementationConfigurationName,
-                    sourceSet.compileOnlyConfigurationName,
-                    sourceSet.runtimeOnlyConfigurationName,
-                )
-            }
-            configurationNames.sorted().forEach configurationLoop@{ configurationName ->
-                val configuration = model.project.configurations.findByName(configurationName)
-                    ?: return@configurationLoop
-                configuration.dependencies.withType(ProjectDependency::class.java).forEach { dependency ->
-                    val dependencyName = projectsByPath[dependency.path]
-                        ?: dependency.path.removePrefix(":")
-                    result += "${model.id}\t$dependencyName"
-                }
-            }
-        }
-        return result.sorted()
-    }
-
-    private fun platformMainCompilations(kotlin: KotlinProjectExtension): List<KotlinCompilation<*>> {
-        val compilations = when (kotlin) {
-            is KotlinMultiplatformExtension -> kotlin.targets
-                .filter { target -> target.platformType != KotlinPlatformType.common }
-                .mapTo(linkedSetOf()) { target ->
-                    target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                        ?: error(
-                            "Kotlin target '${target.name}' has no '${KotlinCompilation.MAIN_COMPILATION_NAME}' " +
-                                "compilation; production variant discovery is not supported safely",
-                        )
-                }
-
-            is KotlinJvmProjectExtension -> listOf(
-                kotlin.target.compilations.findByName(KotlinCompilation.MAIN_COMPILATION_NAME)
-                    ?: error("Kotlin JVM target has no '${KotlinCompilation.MAIN_COMPILATION_NAME}' compilation"),
-            )
-
-            else -> error(
-                "Unsupported Kotlin project model '${kotlin::class.qualifiedName}'; " +
-                    "production compilations cannot be determined safely",
-            )
-        }
-        return compilations.sortedBy { it.compileKotlinTaskName }
-    }
-
-    private fun productionMetadataCompilations(kotlin: KotlinProjectExtension): List<KotlinCompilation<*>> {
-        if (kotlin !is KotlinMultiplatformExtension) return emptyList()
-        val productionSourceSets = productionSourceSets(kotlin).toSet()
-        return kotlin.targets
-            .filter { target -> target.platformType == KotlinPlatformType.common }
-            .flatMap { target -> target.compilations }
-            .filter { compilation ->
-                compilation.name != KotlinCompilation.MAIN_COMPILATION_NAME &&
-                    compilation.defaultSourceSet.name == KotlinSourceSet.COMMON_MAIN_SOURCE_SET_NAME &&
-                    compilation.defaultSourceSet in productionSourceSets
-            }
-            .distinct()
-            .sortedBy { it.compileKotlinTaskName }
-    }
-
-    private fun productionSourceSets(kotlin: KotlinProjectExtension): List<KotlinSourceSet> =
-        platformMainCompilations(kotlin)
-            .flatMapTo(linkedSetOf<KotlinSourceSet>()) { compilation -> compilation.allKotlinSourceSets }
-            .sortedBy { it.name }
 
     private fun projectId(project: Project): String = project.path.removePrefix(":")
 

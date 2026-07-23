@@ -1,4 +1,5 @@
 plugins {
+    id("krig-architecture-module")
     kotlin("jvm")
     id("org.jetbrains.dokka")
     id("dev.detekt")

@@ -8,6 +8,7 @@
 
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
+import space.kscience.krig.build.architecture.ArchitectureModulePlugin
 
 plugins {
     id("org.jetbrains.kotlin.multiplatform")
@@ -16,6 +17,8 @@ plugins {
     id("dev.detekt")
     `maven-publish`
 }
+
+pluginManager.apply(ArchitectureModulePlugin::class.java)
 
 @Suppress("OPT_IN_USAGE")
 powerAssert {

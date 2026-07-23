@@ -25,7 +25,10 @@ class ArchitecturePluginFunctionalTest {
             parent.createDirectories()
             writeText(
                 """
-                plugins { id 'org.jetbrains.kotlin.multiplatform' }
+                plugins {
+                    id 'krig-architecture-module'
+                    id 'org.jetbrains.kotlin.multiplatform'
+                }
 
                 def generatedOutput = layout.buildDirectory.dir('generated/contracts')
                 def generateContracts = tasks.register('generateContracts') {
@@ -64,9 +67,9 @@ class ArchitecturePluginFunctionalTest {
                     iosArm64()
                     iosSimulatorArm64()
                     applyDefaultHierarchyTemplate()
-                    def shared = sourceSets.create('shared')
+                    def shared = sourceSets.create('shared-main')
                     sourceSets.desktopMain.dependsOn(shared)
-                    sourceSets.shared.generatedKotlin.srcDir(generateContracts)
+                    shared.generatedKotlin.srcDir(generateContracts)
                 }
 
                 tasks.matching { it.name == 'compileCommonMainKotlinMetadata' }.configureEach {
@@ -89,7 +92,7 @@ class ArchitecturePluginFunctionalTest {
                 "demo\texample\t-\n" +
                 "sample\tlibrary\tL0\n",
         )
-        policy.resolve("edges.tsv").writeText("consumer\tdependency\n")
+        policy.resolve("dependencies.tsv").writeText("consumer\tdependency\tsourceSet\tscope\n")
         policy.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\n" +
                 "sample.compileattached\tsample\tsample\n" +
@@ -101,7 +104,7 @@ class ArchitecturePluginFunctionalTest {
             parent.createDirectories()
             writeText("package sample.ios\n\nclass Ios\n")
         }
-        val source = project.resolve("sample/src/shared/kotlin/sample/Shared.kt").apply {
+        val source = project.resolve("sample/src/shared-main/kotlin/sample/Shared.kt").apply {
             parent.createDirectories()
             writeText("package sample.shared\n\nclass Shared\n")
         }
@@ -112,6 +115,7 @@ class ArchitecturePluginFunctionalTest {
 
         val first = runner(project).build()
         assertEquals(TaskOutcome.SUCCESS, first.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, first.task(":sample:generateArchitectureFragment")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, first.task(":sample:generateContracts")?.outcome)
         assertEquals(TaskOutcome.SUCCESS, first.task(":sample:generateCompileAttached")?.outcome)
         assertTrue(first.tasks.none { it.path.startsWith(":sample:compile") }, first.output)
@@ -127,6 +131,7 @@ class ArchitecturePluginFunctionalTest {
 
         val unchanged = runner(project).build()
         assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":sample:generateArchitectureFragment")?.outcome)
         assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":sample:generateCompileAttached")?.outcome)
         assertTrue(unchanged.tasks.none { it.path.startsWith(":sample:compile") }, unchanged.output)
         assertTrue(unchanged.output.contains("Reusing configuration cache."), unchanged.output)
@@ -143,7 +148,7 @@ class ArchitecturePluginFunctionalTest {
             changedGenerated.output,
         )
 
-        val script = project.resolve("sample/src/shared/kotlin/sample/Script.KTS").apply {
+        val script = project.resolve("sample/src/shared-main/kotlin/sample/Script.KTS").apply {
             writeText("package sample.script\n\nval scriptValue = 1\n")
         }
         val scriptSource = runner(project).buildAndFail()
@@ -201,6 +206,123 @@ class ArchitecturePluginFunctionalTest {
     }
 
     @Test
+    fun rejectsProjectDependencyScopeDrift() {
+        val project = dependencyFixture()
+
+        val baseline = runner(project).build()
+        assertEquals(TaskOutcome.SUCCESS, baseline.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, baseline.task(":consumer:generateArchitectureFragment")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, baseline.task(":dependency:generateArchitectureFragment")?.outcome)
+        val report = project.resolve("build/reports/architecture/report.json").toFile().readText()
+        assertTrue(report.contains("\"projectDependencyDeclarations\": 4"), report)
+        assertTrue(report.contains("\"edges\": 1"), report)
+        listOf("api", "implementation", "compileOnly", "runtimeOnly").forEach { scope ->
+            assertTrue(report.contains("\"$scope\": 1"), report)
+        }
+        assertTrue(
+            report.contains(
+                "{\"consumer\": \"consumer\", \"dependency\": \"dependency\", " +
+                    "\"sourceSet\": \"commonMain\", \"scope\": \"api\"}",
+            ),
+            report,
+        )
+        assertTrue(!report.contains("commonTest"), report)
+
+        val unchanged = runner(project).build()
+        assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":consumer:generateArchitectureFragment")?.outcome)
+        assertEquals(TaskOutcome.UP_TO_DATE, unchanged.task(":dependency:generateArchitectureFragment")?.outcome)
+        assertTrue(unchanged.output.contains("Reusing configuration cache."), unchanged.output)
+
+        val scopeDrift = runner(project, "-PscopeDrift").buildAndFail()
+        assertTrue(
+            scopeDrift.output.contains(
+                "Missing project dependency declarations: consumer -> dependency [commonMain/api]",
+            ),
+            scopeDrift.output,
+        )
+        assertTrue(
+            scopeDrift.output.contains(
+                "Unexpected project dependency declarations: consumer -> dependency [commonMain/implementation]",
+            ),
+            scopeDrift.output,
+        )
+    }
+
+    @Test
+    fun rejectsProjectDependencySourceSetDrift() {
+        val project = dependencyFixture()
+
+        val baseline = runner(project).build()
+        assertEquals(TaskOutcome.SUCCESS, baseline.task(":checkArchitecture")?.outcome)
+
+        val sourceSetDrift = runner(project, "-PsourceSetDrift").buildAndFail()
+        assertTrue(
+            sourceSetDrift.output.contains(
+                "Missing project dependency declarations: consumer -> dependency [commonMain/api]",
+            ),
+            sourceSetDrift.output,
+        )
+        assertTrue(
+            sourceSetDrift.output.contains(
+                "Unexpected project dependency declarations: consumer -> dependency [jvmMain/api]",
+            ),
+            sourceSetDrift.output,
+        )
+    }
+
+    @Test
+    fun rejectsProjectDependencyCustomization() {
+        val project = dependencyFixture()
+
+        val customized = runner(project, "-PcustomProjectDependency").buildAndFail()
+
+        assertTrue(
+            customized.output.contains(
+                "Unsupported customized project dependency 'consumer -> dependency' " +
+                    "[commonMain/api]: transitive=false",
+            ),
+            customized.output,
+        )
+    }
+
+    @Test
+    fun rejectsProjectDependencyInheritedFromUnclassifiedProductionBucket() {
+        val project = dependencyFixture()
+        project.resolve("config/architecture/dependencies.tsv")
+            .writeText("consumer\tdependency\tsourceSet\tscope\n")
+
+        val inherited = runner(project, "-PinheritedProjectDependency").buildAndFail()
+
+        assertTrue(
+            inherited.output.contains(
+                "Unsupported project dependency 'consumer -> dependency' declared in unclassified " +
+                    "production configuration 'hiddenProductionDependencies'",
+            ),
+            inherited.output,
+        )
+        assertTrue(inherited.tasks.none { task -> task.path.contains("compileKotlin") }, inherited.output)
+    }
+
+    @Test
+    fun rejectsLazyProjectDependencyInheritedFromUnclassifiedProductionBucket() {
+        val project = dependencyFixture()
+        project.resolve("config/architecture/dependencies.tsv")
+            .writeText("consumer\tdependency\tsourceSet\tscope\n")
+
+        val inherited = runner(project, "-PlazyInheritedProjectDependency").buildAndFail()
+
+        assertTrue(
+            inherited.output.contains(
+                "Unsupported project dependency 'consumer -> dependency' declared in unclassified " +
+                    "production configuration 'hiddenProductionDependencies'",
+            ),
+            inherited.output,
+        )
+        assertTrue(inherited.tasks.none { task -> task.path.contains("compileKotlin") }, inherited.output)
+    }
+
+    @Test
     fun tracksKotlinJvmMainCompilation() {
         val project = Files.createTempDirectory("architecture-jvm-functional-test")
         project.resolve("settings.gradle").writeText(
@@ -209,11 +331,11 @@ class ArchitecturePluginFunctionalTest {
         project.resolve("build.gradle").writeText("plugins { id 'krig-architecture' }\n")
         project.resolve("sample/build.gradle").apply {
             parent.createDirectories()
-            writeText("plugins { id 'org.jetbrains.kotlin.jvm' }\n")
+            writeText("plugins { id 'krig-architecture-module'; id 'org.jetbrains.kotlin.jvm' }\n")
         }
         val policy = project.resolve("config/architecture").apply { createDirectories() }
         policy.resolve("modules.tsv").writeText("module\tkind\tlayer\nsample\tlibrary\tL0\n")
-        policy.resolve("edges.tsv").writeText("consumer\tdependency\n")
+        policy.resolve("dependencies.tsv").writeText("consumer\tdependency\tsourceSet\tscope\n")
         policy.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\nsample.jvm\tsample\tsample\n",
         )
@@ -225,6 +347,7 @@ class ArchitecturePluginFunctionalTest {
         val result = runner(project).build()
 
         assertEquals(TaskOutcome.SUCCESS, result.task(":checkArchitecture")?.outcome)
+        assertEquals(TaskOutcome.SUCCESS, result.task(":sample:generateArchitectureFragment")?.outcome)
     }
 
     @Test
@@ -237,7 +360,7 @@ class ArchitecturePluginFunctionalTest {
         listOf("alpha", "beta", "gamma").forEach { module ->
             project.resolve("$module/build.gradle").apply {
                 parent.createDirectories()
-                writeText("plugins { id 'org.jetbrains.kotlin.jvm' }\n")
+                writeText("plugins { id 'krig-architecture-module'; id 'org.jetbrains.kotlin.jvm' }\n")
             }
         }
         val policy = project.resolve("config/architecture").apply { createDirectories() }
@@ -247,7 +370,7 @@ class ArchitecturePluginFunctionalTest {
                 "beta\tlibrary\tL0\n" +
                 "gamma\tlibrary\tL0\n",
         )
-        policy.resolve("edges.tsv").writeText("consumer\tdependency\n")
+        policy.resolve("dependencies.tsv").writeText("consumer\tdependency\tsourceSet\tscope\n")
         policy.resolve("packages.tsv").writeText(
             "package\towner\tcontributors\n" +
                 "sample.shared\talpha\talpha,beta\n",
@@ -281,6 +404,119 @@ class ArchitecturePluginFunctionalTest {
             added.output.contains("Package 'sample.shared' contributors changed; added: gamma"),
             added.output,
         )
+    }
+
+    private fun dependencyFixture(): java.nio.file.Path {
+        val project = Files.createTempDirectory("architecture-dependency-functional-test")
+        project.resolve("settings.gradle").writeText(
+            "rootProject.name = 'architecture-dependency-fixture'\ninclude 'consumer', 'dependency'\n",
+        )
+        project.resolve("build.gradle").writeText("plugins { id 'krig-architecture' }\n")
+        project.resolve("dependency/build.gradle").apply {
+            parent.createDirectories()
+            writeText(
+                "plugins { id 'krig-architecture-module'; id 'org.jetbrains.kotlin.multiplatform' }\n" +
+                    "kotlin { jvm() }\n",
+            )
+        }
+        project.resolve("consumer/build.gradle").apply {
+            parent.createDirectories()
+            writeText(
+                """
+                plugins {
+                    id 'krig-architecture-module'
+                    id 'org.jetbrains.kotlin.multiplatform'
+                }
+
+                def scopeDrift = providers.gradleProperty('scopeDrift').isPresent()
+                def sourceSetDrift = providers.gradleProperty('sourceSetDrift').isPresent()
+                def customProjectDependency = providers.gradleProperty('customProjectDependency').isPresent()
+                def inheritedProjectDependency = providers.gradleProperty('inheritedProjectDependency').isPresent()
+                def lazyInheritedProjectDependency = providers.gradleProperty('lazyInheritedProjectDependency').isPresent()
+                def hasInheritedProjectDependency = inheritedProjectDependency || lazyInheritedProjectDependency
+                def internalDependency = {
+                    def dependency = dependencies.project(':dependency')
+                    if (customProjectDependency) dependency.transitive = false
+                    dependency
+                }
+                kotlin {
+                    jvm()
+                    sourceSets {
+                        commonMain {
+                            dependencies {
+                                if (!hasInheritedProjectDependency && !sourceSetDrift) {
+                                    if (scopeDrift) {
+                                        implementation(internalDependency())
+                                    } else {
+                                        api(internalDependency())
+                                    }
+                                }
+                            }
+                        }
+                        jvmMain {
+                            dependencies {
+                                if (!hasInheritedProjectDependency) {
+                                    if (sourceSetDrift) api(internalDependency())
+                                    implementation(internalDependency())
+                                    compileOnly(internalDependency())
+                                }
+                            }
+                        }
+                        commonTest {
+                            dependencies {
+                                if (!hasInheritedProjectDependency) implementation(internalDependency())
+                            }
+                        }
+                    }
+                }
+                if (hasInheritedProjectDependency) {
+                    def hidden = configurations.dependencyScope('hiddenProductionDependencies')
+                    if (lazyInheritedProjectDependency) {
+                        hidden.configure {
+                            withDependencies { dependencySet -> dependencySet.add(internalDependency()) }
+                        }
+                    } else {
+                        dependencies.add(hidden.name, internalDependency())
+                    }
+                    def commonMain = kotlin.sourceSets.getByName('commonMain')
+                    configurations.getByName(commonMain.implementationConfigurationName).extendsFrom(hidden.get())
+                }
+                afterEvaluate {
+                    if (!hasInheritedProjectDependency) {
+                        def sourceSet = kotlin.sourceSets.getByName('jvmMain')
+                        dependencies.add(sourceSet.runtimeOnlyConfigurationName, internalDependency())
+                    }
+                }
+                """.trimIndent(),
+            )
+        }
+        val policy = project.resolve("config/architecture").apply { createDirectories() }
+        policy.resolve("modules.tsv").writeText(
+            "module\tkind\tlayer\n" +
+                "dependency\tlibrary\tL0\n" +
+                "consumer\tlibrary\tL2\n",
+        )
+        policy.resolve("dependencies.tsv").writeText(
+            "consumer\tdependency\tsourceSet\tscope\n" +
+                "consumer\tdependency\tcommonMain\tapi\n" +
+                "consumer\tdependency\tjvmMain\timplementation\n" +
+                "consumer\tdependency\tjvmMain\tcompileOnly\n" +
+                "consumer\tdependency\tjvmMain\truntimeOnly\n",
+        )
+        policy.resolve("packages.tsv").writeText(
+            "package\towner\tcontributors\n" +
+                "sample.consumer\tconsumer\tconsumer\n" +
+                "sample.dependency\tdependency\tdependency\n",
+        )
+        project.resolve("consumer/src/commonMain/kotlin/sample/Consumer.kt").apply {
+            parent.createDirectories()
+            writeText("package sample.consumer\n\nclass Consumer\n")
+        }
+        project.resolve("dependency/src/commonMain/kotlin/sample/Dependency.kt").apply {
+            parent.createDirectories()
+            writeText("package sample.dependency\n\nclass Dependency\n")
+        }
+        return project
     }
 
     private fun runner(project: java.nio.file.Path, vararg additionalArguments: String): GradleRunner = GradleRunner.create()
